@@ -1,6 +1,11 @@
 {
     "id": "TRADE-9",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "trade"
+    ],
     "title": "Hierarchy Navigation",
     "description": "Navigation through the cluster hierarchy using d-pad: up/down to go up or down the hierarchy, left/right to go clockwise/anticlockwise around the selected knot. This provides intuitive gamepad-friendly route manipulation.",
     "blocked-by": [

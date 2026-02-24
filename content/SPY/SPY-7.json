@@ -1,6 +1,11 @@
 {
     "id": "SPY-7",
     "epic": "SPY",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "trade"
+    ],
     "title": "Actionable Intelligence",
     "description": "Intel creates actionable levers: reroute your own routes to match/beat rivals, undercut their prices, legislate to ban their profitable goods, raid their routes with privateers. Espionage is about creating opportunities, not just numeric buffs.",
     "blocked-by": [],

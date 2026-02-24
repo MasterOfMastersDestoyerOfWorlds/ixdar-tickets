@@ -1,6 +1,11 @@
 {
     "id": "TRADE-18",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "game-sim",
+        "platform"
+    ],
     "title": "Game State Persistence",
     "description": "Implement save/load functionality for the trade game. Serialize game state including current gold, routes, contracts, headquarters locations, cart/horse ownership, and turn number. Allow resuming from saved state. Support multiple save slots.",
     "blocked-by": [

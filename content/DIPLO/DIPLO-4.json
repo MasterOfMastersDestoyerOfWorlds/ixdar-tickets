@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-4",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "npc"
+    ],
     "title": "Blackmail Mechanics",
     "description": "Pressure individuals with secrets discovered through espionage. Blackmail provides leverage for favors but carries risk of exposure and retaliation. Must figure out how to pressure intended targets within rival organizations.",
     "blocked-by": [],

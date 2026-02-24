@@ -1,6 +1,10 @@
 {
     "id": "ROAD-4",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics"
+    ],
     "title": "Road Efficiency Metrics",
     "description": "Road efficiency bonuses for elevation management and straightness. Paying for proper elevation grading and straight routes wins in the long run. Route planning involves tradeoffs between construction cost and long-term efficiency.",
     "blocked-by": [

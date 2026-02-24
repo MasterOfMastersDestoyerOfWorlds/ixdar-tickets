@@ -1,6 +1,11 @@
 {
     "id": "TRADE-16",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "logistics"
+    ],
     "title": "Road Quality Tool",
     "description": "Create a tool for visualizing road quality between cities. Color-code road segments based on quality (green=good, yellow=fair, red=poor). Show road quality affects on travel speed and distance. Display road improvement options and costs.",
     "blocked-by": [

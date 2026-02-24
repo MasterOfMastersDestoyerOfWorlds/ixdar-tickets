@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-2",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "economy"
+    ],
     "title": "License Requirements",
     "description": "Lobby cities to require licenses or higher regulatory barriers that you have funds to pay for but rivals do not. Create artificial barriers to entry that disadvantage smaller or less-capitalized competitors.",
     "blocked-by": [],

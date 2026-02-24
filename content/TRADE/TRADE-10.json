@@ -1,6 +1,11 @@
 {
     "id": "TRADE-10",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "geometry"
+    ],
     "title": "Route Operations",
     "description": "Implement loop-first trade route operations using Knot hierarchy. Initial route must be A->B->A, then support Pipe/Grow/Collapse with preview, confirm, and undo. Current backend operation logic and operation records are implemented; current blocker is RoutePlanningTool toolbar and operation overlay rendering visibility in TradeScene.",
     "status": "DONE",

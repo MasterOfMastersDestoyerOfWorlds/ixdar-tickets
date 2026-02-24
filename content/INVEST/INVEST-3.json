@@ -1,6 +1,11 @@
 {
     "id": "INVEST-3",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "logistics"
+    ],
     "title": "Train Technology",
     "description": "Late-game transport upgrade introducing trains. Trains provide massive capacity and speed improvements but require significant infrastructure investment (rails, stations). This transforms the trade landscape in late game.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "SURV-2",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival",
+        "world"
+    ],
     "title": "Outer Rim Fauna",
     "description": "The outer layer animals are small and relatively harmless: sheep, wild dogs, puffins, mink, and reindeer. These provide early game food and materials (wool, leather, meat). Animals can be hunted or potentially domesticated.",
     "blocked-by": [

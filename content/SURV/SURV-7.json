@@ -1,6 +1,11 @@
 {
     "id": "SURV-7",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival",
+        "politics"
+    ],
     "title": "Grant System",
     "description": "Government funding is available for road construction to the volcano rim. Players can earn grant money by paving roads, quarrying rock, and clearing paths. Grants provide supplemental income for frontier expansion activities.",
     "blocked-by": [],

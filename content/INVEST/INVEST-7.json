@@ -1,6 +1,11 @@
 {
     "id": "INVEST-7",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "logistics"
+    ],
     "title": "Station Upgrades",
     "description": "Station upgrades for storing feed, switching drivers, and other amenities. Upgraded stations provide better efficiency and enable longer routes by refreshing caravans mid-journey.",
     "blocked-by": [

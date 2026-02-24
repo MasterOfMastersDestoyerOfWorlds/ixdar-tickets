@@ -1,6 +1,11 @@
 {
     "id": "WORLD-7",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "npc"
+    ],
     "title": "Crew Recruitment",
     "description": "Expedition crews consist of men of ill repute: prisoners earning freedom, gamblers fleeing debt collectors, and desperate fortune seekers. Kings provide grants worth many times a man's salary to fund expeditions. Crew members have varied backgrounds affecting their skills, reliability, and motivations.",
     "blocked-by": [

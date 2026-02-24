@@ -1,6 +1,11 @@
 {
     "id": "TRADE-4",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "logistics"
+    ],
     "title": "Fresh Horse Stations",
     "description": "Players can spend on fresh horses in the middle of a route to extend the distance they can travel. This allows reaching more distant cities but adds cost. Strategic placement of horse stations extends effective range.",
     "blocked-by": [

@@ -1,6 +1,11 @@
 {
     "id": "ECON-7",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "politics"
+    ],
     "title": "Order/Corruption Spectrum",
     "description": "Cities exist on an order/corruption spectrum. High corruption cities produce less goods but allow anything for the right price (bribes required, extra-legal actions possible). High order cities produce lots of goods but are harder to act in covertly and produce less research. Research output is maximized in slightly corrupt, medium order cities.",
     "blocked-by": [

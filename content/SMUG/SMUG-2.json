@@ -1,6 +1,11 @@
 {
     "id": "SMUG-2",
     "epic": "SMUG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "economy"
+    ],
     "title": "Smuggling Risk/Reward",
     "description": "In early game, smuggling is beneficial given high prices and low risk of being caught. Prohibited goods command premium prices. Risk is low with small operations but inflates with scale. High-risk, high-reward decision making.",
     "blocked-by": [

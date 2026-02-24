@@ -1,6 +1,11 @@
 {
     "id": "INVEST-5",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "trade"
+    ],
     "title": "Parallel Routes",
     "description": "Multiple caravans allow parallelism: send one caravan out, then another to better split the month's price opportunities. This enables exploiting time-sensitive arbitrage before competitors can react.",
     "blocked-by": [

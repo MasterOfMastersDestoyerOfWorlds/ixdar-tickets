@@ -1,6 +1,11 @@
 {
     "id": "SURV-4",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival",
+        "economy"
+    ],
     "title": "Food Production",
     "description": "Meat gathering and hunting mechanics form a core survival challenge on the outer rim. Players must hunt animals, preserve food, and manage food supplies for their crew. Food spoilage and storage are important considerations.",
     "blocked-by": [],

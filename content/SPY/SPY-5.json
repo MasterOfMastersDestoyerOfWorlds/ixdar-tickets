@@ -1,6 +1,11 @@
 {
     "id": "SPY-5",
     "epic": "SPY",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "npc"
+    ],
     "title": "Infiltration Mechanics",
     "description": "Successful infiltration requires overlapping trade space with the target. You can only spy on competitors you interact with in some way. This creates natural limits on espionage and encourages market presence.",
     "blocked-by": [],

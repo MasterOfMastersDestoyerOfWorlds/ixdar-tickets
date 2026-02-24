@@ -1,6 +1,10 @@
 {
     "id": "SPY-3",
     "epic": "SPY",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics"
+    ],
     "title": "Information Decay",
     "description": "Intel becomes stale over time. Route information, prices, and competitor plans change. Old intel may be misleading or wrong. Players must continuously invest to maintain current intelligence.",
     "blocked-by": [

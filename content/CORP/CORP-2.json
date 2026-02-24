@@ -1,6 +1,11 @@
 {
     "id": "CORP-2",
     "epic": "CORP",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc",
+        "game-sim"
+    ],
     "title": "Manager Motivation",
     "description": "Equity vs flat wages tradeoff. Managers without ownership stake run operations poorly. Sharing equity improves performance but costs potential profits. Finding the right incentive structure is key.",
     "blocked-by": [

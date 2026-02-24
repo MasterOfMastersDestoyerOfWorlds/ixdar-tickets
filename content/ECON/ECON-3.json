@@ -1,6 +1,11 @@
 {
     "id": "ECON-3",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "logistics"
+    ],
     "title": "Transport Cost/Time Factors",
     "description": "Transport costs and travel time affect the economics of trade routes. Distance between cities, road quality, and terrain all factor into the total cost of moving goods. Longer routes may not be profitable despite price differentials.",
     "blocked-by": [],

@@ -1,6 +1,10 @@
 {
     "id": "ECON-4",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy"
+    ],
     "title": "Stockpile Buffers",
     "description": "Stockpiles buffer price shocks. Cities and players can store goods to smooth out price volatility. Storage has costs and capacity limits. Strategic stockpiling can protect against market swings or enable speculation.",
     "blocked-by": [],

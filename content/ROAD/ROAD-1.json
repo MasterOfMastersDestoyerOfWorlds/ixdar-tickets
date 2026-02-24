@@ -1,6 +1,10 @@
 {
     "id": "ROAD-1",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics"
+    ],
     "title": "Road Types",
     "description": "Three road types with different efficiencies: dirt (lowest), gravel (medium), and paved (highest). Early game has public dirt roads on flat terrain between cities in the same country. Road type affects travel speed and caravan efficiency.",
     "blocked-by": [],

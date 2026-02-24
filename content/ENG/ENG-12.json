@@ -1,6 +1,11 @@
 {
     "id": "ENG-12",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "geometry"
+    ],
     "title": "Fix SDFLine Culling and Re-enable for Grid Scenes",
     "description": "SDFLine.calculateQuad() has a line-clipping implementation that uses a single if/else-if chain over the four screen edges. This means a line that enters through one edge and exits through a different edge (e.g., diagonal lines crossing the full viewport) only finds one intersection and produces an incorrect clipped segment. Because of this bug, IrregularGridScene and Grid both disable culling entirely via setCulling(false), forcing every off-screen line through the full setup/setUniforms/uploadGeometry/flush cycle. Fixing the clipping code and re-enabling culling would eliminate draw calls for all fully off-screen lines, which is a significant performance win for dense grid scenes.",
     "blocked-by": [],

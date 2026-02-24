@@ -1,0 +1,177 @@
+[
+    {
+        "id": "rendering",
+        "description": "Graphics pipeline, SDF primitives, shaders, text rendering, 3D models, cameras, lighting",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/graphics/",
+            "ixdar-app/src/main/resources/glsl/"
+        ]
+    },
+    {
+        "id": "geometry",
+        "description": "Core geometry primitives, knots, segments, shells, cut algorithms, grids",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/geometry/"
+        ]
+    },
+    {
+        "id": "platform",
+        "description": "GL abstraction, input handling, file I/O, windowing, cross-platform support",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/platform/"
+        ]
+    },
+    {
+        "id": "audio",
+        "description": "Sound effects, music playback, audio asset management",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/audio/"
+        ]
+    },
+    {
+        "id": "automation",
+        "description": "Testing automation API, CLI tooling, CI/CD, Cursor hooks, developer workflows",
+        "repos": ["Ixdar", "ixdar-tickets"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/platform/automation/",
+            "tools/ixdar-automation-cli/",
+            ".cursor/hooks/"
+        ]
+    },
+    {
+        "id": "game-sim",
+        "description": "Core game simulation loop, turn progression, game state management, save/load",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/game/",
+            "ixdar-app/src/main/java/ixdar/scenes/main/"
+        ]
+    },
+    {
+        "id": "trade",
+        "description": "Trade routes, caravans, route optimization, contracts, capacity, route operations",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/scenes/trade/",
+            "ixdar-app/src/main/java/ixdar/geometry/knot/"
+        ]
+    },
+    {
+        "id": "economy",
+        "description": "Supply/demand pricing, goods and commodities, markets, stockpiles, tariffs",
+        "repos": ["Ixdar"],
+        "entry-points": []
+    },
+    {
+        "id": "world",
+        "description": "World building, lore, factions, time systems, environment, exploration, setting",
+        "repos": ["Ixdar"],
+        "entry-points": []
+    },
+    {
+        "id": "npc",
+        "description": "Characters, managers, crew, pirates, spies, personalities, motivation, hiring",
+        "repos": ["Ixdar"],
+        "entry-points": []
+    },
+    {
+        "id": "logistics",
+        "description": "Roads, transport infrastructure, stations, fleet management, distance systems",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/game/"
+        ]
+    },
+    {
+        "id": "politics",
+        "description": "Diplomacy, bribery, legislation, smuggling, espionage, law enforcement, corruption",
+        "repos": ["Ixdar"],
+        "entry-points": []
+    },
+    {
+        "id": "survival",
+        "description": "Colony management, natural resources, flora/fauna, food production, clothing",
+        "repos": ["Ixdar"],
+        "entry-points": []
+    },
+    {
+        "id": "investment",
+        "description": "Technology trees, upgrades, headquarters, fleet expansion, station improvements",
+        "repos": ["Ixdar"],
+        "entry-points": []
+    },
+    {
+        "id": "ui",
+        "description": "HUD, menus, interactive tools, scene UI, animations, UX patterns",
+        "repos": ["Ixdar"],
+        "entry-points": [
+            "ixdar-app/src/main/java/ixdar/gui/",
+            "ixdar-app/src/main/java/ixdar/scenes/"
+        ]
+    },
+    {
+        "id": "geo-nodes",
+        "description": "Blender Geometry Nodes, surface generation, loft and patch algorithms",
+        "repos": ["Blender-Procedural-Human"],
+        "entry-points": [
+            "procedural_human/geo_node_groups/"
+        ]
+    },
+    {
+        "id": "blender-dsl",
+        "description": "Domain-specific language for procedural generation of human characters",
+        "repos": ["Blender-Procedural-Human"],
+        "entry-points": [
+            "procedural_human/dsl/"
+        ]
+    },
+    {
+        "id": "image-processing",
+        "description": "Image segmentation, depth estimation, novel view generation",
+        "repos": ["Blender-Procedural-Human"],
+        "entry-points": [
+            "procedural_human/image_seg/",
+            "procedural_human/segmentation/",
+            "procedural_human/depth_estimation/"
+        ]
+    },
+    {
+        "id": "blender-addon",
+        "description": "Blender UI panels, operators, gizmos, preferences, add-on lifecycle",
+        "repos": ["Blender-Procedural-Human"],
+        "entry-points": [
+            "procedural_human/panels.py",
+            "procedural_human/menus.py",
+            "procedural_human/preferences.py",
+            "procedural_human/decorators/"
+        ]
+    },
+    {
+        "id": "website",
+        "description": "Hugo static site, templates, content pages, deployment",
+        "repos": ["KriegEterna"],
+        "entry-points": [
+            "web/"
+        ]
+    },
+    {
+        "id": "card-assets",
+        "description": "Card images, branding, packaging, merchandise design assets",
+        "repos": ["KriegEterna"],
+        "entry-points": [
+            "assets/"
+        ]
+    },
+    {
+        "id": "image-tools",
+        "description": "Image picker GUI, WebP conversion, Hugo shortcode insertion",
+        "repos": ["KriegEterna"],
+        "entry-points": [
+            "image-converter/"
+        ]
+    }
+]

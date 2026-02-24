@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-5",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc",
+        "politics"
+    ],
     "title": "Character Vulnerabilities",
     "description": "NPCs have vulnerabilities: sick relatives, debts, vices, etc. These vulnerabilities can be exploited for leverage. Discovery of vulnerabilities comes through espionage and investigation.",
     "blocked-by": [

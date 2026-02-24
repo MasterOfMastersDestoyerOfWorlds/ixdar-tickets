@@ -1,6 +1,10 @@
 {
     "id": "DIPLO-8",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics"
+    ],
     "title": "Legislation Manipulation",
     "description": "Buy out public roads using bribery or legislation to put tolls on them or convert to private. Use legal mechanisms to change ownership and access rights. A key path to monopolizing trade routes.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "CORP-4",
     "epic": "CORP",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc",
+        "politics"
+    ],
     "title": "Manager Corruption",
     "description": "Risk of embezzlement from corrupt managers. Some managers may skim profits or make side deals. Higher corruption risk with lower oversight. Detection and consequences for corrupt managers.",
     "blocked-by": [],

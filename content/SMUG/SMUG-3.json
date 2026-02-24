@@ -1,6 +1,10 @@
 {
     "id": "SMUG-3",
     "epic": "SMUG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics"
+    ],
     "title": "Police Crackdowns",
     "description": "More smuggled goods in a market that prohibits them can lead to police crackdowns. Saturation of contraband triggers increased enforcement. This creates a timing game - get in and out before crackdowns begin.",
     "blocked-by": [

@@ -1,6 +1,10 @@
 {
     "id": "ENG-9",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
     "title": "Resilient Automation API Port Binding",
     "description": "Fix automation server startup so local development always gets an available port instead of failing with \"Address already in use: bind\". Add deterministic port selection/fallback, expose the final bound port, and keep automation usable across parallel runs.",
     "blocked-by": [],

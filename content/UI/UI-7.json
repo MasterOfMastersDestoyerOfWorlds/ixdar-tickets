@@ -1,8 +1,13 @@
 {
     "id": "UI-7",
     "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "ui"
+    ],
     "title": "Arrow Line SDF: Background Fill, Border, Chevron Spacing, and Animation Fix",
-    "description": "Improve the arrow line SDF shader (sdf_arrow_line.fs) and its scene (ArrowLineScene) with three visual enhancements and one bug fix. (1) Add an internal background color that fills the interior of the line shape, bounded by where the chevrons stop — giving the line a solid fill behind the chevrons. (2) Add a border color region that starts at the distance where the chevrons end and extends a configurable quarter-distance further outward, creating a visible outline around the arrow line. (3) Adjust chevron spacing so that the negative space between consecutive chevrons is itself the shape of a chevron — i.e. the gap mirrors the chevron geometry. (4) Fix the animation jump bug: the current dashPhase-driven animation causes chevrons to snap/jump after a certain time, likely because the phase value doesn't wrap cleanly back to zero the way the dashed line shader does. The dashed line shader (sdf_dashed_line.fs) uses a sine-based wave that naturally wraps, while the arrow line shader uses a linear offset with mod() that introduces a discontinuity.",
+    "description": "Improve the arrow line SDF shader (sdf_arrow_line.fs) and its scene (ArrowLineScene) with three visual enhancements and one bug fix. (1) Add an internal background color that fills the interior of the line shape, bounded by where the chevrons stop \u2014 giving the line a solid fill behind the chevrons. (2) Add a border color region that starts at the distance where the chevrons end and extends a configurable quarter-distance further outward, creating a visible outline around the arrow line. (3) Adjust chevron spacing so that the negative space between consecutive chevrons is itself the shape of a chevron \u2014 i.e. the gap mirrors the chevron geometry. (4) Fix the animation jump bug: the current dashPhase-driven animation causes chevrons to snap/jump after a certain time, likely because the phase value doesn't wrap cleanly back to zero the way the dashed line shader does. The dashed line shader (sdf_dashed_line.fs) uses a sine-based wave that naturally wraps, while the arrow line shader uses a linear offset with mod() that introduces a discontinuity.",
     "blocked-by": [],
     "blocks": [],
     "status": "DONE",
@@ -20,7 +25,7 @@
     ],
     "unknowns": [
         "Whether the animation bug is purely in the shader phase wrapping or also in the Java-side dashPhase accumulation",
-        "Exact formula for matching negative-space shape to chevron shape — may need dashLength to equal twice the chevron width at the line edge",
+        "Exact formula for matching negative-space shape to chevron shape \u2014 may need dashLength to equal twice the chevron width at the line edge",
         "Whether the border should have its own anti-aliasing smoothstep or share edgeSharpness with the main line"
     ],
     "changes-made": [],

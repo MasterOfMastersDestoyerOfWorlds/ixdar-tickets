@@ -1,6 +1,10 @@
 {
     "id": "ENG-3",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
     "title": "Fix Upside Down Window Icon",
     "status": "DONE",
     "description": "The application window icon in IxdarWindow.java is displayed upside down. The icon loading code flips the image vertically but the result is inverted. Need to fix the flip logic or remove the unnecessary flip.",

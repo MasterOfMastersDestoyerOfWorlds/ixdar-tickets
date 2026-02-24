@@ -1,6 +1,11 @@
 {
     "id": "ECON-5",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "logistics"
+    ],
     "title": "Perishable Decay",
     "description": "Perishable goods decay over time. Food, certain materials, and other goods have limited shelf life. This adds urgency to trade routes and makes storage decisions more complex. Refrigeration technology can extend shelf life.",
     "blocked-by": [],

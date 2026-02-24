@@ -1,6 +1,10 @@
 {
     "id": "INVEST-8",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment"
+    ],
     "title": "Headquarters Storage",
     "description": "Increase storage at headquarters to have goods from later in the route sold early in the next turn. This enables strategic timing of sales across turn boundaries. Segregating routes by profitability is an alternative strategy.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "TRADE-2",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "geometry"
+    ],
     "title": "Route Optimization Engine",
     "description": "The engine automatically calculates optimal buy/sell locations for the player's route. Given the goods available at each city and current prices, determine the best trades to make along the route.",
     "blocked-by": [

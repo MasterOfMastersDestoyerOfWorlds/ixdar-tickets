@@ -1,6 +1,11 @@
 {
     "id": "ECON-8",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "politics"
+    ],
     "title": "Tariffs and Embargoes",
     "description": "Tariffs, embargoes, piracy, and wars alter costs and market volatility. Political events create trade disruptions. Players can exploit or suffer from these disruptions depending on their positioning and adaptability.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "UI-4",
     "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "audio",
+        "ui"
+    ],
     "title": "Audio Stims",
     "description": "Gold floating to coffers accompanied by satisfying audio stimulation. Sound design reinforces the reward of successful trading. Audio feedback scales with profit magnitude.",
     "blocked-by": [

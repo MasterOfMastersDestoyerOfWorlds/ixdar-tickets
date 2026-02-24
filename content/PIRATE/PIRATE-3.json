@@ -1,6 +1,10 @@
 {
     "id": "PIRATE-3",
     "epic": "PIRATE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc"
+    ],
     "title": "Pirate Recruitment",
     "description": "Hire pirates into your organization as negotiators and smugglers. Pirates have high corruption levels but are extremely effective at certain tasks. Put them in positions of power within your company.",
     "blocked-by": [],

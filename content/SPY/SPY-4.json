@@ -1,6 +1,10 @@
 {
     "id": "SPY-4",
     "epic": "SPY",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics"
+    ],
     "title": "Counter-Intelligence",
     "description": "Counter-intelligence raises detection risk for spies and adds red herrings to intercepted intel. Competitors may invest in counter-intel, making espionage harder and results less reliable.",
     "blocked-by": [

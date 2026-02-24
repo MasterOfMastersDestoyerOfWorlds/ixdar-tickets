@@ -1,6 +1,11 @@
 {
     "id": "TRADE-17",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "game-sim"
+    ],
     "title": "City Data Files",
     "description": "Create comprehensive city data files for the trade game. Define each city with name, location, population, available resources, production rates, and consumption rates. Balance the starting economy so trade routes are viable. Implement city data loading from JSON files.",
     "blocked-by": [],

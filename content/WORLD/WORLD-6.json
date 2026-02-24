@@ -1,6 +1,11 @@
 {
     "id": "WORLD-6",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "economy"
+    ],
     "title": "Company Advertising",
     "description": "Colonial companies print their own newspapers and advertise shares at inflated rates. They spin rumors into tales of guaranteed success and fabulous riches. The real profit comes from stock manipulation - dumping shares between expedition departure and the year it takes to confirm failure. Advertisements mimic Shackleton's famous expedition ad: 'Men wanted for hazardous journey. Small wages, bitter cold...'",
     "blocked-by": [

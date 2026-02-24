@@ -1,6 +1,11 @@
 {
     "id": "INVEST-2",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "economy"
+    ],
     "title": "Refrigeration Technology",
     "description": "Refrigeration technology allows preservation of perishables for longer periods. This is a significant upgrade that opens new trade possibilities for food and other perishable goods across longer routes.",
     "blocked-by": [],

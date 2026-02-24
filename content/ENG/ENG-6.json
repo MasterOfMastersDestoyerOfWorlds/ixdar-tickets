@@ -1,6 +1,10 @@
 {
     "id": "ENG-6",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
     "title": "Figure Out How to Do Animations",
     "description": "Research and design an animation system for the game engine. This includes determining how to animate meshes (skeletal animation, vertex animation), how to handle animation timing and interpolation, and how to integrate animations with the rendering pipeline. Once meshes are loaded (ENG-5), we need a way to animate them for gameplay and visual effects.",
     "blocked-by": [

@@ -1,6 +1,10 @@
 {
     "id": "ROAD-6",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics"
+    ],
     "title": "Road Decay System",
     "description": "Roads have maintenance costs that scale with efficiency. Road efficiency decays over time - paved can degrade to gravel over ~5 years if not maintained. Knowing when to maintain vs let roads go fallow is an important economic decision.",
     "blocked-by": [

@@ -1,6 +1,11 @@
 {
     "id": "UI-2",
     "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
     "title": "Coin Interaction",
     "description": "Players can pick up and drop coins in the treasury view. This adds tactile satisfaction and potentially enables spending directly from the treasury. Coins have physics when dropped.",
     "blocked-by": [

@@ -1,6 +1,11 @@
 {
     "id": "ROAD-7",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics",
+        "politics"
+    ],
     "title": "Public vs Private Roads",
     "description": "Roads can be public, private, or toll. Grants help improve public roads but they remain open to competitors. Players can buy out public roads via bribery or legislation to add tolls. Private roads between unconnected cities can be built. Rivals can use toll roads but not private roads (if patrolled).",
     "blocked-by": [],

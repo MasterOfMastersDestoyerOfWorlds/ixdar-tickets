@@ -1,6 +1,11 @@
 {
     "id": "SPY-2",
     "epic": "SPY",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "trade"
+    ],
     "title": "Partial Route Revelation",
     "description": "Successful infiltration reveals portions of competitor trade routes: volumes, timings, hub identities, and profit earned along sections. Information is partial and noisy, requiring interpretation and inference.",
     "blocked-by": [

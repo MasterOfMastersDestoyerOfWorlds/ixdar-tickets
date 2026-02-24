@@ -1,6 +1,11 @@
 {
     "id": "TRADE-12",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "economy"
+    ],
     "title": "Contracts System",
     "description": "Implement the contracts system for buying and selling goods. Create contract data model with resource type, quantity, price, and destination city. Build right panel UI showing current contracts and potential contracts. Display earnings calculation for potential contracts based on current route. Allow clicking contracts to accept them, adding to tonnage tracker. Prevent accepting contracts that exceed route capacity.",
     "blocked-by": [

@@ -1,6 +1,10 @@
 {
     "id": "ENG-1",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
     "title": "Controller Manager",
     "description": "Create a ControllerGuy class (similar to KeyGuy) that handles gamepad/controller input. Detect which input device is active and switch context. Support standard gamepad layout (Xbox/PlayStation style) with d-pad for layer navigation, sticks for camera, and face buttons for actions.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "TRADE-15",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "trade"
+    ],
     "title": "Travel Cost Tool",
     "description": "Create a new tool for visualizing travel costs between cities. Click on city A, then city B to show the cost of traveling between them. Factor in distance, road quality, and terrain type. Display breakdown of cost components. Show estimated time for the journey.",
     "blocked-by": [

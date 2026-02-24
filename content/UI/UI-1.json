@@ -1,6 +1,11 @@
 {
     "id": "UI-1",
     "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
     "title": "3D Treasury View",
     "description": "A 3D view of the player's treasury where coins are stacked relative to how rich the player is. This provides a visceral, satisfying representation of wealth accumulation. The treasury serves as a visual scorecard.",
     "blocked-by": [],

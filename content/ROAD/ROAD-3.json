@@ -1,6 +1,10 @@
 {
     "id": "ROAD-3",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics"
+    ],
     "title": "Road Head Construction",
     "description": "The moving front of road progress. Clearing trees and brush in front, then laying materials behind. Road heads advance progressively, requiring sustained material supply and labor. Progress is visible as roads extend across the map.",
     "blocked-by": [

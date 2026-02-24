@@ -1,6 +1,11 @@
 {
     "id": "UI-6",
     "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
     "title": "Icosphere Save Point Animation",
     "description": "An interactive save-game UI element built from an icosahedron that expands its faces outward on hover and performs Rubik's-cube-style band rotations along vertex axes. On hover the 20 triangular faces separate with a gap, then groups of faces (caps of 5 or equatorial bands of 10) rotate by 72-degree increments around icosahedral vertex axes. Faces snap back to a perfect grid after each rotation to prevent drift. On mouse-out the whole structure smoothly collapses back into a solid icosphere. A Three.js prototype exists with the core mechanics working: face normalization, axis selection, cap/equator band picking, rotation with snap-to-ideal, and additive-blended emissive materials.",
     "blocked-by": [],

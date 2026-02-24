@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-3",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "npc"
+    ],
     "title": "Bribery System",
     "description": "Pay politicians for favorable policy outcomes. High corruption cities require regular bribes to get things done, but almost anything is possible at the right price. Bribery is a tool for rapid policy change.",
     "blocked-by": [],

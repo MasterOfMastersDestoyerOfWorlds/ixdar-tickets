@@ -1,6 +1,10 @@
 {
     "id": "ENG-7",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "audio"
+    ],
     "title": "Play Sound Effects and Music",
     "description": "Implement an audio system for playing sound effects and background music in the game engine. The system should support loading audio files (WAV, OGG, MP3), managing multiple simultaneous sound effects, background music playback with volume control, and integration with game events. This will enable audio feedback for gameplay actions (UI-4: gold collection sounds) and ambient audio for scenes (UI-5: sea shanties, wind, bird sounds).",
     "blocked-by": [],

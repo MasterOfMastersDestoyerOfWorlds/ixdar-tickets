@@ -1,6 +1,11 @@
 {
     "id": "SURV-1",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival",
+        "world"
+    ],
     "title": "Outer Rim Flora",
     "description": "The outer layer of the island has Iceland-like sparse vegetation. Few trees exist, and those present are in hard-to-reach places or are big knotted deadwood. The player must work with this limited vegetation for resources like lumber and fuel.",
     "blocked-by": [

@@ -1,6 +1,11 @@
 {
     "id": "ROAD-2",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics",
+        "economy"
+    ],
     "title": "Quarrying System",
     "description": "Rock extraction for road materials. Players quarry rock, sand, and gravel to supply road construction. Quarries require setup and ongoing labor. Material transport to the road head is part of the logistics challenge.",
     "blocked-by": [

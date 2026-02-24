@@ -1,6 +1,11 @@
 {
     "id": "SMUG-4",
     "epic": "SMUG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "logistics"
+    ],
     "title": "Inspection Mechanics",
     "description": "Costly inspections of caravans occur during crackdowns. If caught, players face large fines. Inspections are more likely with larger shipments and during crackdown periods. Successful inspections expose contraband.",
     "blocked-by": [

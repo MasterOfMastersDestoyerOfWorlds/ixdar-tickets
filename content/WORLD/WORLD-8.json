@@ -1,6 +1,11 @@
 {
     "id": "WORLD-8",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "game-sim"
+    ],
     "title": "Previous Run Artifacts",
     "description": "Players may find structures and artifacts from their own previous runs, rusted and decayed by the island's moisture. Like the book the Fellowship finds in Moria, these artifacts spell doom but also provide clues. Players piece together how their previous run failed through item descriptions, books, recognized names, and towns they previously founded.",
     "blocked-by": [],

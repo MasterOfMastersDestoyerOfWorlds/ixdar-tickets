@@ -1,6 +1,11 @@
 {
     "id": "INVEST-6",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "logistics"
+    ],
     "title": "City Stations",
     "description": "Stations in cities for caravans to drop off supplies. Sending a caravan to a city without a station takes longer because they cannot drop off supplies and leave. Stations enable efficient multi-city routes.",
     "blocked-by": [],

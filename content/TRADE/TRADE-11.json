@@ -1,6 +1,10 @@
 {
     "id": "TRADE-11",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
     "title": "Top Bar HUD",
     "description": "Implement the top bar HUD for the trade game scene. Display gold counter with tooltip showing current route upkeep costs. Show capacity tracker displaying tonnage capacity vs current contract production. Add remaining distance metric for route planning. Include week/month turn indicator.",
     "status": "IN_PROGRESS",

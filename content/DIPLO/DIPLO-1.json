@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-1",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "economy"
+    ],
     "title": "Tariff Lobbying",
     "description": "Push cities to enact tariffs on rival goods. If you know your rival trades heavily in certain goods, lobby to tax those goods. Uses political influence and money to change city trade policies against competitors.",
     "blocked-by": [],

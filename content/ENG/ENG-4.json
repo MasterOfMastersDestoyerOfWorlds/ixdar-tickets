@@ -1,6 +1,10 @@
 {
     "id": "ENG-4",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
     "title": "Fix Font Aliasing - Increase Edge Blur",
     "description": "The default font is showing aliasing artifacts. The MSDF (Multi-channel Signed Distance Field) font rendering needs increased edge blur/smoothing to reduce harsh aliasing on text edges.",
     "blocked-by": [],

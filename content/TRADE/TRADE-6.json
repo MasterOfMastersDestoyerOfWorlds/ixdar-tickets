@@ -1,6 +1,11 @@
 {
     "id": "TRADE-6",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "world"
+    ],
     "title": "City Housing Costs",
     "description": "Players must pay housing costs at each city their route visits. This is a per-city operational expense. Housing quality may affect rest and next-day efficiency.",
     "blocked-by": [],

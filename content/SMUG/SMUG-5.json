@@ -1,6 +1,11 @@
 {
     "id": "SMUG-5",
     "epic": "SMUG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "economy"
+    ],
     "title": "City Bans",
     "description": "Repeated smuggling offenses can result in temporary expulsion or bans from cities in your network. As you build more infrastructure and invest in a city, it becomes increasingly risky to smuggle - you have more to lose.",
     "blocked-by": [

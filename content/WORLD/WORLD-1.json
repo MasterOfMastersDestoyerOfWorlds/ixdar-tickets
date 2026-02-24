@@ -1,6 +1,10 @@
 {
     "id": "WORLD-1",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world"
+    ],
     "title": "Volcanic Island Setting",
     "description": "A volcano rises out of the ocean off the coast of Iceland. The island serves as the central location for all gameplay. It is contested by major North Atlantic powers (English, Danish, Dutch, French) who vie for control. The island has a central well/hole that descends to a mysterious treasure room, similar to Made in Abyss or the room in Roadside Picnic.",
     "blocked-by": [],

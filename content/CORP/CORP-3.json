@@ -1,6 +1,11 @@
 {
     "id": "CORP-3",
     "epic": "CORP",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc",
+        "game-sim"
+    ],
     "title": "Manager Skill Levels",
     "description": "Managers have varying levels of competence. Better managers cost more but produce better results. Skill affects efficiency, error rates, and ability to handle complex operations.",
     "blocked-by": [

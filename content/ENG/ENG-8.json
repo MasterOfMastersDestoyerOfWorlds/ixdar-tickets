@@ -1,6 +1,10 @@
 {
     "id": "ENG-8",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
     "title": "External Asset Repository via S3 + Local Cache",
     "description": "Define and implement the external game-asset workflow for large binary models that should not live in git. Assets are stored in S3 and synced to a local asset repository path configured by environment variable. Engine loading paths should resolve model files from that local repo for runtime usage.",
     "blocked-by": [],

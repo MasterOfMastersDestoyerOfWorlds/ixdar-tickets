@@ -1,6 +1,11 @@
 {
     "id": "TRADE-3",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "logistics"
+    ],
     "title": "Horse Distance Limits",
     "description": "Route length is limited by the distance a horse can travel in a month. This creates a fundamental constraint on route size. Players must work within this limit or invest in ways to extend it.",
     "blocked-by": [],

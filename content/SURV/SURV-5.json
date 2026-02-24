@@ -1,6 +1,11 @@
 {
     "id": "SURV-5",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival",
+        "economy"
+    ],
     "title": "Fishery System",
     "description": "Players can set up fisheries as a sustainable food source. Fisheries require initial investment and ongoing management. They provide a steady food supply but tie up resources in one location.",
     "blocked-by": [],

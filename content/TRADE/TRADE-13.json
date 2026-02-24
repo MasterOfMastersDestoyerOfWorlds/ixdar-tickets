@@ -1,6 +1,11 @@
 {
     "id": "TRADE-13",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "logistics"
+    ],
     "title": "Route Capacity System",
     "description": "Implement the route capacity system. Cart ownership determines base tonnage capacity. Horse count affects both capacity and travel speed. Track tonnage used by current contracts. Display visual capacity bar in the HUD. Upgrade paths for carts and horses.",
     "blocked-by": [

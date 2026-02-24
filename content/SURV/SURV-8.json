@@ -1,6 +1,11 @@
 {
     "id": "SURV-8",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival",
+        "world"
+    ],
     "title": "Deeper Island Biodiversity",
     "description": "Moving toward the center of the island brings more biodiversity - and more danger. Creatures become more exotic and monstrous. Resources may be richer but risks are higher. Each layer presents new flora, fauna, and threats.",
     "blocked-by": [

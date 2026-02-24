@@ -1,6 +1,11 @@
 {
     "id": "WORLD-2",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "game-sim"
+    ],
     "title": "Time Fog Mechanics",
     "description": "The island is unmoored from time. A fog surrounds the island that causes time dilation - expeditions that enter the fog experience weeks, but decades may pass for those outside. The seas are only calm enough for passage twice a year when tides and trade winds disperse the fog temporarily. Returning expedition members may speak unrecognizable languages and be from expeditions sent long ago.",
     "blocked-by": [],

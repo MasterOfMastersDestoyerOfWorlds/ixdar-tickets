@@ -1,6 +1,11 @@
 {
     "id": "CORP-1",
     "epic": "CORP",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc",
+        "game-sim"
+    ],
     "title": "Manager Hiring",
     "description": "Assign managers to routes, fisheries, and other operations. As the player expands, direct management becomes impossible. Managers take over day-to-day operations with varying effectiveness.",
     "blocked-by": [],

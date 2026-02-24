@@ -1,8 +1,12 @@
 {
     "id": "IX-2",
     "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
     "title": "Enforce Shader/Scene Validation via Cursor Hooks",
-    "description": "Add Cursor hooks that enforce screenshot validation whenever shader files (.fs, .vs, .glsl) or scene Java files (scenes/ package) are edited. The hooks use a three-touchpoint mechanism: (1) afterFileEdit detects shader/scene edits, logs them to a validation-pending log, and injects a reminder message telling the agent it must validate with a screenshot before stopping. (2) postToolUse on Shell detects screenshot CLI invocations and clears the pending log. (3) The stop hook checks if the validation-pending log has uncleared entries and denies the stop with a message directing the agent to validate first. This is hard enforcement — the agent cannot complete its session without taking a screenshot after editing rendering code.",
+    "description": "Add Cursor hooks that enforce screenshot validation whenever shader files (.fs, .vs, .glsl) or scene Java files (scenes/ package) are edited. The hooks use a three-touchpoint mechanism: (1) afterFileEdit detects shader/scene edits, logs them to a validation-pending log, and injects a reminder message telling the agent it must validate with a screenshot before stopping. (2) postToolUse on Shell detects screenshot CLI invocations and clears the pending log. (3) The stop hook checks if the validation-pending log has uncleared entries and denies the stop with a message directing the agent to validate first. This is hard enforcement \u2014 the agent cannot complete its session without taking a screenshot after editing rendering code.",
     "blocked-by": [],
     "blocks": [],
     "status": "TODO",
@@ -18,7 +22,7 @@
     ],
     "unknowns": [
         "Whether a single script with mode detection (via payload) is cleaner than three separate scripts",
-        "Whether the stop hook deny actually blocks the agent or just warns — need to verify Cursor hook semantics for stop events",
+        "Whether the stop hook deny actually blocks the agent or just warns \u2014 need to verify Cursor hook semantics for stop events",
         "Whether the validation-pending log should track individual file paths or just a boolean dirty flag"
     ],
     "changes-made": [],

@@ -1,6 +1,11 @@
 {
     "id": "SPY-6",
     "epic": "SPY",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "npc"
+    ],
     "title": "Low-Level Infiltration",
     "description": "Hire low-level workers in rival offices or infiltrate vendors. Target lower-security portions of competitor organizations for easier access. Build networks of informants over time.",
     "blocked-by": [

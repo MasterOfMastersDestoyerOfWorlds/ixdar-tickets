@@ -1,6 +1,11 @@
 {
     "id": "CORP-5",
     "epic": "CORP",
+    "repo": "Ixdar",
+    "subsystem": [
+        "game-sim",
+        "economy"
+    ],
     "title": "Ownership Scaling",
     "description": "Full ownership vs delegated management tradeoffs. Owning everything directly gives best margins but limits scale. Delegating allows growth but with efficiency losses. Strategic choice about organization structure.",
     "blocked-by": [],

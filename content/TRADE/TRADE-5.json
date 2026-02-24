@@ -1,6 +1,11 @@
 {
     "id": "TRADE-5",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "economy"
+    ],
     "title": "Cart Driver Wages",
     "description": "Players must pay wages for their cart drivers each turn. This is an ongoing operational cost that scales with fleet size. Driver quality may affect route efficiency or reliability.",
     "blocked-by": [],

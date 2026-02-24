@@ -1,6 +1,10 @@
 {
     "id": "ENG-10",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
     "title": "Material and Texture Import Support for Mesh Pipeline",
     "description": "Add material import support (MTL/Assimp materials) to the mesh pipeline so models can render with authored albedo/specular/normal textures instead of fallback debug textures. This ticket explicitly follows the current geometry-first implementation and can be delivered after core model loading/rendering is stable.",
     "blocked-by": [

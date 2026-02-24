@@ -1,6 +1,11 @@
 {
     "id": "INVEST-4",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "logistics"
+    ],
     "title": "Fleet Expansion",
     "description": "Building more caravans expands capacity along a route for moving goods. More caravans mean more goods can be traded per turn, increasing potential profits but also operational costs.",
     "blocked-by": [],

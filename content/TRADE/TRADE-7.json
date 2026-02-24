@@ -1,6 +1,11 @@
 {
     "id": "TRADE-7",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "trade"
+    ],
     "title": "Competitor Price Effects",
     "description": "Order of operations matters because competitors can change prices in a town through their sale actions. Players should prioritize high-value exchanges near the start of their route or risk devaluation by supply and demand changes from competitor actions.",
     "blocked-by": [

@@ -1,6 +1,11 @@
 {
     "id": "ECON-1",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "world"
+    ],
     "title": "Producer/Consumer Cities",
     "description": "Certain cities are producers of goods and some are consumers. This fundamental distinction dictates prices - producer cities have low prices for their goods, consumer cities have high prices. This creates arbitrage opportunities that drive trade routes.",
     "blocked-by": [],

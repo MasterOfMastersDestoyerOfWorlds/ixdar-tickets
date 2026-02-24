@@ -14,5 +14,9 @@
         "What interface do we want to use to display the tickets"
     ],
     "completion-notes": "Created 85 tickets across 12 epics: WORLD (9), SURV (8), ROAD (8), TRADE (10), ECON (8), INVEST (8), SMUG (5), SPY (7), DIPLO (8), PIRATE (5), UI (4), CORP (5). All tickets include descriptions, blocked-by/blocks relationships, definition-of-done, testing-plan, todos, and unknowns. Epic index stored in epics.json.",
-    "priority": 1
+    "priority": 1,
+    "repo": "ixdar-tickets",
+    "subsystem": [
+        "automation"
+    ]
 }

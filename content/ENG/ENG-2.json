@@ -1,6 +1,11 @@
 {
     "id": "ENG-2",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform",
+        "game-sim"
+    ],
     "title": "App Data Save System",
     "description": "Create a save system that stores user data and caches in the appropriate App Data directory (e.g., %APPDATA% on Windows, ~/Library/Application Support on macOS, ~/.local/share on Linux). This enables persistent settings, cached test files, and user preferences across sessions.",
     "blocked-by": [],

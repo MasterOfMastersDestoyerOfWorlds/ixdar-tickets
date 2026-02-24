@@ -1,6 +1,11 @@
 {
     "id": "PIRATE-2",
     "epic": "PIRATE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "npc"
+    ],
     "title": "Pirate Tribute",
     "description": "Offer tribute to pirates in exotic products and better weapons than they can buy elsewhere. Money has little sway with pirates since they live outside society. Tribute buys safe passage and potentially more.",
     "blocked-by": [],

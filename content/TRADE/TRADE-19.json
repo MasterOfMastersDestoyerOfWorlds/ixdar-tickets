@@ -1,6 +1,11 @@
 {
     "id": "TRADE-19",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "game-sim"
+    ],
     "title": "Collapse Operation and Game Loop Integration",
     "description": "Split Collapse from TRADE-10 into a dedicated ticket. Implement collapse execution and preview in RoutePlanningTool, then align collapse behavior with the trade game loop so route changes, hierarchy transitions, and turn-flow side effects remain consistent.",
     "status": "TODO",

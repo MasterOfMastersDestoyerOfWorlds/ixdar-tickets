@@ -1,6 +1,11 @@
 {
     "id": "TRADE-20",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "trade"
+    ],
     "title": "Organic Irregular Quad Trade Grid",
     "description": "Implement an Oskar-style irregular grid generator for the trade map using deterministic blue-noise point sampling, iterative Lloyd/CVT relaxation, and a quad-construction pass that produces playable tile topology. Integrate the generated grid into trade-map runtime flow so tile adjacency, placement, and route/pathing systems can consume it behind a controlled enablement path.",
     "status": "IN_PROGRESS",

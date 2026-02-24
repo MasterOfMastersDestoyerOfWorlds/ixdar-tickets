@@ -1,6 +1,11 @@
 {
     "id": "TRADE-14",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade",
+        "logistics"
+    ],
     "title": "Route Distance System",
     "description": "Implement the route distance limitation system. Each turn (week/month) has a maximum travel distance. Having headquarters in cities extends available range. Fresh horse purchase option at stations for additional upkeep. Road quality affects travel distance (better roads = more distance per unit).",
     "blocked-by": [

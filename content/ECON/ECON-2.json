@@ -1,6 +1,10 @@
 {
     "id": "ECON-2",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy"
+    ],
     "title": "Supply/Demand Pricing",
     "description": "Prices and availability emerge from supply and demand dynamics. As goods are sold in a city, prices drop. As goods are bought, prices rise. This creates dynamic markets that change based on player and competitor actions.",
     "blocked-by": [

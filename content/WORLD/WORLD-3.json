@@ -1,6 +1,11 @@
 {
     "id": "WORLD-3",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "politics"
+    ],
     "title": "Colonial Company Factions",
     "description": "Four major colonial powers compete for control of the island: English, Danish, Dutch, and French. Each faction has chartered colonial companies that pool merchant capital. Companies try to obey rule of law when interacting but may resort to treachery when they think they can get away with it. The player takes the role of a merchant in one of these companies.",
     "blocked-by": [],

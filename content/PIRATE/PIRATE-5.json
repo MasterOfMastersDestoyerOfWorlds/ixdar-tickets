@@ -1,6 +1,11 @@
 {
     "id": "PIRATE-5",
     "epic": "PIRATE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "npc"
+    ],
     "title": "Pirate Economy",
     "description": "Pirates prefer luxury goods over money. If they could use money in normal society, they probably wouldn't be pirates. This affects how you pay them, bribe them, and trade with them.",
     "blocked-by": [],

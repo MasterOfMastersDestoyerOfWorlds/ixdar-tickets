@@ -1,6 +1,11 @@
 {
     "id": "UI-3",
     "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
     "title": "Caravan Animation",
     "description": "At end of turn, caravans visually zip around to each city on the route. This provides feedback on route execution and creates a satisfying visualization of trade network activity.",
     "blocked-by": [],

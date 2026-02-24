@@ -1,6 +1,11 @@
 {
     "id": "ECON-6",
     "epic": "ECON",
+    "repo": "Ixdar",
+    "subsystem": [
+        "economy",
+        "world"
+    ],
     "title": "Town Traits",
     "description": "Towns have baseline endowments and governance traits that set their character. These traits determine what goods they produce, their order/corruption levels, and their response to player actions. Traits create variety and strategic considerations.",
     "blocked-by": [],

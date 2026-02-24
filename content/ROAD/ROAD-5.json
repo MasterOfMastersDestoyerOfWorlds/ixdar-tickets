@@ -1,6 +1,11 @@
 {
     "id": "ROAD-5",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics",
+        "economy"
+    ],
     "title": "Per-Foot Contracts",
     "description": "Some contracts pay per foot of road built, incentivizing winding routes that maximize length. This creates a short-term vs long-term tension: winding routes earn more now but are less efficient later. Good for driving out competitors on specific roads.",
     "blocked-by": [],

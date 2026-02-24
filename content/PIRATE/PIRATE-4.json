@@ -1,6 +1,10 @@
 {
     "id": "PIRATE-4",
     "epic": "PIRATE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc"
+    ],
     "title": "Pirate Personality",
     "description": "Pirates have high corruption but extreme effectiveness in their specialties. They don't follow normal organizational rules. Managing pirates requires understanding their motivations and accepting their downsides.",
     "blocked-by": [

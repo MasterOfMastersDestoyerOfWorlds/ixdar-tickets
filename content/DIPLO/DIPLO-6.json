@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-6",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "npc"
+    ],
     "title": "Medical Leverage",
     "description": "Pay to transport sick individuals to towns where treatment is known. Use medical assistance as leverage for favors. A softer form of influence than blackmail with less risk but potentially less effect.",
     "blocked-by": [

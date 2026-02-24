@@ -1,6 +1,11 @@
 {
     "id": "INVEST-1",
     "epic": "INVEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "investment",
+        "logistics"
+    ],
     "title": "Transportation Tech Tree",
     "description": "Investment in transportation technology and upgrades: better spokes for wheels, breeding faster horses, different caravan hulls to discourage robbery. These upgrades improve route efficiency, speed, and security.",
     "blocked-by": [],

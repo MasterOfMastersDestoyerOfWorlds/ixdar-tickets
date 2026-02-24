@@ -1,6 +1,10 @@
 {
     "id": "SURV-3",
     "epic": "SURV",
+    "repo": "Ixdar",
+    "subsystem": [
+        "survival"
+    ],
     "title": "Clothing System",
     "description": "Surviving the outer rim requires warm clothes. Players must acquire or craft clothing from available materials (animal pelts, wool). Clothing affects survival in cold/harsh conditions and may have durability.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "TRADE-1",
     "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "game-sim",
+        "trade"
+    ],
     "title": "Core Turn Loop",
     "description": "The core gameplay loop: each turn is a loop around the player's created route, buying and selling from one city to the next. At the end of each turn, caravans zip around to each city and gold floats up to the player's coffers with audio stims.",
     "blocked-by": [],

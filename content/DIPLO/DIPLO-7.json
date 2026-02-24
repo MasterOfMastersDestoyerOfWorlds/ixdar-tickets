@@ -1,6 +1,11 @@
 {
     "id": "DIPLO-7",
     "epic": "DIPLO",
+    "repo": "Ixdar",
+    "subsystem": [
+        "politics",
+        "game-sim"
+    ],
     "title": "Detection and Consequences",
     "description": "If caught trying to blackmail or engage in illegal diplomacy, your company may be expelled from the town for a period or pay large fines. Risk increases with investment in the city - more to lose.",
     "blocked-by": [],

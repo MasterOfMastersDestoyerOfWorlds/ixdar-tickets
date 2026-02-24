@@ -1,6 +1,11 @@
 {
     "id": "ROAD-8",
     "epic": "ROAD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "logistics",
+        "politics"
+    ],
     "title": "Road Patrol System",
     "description": "Private roads require patrol to enforce exclusivity. Rivals might use unpatrolled private roads depending on their personality and risk tolerance. Patrolling has ongoing costs but prevents unauthorized use.",
     "blocked-by": [

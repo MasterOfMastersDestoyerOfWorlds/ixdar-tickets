@@ -1,6 +1,10 @@
 {
     "id": "ENG-11",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
     "title": "Consolidate Input Handler Classes",
     "description": "The input handling layer has five overlapping classes (TradeKeyGuy, TradeMouseTrap, KeyGuy, MouseTrap, Scene2DMousePanTrap) with duplicated patterns for key/mouse event routing, camera binding, and scene-specific overrides. Consolidate these into a unified input abstraction that scenes can configure declaratively, reducing the surface area for input bugs and making new scene creation simpler.",
     "blocked-by": [],

@@ -1,6 +1,11 @@
 {
     "id": "WORLD-9",
     "epic": "WORLD",
+    "repo": "Ixdar",
+    "subsystem": [
+        "world",
+        "politics"
+    ],
     "title": "Societal Breakdown",
     "description": "There is a time limit on turns before societal breakdown occurs. Men go mad, begin killing and eating each other, and other forms of collapse emerge. This serves as a fail state that triggers map wipe and transitions to a new run. The player must reach the bottom of the well and destroy the McGuffin before breakdown occurs.",
     "blocked-by": [

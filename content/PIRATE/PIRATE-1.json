@@ -1,6 +1,11 @@
 {
     "id": "PIRATE-1",
     "epic": "PIRATE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "npc",
+        "politics"
+    ],
     "title": "Privateer Hiring",
     "description": "Pay privateers/pirates to rob along rival routes while ignoring your ships. Use intelligence about competitor routes to target them specifically. Privateers are deniable assets for disrupting competition.",
     "blocked-by": [],

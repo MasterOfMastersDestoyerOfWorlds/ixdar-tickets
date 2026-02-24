@@ -1,6 +1,11 @@
 {
     "id": "ENG-5",
     "epic": "ENGINE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "platform"
+    ],
     "title": "Load Meshes into Game Engine",
     "description": "Implement mesh loading functionality to import 3D models (OBJ, FBX, or other common formats) into the game engine. The system should parse mesh data (vertices, normals, UVs, indices), upload to GPU buffers, and integrate with the existing rendering pipeline. This will enable rendering of 3D models alongside the current geometry-based rendering.",
     "blocked-by": [],
