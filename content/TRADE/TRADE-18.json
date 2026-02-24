@@ -1,0 +1,27 @@
+{
+    "id": "TRADE-18",
+    "epic": "TRADE",
+    "title": "Game State Persistence",
+    "description": "Implement save/load functionality for the trade game. Serialize game state including current gold, routes, contracts, headquarters locations, cart/horse ownership, and turn number. Allow resuming from saved state. Support multiple save slots.",
+    "blocked-by": [
+        "TRADE-12",
+        "TRADE-13",
+        "TRADE-14"
+    ],
+    "blocks": [],
+    "definition-of-done": "Save game works correctly. Load game restores all state. Multiple save slots available. Auto-save on turn end.",
+    "testing-plan": "Test save creates valid file. Verify load restores exact state. Test multiple save slots. Confirm auto-save works.",
+    "todos": [
+        "Create GameState serialization format",
+        "Implement save to file",
+        "Implement load from file",
+        "Add save slot management",
+        "Implement auto-save on turn end"
+    ],
+    "unknowns": [
+        "Save file format (JSON vs binary)",
+        "Number of save slots",
+        "Cloud save integration"
+    ],
+    "priority": 19
+}

@@ -1,0 +1,23 @@
+{
+    "id": "DIPLO-4",
+    "epic": "DIPLO",
+    "title": "Blackmail Mechanics",
+    "description": "Pressure individuals with secrets discovered through espionage. Blackmail provides leverage for favors but carries risk of exposure and retaliation. Must figure out how to pressure intended targets within rival organizations.",
+    "blocked-by": [],
+    "blocks": [
+        "DIPLO-5"
+    ],
+    "definition-of-done": "Blackmail action using discovered secrets. Blackmail provides favor/leverage. Detection risk with consequences. Target resistance based on personality.",
+    "testing-plan": "Verify blackmail action works. Test favor extraction. Verify detection risk. Test target resistance.",
+    "todos": [
+        "Implement blackmail action mechanics",
+        "Create favor/leverage system",
+        "Build detection and consequences",
+        "Design target resistance calculation"
+    ],
+    "unknowns": [
+        "Detection probability",
+        "Consequence severity"
+    ],
+    "priority": 4
+}

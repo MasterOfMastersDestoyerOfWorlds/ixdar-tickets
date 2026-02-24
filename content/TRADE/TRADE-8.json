@@ -1,0 +1,24 @@
+{
+    "id": "TRADE-8",
+    "epic": "TRADE",
+    "title": "Multi-Level Clustering UI",
+    "description": "Use multi-level clustering algorithms from TSP work as the main game mechanic for route design. Create a hierarchy of importance between points and knots (groupings). Players can easily design trade routes with some automation of tedious steps like initial point assignment.",
+    "blocked-by": [],
+    "blocks": [
+        "TRADE-9",
+        "TRADE-10"
+    ],
+    "definition-of-done": "Hierarchical point/knot system for route design. Visual representation of clusters at multiple levels. Initial point assignment automated. Hierarchy clearly displayed.",
+    "testing-plan": "Verify clustering produces logical groupings. Test hierarchy visualization. Verify automated initial assignment. Test hierarchy navigation.",
+    "todos": [
+        "DONE: Implement multi-level clustering algorithm (KnotEngine.findKnots)",
+        "DONE: Create visual cluster representation (DrawKnotGradient, DrawMetroDiagram)",
+        "DONE: Build automated initial assignment (shell.slowSolve)",
+        "DONE: Design hierarchy display system (knotDrawLayer, layer navigation)"
+    ],
+    "unknowns": [
+        "RESOLVED: Using greedy minimum-delta approach via KnotEngine.findKnots() with disjoint union sets",
+        "RESOLVED: Configurable, currently 40 max layers passed to shell.slowSolve()"
+    ],
+    "priority": 14
+}

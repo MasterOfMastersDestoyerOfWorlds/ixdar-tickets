@@ -1,0 +1,23 @@
+{
+    "id": "TRADE-2",
+    "epic": "TRADE",
+    "title": "Route Optimization Engine",
+    "description": "The engine automatically calculates optimal buy/sell locations for the player's route. Given the goods available at each city and current prices, determine the best trades to make along the route.",
+    "blocked-by": [
+        "TRADE-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Optimization engine calculates best buy/sell decisions. Engine considers prices, capacity, and route order. Results displayed to player before turn execution.",
+    "testing-plan": "Verify optimization produces profitable routes. Test with various price configurations. Verify capacity constraints respected.",
+    "todos": [
+        "Design optimization algorithm",
+        "Implement price comparison across cities",
+        "Create capacity constraint handling",
+        "Build result display UI"
+    ],
+    "unknowns": [
+        "Algorithm complexity tradeoffs",
+        "How much player can override optimization"
+    ],
+    "priority": 6
+}

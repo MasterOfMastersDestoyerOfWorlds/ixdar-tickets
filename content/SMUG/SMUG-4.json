@@ -1,0 +1,25 @@
+{
+    "id": "SMUG-4",
+    "epic": "SMUG",
+    "title": "Inspection Mechanics",
+    "description": "Costly inspections of caravans occur during crackdowns. If caught, players face large fines. Inspections are more likely with larger shipments and during crackdown periods. Successful inspections expose contraband.",
+    "blocked-by": [
+        "SMUG-3"
+    ],
+    "blocks": [
+        "SMUG-5"
+    ],
+    "definition-of-done": "Inspection events can occur. Inspection probability based on factors. Caught smuggling results in fines. Inspection events have visual/narrative presentation.",
+    "testing-plan": "Verify inspections trigger correctly. Test probability factors. Verify fines apply on detection. Test event presentation.",
+    "todos": [
+        "Implement inspection event system",
+        "Create inspection probability calculation",
+        "Build fine mechanics for caught smuggling",
+        "Design inspection event presentation"
+    ],
+    "unknowns": [
+        "Fine amounts",
+        "Inspection probability formula"
+    ],
+    "priority": 4
+}

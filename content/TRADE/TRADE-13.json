@@ -1,0 +1,25 @@
+{
+    "id": "TRADE-13",
+    "epic": "TRADE",
+    "title": "Route Capacity System",
+    "description": "Implement the route capacity system. Cart ownership determines base tonnage capacity. Horse count affects both capacity and travel speed. Track tonnage used by current contracts. Display visual capacity bar in the HUD. Upgrade paths for carts and horses.",
+    "blocked-by": [
+        "TRADE-11"
+    ],
+    "blocks": [],
+    "definition-of-done": "Cart types defined with capacity values. Horse mechanics affect capacity/speed. Tonnage tracking works. Capacity bar displays correctly. Upgrade system functional.",
+    "testing-plan": "Test different cart types. Verify horse effects on capacity. Confirm tonnage tracking accuracy. Test upgrade flow.",
+    "todos": [
+        "Define cart types and capacities",
+        "Implement horse count mechanics",
+        "Create tonnage tracking system",
+        "Build capacity bar UI",
+        "Add upgrade system for carts/horses"
+    ],
+    "unknowns": [
+        "Cart upgrade costs",
+        "Horse purchase/maintenance costs",
+        "Capacity scaling formula"
+    ],
+    "priority": 7
+}

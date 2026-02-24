@@ -1,0 +1,23 @@
+{
+    "id": "INVEST-6",
+    "epic": "INVEST",
+    "title": "City Stations",
+    "description": "Stations in cities for caravans to drop off supplies. Sending a caravan to a city without a station takes longer because they cannot drop off supplies and leave. Stations enable efficient multi-city routes.",
+    "blocked-by": [],
+    "blocks": [
+        "INVEST-7"
+    ],
+    "definition-of-done": "Station construction in cities. Stations reduce turnaround time. Cities without stations have time penalty. Station costs and benefits visible.",
+    "testing-plan": "Verify station construction works. Test turnaround time reduction. Verify no-station penalty. Test cost/benefit display.",
+    "todos": [
+        "Implement station construction mechanics",
+        "Create turnaround time calculations",
+        "Build time penalty for no-station cities",
+        "Design station management UI"
+    ],
+    "unknowns": [
+        "Station construction costs",
+        "Time reduction values"
+    ],
+    "priority": 6
+}

@@ -1,0 +1,21 @@
+{
+    "id": "SURV-7",
+    "epic": "SURV",
+    "title": "Grant System",
+    "description": "Government funding is available for road construction to the volcano rim. Players can earn grant money by paving roads, quarrying rock, and clearing paths. Grants provide supplemental income for frontier expansion activities.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Grant contracts are available for road construction. Completing contract objectives earns money. Multiple grant types with different requirements.",
+    "testing-plan": "Verify grant contracts appear. Test contract completion and payment. Verify different grant types function correctly.",
+    "todos": [
+        "Design grant contract types",
+        "Implement contract objective tracking",
+        "Create payment system on completion",
+        "Build grant selection/acceptance UI"
+    ],
+    "unknowns": [
+        "Grant payment amounts",
+        "Contract duration limits"
+    ],
+    "priority": 7
+}

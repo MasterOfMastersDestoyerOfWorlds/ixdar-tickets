@@ -1,0 +1,21 @@
+{
+    "id": "PIRATE-2",
+    "epic": "PIRATE",
+    "title": "Pirate Tribute",
+    "description": "Offer tribute to pirates in exotic products and better weapons than they can buy elsewhere. Money has little sway with pirates since they live outside society. Tribute buys safe passage and potentially more.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Tribute payment action using goods. Luxury goods and weapons more effective than money. Tribute buys protection from raiding. Tribute relationships tracked.",
+    "testing-plan": "Verify tribute payment works. Test good-type effectiveness. Verify protection granted. Test relationship tracking.",
+    "todos": [
+        "Implement tribute payment mechanics",
+        "Create good-type effectiveness scaling",
+        "Build protection status system",
+        "Design pirate relationship tracking"
+    ],
+    "unknowns": [
+        "Which goods pirates value most",
+        "Protection duration"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,24 @@
+{
+    "id": "TRADE-7",
+    "epic": "TRADE",
+    "title": "Competitor Price Effects",
+    "description": "Order of operations matters because competitors can change prices in a town through their sale actions. Players should prioritize high-value exchanges near the start of their route or risk devaluation by supply and demand changes from competitor actions.",
+    "blocked-by": [
+        "TRADE-1",
+        "ECON-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Competitor actions affect city prices. Turn order determines who acts first. Price changes from sales are visible. Route optimization considers competitor risk.",
+    "testing-plan": "Verify competitor sales affect prices. Test turn order impact. Verify price change visibility. Test optimization accounts for competition.",
+    "todos": [
+        "Implement competitor action simulation",
+        "Create turn order system",
+        "Build price change from sales mechanics",
+        "Design competitor risk in route planning"
+    ],
+    "unknowns": [
+        "Turn order determination rules",
+        "Price impact formulas"
+    ],
+    "priority": 9
+}

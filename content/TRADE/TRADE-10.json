@@ -1,0 +1,98 @@
+{
+    "id": "TRADE-10",
+    "epic": "TRADE",
+    "title": "Route Operations",
+    "description": "Implement loop-first trade route operations using Knot hierarchy. Initial route must be A->B->A, then support Pipe/Grow/Collapse with preview, confirm, and undo. Current backend operation logic and operation records are implemented; current blocker is RoutePlanningTool toolbar and operation overlay rendering visibility in TradeScene.",
+    "status": "DONE",
+    "blocked-by": [
+        "TRADE-8"
+    ],
+    "blocks": [],
+    "definition-of-done": "Pipe and Grow produce a single continuous loop and preserve intended hierarchy behavior. RoutePlanningTool shows visible tool UI and operation preview/selection feedback. Undo/redo correctly reverses and reapplies each Pipe/Grow operation record. User can confirm operations via Enter or UI control.",
+    "testing-plan": "Create initial route from HQ + city and verify A->B->A loop. Add singleton city via Grow defaults and confirm edge replacement behavior. Pipe two non-singleton knots and verify edge cuts/adds plus hierarchy behavior. Validate undo/redo sequence for Pipe/Grow operations. Verify toolbar/hover/confirm UI visibility and interaction in TradeScene.",
+    "todos": [
+        "DONE : Implement operation record system (OperationRecord, PipeRecord, GrowRecord, CollapseRecord) and route operation stack",
+        "DONE : Implement loop-first Pipe for singleton + singleton (A->B->A)",
+        "DONE : Implement Grow for singleton insertion into selected/default lowest-cost edge",
+        "DONE : Implement Pipe for knot + knot with edge selection, hierarchy-aware behavior, and preview defaults",
+        "DONE : Implement Collapse path conversion logic and record-based undo/redo",
+        "DONE : Remove road-connectivity restriction from route construction flow",
+        "DONE : Add keybind handling and routing through TradeKeyGuy to RoutePlanningTool",
+        "DONE : Fix RoutePlanningTool toolbar and SDF overlay rendering visibility in TradeScene",
+        "DONE : Re-enable and polish tooltips/button labels/hover feedback once toolbar is visible",
+        "Complete end-to-end validation for Pipe/Grow including hierarchy navigation",
+        "Coordinate collapse follow-up in TRADE-19"
+    ],
+    "unknowns": [
+        "Why RoutePlanningTool SDF overlay draws are not visible while city rendering remains visible in TradeScene",
+        "Whether toolbar/operation UI should render in a dedicated HUD view (separate camera view bounds) instead of VIEW_MAIN"
+    ],
+    "operation-plan": {
+        "pipe": {
+            "current-status": "Backend logic implemented for singleton-singleton, singleton-knot (grow-like), and knot-knot with edge selection and hierarchy-aware routing.",
+            "design-intent": [
+                "Pipe is the route-combine operation. Routes are always loops, never open chains.",
+                "Singleton + singleton: immediate 2-point loop A->B->A with no edge cuts.",
+                "Knot(2+) + singleton: behaves as Grow (cut one edge on knot, insert singleton, add two edges).",
+                "Knot(2+) + knot(2+): cut one edge on each knot, add two cross-edges, preserve one continuous loop.",
+                "Default selected cut edges should be lowest-cost, but player can rotate/change edge choice before confirm.",
+                "When piping between knot-level structures, operation should create or reuse the appropriate higher-order knot based on selected edge type (sub-knot edge vs pipe edge)."
+            ],
+            "ui-flow": [
+                "Player clicks first knot/city, then second knot/city.",
+                "System enters PREVIEW with default lowest-cost cut/add edge set.",
+                "Player can click alternative edges on either knot to rotate the plan.",
+                "Confirm via Enter or confirm button to commit recordable operation."
+            ],
+            "next-steps": [
+                "Validate edge rotation/change selection UX in PREVIEW before confirm.",
+                "Add explicit visual indicators for selected cut edges and resulting add edges once overlay render issue is fixed.",
+                "Run manual scenarios for same-level pipe vs new-hierarchy pipe and verify operation records."
+            ]
+        },
+        "grow": {
+            "current-status": "Grow insertion and lowest-cost default edge selection are implemented; one-click add flow after initial route exists is wired.",
+            "design-intent": [
+                "Grow modifies an existing loop in-place; it does not create a new hierarchy level by itself.",
+                "Operation cuts exactly one existing edge and inserts one singleton city into that edge.",
+                "Net topology change is remove one edge, add two edges, keeping the route a single loop.",
+                "Roads do not gate whether a city can be added; roads only affect efficiency/scoring later.",
+                "Default insertion edge is lowest-cost, but player can select a different edge before confirming."
+            ],
+            "ui-flow": [
+                "Player selects a route knot/city, then selects an out-of-route singleton city.",
+                "System previews split edge (remove) and two new edges (add).",
+                "Player can rotate/change insertion edge in preview.",
+                "Confirm applies grow and records undo/redo data."
+            ],
+            "next-steps": [
+                "Confirm preview consistently appears for route city + singleton city selection across all states.",
+                "Add clear UI copy for default insertion edge and alternate edge selection behavior.",
+                "Validate undo/redo consistency when multiple grows are chained."
+            ]
+        },
+        "collapse": {
+            "current-status": "Core collapse transformation and record model are implemented for linked hierarchy paths.",
+            "design-intent": [
+                "Collapse is the path-compression operation between two knots in the same hierarchy chain.",
+                "Goal is single-loop preservation while converting double-pipe style links into a single-pipe/crossing structure.",
+                "For endpoints (e.g., C1 and C5), remove one segment from each endpoint-side pipe pairing and add direct C1<->C5 connection.",
+                "Across intermediate knots on the selected chain, convert paired pipe links by removing one of each pair and adding one internal crossing segment per knot to maintain continuity.",
+                "Result must not create inside/outside dual loops; invariant is one continuous traversable loop.",
+                "Collapse should produce a higher-order representation capturing the transformed relationship and support full undo."
+            ],
+            "ui-flow": [
+                "Player selects start knot and end knot in same hierarchy context.",
+                "System finds valid path and shows default segments to remove/add.",
+                "Preview highlights removed pipe segments, added internal crossings, and new endpoint connection.",
+                "Confirm commits collapse as a single operation record."
+            ],
+            "next-steps": [
+                "Add stronger visual preview of removed pipe segments and internal crossing segments before confirm.",
+                "Stress test on 4-8 knot chains to verify single-loop invariant after collapse.",
+                "Validate hierarchy parent/child updates and navigation behavior after collapse and undo."
+            ]
+        }
+    },
+    "priority": 50
+}

@@ -1,0 +1,23 @@
+{
+    "id": "UI-3",
+    "epic": "UI",
+    "title": "Caravan Animation",
+    "description": "At end of turn, caravans visually zip around to each city on the route. This provides feedback on route execution and creates a satisfying visualization of trade network activity.",
+    "blocked-by": [],
+    "blocks": [
+        "UI-4"
+    ],
+    "definition-of-done": "Caravan models animate along routes. Animation speed appropriate for viewing. Multiple caravans animate in sequence or parallel. Animation plays at turn end.",
+    "testing-plan": "Verify caravan animation plays. Test animation timing. Verify multiple caravan handling. Test turn-end trigger.",
+    "todos": [
+        "Create caravan movement animation",
+        "Implement route path following",
+        "Build multi-caravan choreography",
+        "Design turn-end animation trigger"
+    ],
+    "unknowns": [
+        "Animation speed",
+        "Caravan visual style"
+    ],
+    "priority": 3
+}

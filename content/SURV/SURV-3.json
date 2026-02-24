@@ -1,0 +1,21 @@
+{
+    "id": "SURV-3",
+    "epic": "SURV",
+    "title": "Clothing System",
+    "description": "Surviving the outer rim requires warm clothes. Players must acquire or craft clothing from available materials (animal pelts, wool). Clothing affects survival in cold/harsh conditions and may have durability.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Clothing items can be crafted or acquired. Clothing provides warmth stat. Cold exposure without adequate clothing causes negative effects.",
+    "testing-plan": "Verify clothing crafting works with correct materials. Test warmth effects on survival. Verify cold exposure penalties apply correctly.",
+    "todos": [
+        "Design clothing types and tiers",
+        "Implement crafting recipes for clothing",
+        "Create warmth/cold exposure system",
+        "Build clothing durability mechanics"
+    ],
+    "unknowns": [
+        "Number of clothing slots/types",
+        "How cold exposure affects gameplay"
+    ],
+    "priority": 3
+}

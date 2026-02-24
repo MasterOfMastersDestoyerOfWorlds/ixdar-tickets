@@ -1,0 +1,21 @@
+{
+    "id": "INVEST-1",
+    "epic": "INVEST",
+    "title": "Transportation Tech Tree",
+    "description": "Investment in transportation technology and upgrades: better spokes for wheels, breeding faster horses, different caravan hulls to discourage robbery. These upgrades improve route efficiency, speed, and security.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Tech tree for transportation upgrades. Each upgrade provides measurable benefit. Upgrades require investment and time. Tech tree visible and navigable.",
+    "testing-plan": "Verify tech tree displays correctly. Test upgrade purchase and effects. Verify prerequisites enforced. Test upgrade benefits apply.",
+    "todos": [
+        "Design transportation tech tree structure",
+        "Implement upgrade purchase mechanics",
+        "Create benefit calculations per upgrade",
+        "Build tech tree UI"
+    ],
+    "unknowns": [
+        "Number of tech tree branches",
+        "Upgrade costs and effects"
+    ],
+    "priority": 1
+}

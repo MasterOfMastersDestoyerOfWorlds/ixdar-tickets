@@ -1,0 +1,66 @@
+{
+    "id": "ENG-5",
+    "epic": "ENGINE",
+    "title": "Load Meshes into Game Engine",
+    "description": "Implement mesh loading functionality to import 3D models (OBJ, FBX, or other common formats) into the game engine. The system should parse mesh data (vertices, normals, UVs, indices), upload to GPU buffers, and integrate with the existing rendering pipeline. This will enable rendering of 3D models alongside the current geometry-based rendering.",
+    "blocked-by": [],
+    "blocks": [
+        "UI-5",
+        "ENG-6"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Mesh loader can parse at least one common 3D model format (OBJ recommended for simplicity). 2. Loaded meshes are stored in GPU vertex/index buffers. 3. Meshes can be rendered using existing shader system (DiffuseShader or new MeshShader). 4. Integration with Camera3D for proper 3D rendering. 5. Basic error handling for invalid/corrupted mesh files. 6. Memory management - meshes can be unloaded/cleaned up.",
+    "testing-plan": "1. Manual Testing: Load various mesh files (simple cube, complex model) and verify correct rendering. Test with different camera angles and zoom levels. 2. Unit Tests: Create MeshLoaderTest.java with tests for: parseOBJFile (valid/invalid files), vertexBufferCreation, indexBufferCreation, normalCalculation (if auto-generated), textureCoordinateHandling. 3. Integration Tests: Verify mesh rendering integrates with existing Camera3D and shader system. Test multiple meshes rendered simultaneously. 4. Performance Testing: Measure load times and memory usage for various mesh complexities.",
+    "todos": [
+        "DONE : Research mesh loading library options (ASSIMP selected for initial implementation).",
+        "DONE : Design mesh runtime structure (ModelRuntime/ModelHandle/AssimpModelRuntime with VAO/VBO/EBO lifecycle).",
+        "DONE : Implement mesh import path using ASSIMP (OBJ supported now; parser delegated to ASSIMP).",
+        "DONE : Create model loading utility path (`AssimpModelRuntime.loadFromAssetRepo()`).",
+        "DONE : Integrate with Platform abstraction for file loading (external asset root + platform file APIs).",
+        "DONE : Create mesh rendering shader pipeline (`MeshShader`, `mesh.vs`, `mesh.fs`).",
+        "DONE : Add mesh draw pipeline (indexed triangles via `drawElements`).",
+        "DONE : Integrate with Camera3D for framing and render transforms.",
+        "DONE : Add basic error handling for invalid files and missing data.",
+        "DONE : Add unit/integration/perf-smoke coverage for importer and model scene lifecycle (`AssimpModelImporterTest`, `ModelLoadSceneLifecycleTest`).",
+        "DONE : Test with various mesh files and verify rendering quality"
+    ],
+    "unknowns": [
+        "Which mesh format to prioritize (OBJ is simple but limited, FBX/glTF more complex but feature-rich)",
+        "Whether to use ASSIMP library (C++ bindings) or implement lightweight parser",
+        "Shader requirements - can existing DiffuseShader handle meshes or need new MeshShader?",
+        "Memory management strategy - should meshes be cached or reloaded each time?",
+        "Whether to support materials/textures in initial implementation or just geometry"
+    ],
+    "changes-made": [
+        "Added environment-variable based external asset repo support via `IXDAR_ASSET_REPO_ROOT` in file and platform loading layers.",
+        "Added `ModelLoadScene` (`model-load-canvas`) that loads and validates OBJ data from external asset repo (`Hand.obj`).",
+        "Documented asset repo environment variable setup in README.",
+        "Updated `ModelLoadScene` to load `Hand.obj` through ASSIMP, compute model bounds, and auto-frame `Camera3D`.",
+        "Implemented indexed triangle rendering in `ModelLoadScene` (VAO/VBO/EBO + `drawElements`) with a generated checker texture for textured-poly validation.",
+        "Added mesh rendering shader pipeline (`MeshShader`, `mesh.vs`, `mesh.fs`) and extended GL abstraction with indexed draw support (`drawElements`, `ELEMENT_ARRAY_BUFFER`, `UNSIGNED_INT`).",
+        "Refactored model loading/rendering into reusable runtime interfaces (`ModelRuntime`, `ModelHandle`, `AssimpModelRuntime`) so scenes consume a simple API instead of owning import/GPU plumbing.",
+        "Made model resource lifecycle explicit across transitions/shutdown: added `SceneDrawable.shutdown()`, wired app shutdown to call `canvas.shutdown()`, and ensured `ModelLoadScene` disposes model handles idempotently.",
+        "Added explicit texture deletion in GL abstraction (`deleteTexture`) and used it in model disposal to close GPU texture lifecycle.",
+        "Extracted ASSIMP parsing into `AssimpModelImporter`/`ImportedModelData` and added focused tests for parser correctness, lifecycle integration, and import performance smoke checks."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/",
+        "ixdar-app/src/main/java/ixdar/platform/gl/Platform.java",
+        "ixdar-app/src/main/java/ixdar/graphics/cameras/Camera3D.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/DiffuseShader.java",
+        "TODO.md (mentions ASSIMP Model loading)",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/ModelLoadScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/ModelRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/ModelHandle.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/AssimpModelRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/AssimpModelImporter.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/ImportedModelData.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/MeshShader.java",
+        "ixdar-app/src/main/resources/glsl/mesh.vs",
+        "ixdar-app/src/main/resources/glsl/mesh.fs",
+        "ixdar-app/test/unit/model/AssimpModelImporterTest.java",
+        "ixdar-app/test/unit/model/ModelLoadSceneLifecycleTest.java",
+        "README.md"
+    ],
+    "priority": 51
+}

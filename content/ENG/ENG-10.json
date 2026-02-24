@@ -1,0 +1,35 @@
+{
+    "id": "ENG-10",
+    "epic": "ENGINE",
+    "title": "Material and Texture Import Support for Mesh Pipeline",
+    "description": "Add material import support (MTL/Assimp materials) to the mesh pipeline so models can render with authored albedo/specular/normal textures instead of fallback debug textures. This ticket explicitly follows the current geometry-first implementation and can be delivered after core model loading/rendering is stable.",
+    "blocked-by": [
+        "ENG-5"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Mesh loader extracts per-mesh material references from Assimp scene. 2. Texture assets referenced by materials are resolved via `IXDAR_ASSET_REPO_ROOT`. 3. Runtime supports at least albedo texture sampling with graceful fallback when missing. 4. Material state is separated from mesh geometry state. 5. Missing/invalid material assets produce clear logs without crashing render loop. 6. Model test scene can toggle between fallback color and imported material textures.",
+    "testing-plan": "1. Load an OBJ+MTL model with texture maps and verify textured output. 2. Load same model with missing texture file and verify fallback render + warning log. 3. Validate multiple meshes with different materials in one scene. 4. Regression test model rendering path for geometry-only models still works.",
+    "todos": [
+        "Introduce `MaterialData` and runtime `MaterialInstance` abstractions",
+        "Map Assimp material indices to mesh sections",
+        "Resolve material texture file paths from asset repo root",
+        "Load and bind albedo textures in mesh shader pass",
+        "Add fallback behavior for missing texture/material channels",
+        "Add a sample textured model validation case in model-load scene"
+    ],
+    "unknowns": [
+        "Which texture channels to prioritize beyond albedo (specular/normal/roughness)",
+        "How to handle path conventions across OBJ/MTL exporters",
+        "Whether to add material caching and deduplication in initial implementation"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/ModelLoadScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/MeshShader.java",
+        "ixdar-app/src/main/resources/glsl/mesh.vs",
+        "ixdar-app/src/main/resources/glsl/mesh.fs",
+        "ixdar-app/src/main/java/ixdar/platform/file/FileManagement.java"
+    ],
+    "priority": 6
+}

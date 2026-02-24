@@ -1,0 +1,24 @@
+{
+    "id": "WORLD-3",
+    "epic": "WORLD",
+    "title": "Colonial Company Factions",
+    "description": "Four major colonial powers compete for control of the island: English, Danish, Dutch, and French. Each faction has chartered colonial companies that pool merchant capital. Companies try to obey rule of law when interacting but may resort to treachery when they think they can get away with it. The player takes the role of a merchant in one of these companies.",
+    "blocked-by": [],
+    "blocks": [
+        "WORLD-6",
+        "WORLD-7"
+    ],
+    "definition-of-done": "Four distinct factions are implemented with unique traits, starting conditions, and inter-faction relationship systems. Player can choose their faction at game start.",
+    "testing-plan": "Verify each faction has distinct characteristics. Test faction selection at game start. Verify inter-faction relationships affect gameplay (trade, diplomacy, conflict).",
+    "todos": [
+        "Design faction trait system",
+        "Implement faction selection UI",
+        "Create inter-faction relationship matrix",
+        "Define starting conditions per faction"
+    ],
+    "unknowns": [
+        "What unique bonuses/penalties each faction should have",
+        "How faction choice affects endgame"
+    ],
+    "priority": 3
+}

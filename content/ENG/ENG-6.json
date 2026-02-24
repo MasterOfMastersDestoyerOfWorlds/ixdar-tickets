@@ -1,0 +1,43 @@
+{
+    "id": "ENG-6",
+    "epic": "ENGINE",
+    "title": "Figure Out How to Do Animations",
+    "description": "Research and design an animation system for the game engine. This includes determining how to animate meshes (skeletal animation, vertex animation), how to handle animation timing and interpolation, and how to integrate animations with the rendering pipeline. Once meshes are loaded (ENG-5), we need a way to animate them for gameplay and visual effects.",
+    "blocked-by": [
+        "ENG-5"
+    ],
+    "blocks": [
+        "UI-5"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Animation system design document or architecture decision. 2. Determine animation approach (skeletal/bone-based, vertex morphing, transform-based, or hybrid). 3. Animation timing/interpolation system integrated with Clock. 4. Basic animation playback API (play, pause, loop, speed control). 5. Integration point identified for mesh rendering pipeline. 6. Performance considerations documented (CPU vs GPU animation, batching).",
+    "testing-plan": "1. Research Phase: Evaluate animation approaches (skeletal vs vertex vs transform), research libraries (ASSIMP animations, custom solution), benchmark performance implications. 2. Prototype Testing: Create simple test animations (rotating cube, basic skeletal rig) to validate chosen approach. 3. Integration Testing: Verify animation system works with loaded meshes from ENG-5. Test animation playback during rendering. 4. Performance Testing: Measure CPU/GPU usage for various animation complexities, test with multiple animated meshes.",
+    "todos": [
+        "Research animation approaches (skeletal/bone animation, vertex morphing, transform-based)",
+        "Evaluate animation data formats (if using ASSIMP, research its animation support)",
+        "Design animation data structures (Animation, AnimationClip, Bone hierarchy, Keyframes)",
+        "Design animation timing system (integrate with Clock.java, frame-based vs time-based)",
+        "Design interpolation methods (linear, bezier, quaternion slerp for rotations)",
+        "Determine CPU vs GPU animation approach (vertex shader animation vs CPU bone calculations)",
+        "Design animation playback API (AnimationController class with play/pause/loop/speed)",
+        "Identify integration points with mesh rendering pipeline",
+        "Document performance considerations and optimization strategies",
+        "Create prototype/test case to validate chosen approach"
+    ],
+    "unknowns": [
+        "Which animation approach to use (skeletal/bone-based most common but complex, vertex morphing simpler but less flexible)",
+        "Whether ASSIMP provides animation support and if it's worth using",
+        "CPU vs GPU animation - should bone calculations happen on CPU or in vertex shaders?",
+        "Animation data format - should we support standard formats (glTF animations, FBX) or custom format?",
+        "How to handle animation blending/transitions between clips",
+        "Whether to support animation retargeting (same animation on different meshes)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/Clock.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/BouncingLineScene.java",
+        "tickets/content/UI/UI-3.json (caravan animation ticket)"
+    ],
+    "priority": 7
+}

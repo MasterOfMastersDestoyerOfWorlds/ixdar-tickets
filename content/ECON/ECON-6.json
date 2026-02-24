@@ -1,0 +1,23 @@
+{
+    "id": "ECON-6",
+    "epic": "ECON",
+    "title": "Town Traits",
+    "description": "Towns have baseline endowments and governance traits that set their character. These traits determine what goods they produce, their order/corruption levels, and their response to player actions. Traits create variety and strategic considerations.",
+    "blocked-by": [],
+    "blocks": [
+        "ECON-7"
+    ],
+    "definition-of-done": "Town trait system with multiple trait types. Traits affect production, governance, and behavior. Traits visible to player. Traits can change over time based on events.",
+    "testing-plan": "Verify trait system applies to all towns. Test traits affect gameplay correctly. Verify trait visibility. Test trait changes over time.",
+    "todos": [
+        "Design town trait categories",
+        "Implement trait effect system",
+        "Create trait display UI",
+        "Build trait evolution mechanics"
+    ],
+    "unknowns": [
+        "Number and types of traits",
+        "How traits evolve"
+    ],
+    "priority": 6
+}

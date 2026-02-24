@@ -1,0 +1,30 @@
+{
+    "id": "TRADE-11",
+    "epic": "TRADE",
+    "title": "Top Bar HUD",
+    "description": "Implement the top bar HUD for the trade game scene. Display gold counter with tooltip showing current route upkeep costs. Show capacity tracker displaying tonnage capacity vs current contract production. Add remaining distance metric for route planning. Include week/month turn indicator.",
+    "status": "IN_PROGRESS",
+    "blocked-by": [
+        "TRADE-10"
+    ],
+    "blocks": [
+        "TRADE-12",
+        "TRADE-13",
+        "TRADE-14"
+    ],
+    "definition-of-done": "Top bar displays all metrics. Gold tooltip shows upkeep breakdown. Capacity bar updates with contract changes. Distance metric reflects route state. Turn indicator shows current game time.",
+    "testing-plan": "Verify all metrics display correctly. Test tooltip hover behavior. Confirm capacity updates when contracts change. Test turn indicator advances.",
+    "todos": [
+        "Create TopBarHUD component class",
+        "Implement gold counter with upkeep tooltip",
+        "Add capacity tracker (tonnage vs contracts)",
+        "Implement remaining distance display",
+        "Add turn indicator (week/month)"
+    ],
+    "unknowns": [
+        "Exact upkeep calculation formula",
+        "Turn duration (week vs month)",
+        "Visual design for capacity bar"
+    ],
+    "priority": 2
+}

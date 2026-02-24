@@ -1,0 +1,25 @@
+{
+    "id": "TRADE-12",
+    "epic": "TRADE",
+    "title": "Contracts System",
+    "description": "Implement the contracts system for buying and selling goods. Create contract data model with resource type, quantity, price, and destination city. Build right panel UI showing current contracts and potential contracts. Display earnings calculation for potential contracts based on current route. Allow clicking contracts to accept them, adding to tonnage tracker. Prevent accepting contracts that exceed route capacity.",
+    "blocked-by": [
+        "TRADE-11"
+    ],
+    "blocks": [],
+    "definition-of-done": "Contract data model complete. Right panel displays contracts. Earnings calculation works. Click to accept updates tonnage. Capacity limit enforced.",
+    "testing-plan": "Test contract creation and display. Verify earnings calculations. Test accept/reject flow. Confirm capacity limits work.",
+    "todos": [
+        "Create Contract data class",
+        "Build ContractPanel UI component",
+        "Implement earnings calculation based on route",
+        "Add contract accept/reject logic",
+        "Integrate with tonnage tracker"
+    ],
+    "unknowns": [
+        "Contract pricing formulas",
+        "How many contracts available per city",
+        "Contract expiration mechanics"
+    ],
+    "priority": 5
+}

@@ -1,0 +1,18 @@
+{
+    "id": "IX-1",
+    "title": "Create Tickets from Design Document",
+    "description": "Read @IxdarDesignDocument.md and create tickets for every idea in the document",
+    "status": "complete",
+    "blocked-by": [],
+    "definition-of-done": "There are tickets for every idea in the design document with descriptions of how we can implement each one, which tickets block which tickets, titles, and unique ids, in ./tickets, each ticket has a definition of done and a testing plan",
+    "todos": [
+        "Create tickets - DONE",
+        "Have Andrew Review tickets",
+        "Create minimal web interface for viewing tickets"
+    ],
+    "unknowns": [
+        "What interface do we want to use to display the tickets"
+    ],
+    "completion-notes": "Created 85 tickets across 12 epics: WORLD (9), SURV (8), ROAD (8), TRADE (10), ECON (8), INVEST (8), SMUG (5), SPY (7), DIPLO (8), PIRATE (5), UI (4), CORP (5). All tickets include descriptions, blocked-by/blocks relationships, definition-of-done, testing-plan, todos, and unknowns. Epic index stored in epics.json.",
+    "priority": 1
+}

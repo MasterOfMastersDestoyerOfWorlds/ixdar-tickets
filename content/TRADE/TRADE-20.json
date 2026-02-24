@@ -1,0 +1,27 @@
+{
+    "id": "TRADE-20",
+    "epic": "TRADE",
+    "title": "Organic Irregular Quad Trade Grid",
+    "description": "Implement an Oskar-style irregular grid generator for the trade map using deterministic blue-noise point sampling, iterative Lloyd/CVT relaxation, and a quad-construction pass that produces playable tile topology. Integrate the generated grid into trade-map runtime flow so tile adjacency, placement, and route/pathing systems can consume it behind a controlled enablement path.",
+    "status": "IN_PROGRESS",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Given a fixed seed and map bounds, grid generation is deterministic across runs. The generation pipeline executes in staged steps (sampling, relaxation, quad construction) and exports topology/adjacency data usable by trade-map systems. Produced meshes satisfy topology expectations (quad-first interior with explicitly handled boundary exceptions) and preserve connected, traversable tile adjacency. Runtime integration allows toggling or selecting the irregular grid path without regressing existing map behavior when disabled.",
+    "testing-plan": "Run generation with multiple fixed seeds and verify identical output hashes/metrics per seed across repeated runs. Validate topology invariants on representative map sizes: expected interior quad ratio, no duplicate edges, no orphaned vertices, and consistent boundary handling. Execute integration checks that load generated grids into trade-map placement/pathing flows and verify adjacency traversal remains valid. Benchmark generation/runtime overhead on small, medium, and large map targets and confirm performance stays within agreed frame/load budgets.",
+    "todos": [
+        "Implement deterministic blue-noise (or Poisson-disc) sampling with seed-controlled output for map bounds",
+        "Implement configurable Lloyd/CVT relaxation iterations and expose debug metrics per iteration",
+        "Implement quad-construction pipeline from relaxed Voronoi/dual structures with explicit boundary-case handling",
+        "Build topology validation utilities (quad ratio, edge/vertex integrity, connected adjacency graph checks)",
+        "Integrate irregular quad grid output into trade map tile/adjacency consumers behind a feature toggle or selection path",
+        "Add debug visualization hooks for sampled points, relaxed cells, and final quad topology",
+        "Add automated seed-regression and performance validation scenarios for representative map sizes"
+    ],
+    "unknowns": [
+        "Whether strict all-quad output is required or boundary non-quad exceptions are acceptable for gameplay",
+        "Target generation budget split between startup precompute and runtime updates for map edits",
+        "Preferred source of truth for topology data (mesh-first vs adjacency-graph-first) in downstream trade systems",
+        "How irregular grid enablement should be surfaced in dev tooling and future player-facing map settings"
+    ],
+    "priority": 1
+}

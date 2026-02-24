@@ -1,0 +1,23 @@
+{
+    "id": "SPY-3",
+    "epic": "SPY",
+    "title": "Information Decay",
+    "description": "Intel becomes stale over time. Route information, prices, and competitor plans change. Old intel may be misleading or wrong. Players must continuously invest to maintain current intelligence.",
+    "blocked-by": [
+        "SPY-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Intel has freshness/age tracking. Old intel marked as potentially stale. Very old intel removed or flagged unreliable. Freshness visible in intel display.",
+    "testing-plan": "Verify intel ages over time. Test stale marking triggers. Verify unreliable flagging. Test freshness display.",
+    "todos": [
+        "Implement intel age tracking",
+        "Create staleness thresholds",
+        "Build unreliable flagging system",
+        "Design freshness indicators"
+    ],
+    "unknowns": [
+        "Decay rate",
+        "Threshold for unreliable"
+    ],
+    "priority": 3
+}

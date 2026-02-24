@@ -1,0 +1,23 @@
+{
+    "id": "WORLD-9",
+    "epic": "WORLD",
+    "title": "Societal Breakdown",
+    "description": "There is a time limit on turns before societal breakdown occurs. Men go mad, begin killing and eating each other, and other forms of collapse emerge. This serves as a fail state that triggers map wipe and transitions to a new run. The player must reach the bottom of the well and destroy the McGuffin before breakdown occurs.",
+    "blocked-by": [
+        "WORLD-2"
+    ],
+    "blocks": [],
+    "definition-of-done": "Turn counter tracking time until breakdown. Progressive madness effects on crew. Full breakdown triggers run end and map wipe. Victory condition tied to McGuffin destruction.",
+    "testing-plan": "Verify turn counter progresses correctly. Test progressive madness effects. Verify breakdown triggers run end. Test victory condition path.",
+    "todos": [
+        "Implement turn/time counter",
+        "Design progressive madness mechanics",
+        "Create breakdown trigger and effects",
+        "Build victory condition for McGuffin destruction"
+    ],
+    "unknowns": [
+        "Number of turns before breakdown",
+        "What the McGuffin actually is"
+    ],
+    "priority": 9
+}

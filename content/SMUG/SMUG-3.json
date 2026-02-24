@@ -1,0 +1,25 @@
+{
+    "id": "SMUG-3",
+    "epic": "SMUG",
+    "title": "Police Crackdowns",
+    "description": "More smuggled goods in a market that prohibits them can lead to police crackdowns. Saturation of contraband triggers increased enforcement. This creates a timing game - get in and out before crackdowns begin.",
+    "blocked-by": [
+        "SMUG-2"
+    ],
+    "blocks": [
+        "SMUG-4"
+    ],
+    "definition-of-done": "Contraband saturation tracking per city. High saturation triggers crackdown state. Crackdowns increase detection risk. Saturation visible to player.",
+    "testing-plan": "Verify saturation tracking works. Test crackdown trigger. Verify increased detection during crackdown. Test saturation display.",
+    "todos": [
+        "Implement contraband saturation tracking",
+        "Create crackdown trigger thresholds",
+        "Build crackdown effect on detection",
+        "Design saturation indicator"
+    ],
+    "unknowns": [
+        "Saturation thresholds",
+        "Crackdown duration"
+    ],
+    "priority": 3
+}

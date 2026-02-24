@@ -1,0 +1,23 @@
+{
+    "id": "SPY-6",
+    "epic": "SPY",
+    "title": "Low-Level Infiltration",
+    "description": "Hire low-level workers in rival offices or infiltrate vendors. Target lower-security portions of competitor organizations for easier access. Build networks of informants over time.",
+    "blocked-by": [
+        "SPY-5"
+    ],
+    "blocks": [],
+    "definition-of-done": "Hire informants in rival organizations. Different access levels with different info quality. Network building over time. Informant management UI.",
+    "testing-plan": "Verify informant hiring works. Test access levels affect intel. Verify network building. Test informant management.",
+    "todos": [
+        "Implement informant hiring mechanics",
+        "Create access level system",
+        "Build informant network tracking",
+        "Design informant management UI"
+    ],
+    "unknowns": [
+        "Informant costs",
+        "Access level definitions"
+    ],
+    "priority": 6
+}

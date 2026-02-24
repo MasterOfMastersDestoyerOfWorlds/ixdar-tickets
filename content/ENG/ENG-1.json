@@ -1,0 +1,22 @@
+{
+    "id": "ENG-1",
+    "epic": "ENGINE",
+    "title": "Controller Manager",
+    "description": "Create a ControllerGuy class (similar to KeyGuy) that handles gamepad/controller input. Detect which input device is active and switch context. Support standard gamepad layout (Xbox/PlayStation style) with d-pad for layer navigation, sticks for camera, and face buttons for actions.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "ControllerGuy class created. Controller input detected and handled. Auto-detection of keyboard vs controller. UI hints change based on active input device.",
+    "testing-plan": "Test with Xbox controller. Verify all mapped actions work. Test switching between keyboard and controller. Verify UI hints update.",
+    "todos": [
+        "Create ControllerGuy class in platform/input/",
+        "Add GLFW gamepad polling or similar",
+        "Map controller buttons to existing KeyActions",
+        "Create InputManager to detect active device",
+        "Add controller icons/hints to UI when controller active"
+    ],
+    "unknowns": [
+        "Which controller library to use (GLFW gamepad API or external)",
+        "How to handle controller deadzone and sensitivity"
+    ],
+    "priority": 8
+}

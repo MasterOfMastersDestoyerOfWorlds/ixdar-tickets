@@ -1,0 +1,21 @@
+{
+    "id": "INVEST-3",
+    "epic": "INVEST",
+    "title": "Train Technology",
+    "description": "Late-game transport upgrade introducing trains. Trains provide massive capacity and speed improvements but require significant infrastructure investment (rails, stations). This transforms the trade landscape in late game.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Train technology unlockable in late game. Rail infrastructure buildable. Trains provide major speed/capacity boost. Train routes operate differently from caravan routes.",
+    "testing-plan": "Verify train unlock conditions. Test rail construction. Verify train speed/capacity benefits. Test train route operations.",
+    "todos": [
+        "Design train unlock requirements",
+        "Implement rail infrastructure building",
+        "Create train operations mechanics",
+        "Build train route management UI"
+    ],
+    "unknowns": [
+        "Train unlock timing",
+        "Rail construction costs"
+    ],
+    "priority": 3
+}

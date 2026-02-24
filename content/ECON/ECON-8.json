@@ -1,0 +1,21 @@
+{
+    "id": "ECON-8",
+    "epic": "ECON",
+    "title": "Tariffs and Embargoes",
+    "description": "Tariffs, embargoes, piracy, and wars alter costs and market volatility. Political events create trade disruptions. Players can exploit or suffer from these disruptions depending on their positioning and adaptability.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Tariff system affecting trade between regions. Embargo system blocking certain goods/routes. War state increasing costs and risks. Events trigger economic disruptions.",
+    "testing-plan": "Verify tariffs add costs correctly. Test embargoes block trade. Verify war effects on costs/risk. Test event-triggered disruptions.",
+    "todos": [
+        "Implement tariff calculation system",
+        "Create embargo mechanics",
+        "Build war state effects",
+        "Design economic event system"
+    ],
+    "unknowns": [
+        "Tariff rate ranges",
+        "How wars start and end"
+    ],
+    "priority": 8
+}

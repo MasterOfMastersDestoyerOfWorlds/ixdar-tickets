@@ -1,0 +1,36 @@
+{
+    "id": "UI-7",
+    "epic": "UI",
+    "title": "Arrow Line SDF: Background Fill, Border, Chevron Spacing, and Animation Fix",
+    "description": "Improve the arrow line SDF shader (sdf_arrow_line.fs) and its scene (ArrowLineScene) with three visual enhancements and one bug fix. (1) Add an internal background color that fills the interior of the line shape, bounded by where the chevrons stop — giving the line a solid fill behind the chevrons. (2) Add a border color region that starts at the distance where the chevrons end and extends a configurable quarter-distance further outward, creating a visible outline around the arrow line. (3) Adjust chevron spacing so that the negative space between consecutive chevrons is itself the shape of a chevron — i.e. the gap mirrors the chevron geometry. (4) Fix the animation jump bug: the current dashPhase-driven animation causes chevrons to snap/jump after a certain time, likely because the phase value doesn't wrap cleanly back to zero the way the dashed line shader does. The dashed line shader (sdf_dashed_line.fs) uses a sine-based wave that naturally wraps, while the arrow line shader uses a linear offset with mod() that introduces a discontinuity.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The arrow line has a solid internal background color filling the line shape up to where the chevron edges end. 2. A border color region extends outward from the chevron edge by an adjustable fraction (default one quarter of the chevron extent). 3. Background color, border color, and border width are controllable via shader uniforms. 4. Chevrons are spaced so the negative space between them exactly mirrors the chevron shape (gap == chevron). 5. The chevron animation loops smoothly with no visible jump or snap at any point in the cycle. 6. The dashed line scene still works correctly (no regressions). 7. The ArrowLineScene demonstrates all new features visually.",
+    "testing-plan": "1. Launch the arrow-line-canvas scene and verify the line has a visible solid fill behind the chevrons. 2. Verify the border region is visible as a distinct color band outside the chevron edges. 3. Adjust the border width uniform and confirm the border grows/shrinks accordingly. 4. Visually inspect chevron spacing: the gap between chevrons should look like an inverted chevron of the same size. 5. Let the animation run for 60+ seconds and confirm no jump or snap occurs at any point. 6. Compare with the dashed-line-canvas scene to confirm the dashed line animation still loops smoothly. 7. Move the endpoints while animating and verify no visual artifacts.",
+    "todos": [
+        "Diagnose the animation jump bug: trace how dashPhase accumulates and wraps in the arrow line vs. the dashed line shader",
+        "Fix the animation phase wrapping in sdf_arrow_line.fs to loop seamlessly (reference sdf_dashed_line.fs approach)",
+        "Add background fill uniform (vec4 backgroundColor) and render a solid fill inside the line shape up to the chevron boundary",
+        "Add border color uniform (vec4 borderColor) and border width uniform (float borderWidth) to the shader",
+        "Implement the border region: color the band from chevron edge outward by borderWidth fraction",
+        "Adjust chevron spacing formula so the gap between chevrons matches the chevron shape (dashLength = 2x single chevron extent)",
+        "Update ArrowLineScene.java to pass the new uniforms (background color, border color, border width)",
+        "Validate smooth animation loop over extended runtime with no discontinuities"
+    ],
+    "unknowns": [
+        "Whether the animation bug is purely in the shader phase wrapping or also in the Java-side dashPhase accumulation",
+        "Exact formula for matching negative-space shape to chevron shape — may need dashLength to equal twice the chevron width at the line edge",
+        "Whether the border should have its own anti-aliasing smoothstep or share edgeSharpness with the main line"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/ArrowLineScene.java",
+        "ixdar-app/src/main/resources/glsl/sdf_arrow_line.fs",
+        "ixdar-app/src/main/resources/glsl/sdf_dashed_line.fs",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/DashedLineScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/sdf/SDFLine.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/ShaderProgram.java"
+    ],
+    "priority": 4
+}

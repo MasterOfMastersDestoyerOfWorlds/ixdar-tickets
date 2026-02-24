@@ -1,0 +1,23 @@
+{
+    "id": "SURV-1",
+    "epic": "SURV",
+    "title": "Outer Rim Flora",
+    "description": "The outer layer of the island has Iceland-like sparse vegetation. Few trees exist, and those present are in hard-to-reach places or are big knotted deadwood. The player must work with this limited vegetation for resources like lumber and fuel.",
+    "blocked-by": [
+        "WORLD-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Outer rim biome renders with sparse, Iceland-like vegetation. Trees are rare and positioned in difficult locations. Deadwood serves as harvestable resource.",
+    "testing-plan": "Verify outer rim vegetation density matches design. Test tree placement in challenging locations. Verify deadwood is harvestable.",
+    "todos": [
+        "Design outer rim vegetation types",
+        "Implement sparse vegetation placement algorithm",
+        "Create deadwood resource system",
+        "Build tree accessibility challenge mechanics"
+    ],
+    "unknowns": [
+        "Exact vegetation density values",
+        "Types of wood/fuel resources"
+    ],
+    "priority": 1
+}

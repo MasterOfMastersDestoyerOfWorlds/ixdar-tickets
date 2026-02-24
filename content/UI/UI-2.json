@@ -1,0 +1,23 @@
+{
+    "id": "UI-2",
+    "epic": "UI",
+    "title": "Coin Interaction",
+    "description": "Players can pick up and drop coins in the treasury view. This adds tactile satisfaction and potentially enables spending directly from the treasury. Coins have physics when dropped.",
+    "blocked-by": [
+        "UI-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Coins are pickable objects. Picked coins follow cursor/controller. Dropped coins have physics. Optional: spending via coin manipulation.",
+    "testing-plan": "Verify coins can be picked up. Test following cursor. Verify drop physics. Test any spending integration.",
+    "todos": [
+        "Implement coin pickup mechanics",
+        "Create cursor/controller following",
+        "Build drop physics system",
+        "Design spending integration (optional)"
+    ],
+    "unknowns": [
+        "Physics engine requirements",
+        "Spending mechanics details"
+    ],
+    "priority": 5
+}

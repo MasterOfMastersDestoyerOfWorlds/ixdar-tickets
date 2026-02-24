@@ -1,0 +1,25 @@
+{
+    "id": "SPY-1",
+    "epic": "SPY",
+    "title": "Espionage Resource System",
+    "description": "Spying requires spending money and effort. Unlike typical hidden resource gates, espionage reveals competitor information in bits and pieces over time. Investment in spying yields gradual intel about rival operations.",
+    "blocked-by": [],
+    "blocks": [
+        "SPY-2",
+        "SPY-3",
+        "SPY-4"
+    ],
+    "definition-of-done": "Espionage budget allocation system. Spying produces intel over time. Higher investment yields faster/more intel. Espionage costs visible in finances.",
+    "testing-plan": "Verify espionage budget allocation. Test intel generation over time. Verify investment-to-intel scaling. Test cost tracking.",
+    "todos": [
+        "Implement espionage budget system",
+        "Create intel generation mechanics",
+        "Build investment scaling formula",
+        "Design espionage cost display"
+    ],
+    "unknowns": [
+        "Base espionage costs",
+        "Intel generation rates"
+    ],
+    "priority": 1
+}

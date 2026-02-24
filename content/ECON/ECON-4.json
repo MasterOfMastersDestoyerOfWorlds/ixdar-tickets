@@ -1,0 +1,21 @@
+{
+    "id": "ECON-4",
+    "epic": "ECON",
+    "title": "Stockpile Buffers",
+    "description": "Stockpiles buffer price shocks. Cities and players can store goods to smooth out price volatility. Storage has costs and capacity limits. Strategic stockpiling can protect against market swings or enable speculation.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Stockpile storage for cities and players. Storage capacity limits enforced. Storage costs applied over time. Stockpiles affect local supply/demand.",
+    "testing-plan": "Verify stockpile storage works. Test capacity limits. Verify storage costs. Test effect on supply/demand.",
+    "todos": [
+        "Implement city stockpile system",
+        "Create player storage mechanics",
+        "Build capacity limits and costs",
+        "Design stockpile impact on prices"
+    ],
+    "unknowns": [
+        "Storage cost rates",
+        "Capacity limits per location"
+    ],
+    "priority": 4
+}

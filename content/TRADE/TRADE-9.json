@@ -1,0 +1,23 @@
+{
+    "id": "TRADE-9",
+    "epic": "TRADE",
+    "title": "Hierarchy Navigation",
+    "description": "Navigation through the cluster hierarchy using d-pad: up/down to go up or down the hierarchy, left/right to go clockwise/anticlockwise around the selected knot. This provides intuitive gamepad-friendly route manipulation.",
+    "blocked-by": [
+        "TRADE-8"
+    ],
+    "blocks": [],
+    "definition-of-done": "D-pad navigation through hierarchy levels. Up/down moves between hierarchy levels. Left/right cycles through knot members. Visual feedback for current selection.",
+    "testing-plan": "Verify d-pad up/down changes hierarchy level. Test left/right cycles within knot. Verify visual selection feedback.",
+    "todos": [
+        "Implement d-pad input handling",
+        "Create hierarchy level navigation",
+        "Build knot member cycling",
+        "Design selection visual feedback"
+    ],
+    "unknowns": [
+        "Keyboard alternative controls",
+        "Selection animation style"
+    ],
+    "priority": 15
+}

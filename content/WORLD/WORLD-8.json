@@ -1,0 +1,21 @@
+{
+    "id": "WORLD-8",
+    "epic": "WORLD",
+    "title": "Previous Run Artifacts",
+    "description": "Players may find structures and artifacts from their own previous runs, rusted and decayed by the island's moisture. Like the book the Fellowship finds in Moria, these artifacts spell doom but also provide clues. Players piece together how their previous run failed through item descriptions, books, recognized names, and towns they previously founded.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Persistence system saves key structures/artifacts from failed runs. Decayed versions appear in subsequent playthroughs. Item descriptions and journals reference player's previous actions.",
+    "testing-plan": "Verify artifacts persist across runs in decayed state. Test that item descriptions reference previous run actions. Verify players can piece together their prior failure.",
+    "todos": [
+        "Design cross-run persistence system",
+        "Implement artifact decay mechanics",
+        "Create procedural item description generation",
+        "Build journal/book content referencing previous runs"
+    ],
+    "unknowns": [
+        "How much persists between runs",
+        "Storage approach for run history"
+    ],
+    "priority": 8
+}

@@ -1,0 +1,23 @@
+{
+    "id": "CORP-3",
+    "epic": "CORP",
+    "title": "Manager Skill Levels",
+    "description": "Managers have varying levels of competence. Better managers cost more but produce better results. Skill affects efficiency, error rates, and ability to handle complex operations.",
+    "blocked-by": [
+        "CORP-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Manager skill tiers. Skill affects operation outcomes. Higher skill managers cost more. Skill visible in hiring and management UI.",
+    "testing-plan": "Verify skill tiers work. Test outcome effects. Verify cost scaling. Test skill display.",
+    "todos": [
+        "Design manager skill tiers",
+        "Implement skill effects on operations",
+        "Create skill-based cost scaling",
+        "Build skill display in UI"
+    ],
+    "unknowns": [
+        "Number of skill tiers",
+        "Skill effect magnitudes"
+    ],
+    "priority": 3
+}

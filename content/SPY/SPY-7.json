@@ -1,0 +1,21 @@
+{
+    "id": "SPY-7",
+    "epic": "SPY",
+    "title": "Actionable Intelligence",
+    "description": "Intel creates actionable levers: reroute your own routes to match/beat rivals, undercut their prices, legislate to ban their profitable goods, raid their routes with privateers. Espionage is about creating opportunities, not just numeric buffs.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Intel enables specific actions. Route matching suggestions from intel. Price undercutting calculations. Links to legislation and privateer actions. Action suggestions in intel UI.",
+    "testing-plan": "Verify intel enables actions. Test route matching suggestions. Verify price calculations. Test links to other systems.",
+    "todos": [
+        "Implement intel-to-action mapping",
+        "Create route matching suggestions",
+        "Build undercutting calculations",
+        "Design action integration with other systems"
+    ],
+    "unknowns": [
+        "How automatic vs manual actions are",
+        "Integration complexity"
+    ],
+    "priority": 7
+}

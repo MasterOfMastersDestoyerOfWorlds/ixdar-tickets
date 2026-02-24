@@ -1,0 +1,25 @@
+{
+    "id": "TRADE-15",
+    "epic": "TRADE",
+    "title": "Travel Cost Tool",
+    "description": "Create a new tool for visualizing travel costs between cities. Click on city A, then city B to show the cost of traveling between them. Factor in distance, road quality, and terrain type. Display breakdown of cost components. Show estimated time for the journey.",
+    "blocked-by": [
+        "TRADE-14"
+    ],
+    "blocks": [],
+    "definition-of-done": "Tool selectable from tool menu. Click flow for selecting cities works. Cost calculation includes all factors. Breakdown displayed clearly. Time estimate shown.",
+    "testing-plan": "Test tool selection. Verify city click detection. Confirm cost calculation accuracy. Test various route combinations.",
+    "todos": [
+        "Create TravelCostTool class extending Tool",
+        "Implement two-city selection flow",
+        "Calculate travel cost with all factors",
+        "Display cost breakdown tooltip",
+        "Add journey time estimate"
+    ],
+    "unknowns": [
+        "Cost calculation formula",
+        "Terrain type effects",
+        "Tool UI placement"
+    ],
+    "priority": 17
+}

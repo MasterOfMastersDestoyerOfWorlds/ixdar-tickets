@@ -1,0 +1,23 @@
+{
+    "id": "UI-1",
+    "epic": "UI",
+    "title": "3D Treasury View",
+    "description": "A 3D view of the player's treasury where coins are stacked relative to how rich the player is. This provides a visceral, satisfying representation of wealth accumulation. The treasury serves as a visual scorecard.",
+    "blocked-by": [],
+    "blocks": [
+        "UI-2"
+    ],
+    "definition-of-done": "3D treasury scene with coin stacks. Stack height scales with wealth. Coins render with appropriate materials. Treasury accessible from main UI.",
+    "testing-plan": "Verify treasury renders correctly. Test stack scaling with wealth. Verify coin materials look good. Test navigation to treasury.",
+    "todos": [
+        "Design treasury 3D environment",
+        "Implement coin stack generation",
+        "Create wealth-to-height scaling",
+        "Build treasury navigation"
+    ],
+    "unknowns": [
+        "Treasury visual style",
+        "Stack scaling formula"
+    ],
+    "priority": 4
+}

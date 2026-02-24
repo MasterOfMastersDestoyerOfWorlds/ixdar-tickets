@@ -1,0 +1,24 @@
+{
+    "id": "WORLD-2",
+    "epic": "WORLD",
+    "title": "Time Fog Mechanics",
+    "description": "The island is unmoored from time. A fog surrounds the island that causes time dilation - expeditions that enter the fog experience weeks, but decades may pass for those outside. The seas are only calm enough for passage twice a year when tides and trade winds disperse the fog temporarily. Returning expedition members may speak unrecognizable languages and be from expeditions sent long ago.",
+    "blocked-by": [],
+    "blocks": [
+        "WORLD-5",
+        "WORLD-9"
+    ],
+    "definition-of-done": "Time fog system is implemented with configurable time dilation ratios. Safe passage windows occur on a scheduled basis. NPCs returning from the fog can be from different time periods.",
+    "testing-plan": "Test that expeditions entering fog experience correct time dilation. Verify safe passage windows trigger on schedule. Test NPC generation with varied temporal origins.",
+    "todos": [
+        "Implement time dilation calculation system",
+        "Create fog boundary visualization",
+        "Design safe passage window scheduling",
+        "Build temporal origin system for returning NPCs"
+    ],
+    "unknowns": [
+        "Exact time dilation ratio",
+        "How to handle player death/restart across time periods"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,23 @@
+{
+    "id": "INVEST-7",
+    "epic": "INVEST",
+    "title": "Station Upgrades",
+    "description": "Station upgrades for storing feed, switching drivers, and other amenities. Upgraded stations provide better efficiency and enable longer routes by refreshing caravans mid-journey.",
+    "blocked-by": [
+        "INVEST-6"
+    ],
+    "blocks": [],
+    "definition-of-done": "Station upgrade tiers available. Upgrades provide specific benefits (feed storage, driver switch). Upgrade costs and prerequisites. Upgrade effects visible in route planning.",
+    "testing-plan": "Verify upgrade purchase works. Test each upgrade benefit. Verify prerequisites enforced. Test effects in route planning.",
+    "todos": [
+        "Design station upgrade tiers",
+        "Implement upgrade-specific benefits",
+        "Create upgrade purchase mechanics",
+        "Build upgrade display in route planning"
+    ],
+    "unknowns": [
+        "Number of upgrade tiers",
+        "Specific benefits per upgrade"
+    ],
+    "priority": 7
+}

@@ -1,0 +1,21 @@
+{
+    "id": "CORP-4",
+    "epic": "CORP",
+    "title": "Manager Corruption",
+    "description": "Risk of embezzlement from corrupt managers. Some managers may skim profits or make side deals. Higher corruption risk with lower oversight. Detection and consequences for corrupt managers.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Manager corruption stat. Corruption leads to profit skimming. Detection mechanics for catching corruption. Consequences for corrupt managers.",
+    "testing-plan": "Verify corruption stat exists. Test profit skimming mechanics. Verify detection works. Test consequence application.",
+    "todos": [
+        "Implement manager corruption stat",
+        "Create profit skimming mechanics",
+        "Build corruption detection system",
+        "Design consequence mechanics"
+    ],
+    "unknowns": [
+        "Corruption probability factors",
+        "Skimming percentages"
+    ],
+    "priority": 4
+}

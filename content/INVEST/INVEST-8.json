@@ -1,0 +1,21 @@
+{
+    "id": "INVEST-8",
+    "epic": "INVEST",
+    "title": "Headquarters Storage",
+    "description": "Increase storage at headquarters to have goods from later in the route sold early in the next turn. This enables strategic timing of sales across turn boundaries. Segregating routes by profitability is an alternative strategy.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Headquarters storage upgrades available. Stored goods carry to next turn. Storage affects sale timing options. Storage costs and capacity visible.",
+    "testing-plan": "Verify storage upgrade purchase. Test goods carry across turns. Verify timing options work. Test storage display.",
+    "todos": [
+        "Implement headquarters storage upgrades",
+        "Create cross-turn goods persistence",
+        "Build sale timing mechanics",
+        "Design storage management UI"
+    ],
+    "unknowns": [
+        "Storage capacity tiers",
+        "Cross-turn timing granularity"
+    ],
+    "priority": 8
+}

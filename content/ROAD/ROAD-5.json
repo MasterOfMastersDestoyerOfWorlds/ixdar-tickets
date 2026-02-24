@@ -1,0 +1,21 @@
+{
+    "id": "ROAD-5",
+    "epic": "ROAD",
+    "title": "Per-Foot Contracts",
+    "description": "Some contracts pay per foot of road built, incentivizing winding routes that maximize length. This creates a short-term vs long-term tension: winding routes earn more now but are less efficient later. Good for driving out competitors on specific roads.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Per-foot payment contracts available. Payment calculated by road length. Winding routes produce more payment. UI shows length vs efficiency tradeoff.",
+    "testing-plan": "Verify per-foot payment calculation. Test that winding routes earn more. Verify tradeoff visibility in contract UI.",
+    "todos": [
+        "Implement road length measurement",
+        "Create per-foot payment calculation",
+        "Design contract types with different incentives",
+        "Build tradeoff visualization in contract UI"
+    ],
+    "unknowns": [
+        "Per-foot payment rates",
+        "Contract availability rules"
+    ],
+    "priority": 5
+}

@@ -1,0 +1,21 @@
+{
+    "id": "DIPLO-1",
+    "epic": "DIPLO",
+    "title": "Tariff Lobbying",
+    "description": "Push cities to enact tariffs on rival goods. If you know your rival trades heavily in certain goods, lobby to tax those goods. Uses political influence and money to change city trade policies against competitors.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Tariff lobbying action available. Success chance based on influence/money spent. Successful lobbying adds tariffs on target goods. Tariff effects visible in trade calculations.",
+    "testing-plan": "Verify lobbying action works. Test success probability. Verify tariffs apply correctly. Test tariff visibility.",
+    "todos": [
+        "Implement tariff lobbying action",
+        "Create success probability calculation",
+        "Build tariff application mechanics",
+        "Design tariff display in trade UI"
+    ],
+    "unknowns": [
+        "Lobbying costs",
+        "Success probability factors"
+    ],
+    "priority": 1
+}

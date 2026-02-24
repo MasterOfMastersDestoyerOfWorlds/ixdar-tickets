@@ -1,0 +1,21 @@
+{
+    "id": "TRADE-6",
+    "epic": "TRADE",
+    "title": "City Housing Costs",
+    "description": "Players must pay housing costs at each city their route visits. This is a per-city operational expense. Housing quality may affect rest and next-day efficiency.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Housing cost per city visited. Costs vary by city. Optional housing quality tiers. Costs factored into route profitability calculation.",
+    "testing-plan": "Verify housing costs apply per city. Test city-specific cost variation. Verify integration with profitability display.",
+    "todos": [
+        "Implement per-city housing costs",
+        "Create city-specific cost variation",
+        "Build housing quality tiers (optional)",
+        "Integrate with route cost display"
+    ],
+    "unknowns": [
+        "Housing cost ranges",
+        "Quality tier effects"
+    ],
+    "priority": 13
+}

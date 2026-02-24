@@ -1,0 +1,21 @@
+{
+    "id": "CORP-5",
+    "epic": "CORP",
+    "title": "Ownership Scaling",
+    "description": "Full ownership vs delegated management tradeoffs. Owning everything directly gives best margins but limits scale. Delegating allows growth but with efficiency losses. Strategic choice about organization structure.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Direct ownership option with full profits. Delegated management with profit sharing. Scaling limits on direct ownership. Organization structure visualization.",
+    "testing-plan": "Verify ownership options work. Test profit distribution. Verify scaling limits. Test structure visualization.",
+    "todos": [
+        "Implement ownership tracking",
+        "Create profit distribution mechanics",
+        "Build management capacity limits",
+        "Design organization structure display"
+    ],
+    "unknowns": [
+        "Management capacity limits",
+        "Profit distribution formulas"
+    ],
+    "priority": 5
+}

@@ -1,0 +1,23 @@
+{
+    "id": "SPY-4",
+    "epic": "SPY",
+    "title": "Counter-Intelligence",
+    "description": "Counter-intelligence raises detection risk for spies and adds red herrings to intercepted intel. Competitors may invest in counter-intel, making espionage harder and results less reliable.",
+    "blocked-by": [
+        "SPY-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Counter-intel investment option for all players. Counter-intel increases spy detection chance. Red herring intel can be generated. Counter-intel strength visible to owner only.",
+    "testing-plan": "Verify counter-intel investment works. Test increased detection chance. Verify red herrings generate. Test visibility restrictions.",
+    "todos": [
+        "Implement counter-intel investment",
+        "Create detection chance modifiers",
+        "Build red herring generation",
+        "Design counter-intel strength display"
+    ],
+    "unknowns": [
+        "Counter-intel effectiveness scaling",
+        "Red herring frequency"
+    ],
+    "priority": 4
+}

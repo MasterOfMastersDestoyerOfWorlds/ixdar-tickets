@@ -1,0 +1,88 @@
+{
+    "epics": [
+        {
+            "prefix": "ENG",
+            "name": "Game Engine",
+            "priority": 1,
+            "description": "Controllers, Managers, Rendering, etc."
+        },
+        {
+            "prefix": "TRADE",
+            "name": "Trade Routes",
+            "priority": 2,
+            "description": "Core gameplay loop, route design, caravans, turn order"
+        },
+        {
+            "prefix": "UI",
+            "name": "User Interface",
+            "priority": 3,
+            "description": "Treasury view, trade route UI, d-pad controls"
+        },
+        {
+            "prefix": "ECON",
+            "name": "Economy",
+            "priority": 10,
+            "description": "Supply/demand, prices, cities as producers/consumers"
+        },
+        {
+            "prefix": "WORLD",
+            "name": "World Building",
+            "priority": 11,
+            "description": "Island setting, time fog, colonial companies, and atmosphere"
+        },
+        {
+            "prefix": "SURV",
+            "name": "Survival & Colony",
+            "priority": 12,
+            "description": "Outer rim survival, resources, fisheries, base building"
+        },
+        {
+            "prefix": "ROAD",
+            "name": "Road Infrastructure",
+            "priority": 13,
+            "description": "Road building, quarrying, paving, maintenance, tolls"
+        },
+        {
+            "prefix": "CORP",
+            "name": "Corporate Management",
+            "priority": 14,
+            "description": "Managers, motivation, equity, ownership scaling"
+        },
+        {
+            "prefix": "INVEST",
+            "name": "Investments",
+            "priority": 15,
+            "description": "Tech upgrades, fleet expansion, stations"
+        },
+        {
+            "prefix": "SMUG",
+            "name": "Smuggling",
+            "priority": 16,
+            "description": "Prohibited goods, risk/reward, police crackdowns"
+        },
+        {
+            "prefix": "SPY",
+            "name": "Espionage",
+            "priority": 17,
+            "description": "Spying mechanics, route revelation, counter-intel"
+        },
+        {
+            "prefix": "DIPLO",
+            "name": "Diplomacy",
+            "priority": 18,
+            "description": "Tariffs, lobbying, regulations, bribery, pressure"
+        },
+        {
+            "prefix": "PIRATE",
+            "name": "Pirates",
+            "priority": 19,
+            "description": "Privateers, tribute, hiring pirates"
+        },
+        {
+            "prefix": "IX",
+            "name": "Project Setup",
+            "priority": 99,
+            "description": "Internal project bootstrapping"
+        }
+    ]
+}

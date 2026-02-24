@@ -1,0 +1,23 @@
+{
+    "id": "ROAD-6",
+    "epic": "ROAD",
+    "title": "Road Decay System",
+    "description": "Roads have maintenance costs that scale with efficiency. Road efficiency decays over time - paved can degrade to gravel over ~5 years if not maintained. Knowing when to maintain vs let roads go fallow is an important economic decision.",
+    "blocked-by": [
+        "ROAD-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Roads decay over time without maintenance. Decay rate depends on road type. Maintenance prevents or reverses decay. Economic model for maintenance costs.",
+    "testing-plan": "Verify roads decay at correct rates. Test maintenance prevents decay. Verify decay transitions (paved to gravel). Test maintenance cost calculations.",
+    "todos": [
+        "Implement decay timer per road segment",
+        "Create decay rate per road type",
+        "Build maintenance action and costs",
+        "Design decay state transitions"
+    ],
+    "unknowns": [
+        "Exact decay timelines",
+        "Maintenance cost formulas"
+    ],
+    "priority": 6
+}

@@ -1,0 +1,23 @@
+{
+    "id": "ROAD-3",
+    "epic": "ROAD",
+    "title": "Road Head Construction",
+    "description": "The moving front of road progress. Clearing trees and brush in front, then laying materials behind. Road heads advance progressively, requiring sustained material supply and labor. Progress is visible as roads extend across the map.",
+    "blocked-by": [
+        "ROAD-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Road construction progresses from a moving front. Clearing and laying phases work correctly. Visual progress of road extension. Material and labor requirements enforced.",
+    "testing-plan": "Verify road head advances correctly. Test clearing and laying phases. Verify visual progress. Test material/labor consumption.",
+    "todos": [
+        "Implement road head position tracking",
+        "Create clearing phase mechanics",
+        "Build laying/construction phase",
+        "Design visual progress indicators"
+    ],
+    "unknowns": [
+        "Construction speed values",
+        "Terrain effects on construction"
+    ],
+    "priority": 3
+}

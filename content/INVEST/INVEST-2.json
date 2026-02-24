@@ -1,0 +1,21 @@
+{
+    "id": "INVEST-2",
+    "epic": "INVEST",
+    "title": "Refrigeration Technology",
+    "description": "Refrigeration technology allows preservation of perishables for longer periods. This is a significant upgrade that opens new trade possibilities for food and other perishable goods across longer routes.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Refrigeration upgrade available for purchase. Upgrade extends perishable decay time. Works on caravans and storage. Cost/benefit visible in upgrade UI.",
+    "testing-plan": "Verify refrigeration purchase works. Test decay extension effect. Verify works on both caravans and storage. Test cost/benefit display.",
+    "todos": [
+        "Implement refrigeration upgrade",
+        "Create decay modifier for refrigerated goods",
+        "Build refrigerated caravan/storage designation",
+        "Design upgrade cost/benefit display"
+    ],
+    "unknowns": [
+        "Decay extension multiplier",
+        "Refrigeration upgrade cost"
+    ],
+    "priority": 2
+}

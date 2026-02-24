@@ -1,0 +1,21 @@
+{
+    "id": "PIRATE-1",
+    "epic": "PIRATE",
+    "title": "Privateer Hiring",
+    "description": "Pay privateers/pirates to rob along rival routes while ignoring your ships. Use intelligence about competitor routes to target them specifically. Privateers are deniable assets for disrupting competition.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Privateer hiring action. Privateers target specified routes. Your ships marked as friendly. Privateer effectiveness varies. Cost and success visible.",
+    "testing-plan": "Verify privateer hiring works. Test route targeting. Verify friendly ship protection. Test effectiveness variation.",
+    "todos": [
+        "Implement privateer hiring mechanics",
+        "Create route targeting system",
+        "Build friendly ship marking",
+        "Design privateer effectiveness calculation"
+    ],
+    "unknowns": [
+        "Privateer costs",
+        "Success/effectiveness factors"
+    ],
+    "priority": 1
+}

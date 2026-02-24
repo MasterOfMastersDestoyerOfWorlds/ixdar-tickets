@@ -1,0 +1,23 @@
+{
+    "id": "WORLD-4",
+    "epic": "WORLD",
+    "title": "Alchemical Demons",
+    "description": "Alchemical abominations walk out of the sea and attack villages on the coastlines of rival countries. They transmute living things - dogs into dog food, men into gold, silver, or ash. These demons spread rumors of end times and create havoc. Their presence motivates kings to fund expeditions to investigate the island. Deeper into the island, more dangerous monsters appear.",
+    "blocked-by": [],
+    "blocks": [
+        "SURV-8"
+    ],
+    "definition-of-done": "Monster system with alchemical demons that can appear on coastlines and within the island. Transmutation effects are visually represented. Monster danger scales with island depth.",
+    "testing-plan": "Verify demons spawn correctly on coastlines and island interior. Test transmutation visual effects. Verify danger scaling with depth/distance from rim.",
+    "todos": [
+        "Design demon types and abilities",
+        "Implement transmutation effect system",
+        "Create spawn system for coastal and island demons",
+        "Build danger scaling based on island depth"
+    ],
+    "unknowns": [
+        "How many demon types to implement",
+        "Combat system or avoidance-based gameplay"
+    ],
+    "priority": 4
+}

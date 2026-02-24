@@ -1,0 +1,29 @@
+{
+    "id": "TRADE-14",
+    "epic": "TRADE",
+    "title": "Route Distance System",
+    "description": "Implement the route distance limitation system. Each turn (week/month) has a maximum travel distance. Having headquarters in cities extends available range. Fresh horse purchase option at stations for additional upkeep. Road quality affects travel distance (better roads = more distance per unit).",
+    "blocked-by": [
+        "TRADE-11"
+    ],
+    "blocks": [
+        "TRADE-15",
+        "TRADE-16"
+    ],
+    "definition-of-done": "Distance limit enforced per turn. HQ placement extends range. Fresh horse stations work. Road quality modifies distance. All displayed in HUD.",
+    "testing-plan": "Test distance limits. Verify HQ range extension. Test fresh horse purchase. Confirm road quality effects.",
+    "todos": [
+        "Implement base distance limit per turn",
+        "Add HQ range extension bonus",
+        "Create fresh horse station mechanic",
+        "Implement road quality distance modifier",
+        "Display remaining distance in HUD"
+    ],
+    "unknowns": [
+        "Base distance per turn value",
+        "HQ range extension amount",
+        "Fresh horse cost and distance bonus",
+        "Road quality levels and modifiers"
+    ],
+    "priority": 8
+}

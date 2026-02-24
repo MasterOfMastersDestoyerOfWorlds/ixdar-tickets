@@ -1,0 +1,37 @@
+{
+    "id": "ENG-4",
+    "epic": "ENGINE",
+    "title": "Fix Font Aliasing - Increase Edge Blur",
+    "description": "The default font is showing aliasing artifacts. The MSDF (Multi-channel Signed Distance Field) font rendering needs increased edge blur/smoothing to reduce harsh aliasing on text edges.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Text renders with smooth anti-aliased edges. No visible aliasing artifacts at normal viewing sizes. Visual regression tests pass.",
+    "testing-plan": "1. Manual Testing: Run application and inspect text at various sizes (12pt, 16pt, 24pt, 48pt). Compare before/after screenshots. 2. Automated Visual Regression: Run FontRenderingTest.java which includes: testFontAntiAliasing (multiple sizes 12-48px), testFontCharacterSet (full alphabet, numbers, punctuation), testFontSmallSizes (8-14px where aliasing is most visible), testFontColors (colored text edge quality), testFontLargeSizes (32-64px). The harness captures framebuffer output and performs pixel-diff comparison with configurable tolerance. 3. Regression Prevention: Baseline images stored in test/resources/visual-references/ ensure future changes don't reintroduce aliasing.",
+    "todos": [
+        "[DONE] Locate font shader - sdf.fs in glsl/ folder",
+        "[DONE] Add pxRange uniform to sdf.fs (was hardcoded to 6, now uses atlas value of 4)",
+        "[DONE] Add edgeSharpness uniform for zoom-aware anti-aliasing",
+        "[DONE] Update SDFTexture.java to pass pxRange and edgeSharpness to shader",
+        "[DONE] Update Font.java to read distanceRange from atlas and pass to SDFTexture",
+        "Test with different font sizes to ensure quality",
+        "Run FontRenderingTest to establish baseline screenshots",
+        "Fine-tune baseEdgeSharpness value if needed (currently 0.8)"
+    ],
+    "unknowns": [
+        "Optimal baseEdgeSharpness value (currently 0.8, lower = softer)"
+    ],
+    "changes-made": [
+        "sdf.fs: Added pxRange uniform (default 4.0), added edgeSharpness uniform for zoom-aware softening",
+        "SDFTexture.java: Added pxRange and baseEdgeSharpness fields, setUniforms passes zoom-scaled edgeSharpness",
+        "Font.java: Reads distanceRange from atlas JSON and passes to SDFTexture.setPxRange()"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/resources/glsl/sdf.fs",
+        "ixdar-app/src/main/java/ixdar/graphics/render/sdf/SDFTexture.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/Font.java",
+        "ixdar-app/test/unit/visual/VisualTestHarness.java",
+        "ixdar-app/test/unit/visual/FontRenderingTest.java"
+    ],
+    "priority": 1
+}

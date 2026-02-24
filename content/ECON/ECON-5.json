@@ -1,0 +1,21 @@
+{
+    "id": "ECON-5",
+    "epic": "ECON",
+    "title": "Perishable Decay",
+    "description": "Perishable goods decay over time. Food, certain materials, and other goods have limited shelf life. This adds urgency to trade routes and makes storage decisions more complex. Refrigeration technology can extend shelf life.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Perishable goods have decay timers. Decay reduces quantity or quality over time. Different goods have different decay rates. Decay visible in inventory.",
+    "testing-plan": "Verify decay timers work. Test decay reduces goods appropriately. Verify different decay rates per good. Test decay visibility.",
+    "todos": [
+        "Implement decay timer per good type",
+        "Create decay rate configuration",
+        "Build decay effect on quantity/quality",
+        "Design decay indicator in UI"
+    ],
+    "unknowns": [
+        "Decay rates per good type",
+        "Quality vs quantity decay approach"
+    ],
+    "priority": 5
+}

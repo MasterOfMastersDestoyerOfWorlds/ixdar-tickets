@@ -1,0 +1,31 @@
+{
+    "id": "ENG-9",
+    "epic": "ENGINE",
+    "title": "Resilient Automation API Port Binding",
+    "description": "Fix automation server startup so local development always gets an available port instead of failing with \"Address already in use: bind\". Add deterministic port selection/fallback, expose the final bound port, and keep automation usable across parallel runs.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Automation runtime no longer hard-fails when the default port is occupied. 2. Runtime attempts configured port first and falls back to an open port in a bounded range (or ephemeral). 3. Final bound port is logged clearly and available via automation health endpoint. 4. Optional override supports fixed port for deterministic tests (`ixdar.automation.port`). 5. Clear error only when no ports are available after retry strategy. 6. Unit/integration test covers occupied-port fallback behavior.",
+    "testing-plan": "1. Launch one app instance with automation enabled on default port and verify health endpoint responds. 2. Launch a second instance while first is running and verify second instance binds a different open port automatically. 3. Verify `/health` reports actual bound port for each instance. 4. Force invalid/blocked configuration and verify actionable error messaging. 5. Regression test recording/replay endpoints on fallback-bound port.",
+    "todos": [
+        "Add port binding strategy in `AutomationRuntime` (configured port -> fallback range -> optional ephemeral)",
+        "Update `AutomationApiServer`/runtime startup contract to return actual bound port",
+        "Log selected port and include in health payload consistently",
+        "Add helper utility for probing available loopback ports",
+        "Add tests for occupied-port fallback and deterministic override behavior",
+        "Document automation port behavior in developer docs"
+    ],
+    "unknowns": [
+        "Preferred fallback strategy: fixed range vs ephemeral port",
+        "Whether CLI tooling assumes static default port and needs discovery support",
+        "Whether parallel CI agents require explicit port reservation"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationInputBinder.java"
+    ],
+    "priority": 4
+}

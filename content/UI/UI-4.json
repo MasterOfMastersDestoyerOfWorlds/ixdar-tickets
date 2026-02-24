@@ -1,0 +1,24 @@
+{
+    "id": "UI-4",
+    "epic": "UI",
+    "title": "Audio Stims",
+    "description": "Gold floating to coffers accompanied by satisfying audio stimulation. Sound design reinforces the reward of successful trading. Audio feedback scales with profit magnitude.",
+    "blocked-by": [
+        "UI-3",
+        "ENG-7"
+    ],
+    "blocks": [],
+    "definition-of-done": "Gold collection has audio feedback. Sound intensity scales with profit. Multiple sound layers for big profits. Audio integrates with visual animation.",
+    "testing-plan": "Verify audio plays on gold collection. Test intensity scaling. Verify layered sounds for big profits. Test audio/visual sync.",
+    "todos": [
+        "Design gold collection sound effects",
+        "Implement profit-to-intensity scaling",
+        "Create layered audio for big profits",
+        "Sync audio with visual animation"
+    ],
+    "unknowns": [
+        "Sound design style",
+        "Intensity scaling curve"
+    ],
+    "priority": 2
+}

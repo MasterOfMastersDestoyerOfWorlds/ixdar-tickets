@@ -1,0 +1,25 @@
+{
+    "id": "TRADE-17",
+    "epic": "TRADE",
+    "title": "City Data Files",
+    "description": "Create comprehensive city data files for the trade game. Define each city with name, location, population, available resources, production rates, and consumption rates. Balance the starting economy so trade routes are viable. Implement city data loading from JSON files.",
+    "blocked-by": [],
+    "blocks": [
+        "TRADE-12"
+    ],
+    "definition-of-done": "All cities have JSON files. Data loading works correctly. Economy is balanced for gameplay. Cities have diverse resources.",
+    "testing-plan": "Verify all city files load. Test data parsing. Confirm economy balance through play testing. Check resource diversity.",
+    "todos": [
+        "Create JSON schema for city data",
+        "Implement city data loader",
+        "Create initial set of 10-15 cities",
+        "Balance production/consumption rates",
+        "Add price modifiers per city"
+    ],
+    "unknowns": [
+        "Exact number of cities needed",
+        "Resource type list",
+        "Price variation mechanics"
+    ],
+    "priority": 16
+}

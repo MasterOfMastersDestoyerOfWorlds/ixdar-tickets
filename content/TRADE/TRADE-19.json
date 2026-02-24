@@ -1,0 +1,26 @@
+{
+    "id": "TRADE-19",
+    "epic": "TRADE",
+    "title": "Collapse Operation and Game Loop Integration",
+    "description": "Split Collapse from TRADE-10 into a dedicated ticket. Implement collapse execution and preview in RoutePlanningTool, then align collapse behavior with the trade game loop so route changes, hierarchy transitions, and turn-flow side effects remain consistent.",
+    "status": "TODO",
+    "blocked-by": [
+        "TRADE-10"
+    ],
+    "blocks": [],
+    "definition-of-done": "Collapse can be selected and confirmed from RoutePlanningTool. Preview clearly shows removed pipe segments, internal crossing additions, and endpoint reconnection. Collapse preserves a single loop invariant across tested chains and fully supports undo/redo. Collapse side effects are validated against game-loop expectations (input flow, route state, and turn progression invariants).",
+    "testing-plan": "Build a route with at least 4 nodes and execute collapse between non-adjacent endpoints. Verify preview before confirm and ensure final topology is a single loop. Run undo/redo through mixed Pipe/Grow/Collapse history. Validate collapse behavior while switching modes and during normal turn-loop interactions. Add automation assertions for collapse state exposure and confirmation path.",
+    "todos": [
+        "Implement collapse execution path in RoutePlanningTool.executeCollapse",
+        "Implement collapse preview rendering in RoutePlanningTool.drawCollapsePreview",
+        "Add collapse selection/validation guards for invalid endpoint combinations",
+        "Expose collapse-relevant route state in automation payloads",
+        "Add collapse scenario to trade automation validation script"
+    ],
+    "unknowns": [
+        "Exact game-loop invariants collapse must preserve beyond loop topology",
+        "How collapse should interact with future turn economics and route upkeep updates",
+        "Whether collapse should be limited by hierarchy depth or permit cross-level operations"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,24 @@
+{
+    "id": "TRADE-1",
+    "epic": "TRADE",
+    "title": "Core Turn Loop",
+    "description": "The core gameplay loop: each turn is a loop around the player's created route, buying and selling from one city to the next. At the end of each turn, caravans zip around to each city and gold floats up to the player's coffers with audio stims.",
+    "blocked-by": [],
+    "blocks": [
+        "TRADE-2",
+        "TRADE-7"
+    ],
+    "definition-of-done": "Turn-based route execution where caravans visit cities in order. Buy/sell actions occur at each city. End of turn animation shows caravan movement and gold collection.",
+    "testing-plan": "Verify turn execution follows route order. Test buy/sell at each city. Verify end-turn animation and audio feedback.",
+    "todos": [
+        "Implement turn execution engine",
+        "Create route traversal logic",
+        "Build buy/sell action system",
+        "Design end-turn animation and audio"
+    ],
+    "unknowns": [
+        "Turn duration/pacing",
+        "Animation speed and style"
+    ],
+    "priority": 4
+}

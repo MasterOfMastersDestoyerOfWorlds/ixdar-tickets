@@ -1,0 +1,23 @@
+{
+    "id": "INVEST-4",
+    "epic": "INVEST",
+    "title": "Fleet Expansion",
+    "description": "Building more caravans expands capacity along a route for moving goods. More caravans mean more goods can be traded per turn, increasing potential profits but also operational costs.",
+    "blocked-by": [],
+    "blocks": [
+        "INVEST-5"
+    ],
+    "definition-of-done": "Caravan purchase system. More caravans increase route capacity. Operational costs scale with fleet size. Fleet management UI.",
+    "testing-plan": "Verify caravan purchase works. Test capacity increase with more caravans. Verify cost scaling. Test fleet management UI.",
+    "todos": [
+        "Implement caravan purchase mechanics",
+        "Create capacity scaling with fleet size",
+        "Build operational cost scaling",
+        "Design fleet management interface"
+    ],
+    "unknowns": [
+        "Caravan purchase cost",
+        "Capacity per caravan"
+    ],
+    "priority": 4
+}

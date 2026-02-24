@@ -1,0 +1,25 @@
+{
+    "id": "SMUG-2",
+    "epic": "SMUG",
+    "title": "Smuggling Risk/Reward",
+    "description": "In early game, smuggling is beneficial given high prices and low risk of being caught. Prohibited goods command premium prices. Risk is low with small operations but inflates with scale. High-risk, high-reward decision making.",
+    "blocked-by": [
+        "SMUG-1"
+    ],
+    "blocks": [
+        "SMUG-3"
+    ],
+    "definition-of-done": "Smuggling action available for prohibited goods. Price premium for smuggled goods. Detection risk scales with volume. Risk/reward visible before smuggling.",
+    "testing-plan": "Verify smuggling action works. Test price premiums. Verify risk scaling with volume. Test risk/reward display.",
+    "todos": [
+        "Implement smuggling action mechanics",
+        "Create price premium calculations",
+        "Build detection risk scaling",
+        "Design risk/reward preview UI"
+    ],
+    "unknowns": [
+        "Price premium multipliers",
+        "Risk scaling formula"
+    ],
+    "priority": 2
+}

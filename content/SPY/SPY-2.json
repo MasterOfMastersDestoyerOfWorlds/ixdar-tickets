@@ -1,0 +1,23 @@
+{
+    "id": "SPY-2",
+    "epic": "SPY",
+    "title": "Partial Route Revelation",
+    "description": "Successful infiltration reveals portions of competitor trade routes: volumes, timings, hub identities, and profit earned along sections. Information is partial and noisy, requiring interpretation and inference.",
+    "blocked-by": [
+        "SPY-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Route intel reveals partial information. Information types include volume, timing, hubs, profits. Intel has noise/uncertainty. Intel displayed in competitor analysis UI.",
+    "testing-plan": "Verify partial route revelation works. Test all information types generate. Verify noise in intel. Test competitor analysis display.",
+    "todos": [
+        "Implement route intel generation",
+        "Create partial information revealing",
+        "Build noise/uncertainty system",
+        "Design competitor analysis UI"
+    ],
+    "unknowns": [
+        "Intel accuracy levels",
+        "Information reveal granularity"
+    ],
+    "priority": 2
+}

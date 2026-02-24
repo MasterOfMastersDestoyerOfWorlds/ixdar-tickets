@@ -1,0 +1,21 @@
+{
+    "id": "ECON-3",
+    "epic": "ECON",
+    "title": "Transport Cost/Time Factors",
+    "description": "Transport costs and travel time affect the economics of trade routes. Distance between cities, road quality, and terrain all factor into the total cost of moving goods. Longer routes may not be profitable despite price differentials.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Transport cost calculation based on distance and road quality. Time cost for perishables factored in. Route profitability accounts for transport costs. Cost breakdown visible to player.",
+    "testing-plan": "Verify transport costs scale with distance. Test road quality affects costs. Verify profitability includes transport costs. Test cost breakdown display.",
+    "todos": [
+        "Implement distance-based transport costs",
+        "Create road quality cost modifiers",
+        "Build time cost for perishables",
+        "Design cost breakdown UI"
+    ],
+    "unknowns": [
+        "Base transport cost per distance unit",
+        "Road quality cost multipliers"
+    ],
+    "priority": 3
+}

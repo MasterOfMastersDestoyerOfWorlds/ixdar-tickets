@@ -1,0 +1,37 @@
+{
+    "id": "ENG-8",
+    "epic": "ENGINE",
+    "title": "External Asset Repository via S3 + Local Cache",
+    "description": "Define and implement the external game-asset workflow for large binary models that should not live in git. Assets are stored in S3 and synced to a local asset repository path configured by environment variable. Engine loading paths should resolve model files from that local repo for runtime usage.",
+    "blocked-by": [],
+    "blocks": [
+        "ENG-5"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Environment variable `IXDAR_ASSET_REPO_ROOT` is the source of truth for local asset repo location. 2. A documented S3 path convention exists for shared assets and versioned folders. 3. Sync workflow from S3 to local repo is documented (manual or scripted). 4. Platform/File loading can load model files from local asset repo. 5. Model test scene successfully loads `Hand.obj` from local asset repo. 6. Clear error messaging when environment variable or file is missing.",
+    "testing-plan": "1. Manual Test: Set `IXDAR_ASSET_REPO_ROOT` to local asset repo and verify `Hand.obj` loads in model test scene. 2. Negative Test: Unset env var and verify clear startup/load error. 3. Negative Test: Keep env var set but remove `Hand.obj` and verify missing-file error. 4. Cross-Platform Check: Verify desktop/headless loaders resolve external filesystem paths correctly.",
+    "todos": [
+        "Define S3 bucket/prefix layout for model assets and versions",
+        "Document sync process from S3 to local asset repo (PowerShell and/or CLI)",
+        "Implement env-var based path resolution in file management",
+        "Implement platform support for loading external files from filesystem",
+        "Add model loading test scene that reads `Hand.obj` from local asset repo",
+        "Document `IXDAR_ASSET_REPO_ROOT` in README"
+    ],
+    "unknowns": [
+        "Exact S3 URI naming convention for environments (dev/stage/prod)",
+        "Whether sync should be done via aws cli script, custom tool, or CI artifact download",
+        "Whether assets should be checksum-validated after sync",
+        "Whether web runtime needs a parallel HTTP asset strategy instead of filesystem paths"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/file/FileManagement.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/Platform.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/lwjgl/LwjglPlatform.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessPlatform.java",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/ModelLoadScene.java",
+        "README.md"
+    ],
+    "priority": 5
+}

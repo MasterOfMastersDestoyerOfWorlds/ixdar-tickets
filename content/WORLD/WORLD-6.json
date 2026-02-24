@@ -1,0 +1,23 @@
+{
+    "id": "WORLD-6",
+    "epic": "WORLD",
+    "title": "Company Advertising",
+    "description": "Colonial companies print their own newspapers and advertise shares at inflated rates. They spin rumors into tales of guaranteed success and fabulous riches. The real profit comes from stock manipulation - dumping shares between expedition departure and the year it takes to confirm failure. Advertisements mimic Shackleton's famous expedition ad: 'Men wanted for hazardous journey. Small wages, bitter cold...'",
+    "blocked-by": [
+        "WORLD-3"
+    ],
+    "blocks": [],
+    "definition-of-done": "Newspaper/advertising system where companies can print propaganda. Stock manipulation mechanics tied to expedition cycles. Procedurally generated advertisement text.",
+    "testing-plan": "Verify newspaper generation with procedural ad text. Test stock price manipulation mechanics. Verify timing between expedition and confirmation affects profits.",
+    "todos": [
+        "Design newspaper UI and generation",
+        "Implement procedural advertisement text",
+        "Create stock manipulation mechanics",
+        "Build expedition-to-confirmation timing system"
+    ],
+    "unknowns": [
+        "Depth of stock market simulation",
+        "Player participation in manipulation vs AI-only"
+    ],
+    "priority": 6
+}

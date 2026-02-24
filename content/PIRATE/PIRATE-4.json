@@ -1,0 +1,23 @@
+{
+    "id": "PIRATE-4",
+    "epic": "PIRATE",
+    "title": "Pirate Personality",
+    "description": "Pirates have high corruption but extreme effectiveness in their specialties. They don't follow normal organizational rules. Managing pirates requires understanding their motivations and accepting their downsides.",
+    "blocked-by": [
+        "PIRATE-3"
+    ],
+    "blocks": [],
+    "definition-of-done": "Pirate character traits defined. High corruption stat baseline. Specialty effectiveness bonuses. Rule-breaking behavior modeling.",
+    "testing-plan": "Verify pirate traits generate. Test corruption baseline. Verify specialty bonuses. Test rule-breaking effects.",
+    "todos": [
+        "Design pirate character trait system",
+        "Implement corruption baseline",
+        "Create specialty effectiveness bonuses",
+        "Build rule-breaking behavior"
+    ],
+    "unknowns": [
+        "Specific personality traits",
+        "Rule-breaking manifestations"
+    ],
+    "priority": 4
+}

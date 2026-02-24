@@ -1,0 +1,33 @@
+{
+    "id": "ENG-12",
+    "epic": "ENGINE",
+    "title": "Fix SDFLine Culling and Re-enable for Grid Scenes",
+    "description": "SDFLine.calculateQuad() has a line-clipping implementation that uses a single if/else-if chain over the four screen edges. This means a line that enters through one edge and exits through a different edge (e.g., diagonal lines crossing the full viewport) only finds one intersection and produces an incorrect clipped segment. Because of this bug, IrregularGridScene and Grid both disable culling entirely via setCulling(false), forcing every off-screen line through the full setup/setUniforms/uploadGeometry/flush cycle. Fixing the clipping code and re-enabling culling would eliminate draw calls for all fully off-screen lines, which is a significant performance win for dense grid scenes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. SDFLine.calculateQuad() correctly clips lines that cross two different screen edges (enter one, exit another). 2. Lines fully outside the viewport are culled (culled=true, early return). 3. Lines partially visible are clipped to the viewport boundary without visual artifacts. 4. Lines fully inside the viewport pass through unchanged. 5. IrregularGridScene and Grid can use setCulling(true) without rendering glitches. 6. The clipping code path itself does not allocate Vector2f objects per call (use reusable fields).",
+    "testing-plan": "1. Enable culling in IrregularGridScene, pan camera so some edges are partially off-screen, verify no missing or misdrawn lines. 2. Zoom out so all edges are on-screen and verify no lines are incorrectly culled. 3. Pan far off the grid so all lines are off-screen and verify they are culled (check FPS improvement). 4. Test diagonal lines that cross the viewport corner-to-corner. 5. Test lines where one endpoint is on-screen and one is off. 6. Test horizontal and vertical lines that exit through a single edge. 7. Re-enable culling in Grid and verify the same.",
+    "todos": [
+        "Refactor SDFLine.calculateQuad() clipping to collect all edge intersections, not just the first",
+        "Select the correct two intersection points for lines crossing two edges",
+        "Handle degenerate cases: line tangent to a corner, line along an edge",
+        "Replace per-call Vector2f allocations in the clipping code with reusable fields",
+        "Re-enable setCulling(true) in IrregularGridScene and verify visually",
+        "Re-enable setCulling(true) in Grid and verify visually",
+        "Profile IrregularGridScene with culling enabled to measure draw call reduction"
+    ],
+    "unknowns": [
+        "Whether the existing get_line_intersection helper correctly handles collinear/overlapping segments",
+        "Whether lines with large stroke width need expanded clip bounds (padding by lineWidth)",
+        "Whether any other ShaderDrawable subclasses have similar clipping issues"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/sdf/SDFLine.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/sdf/ShaderDrawable.java",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/IrregularGridScene.java",
+        "ixdar-app/src/main/java/ixdar/geometry/point/Grid.java"
+    ],
+    "priority": 2
+}

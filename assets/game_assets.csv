@@ -1,0 +1,278 @@
+Type,Name,Description,Source Ticket
+3D Model,Volcanic Island Terrain,Procedurally generated or hand-crafted volcanic island with coastal areas,WORLD-1
+3D Model,Central Well Structure,Central well/hole descending to treasure room,WORLD-1
+3D Model,Alchemical Demon (Coastal),Demon model that walks out of sea and attacks villages,WORLD-4
+3D Model,Alchemical Demon (Island Interior),More dangerous demon variants for deeper island areas,WORLD-4
+3D Model,Expedition Crew Member,Base crew member model with varied clothing/equipment,WORLD-5
+3D Model,Historical Period Outfits,Different clothing sets for different time periods (decades/centuries),WORLD-5
+3D Model,Faction Flags/Banners,English Danish Dutch French colonial company flags,WORLD-3
+3D Model,Decayed Artifacts,Rusted/decayed structures and items from previous runs,WORLD-8
+3D Model,Book/Journal Model,Books and journals found in previous run artifacts,WORLD-8
+3D Model,Coin Stack,3D coin model for treasury visualization,UI-1
+3D Model,Treasury Environment,3D room/environment for treasury view,UI-1
+3D Model,Caravan Model,Caravan/wagon model for trade route animations,UI-3
+3D Model,Ship Hull,Complete ship model with mast rigging captain's quarters,UI-5
+3D Model,Ship Mast,Mast structure for main menu scene,UI-5
+3D Model,Ship Rigging,Ropes and rigging system for ship,UI-5
+3D Model,Captain's Quarters,Interior/exterior of captain's quarters with window panes,UI-5
+3D Model,Lantern,Lantern model that sways with ship movement,UI-5
+3D Model,Rat,Animated rat model that runs past camera,UI-5
+3D Model,Bird,Animated bird model for skybox,UI-5
+3D Model,Tongue-Whipping Deer,Creature mentioned in expedition rumors,WORLD-5
+3D Model,Gold Spires,Structures mentioned in expedition rumors,WORLD-5
+3D Model,Faceless Warm Statues,Mysterious statues mentioned in rumors,WORLD-5
+3D Model,Razor Grass,Dangerous flora mentioned in rumors,WORLD-5
+3D Model,McGuffin Object,The object at bottom of well that must be destroyed,WORLD-9
+3D Model,Sparse Trees,Iceland-like sparse trees in hard-to-reach locations,SURV-1
+3D Model,Deadwood,Large knotted deadwood pieces for harvesting,SURV-1
+3D Model,Sheep,Small sheep for hunting/domestication,SURV-2
+3D Model,Wild Dogs,Wild dog models,SURV-2
+3D Model,Puffins,Puffin bird models,SURV-2
+3D Model,Mink,Mink animal models,SURV-2
+3D Model,Reindeer,Reindeer models,SURV-2
+3D Model,Fishery Building,Coastal fishery structure,SURV-5
+3D Model,Fish,Fish models for harvesting,SURV-5
+3D Model,Exotic Creatures,Monstrous creatures for deeper island layers,SURV-8
+3D Model,Inner Layer Flora,Unique vegetation for deeper biomes,SURV-8
+3D Model,Horses,Horse models for caravans,TRADE-3
+3D Model,Horse Station Building,Building for fresh horse stations,TRADE-4
+3D Model,Cart Drivers,Driver character models,TRADE-5
+3D Model,Housing Buildings,Various housing building models,TRADE-6
+3D Model,Competitor Caravans,Competitor caravan models,TRADE-7
+3D Model,Dirt Road Mesh,3D mesh/texture for dirt roads,ROAD-1
+3D Model,Gravel Road Mesh,3D mesh/texture for gravel roads,ROAD-1
+3D Model,Paved Road Mesh,3D mesh/texture for paved roads,ROAD-1
+3D Model,Quarry Building,Quarry structure model,ROAD-2
+3D Model,Rock Materials,Rock/sand/gravel material models,ROAD-2
+3D Model,Transport Vehicles,Vehicles for material transport,ROAD-2
+3D Model,Construction Workers,Worker character models,ROAD-3
+3D Model,Construction Tools,Tools/equipment for road construction,ROAD-3
+3D Model,Toll Booth,Toll booth building model,ROAD-7
+3D Model,Patrol Units,Patrol character/vehicle models,ROAD-8
+3D Model,Medical Transport Vehicle,Model for transporting sick individuals to treatment towns,DIPLO-6
+3D Model,Road Infrastructure Model,3D model of roads for ownership visualization,DIPLO-8
+3D Model,Warehouse/Storage Building,Model for stockpile storage facilities,ECON-4
+3D Model,Upgraded Caravan Variants,3D models showing caravan upgrades (better wheels faster horses),INVEST-1
+3D Model,Refrigeration Equipment,Model for refrigeration technology on caravans/storage,INVEST-2
+3D Model,Train Locomotive,3D model of train engine,INVEST-3
+3D Model,Train Cars,3D models for train cargo cars,INVEST-3
+3D Model,Railway Tracks,3D model of railway infrastructure,INVEST-3
+3D Model,Train Station,3D model of train station building,INVEST-3
+3D Model,City Station Building,3D model of caravan station in cities,INVEST-6
+3D Model,Upgraded Station Variants,Models showing different station upgrade levels,INVEST-7
+3D Model,Headquarters Building,3D model of player headquarters,INVEST-8
+3D Model,Pirate Ship,3D model of pirate vessel,PIRATE-1
+3D Model,Police/Guard Characters,3D models of inspection officers,SMUG-4
+3D Model,Cities,City models/buildings,TRADE-1
+2D Art,Time Fog Visual Effect,Fog boundary visualization/texture,WORLD-2
+2D Art,Faction Logos/Insignia,Distinct visual identifiers for English Danish Dutch French companies,WORLD-3
+2D Art,Newspaper Layout Template,Period-appropriate newspaper design for company advertising,WORLD-6
+2D Art,Crew Portrait Sprites,2D portraits or sprites for crew members with varied backgrounds,WORLD-7
+2D Art,Skybox with Clouds,Skybox texture for main menu with clouds,UI-5
+2D Art,Cliff Runes,Runes mentioned in rumors (only mad can read),WORLD-5
+2D Art,Clothing Icons,Inventory icons for clothing items,SURV-3
+2D Art,Meat Icons,Icons for meat resources,SURV-4
+2D Art,Fish Icons,Icons for fish resources,SURV-5
+2D Art,Grant Icons,Icons for different grant types,SURV-7
+2D Art,Road Type Icons,Icons for different road types,ROAD-1
+2D Art,Material Icons,Icons for rock sand gravel,ROAD-2
+2D Art,Contract Icons,Icons for different contract types,ROAD-5
+2D Art,Ownership Icons,Icons for public/private/toll roads,ROAD-7
+2D Art,Manager Portrait Set,Character portraits for hireable managers (multiple variations),CORP-1
+2D Art,Skill Tier Icons,Icons representing different manager skill levels,CORP-3
+2D Art,Politician Portrait Set,Character portraits for city politicians/officials,DIPLO-1
+2D Art,Secret Intel Icon,Icon representing discovered secrets/vulnerabilities,DIPLO-4
+2D Art,Vulnerability Type Icons,Icons for different vulnerability types (medical financial vice),DIPLO-5
+2D Art,Road Quality Icons,Icons representing different road quality levels,ECON-3
+2D Art,Perishable Goods Icons,Icons for perishable vs non-perishable goods,ECON-5
+2D Art,Town Trait Icons,Icons representing different town traits,ECON-6
+2D Art,City Atmosphere Visuals,Background visuals reflecting city character (orderly vs corrupt),ECON-7
+2D Art,Transportation Upgrade Icons,Icons for each transportation upgrade (wheels horses hulls),INVEST-1
+2D Art,Station Upgrade Icons,Icons for station upgrades (feed storage driver switch etc.),INVEST-7
+2D Art,Pirate/Privateer Portrait Set,Character portraits for pirates and privateers,PIRATE-1
+2D Art,Luxury Goods Icons,Icons for luxury goods and weapons valued by pirates,PIRATE-2
+2D Art,Pirate Personality Trait Icons,Icons representing pirate character traits,PIRATE-4
+2D Art,Prohibition Badge,Icon/badge indicating prohibited goods,SMUG-1
+2D Art,Red Herring Intel Icon,Icon indicating potentially false intel,SPY-4
+Audio,Gold Collection Sound Effect,Satisfying audio for gold floating to coffers,UI-4
+Audio,Gold Collection Sound (Layered),Additional layered sounds for large profit amounts,UI-4
+Audio,Sea Shanty Music,Public domain sea shanties for main menu,UI-5
+Audio,Wind Sound Effect,Wind sounds for ship swaying,UI-5
+Audio,Bird Sound Effect,Bird calls for skybox birds,UI-5
+Audio,Rat Sound Effect,Rat scurrying/running sounds,UI-5
+Audio,Drunken Men Voices,Voices of drunken men singing in ship hull,UI-5
+Audio,Turn End Audio,Audio feedback for turn completion,TRADE-1
+Audio,Animal Sounds,Animal vocalizations (bleating barking etc.),SURV-2
+Audio,Creature Sounds,Audio for exotic creatures,SURV-8
+Audio,Detection Event Sound,Sound effect for when illegal actions are detected,DIPLO-7
+Audio,Inspection Sound,Sound effect for caravan inspection events,SMUG-4
+Audio,Crackdown Alert Sound,Audio alert when police crackdown begins,SMUG-3
+UI Element,Faction Selection UI,Interface for choosing colonial company faction at game start,WORLD-3
+UI Element,Crew Recruitment Interface,UI for recruiting crew members with background information,WORLD-7
+UI Element,Newspaper UI,Interface for displaying company newspapers and advertisements,WORLD-6
+UI Element,Treasury Navigation UI,UI elements for accessing and navigating treasury view,UI-1
+UI Element,Controller Button Icons,Icons showing controller button mappings when controller is active,ENG-1
+UI Element,Clothing Inventory UI,UI for equipping/managing clothing,SURV-3
+UI Element,Warmth Stat Display,UI showing warmth level and cold exposure,SURV-3
+UI Element,Food Storage UI,UI for managing food inventory,SURV-4
+UI Element,Food Spoilage Indicator,Visual indicator for food freshness/spoilage,SURV-4
+UI Element,Fishery Construction UI,UI for building fisheries,SURV-5
+UI Element,Manager Assignment UI,UI for assigning managers to fisheries,SURV-6
+UI Element,Equity Split Interface,UI for adjusting equity/ownership percentages,SURV-6
+UI Element,Performance Display,UI showing fishery performance metrics,SURV-6
+UI Element,Grant Contract UI,UI for viewing and accepting grant contracts,SURV-7
+UI Element,Contract Progress Display,UI showing contract objective progress,SURV-7
+UI Element,Optimization Results Display,UI showing optimal buy/sell recommendations,TRADE-2
+UI Element,Price Comparison UI,UI comparing prices across cities,TRADE-2
+UI Element,Distance Display,UI showing route distance during planning,TRADE-3
+UI Element,Distance Limit Warning,Visual warning when route exceeds limit,TRADE-3
+UI Element,Horse Station Placement UI,UI for placing horse stations,TRADE-4
+UI Element,Extended Range Display,UI showing extended travel range with stations,TRADE-4
+UI Element,Wage Management UI,UI for managing driver wages,TRADE-5
+UI Element,Driver Quality Display,UI showing driver quality tiers,TRADE-5
+UI Element,Housing Cost Display,UI showing housing costs per city,TRADE-6
+UI Element,Housing Quality Selection,UI for selecting housing quality tiers,TRADE-6
+UI Element,Price Change Indicators,Visual indicators for price changes,TRADE-7
+UI Element,Competitor Action Display,UI showing competitor actions,TRADE-7
+UI Element,Cluster Visualization,Visual representation of clusters at multiple levels,TRADE-8
+UI Element,Hierarchy Display,UI showing point/knot hierarchy,TRADE-8
+UI Element,Selection Visual Feedback,Visual feedback for current selection,TRADE-9
+UI Element,Hierarchy Level Indicator,UI showing current hierarchy level,TRADE-9
+UI Element,Route Operation UI,UI for selecting route operations,TRADE-10
+UI Element,Operation Visual Feedback,Visual feedback during route operations,TRADE-10
+UI Element,Quarry Placement UI,UI for placing quarries,ROAD-2
+UI Element,Material Transport UI,UI for managing material logistics,ROAD-2
+UI Element,Progress Indicator,Visual progress indicator for road construction,ROAD-3
+UI Element,Efficiency Display,UI showing road efficiency metrics,ROAD-4
+UI Element,Elevation Display,UI showing elevation information,ROAD-4
+UI Element,Tradeoff Visualization,UI showing cost/efficiency tradeoffs,ROAD-4
+UI Element,Per-Foot Contract UI,UI for viewing and accepting contracts,ROAD-5
+UI Element,Length vs Efficiency Display,UI showing tradeoff between length and efficiency,ROAD-5
+UI Element,Maintenance UI,UI for road maintenance actions,ROAD-6
+UI Element,Decay Status Display,UI showing road condition/decay level,ROAD-6
+UI Element,Road Ownership UI,UI for managing road ownership,ROAD-7
+UI Element,Buyout Interface,UI for buying out public roads,ROAD-7
+UI Element,Patrol Assignment UI,UI for assigning patrols to roads,ROAD-8
+UI Element,Patrol Status Display,UI showing patrol coverage,ROAD-8
+UI Element,Manager Hiring Interface,UI panel for browsing and hiring managers from pool,CORP-1
+UI Element,Manager Stats Display,Panel showing manager effectiveness skills and performance metrics,CORP-1
+UI Element,Equity vs Wage Toggle,UI control for choosing between equity sharing and flat wages,CORP-2
+UI Element,Motivation Indicator,Visual indicator showing manager motivation level,CORP-2
+UI Element,Skill Display Badge,Visual badge showing manager skill tier in UI,CORP-3
+UI Element,Corruption Indicator,Visual indicator showing manager corruption risk/level,CORP-4
+UI Element,Corruption Detection Alert,Alert/notification UI when corruption is discovered,CORP-4
+UI Element,Organization Structure Visualization,Diagram/tree view showing ownership structure and delegation,CORP-5
+UI Element,Ownership Type Toggle,UI control for switching between direct ownership and delegated management,CORP-5
+UI Element,Tariff Lobbying Interface,UI panel for lobbying cities to enact tariffs,DIPLO-1
+UI Element,Tariff Indicator,Visual indicator showing active tariffs on goods in cities,DIPLO-1
+UI Element,License Requirement Display,UI showing license costs and capital requirements,DIPLO-2
+UI Element,License Status Badge,Badge indicating whether player/rivals have required licenses,DIPLO-2
+UI Element,Bribery Action Panel,Interface for paying bribes to politicians,DIPLO-3
+UI Element,Corruption Level Indicator,Visual indicator showing city corruption level affecting bribery costs,DIPLO-3
+UI Element,Blackmail Action Interface,UI for using discovered secrets to pressure targets,DIPLO-4
+UI Element,Vulnerability Display,UI showing NPC vulnerabilities (sick relatives debts vices),DIPLO-5
+UI Element,Medical Assistance Action Panel,Interface for arranging medical transport and treatment,DIPLO-6
+UI Element,Expulsion Notice,Alert UI showing city expulsion and duration,DIPLO-7
+UI Element,Fine Notification,UI showing diplomatic fines,DIPLO-7
+UI Element,Road Ownership Indicator,Visual indicator showing road ownership status,DIPLO-8
+UI Element,Legislation Action Panel,Interface for changing road ownership through legal/bribery paths,DIPLO-8
+UI Element,Producer/Consumer Badge,Badge indicating if city is producer or consumer for each good,ECON-1
+UI Element,Price Chart/Graph,Dynamic chart showing price changes over time,ECON-2
+UI Element,Supply/Demand Indicator,Visual indicator showing current supply and demand levels,ECON-2
+UI Element,Transport Cost Breakdown,UI panel showing distance road quality and time cost factors,ECON-3
+UI Element,Stockpile Capacity Display,UI showing storage capacity and current stockpile levels,ECON-4
+UI Element,Storage Cost Indicator,Display showing ongoing storage costs,ECON-4
+UI Element,Perishable Decay Timer,Visual countdown/timer showing time until goods decay,ECON-5
+UI Element,Trait Display Panel,UI showing all traits for a town,ECON-6
+UI Element,Order/Corruption Meter,Visual meter/gauge showing city's position on order/corruption spectrum,ECON-7
+UI Element,Tariff Status Display,UI showing active tariffs between regions,ECON-8
+UI Element,Embargo Indicator,Visual indicator showing embargoed goods/routes,ECON-8
+UI Element,War Status Badge,Badge indicating war state affecting trade,ECON-8
+UI Element,Transportation Tech Tree UI,Interface displaying tech tree with upgrade nodes,INVEST-1
+UI Element,Refrigeration Upgrade Display,UI showing refrigeration purchase and benefits,INVEST-2
+UI Element,Decay Extension Indicator,Visual showing extended decay time with refrigeration,INVEST-2
+UI Element,Rail Construction Interface,UI for building rail infrastructure,INVEST-3
+UI Element,Train Route Management UI,Interface for managing train routes vs caravan routes,INVEST-3
+UI Element,Fleet Management Interface,UI for purchasing and managing multiple caravans,INVEST-4
+UI Element,Fleet Size Indicator,Display showing number of caravans and total capacity,INVEST-4
+UI Element,Route Scheduling Interface,UI for dispatching caravans at different times,INVEST-5
+UI Element,Parallel Route Visualization,Visual showing multiple simultaneous caravan routes,INVEST-5
+UI Element,Station Construction Interface,UI for building stations in cities,INVEST-6
+UI Element,Station Upgrade Panel,Interface showing available station upgrades,INVEST-7
+UI Element,Storage Upgrade Interface,UI for upgrading headquarters storage capacity,INVEST-8
+UI Element,Storage Capacity Display,Display showing current storage and capacity limits,INVEST-8
+UI Element,Privateer Hiring Interface,UI for hiring privateers to target rival routes,PIRATE-1
+UI Element,Route Targeting Panel,Interface for selecting which routes to target,PIRATE-1
+UI Element,Friendly Ship Marker,Visual marker indicating protected ships,PIRATE-1
+UI Element,Tribute Payment Interface,UI for offering goods/weapons as tribute to pirates,PIRATE-2
+UI Element,Pirate Relationship Meter,Display showing relationship status with pirate factions,PIRATE-2
+UI Element,Protection Status Indicator,Visual indicator showing protection from raiding,PIRATE-2
+UI Element,Pirate Recruitment Panel,Interface for hiring pirates into organization,PIRATE-3
+UI Element,Pirate Role Assignment UI,Interface for assigning pirates to negotiation/smuggling roles,PIRATE-3
+UI Element,Corruption Propagation Indicator,Visual showing how pirates increase organization corruption,PIRATE-3
+UI Element,Pirate Trait Display,UI showing pirate personality and specialty bonuses,PIRATE-4
+UI Element,Barter Trade Interface,Specialized trade UI for pirate barter-style transactions,PIRATE-5
+UI Element,Good Value Multiplier Display,UI showing how pirates value goods vs money,PIRATE-5
+UI Element,Prohibited Goods List,UI showing banned goods for each city,SMUG-1
+UI Element,Smuggling Action Panel,Interface for attempting to smuggle prohibited goods,SMUG-2
+UI Element,Risk/Reward Calculator,UI showing price premium vs detection risk before smuggling,SMUG-2
+UI Element,Contraband Saturation Meter,Visual meter showing contraband saturation level in city,SMUG-3
+UI Element,Crackdown Alert,Alert UI when police crackdown begins,SMUG-3
+UI Element,Inspection Notification,Alert UI when inspection occurs,SMUG-4
+UI Element,Fine Display,UI showing fines for caught smuggling,SMUG-4
+UI Element,City Ban Status Indicator,Visual indicator showing ban status and duration,SMUG-5
+UI Element,Offense Counter,Display showing number of offenses per city,SMUG-5
+UI Element,Espionage Budget Allocation,Interface for allocating budget to espionage operations,SPY-1
+UI Element,Intel Generation Display,UI showing intel being gathered over time,SPY-1
+UI Element,Competitor Analysis Panel,Interface displaying gathered intel about rivals,SPY-2
+UI Element,Partial Route Visualization,Visual showing partially revealed competitor routes,SPY-2
+UI Element,Intel Noise Indicator,Visual showing uncertainty/noise in intel data,SPY-2
+UI Element,Intel Freshness Indicator,Visual indicator showing how fresh/stale intel is,SPY-3
+UI Element,Stale Intel Warning,Warning UI for outdated intel,SPY-3
+UI Element,Counter-Intelligence Investment Panel,Interface for investing in counter-intelligence,SPY-4
+UI Element,Detection Risk Meter,Visual meter showing spy detection risk,SPY-4
+UI Element,Trade Space Overlap Visualization,Visual showing overlap between player and competitor trade spaces,SPY-5
+UI Element,Infiltration Prerequisite Check,UI showing if infiltration is possible based on overlap,SPY-5
+UI Element,Informant Management Interface,UI for hiring and managing informants in rival organizations,SPY-6
+UI Element,Access Level Display,Visual showing informant access levels and info quality,SPY-6
+UI Element,Informant Network Visualization,Diagram showing network of informants,SPY-6
+UI Element,Action Suggestion Panel,UI showing actionable opportunities from intel,SPY-7
+UI Element,Route Matching Suggestion,UI suggesting routes to match/beat rivals based on intel,SPY-7
+UI Element,Price Undercutting Calculator,UI showing suggested prices to undercut competitors,SPY-7
+Animation,Ship Swaying Animation,Ship rocking/swaying motion with wind,UI-5
+Animation,Lantern Swaying Animation,Lantern swinging animation synchronized with ship,UI-5
+Animation,Rat Running Animation,Rat scurrying past camera animation,UI-5
+Animation,Bird Flying Animation,Bird flying across skybox animation,UI-5
+Animation,Caravan Movement Animation,Caravan traveling along trade routes,UI-3
+Animation,Transmutation Effect,Visual effect for demons transmuting living things,WORLD-4
+Animation,Progressive Madness Effects,Visual effects showing crew members going mad,WORLD-9
+Animation,Societal Breakdown Effects,Visual effects for societal collapse and map wipe,WORLD-9
+Animation,Animal Movement,Animal walking/running animations,SURV-2
+Animation,Creature Animations,Animations for exotic creatures,SURV-8
+Animation,Gold Collection Animation,Gold floating up animation,TRADE-1
+Animation,Selection Animation,Animation for selection changes,TRADE-9
+Animation,Operation Animation,Animations for pipe/grow/collapse operations,TRADE-10
+Animation,Construction Animation,Workers clearing and laying road,ROAD-3
+Animation,Decay Transition,Animation for road type degradation,ROAD-6
+Animation,Patrol Animation,Patrol movement animations,ROAD-8
+VFX,Time Fog Particle Effect,Particle system for time dilation fog surrounding island,WORLD-2
+VFX,Transmutation VFX,Particle/visual effects for alchemical transmutation,WORLD-4
+VFX,Gold Floating Animation,Visual effect of gold coins floating to treasury coffers,UI-4
+VFX,Coin Physics Effects,Visual feedback for coin dropping and physics interactions,UI-2
+VFX,Spoilage Effect,Visual effect for spoiled food,SURV-4
+VFX,Construction Effects,Dust/debris effects during construction,ROAD-3
+VFX,Decay Visual Effects,Visual effects showing road decay,ROAD-6
+VFX,Embezzlement Effect,Visual effect when corruption is detected (money disappearing animation),CORP-4
+VFX,Detection Event Animation,Visual effect when illegal diplomatic actions are detected,DIPLO-7
+VFX,Decay Effect,Visual effect when goods decay (fading spoiling animation),ECON-5
+VFX,Crackdown Visual Effect,Visual effect indicating increased enforcement,SMUG-3
+VFX,Inspection Event Animation,Animation/visual for caravan inspection events,SMUG-4
+VFX,Expulsion Effect,Visual effect when banned from city,SMUG-5
+Environment,Volcanic Biome Zones,Different terrain zones (outer rim inner depths) with distinct visual styles,WORLD-1
+Environment,Coastal Village Environment,Village structures on coastlines that demons attack,WORLD-4
+Environment,Island Interior Environment,Deeper island areas with increased danger and different visual style,WORLD-4
+Environment,Treasury Room Environment,Complete 3D environment for treasury view,UI-1
+Environment,Main Menu Ship Scene,Complete diagetic main menu scene with ship interior/exterior,UI-5
+Environment,Sparse Vegetation,Iceland-like sparse ground vegetation,SURV-1
+Environment,Coastal Locations,Coastal terrain markers for valid fishery placement,SURV-5
+Environment,Biome Layer Transitions,Visual distinction between biome layers,SURV-8

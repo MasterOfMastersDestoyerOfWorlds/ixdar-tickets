@@ -1,0 +1,23 @@
+{
+    "id": "ENG-2",
+    "epic": "ENGINE",
+    "title": "App Data Save System",
+    "description": "Create a save system that stores user data and caches in the appropriate App Data directory (e.g., %APPDATA% on Windows, ~/Library/Application Support on macOS, ~/.local/share on Linux). This enables persistent settings, cached test files, and user preferences across sessions.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Save system initialized in App Data directory. Caches stored in platform-appropriate location. Settings persist across app restarts. Works on Windows, macOS, and Linux.",
+    "testing-plan": "Verify directory is created on first run. Test saving and loading cache files. Verify settings persist after restart. Test on multiple platforms.",
+    "todos": [
+        "Create AppDataManager class to handle platform-specific paths",
+        "Detect OS and return appropriate App Data path",
+        "Create Ixdar subdirectory structure (cache/, settings/, etc.)",
+        "Migrate test file cache to App Data location",
+        "Add methods for reading/writing settings files",
+        "Update FileManagement to use AppDataManager for caches"
+    ],
+    "unknowns": [
+        "What data needs to be persisted beyond test file cache",
+        "Whether to use JSON, Properties, or binary format for settings"
+    ],
+    "priority": 9
+}

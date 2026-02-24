@@ -1,0 +1,35 @@
+{
+    "id": "IX-2",
+    "epic": "IX",
+    "title": "Enforce Shader/Scene Validation via Cursor Hooks",
+    "description": "Add Cursor hooks that enforce screenshot validation whenever shader files (.fs, .vs, .glsl) or scene Java files (scenes/ package) are edited. The hooks use a three-touchpoint mechanism: (1) afterFileEdit detects shader/scene edits, logs them to a validation-pending log, and injects a reminder message telling the agent it must validate with a screenshot before stopping. (2) postToolUse on Shell detects screenshot CLI invocations and clears the pending log. (3) The stop hook checks if the validation-pending log has uncleared entries and denies the stop with a message directing the agent to validate first. This is hard enforcement — the agent cannot complete its session without taking a screenshot after editing rendering code.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Editing any .fs, .vs, or .glsl shader file triggers a hook that logs the edit and injects a validation reminder. 2. Editing any Java file under a scenes/ package triggers the same hook. 3. Running a screenshot command via the automation CLI clears the validation-pending state. 4. The stop hook denies with a clear message if shader/scene files were edited but no screenshot was taken. 5. The stop hook allows normally if no rendering files were edited or if a screenshot was taken after the last edit. 6. hooks.json is updated with the new hook registrations. 7. README.md documents the new hook behavior. 8. Existing hooks continue to work without regression.",
+    "testing-plan": "1. Edit a .fs shader file and verify the afterFileEdit hook logs the edit and returns a reminder message. 2. Edit a scene Java file and verify the same behavior. 3. Edit a non-rendering file (e.g. a ticket JSON) and verify no validation reminder is injected. 4. After editing a shader, run the screenshot CLI command and verify the pending log is cleared. 5. After clearing, verify the stop hook allows normally. 6. Edit a shader without taking a screenshot, then trigger the stop hook and verify it denies with an appropriate message. 7. Run existing hook tests to confirm no regressions (pre_tool_guard, post_write_audit, after_ticket_edit, stop_compound_reminder).",
+    "todos": [
+        "Create .cursor/hooks/shader_validation_gate.py with logic for afterFileEdit (detect shader/scene edits, log to validation-pending.log, return reminder)",
+        "Add postToolUse Shell detection to clear validation-pending.log when a screenshot command is detected",
+        "Add stop hook logic to deny if validation-pending.log has uncleared entries",
+        "Register all three hook entries in .cursor/hooks.json",
+        "Update .cursor/hooks/README.md to document the new hook",
+        "Test all hook touchpoints manually"
+    ],
+    "unknowns": [
+        "Whether a single script with mode detection (via payload) is cleaner than three separate scripts",
+        "Whether the stop hook deny actually blocks the agent or just warns — need to verify Cursor hook semantics for stop events",
+        "Whether the validation-pending log should track individual file paths or just a boolean dirty flag"
+    ],
+    "changes-made": [],
+    "related-files": [
+        ".cursor/hooks.json",
+        ".cursor/hooks/README.md",
+        ".cursor/hooks/pre_tool_guard.py",
+        ".cursor/hooks/post_write_audit.py",
+        ".cursor/hooks/stop_compound_reminder.py",
+        ".cursor/hooks/after_ticket_edit.py",
+        "tools/ixdar-automation-cli/ixdar_cli.py"
+    ],
+    "priority": 2
+}

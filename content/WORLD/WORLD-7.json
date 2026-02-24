@@ -1,0 +1,23 @@
+{
+    "id": "WORLD-7",
+    "epic": "WORLD",
+    "title": "Crew Recruitment",
+    "description": "Expedition crews consist of men of ill repute: prisoners earning freedom, gamblers fleeing debt collectors, and desperate fortune seekers. Kings provide grants worth many times a man's salary to fund expeditions. Crew members have varied backgrounds affecting their skills, reliability, and motivations.",
+    "blocked-by": [
+        "WORLD-3"
+    ],
+    "blocks": [],
+    "definition-of-done": "Crew recruitment system with varied character backgrounds. Background affects stats, skills, and reliability. Royal grants provide funding mechanism.",
+    "testing-plan": "Verify crew generation produces varied backgrounds. Test that backgrounds affect gameplay stats. Verify grant funding mechanics work correctly.",
+    "todos": [
+        "Design character background system",
+        "Implement stat modifiers per background",
+        "Create recruitment UI",
+        "Build royal grant funding mechanics"
+    ],
+    "unknowns": [
+        "Number of background types",
+        "How crew reliability manifests in gameplay"
+    ],
+    "priority": 7
+}

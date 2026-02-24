@@ -1,0 +1,23 @@
+{
+    "id": "TRADE-3",
+    "epic": "TRADE",
+    "title": "Horse Distance Limits",
+    "description": "Route length is limited by the distance a horse can travel in a month. This creates a fundamental constraint on route size. Players must work within this limit or invest in ways to extend it.",
+    "blocked-by": [],
+    "blocks": [
+        "TRADE-4"
+    ],
+    "definition-of-done": "Route distance calculation based on road segments. Monthly horse travel limit enforced. Routes exceeding limit cannot be executed. Distance shown during route planning.",
+    "testing-plan": "Verify distance calculation accuracy. Test limit enforcement prevents over-long routes. Verify distance display during planning.",
+    "todos": [
+        "Implement route distance calculation",
+        "Create monthly travel limit constant",
+        "Build limit enforcement in route validation",
+        "Design distance display in planning UI"
+    ],
+    "unknowns": [
+        "Exact monthly distance limit value",
+        "How terrain affects distance"
+    ],
+    "priority": 10
+}

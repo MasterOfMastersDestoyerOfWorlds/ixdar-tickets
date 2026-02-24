@@ -1,0 +1,25 @@
+{
+    "id": "DIPLO-5",
+    "epic": "DIPLO",
+    "title": "Character Vulnerabilities",
+    "description": "NPCs have vulnerabilities: sick relatives, debts, vices, etc. These vulnerabilities can be exploited for leverage. Discovery of vulnerabilities comes through espionage and investigation.",
+    "blocked-by": [
+        "DIPLO-4"
+    ],
+    "blocks": [
+        "DIPLO-6"
+    ],
+    "definition-of-done": "NPCs generated with vulnerabilities. Vulnerabilities discoverable through investigation. Different vulnerability types with different leverage. Vulnerability info stored in intel.",
+    "testing-plan": "Verify NPCs have vulnerabilities. Test discovery mechanics. Verify different types work. Test intel storage.",
+    "todos": [
+        "Implement vulnerability generation for NPCs",
+        "Create discovery mechanics",
+        "Build vulnerability type system",
+        "Design vulnerability intel display"
+    ],
+    "unknowns": [
+        "Vulnerability types",
+        "Discovery difficulty"
+    ],
+    "priority": 5
+}

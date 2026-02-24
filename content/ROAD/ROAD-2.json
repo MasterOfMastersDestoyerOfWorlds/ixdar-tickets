@@ -1,0 +1,23 @@
+{
+    "id": "ROAD-2",
+    "epic": "ROAD",
+    "title": "Quarrying System",
+    "description": "Rock extraction for road materials. Players quarry rock, sand, and gravel to supply road construction. Quarries require setup and ongoing labor. Material transport to the road head is part of the logistics challenge.",
+    "blocked-by": [
+        "ROAD-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Quarries can be established at valid rock locations. They produce materials over time. Materials can be transported to road construction sites.",
+    "testing-plan": "Verify quarry placement at valid locations. Test material production rates. Verify material transport logistics.",
+    "todos": [
+        "Design quarry placement rules",
+        "Implement material production mechanics",
+        "Create material types (rock, sand, gravel)",
+        "Build transport logistics for materials"
+    ],
+    "unknowns": [
+        "Quarry production rates",
+        "Material requirements per road type"
+    ],
+    "priority": 2
+}

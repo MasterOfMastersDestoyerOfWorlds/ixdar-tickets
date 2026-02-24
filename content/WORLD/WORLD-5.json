@@ -1,0 +1,23 @@
+{
+    "id": "WORLD-5",
+    "epic": "WORLD",
+    "title": "Expedition Return System",
+    "description": "During safe passage windows, expedition members may return from the fog. Returnees might not be from the most recent expedition - they could be from expeditions sent decades or centuries ago. Some may not speak recognizable languages. Survivors spread rumors of gold spires, tongue-whipping deer, cliff runes only the mad can read, razor grass, and faceless warm statues.",
+    "blocked-by": [
+        "WORLD-2"
+    ],
+    "blocks": [],
+    "definition-of-done": "System generates returning expedition members with varied temporal origins, conditions, and rumors. Rumors affect market speculation and company valuations.",
+    "testing-plan": "Verify returnees generate with appropriate temporal origins. Test rumor generation and propagation. Verify rumors affect game economy.",
+    "todos": [
+        "Create returnee generation system",
+        "Implement rumor content library",
+        "Build rumor propagation mechanics",
+        "Link rumors to market/speculation effects"
+    ],
+    "unknowns": [
+        "How rumors should mechanically affect the game",
+        "Balance of helpful vs misleading rumors"
+    ],
+    "priority": 5
+}

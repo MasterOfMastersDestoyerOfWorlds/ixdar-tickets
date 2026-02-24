@@ -1,0 +1,23 @@
+{
+    "id": "TRADE-4",
+    "epic": "TRADE",
+    "title": "Fresh Horse Stations",
+    "description": "Players can spend on fresh horses in the middle of a route to extend the distance they can travel. This allows reaching more distant cities but adds cost. Strategic placement of horse stations extends effective range.",
+    "blocked-by": [
+        "TRADE-3"
+    ],
+    "blocks": [],
+    "definition-of-done": "Fresh horse stations can be placed along routes. Using fresh horses extends travel distance. Cost associated with horse station use. Route planner shows extended range with stations.",
+    "testing-plan": "Verify horse stations extend travel distance. Test cost calculation for station use. Verify route planner shows extended range.",
+    "todos": [
+        "Implement horse station placement",
+        "Create distance extension mechanics",
+        "Build cost calculation for fresh horses",
+        "Design route planner integration"
+    ],
+    "unknowns": [
+        "Distance extension per station",
+        "Fresh horse costs"
+    ],
+    "priority": 11
+}

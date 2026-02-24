@@ -1,0 +1,23 @@
+{
+    "id": "SMUG-1",
+    "epic": "SMUG",
+    "title": "Prohibited Goods System",
+    "description": "Cities can prohibit certain goods from being sold within their borders. Each city has a list of banned goods that cannot be legally traded there. This creates opportunities for smuggling at higher risk/reward.",
+    "blocked-by": [],
+    "blocks": [
+        "SMUG-2"
+    ],
+    "definition-of-done": "Cities have prohibited goods lists. Legal trade blocked for prohibited goods. Prohibition visible in city info. Prohibition can change over time.",
+    "testing-plan": "Verify prohibited goods lists work. Test legal trade blocking. Verify UI shows prohibitions. Test prohibition changes.",
+    "todos": [
+        "Implement prohibited goods per city",
+        "Create legal trade blocking",
+        "Build prohibition display in city UI",
+        "Design prohibition change mechanics"
+    ],
+    "unknowns": [
+        "Which goods can be prohibited",
+        "How prohibitions change"
+    ],
+    "priority": 1
+}

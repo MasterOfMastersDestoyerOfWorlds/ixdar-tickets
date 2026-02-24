@@ -1,0 +1,23 @@
+{
+    "id": "ECON-2",
+    "epic": "ECON",
+    "title": "Supply/Demand Pricing",
+    "description": "Prices and availability emerge from supply and demand dynamics. As goods are sold in a city, prices drop. As goods are bought, prices rise. This creates dynamic markets that change based on player and competitor actions.",
+    "blocked-by": [
+        "ECON-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Dynamic pricing based on supply/demand. Buying increases prices, selling decreases. Price changes persist across turns. Market equilibrium over time.",
+    "testing-plan": "Verify buying raises prices. Test selling lowers prices. Verify persistence across turns. Test equilibrium recovery.",
+    "todos": [
+        "Implement supply/demand price curves",
+        "Create buy/sell price impact mechanics",
+        "Build price persistence system",
+        "Design equilibrium recovery over time"
+    ],
+    "unknowns": [
+        "Price elasticity values",
+        "Equilibrium recovery rate"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,21 @@
+{
+    "id": "TRADE-5",
+    "epic": "TRADE",
+    "title": "Cart Driver Wages",
+    "description": "Players must pay wages for their cart drivers each turn. This is an ongoing operational cost that scales with fleet size. Driver quality may affect route efficiency or reliability.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Driver wage system with per-turn costs. Wages scale with number of drivers/caravans. Driver quality tiers with different wages. Unpaid wages cause driver departure.",
+    "testing-plan": "Verify wage calculation per turn. Test scaling with fleet size. Verify quality tier pricing. Test consequences of non-payment.",
+    "todos": [
+        "Implement per-turn wage calculation",
+        "Create driver quality tiers",
+        "Build wage scaling with fleet size",
+        "Design non-payment consequences"
+    ],
+    "unknowns": [
+        "Wage amounts per tier",
+        "Quality effects on performance"
+    ],
+    "priority": 12
+}

@@ -1,0 +1,25 @@
+{
+    "id": "TRADE-16",
+    "epic": "TRADE",
+    "title": "Road Quality Tool",
+    "description": "Create a tool for visualizing road quality between cities. Color-code road segments based on quality (green=good, yellow=fair, red=poor). Show road quality affects on travel speed and distance. Display road improvement options and costs.",
+    "blocked-by": [
+        "TRADE-14"
+    ],
+    "blocks": [],
+    "definition-of-done": "Tool shows all road segments. Color coding clear and intuitive. Quality effects displayed on hover. Improvement options visible.",
+    "testing-plan": "Test road visualization. Verify color coding accuracy. Test hover information. Confirm improvement display.",
+    "todos": [
+        "Create RoadQualityTool class extending Tool",
+        "Implement road segment visualization",
+        "Add color coding for quality levels",
+        "Display quality effects on hover",
+        "Show improvement costs and options"
+    ],
+    "unknowns": [
+        "Number of quality levels",
+        "Road improvement mechanics",
+        "Quality degradation over time"
+    ],
+    "priority": 18
+}

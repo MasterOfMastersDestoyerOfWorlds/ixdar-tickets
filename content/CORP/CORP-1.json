@@ -1,0 +1,24 @@
+{
+    "id": "CORP-1",
+    "epic": "CORP",
+    "title": "Manager Hiring",
+    "description": "Assign managers to routes, fisheries, and other operations. As the player expands, direct management becomes impossible. Managers take over day-to-day operations with varying effectiveness.",
+    "blocked-by": [],
+    "blocks": [
+        "CORP-2",
+        "CORP-3"
+    ],
+    "definition-of-done": "Manager hiring from available pool. Managers assignable to operations. Manager stats affect performance. Manager salaries as ongoing cost.",
+    "testing-plan": "Verify manager hiring works. Test assignment to operations. Verify stat effects. Test salary costs.",
+    "todos": [
+        "Implement manager hiring pool",
+        "Create assignment mechanics",
+        "Build manager stat system",
+        "Design salary cost structure"
+    ],
+    "unknowns": [
+        "Manager availability rates",
+        "Stat ranges"
+    ],
+    "priority": 1
+}

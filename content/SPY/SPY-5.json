@@ -1,0 +1,23 @@
+{
+    "id": "SPY-5",
+    "epic": "SPY",
+    "title": "Infiltration Mechanics",
+    "description": "Successful infiltration requires overlapping trade space with the target. You can only spy on competitors you interact with in some way. This creates natural limits on espionage and encourages market presence.",
+    "blocked-by": [],
+    "blocks": [
+        "SPY-6"
+    ],
+    "definition-of-done": "Infiltration requires trade space overlap. Overlap calculation based on shared cities/routes. No overlap means no infiltration possible. Overlap visualization available.",
+    "testing-plan": "Verify infiltration requires overlap. Test overlap calculation. Verify blocked without overlap. Test overlap visualization.",
+    "todos": [
+        "Implement trade space overlap calculation",
+        "Create infiltration prerequisite check",
+        "Build overlap requirement enforcement",
+        "Design overlap visualization"
+    ],
+    "unknowns": [
+        "Minimum overlap required",
+        "How overlap is calculated"
+    ],
+    "priority": 5
+}

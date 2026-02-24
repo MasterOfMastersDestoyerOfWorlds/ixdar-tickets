@@ -1,0 +1,23 @@
+{
+    "id": "CORP-2",
+    "epic": "CORP",
+    "title": "Manager Motivation",
+    "description": "Equity vs flat wages tradeoff. Managers without ownership stake run operations poorly. Sharing equity improves performance but costs potential profits. Finding the right incentive structure is key.",
+    "blocked-by": [
+        "CORP-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Equity sharing option for managers. Equity improves manager performance. Flat wage option with lower performance. Motivation visible in manager details.",
+    "testing-plan": "Verify equity sharing works. Test performance improvement. Verify flat wage penalty. Test motivation display.",
+    "todos": [
+        "Implement equity sharing mechanics",
+        "Create performance calculation from motivation",
+        "Build wage vs equity tradeoff",
+        "Design motivation display"
+    ],
+    "unknowns": [
+        "Equity percentage ranges",
+        "Performance scaling formula"
+    ],
+    "priority": 2
+}

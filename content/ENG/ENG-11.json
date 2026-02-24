@@ -1,0 +1,35 @@
+{
+    "id": "ENG-11",
+    "epic": "ENGINE",
+    "title": "Consolidate Input Handler Classes",
+    "description": "The input handling layer has five overlapping classes (TradeKeyGuy, TradeMouseTrap, KeyGuy, MouseTrap, Scene2DMousePanTrap) with duplicated patterns for key/mouse event routing, camera binding, and scene-specific overrides. Consolidate these into a unified input abstraction that scenes can configure declaratively, reducing the surface area for input bugs and making new scene creation simpler.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A single composable input handler abstraction replaces the five separate classes. 2. Existing scenes (TradeScene, IrregularGridScene, LineScene, etc.) work identically with the new input system. 3. Camera pan/zoom behavior from Scene2DMousePanTrap is available as a reusable component. 4. Scene-specific key bindings (TradeKeyGuy extras) are expressible via configuration or composition, not separate classes. 5. MouseTrap static scroll-region subscription API is preserved or replaced with equivalent. 6. AutomationInputBinder still works for test automation.",
+    "testing-plan": "1. Verify TradeScene camera pan, zoom, and key shortcuts work identically. 2. Verify IrregularGridScene pan/zoom with Scene2DMousePanTrap behavior preserved. 3. Verify scroll-region subscriptions still fire correctly. 4. Verify automation input binding works through the new abstraction. 5. Regression test all scenes that currently use any of the five classes.",
+    "todos": [
+        "Audit all five classes and catalog their shared vs unique responsibilities",
+        "Design a composable InputHandler interface with camera-bind, key-route, and mouse-route capabilities",
+        "Implement unified handler with configuration for scene-specific overrides",
+        "Migrate TradeScene to the new input handler",
+        "Migrate remaining scenes (IrregularGridScene, LineScene, etc.)",
+        "Remove the five legacy classes once all scenes are migrated",
+        "Verify AutomationInputBinder compatibility"
+    ],
+    "unknowns": [
+        "Whether composition (decorating a base handler) or configuration (flags/options on a single handler) is the better model",
+        "Whether MouseTrap static state (scroll region subscriptions) needs to become instance-scoped",
+        "How deeply TradeKeyGuy key bindings are coupled to trade-specific game state"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/input/TradeMouseTrap.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/MouseTrap.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/KeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/Scene2DMousePanTrap.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/SceneInputFrameUpdater.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationInputBinder.java"
+    ],
+    "priority": 3
+}

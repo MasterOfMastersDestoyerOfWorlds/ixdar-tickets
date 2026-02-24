@@ -1,0 +1,21 @@
+{
+    "id": "DIPLO-2",
+    "epic": "DIPLO",
+    "title": "License Requirements",
+    "description": "Lobby cities to require licenses or higher regulatory barriers that you have funds to pay for but rivals do not. Create artificial barriers to entry that disadvantage smaller or less-capitalized competitors.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "License lobbying action. Licenses require capital to obtain. Rivals blocked if they lack funds. License costs and requirements visible.",
+    "testing-plan": "Verify license lobbying works. Test capital requirements. Verify rival blocking. Test license visibility.",
+    "todos": [
+        "Implement license lobbying action",
+        "Create license capital requirements",
+        "Build rival access checking",
+        "Design license requirement display"
+    ],
+    "unknowns": [
+        "License cost ranges",
+        "Lobbying success factors"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,23 @@
+{
+    "id": "INVEST-5",
+    "epic": "INVEST",
+    "title": "Parallel Routes",
+    "description": "Multiple caravans allow parallelism: send one caravan out, then another to better split the month's price opportunities. This enables exploiting time-sensitive arbitrage before competitors can react.",
+    "blocked-by": [
+        "INVEST-4"
+    ],
+    "blocks": [],
+    "definition-of-done": "Multiple caravans can operate simultaneously. Caravans can be dispatched at different times. Price timing advantages visible. Route scheduling UI.",
+    "testing-plan": "Verify multiple simultaneous caravans. Test staggered dispatch timing. Verify price timing effects. Test scheduling interface.",
+    "todos": [
+        "Implement simultaneous caravan operations",
+        "Create dispatch timing mechanics",
+        "Build price timing advantage calculations",
+        "Design route scheduling UI"
+    ],
+    "unknowns": [
+        "Maximum parallel caravans",
+        "Timing granularity within turns"
+    ],
+    "priority": 5
+}

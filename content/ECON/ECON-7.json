@@ -1,0 +1,24 @@
+{
+    "id": "ECON-7",
+    "epic": "ECON",
+    "title": "Order/Corruption Spectrum",
+    "description": "Cities exist on an order/corruption spectrum. High corruption cities produce less goods but allow anything for the right price (bribes required, extra-legal actions possible). High order cities produce lots of goods but are harder to act in covertly and produce less research. Research output is maximized in slightly corrupt, medium order cities.",
+    "blocked-by": [
+        "ECON-6"
+    ],
+    "blocks": [],
+    "definition-of-done": "Order/corruption values for each city. Values affect production, bribery difficulty, and covert action difficulty. Research output formula based on order/corruption. Visual indication of city character.",
+    "testing-plan": "Verify order/corruption values apply correctly. Test effects on production. Verify bribery/covert action difficulty scaling. Test research output calculation.",
+    "todos": [
+        "Implement order/corruption value system",
+        "Create production modifiers from values",
+        "Build difficulty scaling for actions",
+        "Design research output formula",
+        "Create visual indicators for city character"
+    ],
+    "unknowns": [
+        "Exact formula for research output",
+        "Order/corruption value ranges"
+    ],
+    "priority": 7
+}

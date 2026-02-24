@@ -1,0 +1,23 @@
+{
+    "id": "ROAD-4",
+    "epic": "ROAD",
+    "title": "Road Efficiency Metrics",
+    "description": "Road efficiency bonuses for elevation management and straightness. Paying for proper elevation grading and straight routes wins in the long run. Route planning involves tradeoffs between construction cost and long-term efficiency.",
+    "blocked-by": [
+        "ROAD-1"
+    ],
+    "blocks": [],
+    "definition-of-done": "Efficiency calculations include elevation and straightness factors. Routing shows efficiency predictions. Cost/efficiency tradeoffs visible during planning.",
+    "testing-plan": "Verify elevation affects efficiency correctly. Test straightness calculations. Verify cost/efficiency tradeoff visibility.",
+    "todos": [
+        "Implement elevation efficiency calculations",
+        "Create straightness metric system",
+        "Build efficiency prediction during planning",
+        "Design tradeoff visualization"
+    ],
+    "unknowns": [
+        "Exact efficiency formulas",
+        "How elevation is measured"
+    ],
+    "priority": 4
+}

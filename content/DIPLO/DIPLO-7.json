@@ -1,0 +1,21 @@
+{
+    "id": "DIPLO-7",
+    "epic": "DIPLO",
+    "title": "Detection and Consequences",
+    "description": "If caught trying to blackmail or engage in illegal diplomacy, your company may be expelled from the town for a period or pay large fines. Risk increases with investment in the city - more to lose.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Detection system for illegal diplomatic actions. Consequences include expulsion and fines. Consequences scale with investment level. Detection events have presentation.",
+    "testing-plan": "Verify detection triggers correctly. Test consequence application. Verify scaling with investment. Test event presentation.",
+    "todos": [
+        "Implement detection probability system",
+        "Create consequence mechanics",
+        "Build investment-based scaling",
+        "Design detection event presentation"
+    ],
+    "unknowns": [
+        "Detection probabilities",
+        "Fine and expulsion durations"
+    ],
+    "priority": 7
+}

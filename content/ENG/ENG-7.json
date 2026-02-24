@@ -1,0 +1,51 @@
+{
+    "id": "ENG-7",
+    "epic": "ENGINE",
+    "title": "Play Sound Effects and Music",
+    "description": "Implement an audio system for playing sound effects and background music in the game engine. The system should support loading audio files (WAV, OGG, MP3), managing multiple simultaneous sound effects, background music playback with volume control, and integration with game events. This will enable audio feedback for gameplay actions (UI-4: gold collection sounds) and ambient audio for scenes (UI-5: sea shanties, wind, bird sounds).",
+    "blocked-by": [],
+    "blocks": [
+        "UI-4",
+        "UI-5"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Audio system can load and play sound effect files (WAV/OGG format). 2. Background music playback with play/pause/stop/volume control. 3. Multiple simultaneous sound effects can play without conflicts. 4. Volume controls for SFX and music (separate or master volume). 5. Audio files loaded through Platform abstraction (similar to loadTexture). 6. Integration with Clock for timing/synchronization if needed. 7. Basic error handling for missing/corrupted audio files. 8. Memory management - audio resources can be unloaded.",
+    "testing-plan": "1. Manual Testing: Play various sound effects simultaneously, test background music playback, verify volume controls work, test audio during gameplay events. 2. Unit Tests: Create AudioSystemTest.java with tests for: loadAudioFile (valid/invalid files), playSoundEffect (multiple simultaneous), playMusic (play/pause/stop), volumeControl (SFX/music/master), audioResourceCleanup. 3. Integration Tests: Verify audio plays on game events (gold collection from UI-4), test ambient audio in scenes (UI-5 main menu), test audio doesn't interfere with rendering performance. 4. Performance Testing: Measure memory usage for loaded audio, test with many simultaneous sound effects, verify no audio glitches or dropouts.",
+    "todos": [
+        "DONE : Research audio library options (OpenAL, LWJGL3 OpenAL bindings, Java Sound API, or lightweight solution)",
+        "DONE : Design AudioSystem class structure (SoundEffect, Music, AudioManager)",
+        "DONE : Design audio resource loading (integrate with Platform abstraction, similar to loadTexture)",
+        "DONE : Implement sound effect playback (play, stop, volume control)",
+        "DONE : Implement background music playback (play, pause, stop, loop, volume control)",
+        "DONE : Implement volume management (master volume, SFX volume, music volume)",
+        "DONE : Add support for multiple simultaneous sound effects",
+        "Integrate audio loading with Platform interface",
+        "DONE : Add error handling for invalid/missing audio files",
+        "DONE : Test audio playback with various file formats (WAV, OGG)",
+        "Test audio performance with multiple simultaneous sounds",
+        "Document audio file format requirements and best practices"
+    ],
+    "unknowns": [
+        "Which audio library to use (OpenAL via LWJGL3, Java Sound API, or custom solution)",
+        "Audio file format support (WAV is universal but large, OGG is compressed, MP3 licensing)",
+        "Whether to support 3D positional audio or just 2D audio initially",
+        "Audio streaming vs loading entire file into memory",
+        "How to handle audio on web platform (WebAudio API vs other solutions)",
+        "Whether to support audio effects (reverb, echo, filters) in initial implementation",
+        "Audio format conversion requirements (do we need to convert files or support multiple formats natively?)"
+    ],
+    "changes-made": [
+        "Added OpenAL-backed AudioSystem with looped menu music, one-shot SFX playback, volume controls, and source/buffer lifecycle management.",
+        "Integrated menu music and menu click SFX into Canvas3D/MenuBox/TradeScene scene transitions.",
+        "Added automation audio telemetry in /ui/state plus ixdar_cli commands (audio-state, audio-log) for deterministic validation.",
+        "Fixed automation server shutdown path so app close releases port and exits cleanly.",
+        "Switched audio runtime loading to classpath-first resources and configured Maven to ingest WAV assets from IXDAR_ASSET_REPO_ROOT at build time."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/gl/Platform.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/Clock.java",
+        "tickets/content/UI/UI-4.json (Audio Stims - gold collection sounds)",
+        "tickets/content/UI/UI-5.json (Main Menu Revamp - sea shanties, wind, bird sounds)"
+    ],
+    "priority": 52
+}

@@ -1,0 +1,23 @@
+{
+    "id": "SMUG-5",
+    "epic": "SMUG",
+    "title": "City Bans",
+    "description": "Repeated smuggling offenses can result in temporary expulsion or bans from cities in your network. As you build more infrastructure and invest in a city, it becomes increasingly risky to smuggle - you have more to lose.",
+    "blocked-by": [
+        "SMUG-4"
+    ],
+    "blocks": [],
+    "definition-of-done": "Ban system for repeated offenses. Bans prevent trade for set duration. Investment level affects ban severity. Ban status visible in city management.",
+    "testing-plan": "Verify bans trigger on repeat offenses. Test ban prevents trade. Verify investment affects severity. Test ban status display.",
+    "todos": [
+        "Implement offense tracking per city",
+        "Create ban trigger mechanics",
+        "Build ban duration calculation",
+        "Design ban status in city management"
+    ],
+    "unknowns": [
+        "Offense threshold for ban",
+        "Ban duration formula"
+    ],
+    "priority": 5
+}

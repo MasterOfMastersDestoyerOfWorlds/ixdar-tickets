@@ -1,0 +1,51 @@
+{
+    "id": "UI-6",
+    "epic": "UI",
+    "title": "Icosphere Save Point Animation",
+    "description": "An interactive save-game UI element built from an icosahedron that expands its faces outward on hover and performs Rubik's-cube-style band rotations along vertex axes. On hover the 20 triangular faces separate with a gap, then groups of faces (caps of 5 or equatorial bands of 10) rotate by 72-degree increments around icosahedral vertex axes. Faces snap back to a perfect grid after each rotation to prevent drift. On mouse-out the whole structure smoothly collapses back into a solid icosphere. A Three.js prototype exists with the core mechanics working: face normalization, axis selection, cap/equator band picking, rotation with snap-to-ideal, and additive-blended emissive materials.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Icosphere renders in the game engine using SDF or mesh pipeline. 2. On hover, faces expand outward along their normals with a smooth lerp. 3. While expanded, groups of faces rotate around icosahedral vertex axes in 72-degree increments. 4. Rotation bands are correct: caps (5 faces sharing a vertex) and equatorial bands (10 faces). 5. Faces snap to ideal grid positions after each rotation to prevent floating-point drift. 6. On mouse-out, faces smoothly collapse back to a closed icosphere. 7. Visual style: emissive blue-white glow, wireframe overlay, additive blending. 8. Clicking the activated save point triggers the save-game action.",
+    "testing-plan": "1. Hover over the icosphere and verify faces expand outward evenly. 2. Watch multiple rotation cycles and verify no faces drift out of alignment. 3. Verify cap rotations move exactly 5 faces and equatorial rotations move ~10 faces. 4. Mouse-out mid-rotation and verify smooth collapse without visual glitches. 5. Rapidly hover on/off and verify no stuck states. 6. Verify the save action fires on click. 7. Test at different camera distances and window sizes.",
+    "todos": [
+        "Port the icosphere face decomposition from the Three.js prototype to the game engine - DONE",
+        "Implement face expansion animation (lerp outward along normals on hover) - DONE",
+        "Implement icosahedral vertex axis extraction for rotation bands - DONE",
+        "Implement cap and equatorial band selection logic - DONE",
+        "Implement 72-degree band rotation with quaternion math - DONE",
+        "Implement snap-to-ideal after each rotation to fix drift - DONE",
+        "Implement smooth collapse back to solid on mouse-out - DONE",
+        "Add emissive material, wireframe overlay, and additive blending - IN_PROGRESS",
+        "Wire hover detection to the game input system - DONE",
+        "Wire click to trigger save-game action - IN_PROGRESS",
+        "Add point light at center for inner glow effect - TODO"
+    ],
+    "unknowns": [
+        "Whether to use the mesh pipeline or SDF for the icosphere faces",
+        "How to handle the 3D hover detection (raycasting against individual triangle faces vs bounding sphere)",
+        "Whether rotation speed and pause duration need tuning for game feel",
+        "Whether additional visual effects are needed (particle trails, glow pulses on snap)"
+    ],
+    "changes-made": [
+        "Added Python automation CLI scaffolding command `new-scene` with parameterized scene generation, launch.json insertion, and optional Maven profile insertion",
+        "Scaffolded and implemented `IcosphereSavePointScene` under `ixdar.scenes.ui` with 3D camera controls, hover detection, expand/collapse animation, randomized 72-degree band rotations, and snap-to-ideal behavior",
+        "Added `IcosphereGeometry` data class for icosahedron face decomposition, ideal slot state, axis extraction, and cap/equatorial band selection logic",
+        "Added `IcosphereRuntime` for per-face mesh upload/render lifecycle using MeshShader and per-face transforms",
+        "Extended mesh fragment shader with emissive/rim glow uniforms used by icosphere rendering",
+        "Added launch profile and Maven profile for `icosphere-save-point-canvas` and validated compile + scene startup via Maven profile",
+        "Wired primary click activation hook in scene (`Save point activated` log) for save action integration point"
+    ],
+    "related-files": [
+        "tools/ixdar-automation-cli/scene_scaffolding.py",
+        "tools/ixdar-automation-cli/ixdar_cli.py",
+        "tools/ixdar-automation-cli/test_cli.py",
+        "ixdar-app/src/main/java/ixdar/scenes/ui/IcosphereSavePointScene.java",
+        "ixdar-app/src/main/java/ixdar/geometry/point/IcosphereGeometry.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/IcosphereRuntime.java",
+        "ixdar-app/src/main/resources/glsl/mesh.fs",
+        ".vscode/launch.json",
+        "ixdar-app/pom.xml"
+    ],
+    "priority": 3
+}

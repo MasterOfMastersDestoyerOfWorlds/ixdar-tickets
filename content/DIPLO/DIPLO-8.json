@@ -1,0 +1,21 @@
+{
+    "id": "DIPLO-8",
+    "epic": "DIPLO",
+    "title": "Legislation Manipulation",
+    "description": "Buy out public roads using bribery or legislation to put tolls on them or convert to private. Use legal mechanisms to change ownership and access rights. A key path to monopolizing trade routes.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Legislative action to change road ownership. Bribery path for faster conversion. Legal path slower but safer. Ownership changes reflected in road system.",
+    "testing-plan": "Verify legislation action works. Test bribery acceleration. Verify legal path timing. Test ownership change integration.",
+    "todos": [
+        "Implement legislative road conversion",
+        "Create bribery acceleration option",
+        "Build legal process timing",
+        "Integrate with road ownership system"
+    ],
+    "unknowns": [
+        "Legislation timeline",
+        "Bribery costs for acceleration"
+    ],
+    "priority": 8
+}

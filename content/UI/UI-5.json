@@ -1,0 +1,44 @@
+{
+    "id": "UI-5",
+    "epic": "UI",
+    "title": "Main Menu Revamp",
+    "description": "I want a diagetic main menu that tells the story of the player arriving at the island. In the fram should be the mast of a ship, rigging and the captains quarters, with lights coming from the window panes and a lantern next to the door. The ship should be swaying with the wind, with the lantern also swaying. The player should hear sea shanties and drunken men singing in the hull of the ship. every once and a while a bird should be seen flying in the skybox portion of the frame in the top left of the screen, rats shouldoccasionally run by the camera.",
+    "blocked-by": [
+        "ENG-5",
+        "ENG-6",
+        "ENG-7"
+    ],
+    "blocks": [],
+    "definition-of-done": "Scene is rendered in blender and the animation can play in the game engine.",
+    "testing-plan": "",
+    "todos": [
+        "Render the scene in blender",
+        "Animate the scene blender",
+        "Make a ship model in blender",
+        "Make a captain's quarters model in blender",
+        "Make a rigging model in blender",
+        "Make a lantern model in blender and rig it",
+        "Make a rat model in blender and rig it",
+        "Make a bird model in blender and rig it",
+        "Get a list of sea shanties that are public domain",
+        "Record wind sound effects",
+        "Record bird sound effects",
+        "Record rat sound effects",
+        "Record drunken man sound effects",
+        "Record sea shanty sound effects",
+        "Figure out how to load meshes in the game engine",
+        "Figure out how to animate the scene in the game engine",
+        "Create a ticket for clouds in the skybox",
+        "Add the scene to the main menu",
+        "Add the audio to the scene",
+        "Add a fade in and out to the scene",
+        "Add a loading icon to the transition to the game"
+    ],
+    "unknowns": [
+        "How to load meshes in the game engine",
+        "How to animate the scene in the game engine",
+        "How to add the scene to the main menu",
+        "How to add the audio to the scene"
+    ],
+    "priority": 1
+}

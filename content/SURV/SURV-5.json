@@ -1,0 +1,23 @@
+{
+    "id": "SURV-5",
+    "epic": "SURV",
+    "title": "Fishery System",
+    "description": "Players can set up fisheries as a sustainable food source. Fisheries require initial investment and ongoing management. They provide a steady food supply but tie up resources in one location.",
+    "blocked-by": [],
+    "blocks": [
+        "SURV-6"
+    ],
+    "definition-of-done": "Fisheries can be constructed at coastal locations. They produce fish over time. Construction requires resources and labor. Fish can be harvested and stored.",
+    "testing-plan": "Verify fishery construction at valid locations. Test fish production rates. Verify resource/labor requirements. Test harvesting mechanics.",
+    "todos": [
+        "Design fishery building requirements",
+        "Implement fish production mechanics",
+        "Create coastal location validation",
+        "Build harvesting and storage integration"
+    ],
+    "unknowns": [
+        "Fishery construction costs",
+        "Fish production rates"
+    ],
+    "priority": 5
+}

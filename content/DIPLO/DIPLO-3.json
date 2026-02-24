@@ -1,0 +1,21 @@
+{
+    "id": "DIPLO-3",
+    "epic": "DIPLO",
+    "title": "Bribery System",
+    "description": "Pay politicians for favorable policy outcomes. High corruption cities require regular bribes to get things done, but almost anything is possible at the right price. Bribery is a tool for rapid policy change.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Bribery action for policy outcomes. Cost scales with city corruption and request difficulty. High corruption cities more bribable. Bribe costs and success visible.",
+    "testing-plan": "Verify bribery action works. Test cost scaling. Verify corruption affects difficulty. Test bribe preview.",
+    "todos": [
+        "Implement bribery action mechanics",
+        "Create cost calculation based on factors",
+        "Build corruption-based scaling",
+        "Design bribery preview UI"
+    ],
+    "unknowns": [
+        "Bribe cost formulas",
+        "What can be bribed for"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,24 @@
+{
+    "id": "SURV-8",
+    "epic": "SURV",
+    "title": "Deeper Island Biodiversity",
+    "description": "Moving toward the center of the island brings more biodiversity - and more danger. Creatures become more exotic and monstrous. Resources may be richer but risks are higher. Each layer presents new flora, fauna, and threats.",
+    "blocked-by": [
+        "WORLD-1",
+        "WORLD-4"
+    ],
+    "blocks": [],
+    "definition-of-done": "Multiple biome layers with increasing biodiversity. Creature danger scales with depth. Unique resources available at deeper layers. Visual distinction between layers.",
+    "testing-plan": "Verify biome layer transitions. Test creature danger scaling. Verify unique resources per layer. Test visual layer distinctions.",
+    "todos": [
+        "Design inner biome layers",
+        "Implement progressive creature difficulty",
+        "Create layer-specific resource types",
+        "Build visual style per layer"
+    ],
+    "unknowns": [
+        "Number of distinct layers",
+        "Specific creatures per layer"
+    ],
+    "priority": 8
+}

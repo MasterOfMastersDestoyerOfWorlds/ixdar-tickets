@@ -1,0 +1,23 @@
+{
+    "id": "DIPLO-6",
+    "epic": "DIPLO",
+    "title": "Medical Leverage",
+    "description": "Pay to transport sick individuals to towns where treatment is known. Use medical assistance as leverage for favors. A softer form of influence than blackmail with less risk but potentially less effect.",
+    "blocked-by": [
+        "DIPLO-5"
+    ],
+    "blocks": [],
+    "definition-of-done": "Medical assistance action available. Transport/treatment costs money. Successful assistance builds goodwill/leverage. Less risky than blackmail.",
+    "testing-plan": "Verify medical assistance action. Test cost calculation. Verify goodwill/leverage generation. Verify lower risk than blackmail.",
+    "todos": [
+        "Implement medical assistance action",
+        "Create cost calculation",
+        "Build goodwill/leverage mechanics",
+        "Design risk comparison with blackmail"
+    ],
+    "unknowns": [
+        "Assistance costs",
+        "Leverage generated"
+    ],
+    "priority": 6
+}

@@ -1,0 +1,21 @@
+{
+    "id": "SURV-4",
+    "epic": "SURV",
+    "title": "Food Production",
+    "description": "Meat gathering and hunting mechanics form a core survival challenge on the outer rim. Players must hunt animals, preserve food, and manage food supplies for their crew. Food spoilage and storage are important considerations.",
+    "blocked-by": [],
+    "blocks": [],
+    "definition-of-done": "Hunting produces meat resources. Food storage and spoilage systems work. Crew consumes food over time. Starvation causes negative effects.",
+    "testing-plan": "Verify hunting produces food. Test food spoilage timing. Verify crew food consumption. Test starvation effects.",
+    "todos": [
+        "Implement hunting-to-food conversion",
+        "Create food storage system",
+        "Build food spoilage mechanics",
+        "Design crew consumption and starvation"
+    ],
+    "unknowns": [
+        "Food spoilage rates",
+        "Crew food consumption rates"
+    ],
+    "priority": 4
+}

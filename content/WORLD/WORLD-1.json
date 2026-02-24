@@ -1,0 +1,25 @@
+{
+    "id": "WORLD-1",
+    "epic": "WORLD",
+    "title": "Volcanic Island Setting",
+    "description": "A volcano rises out of the ocean off the coast of Iceland. The island serves as the central location for all gameplay. It is contested by major North Atlantic powers (English, Danish, Dutch, French) who vie for control. The island has a central well/hole that descends to a mysterious treasure room, similar to Made in Abyss or the room in Roadside Picnic.",
+    "blocked-by": [],
+    "blocks": [
+        "SURV-1",
+        "SURV-2",
+        "SURV-8"
+    ],
+    "definition-of-done": "The island terrain is procedurally generated or hand-crafted with volcanic features, coastal areas, and a central well structure. The island can be rendered and explored by the player.",
+    "testing-plan": "Verify island renders correctly, has appropriate biome zones (outer rim, inner depths), and the central well structure is accessible.",
+    "todos": [
+        "Design island terrain generation or layout",
+        "Implement volcanic terrain features",
+        "Create central well/hole structure",
+        "Define biome boundaries"
+    ],
+    "unknowns": [
+        "Exact dimensions and scale of the island",
+        "Procedural vs hand-crafted terrain approach"
+    ],
+    "priority": 1
+}
