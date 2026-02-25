@@ -7,27 +7,37 @@
     "description": "Add CLI commands that would accelerate geometry node development: export command to trigger node export from CLI, open command to load a specific .blend file, diff command to compare two node group outputs, list-groups command to enumerate registered node groups, and inspect command to show node group structure. Also fix the fallback reload path in blender_server.py to properly call register() after module reloads.",
     "blocked-by": [],
     "blocks": ["BLEN-5"],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. blender-cli export --group <name> triggers the node exporter with CLI flags for options. 2. blender-cli open <path> loads a .blend file in the running Blender instance. 3. blender-cli list-groups shows all registered geo_node_groups. 4. blender-cli inspect --group <name> shows node count, links, interface, frame structure. 5. blender-cli diff --group <name> --before <file> compares mesh metrics. 6. Fallback reload path calls register() to ensure proper decorator re-registration.",
     "testing-plan": "Test each new command against existing node groups and .blend files. Verify reload fallback properly populates all registries.",
     "todos": [
-        "TODO : Add open command handler to blender_server.py (bpy.ops.wm.open_mainfile)",
-        "TODO : Add export command handler to blender_server.py",
-        "TODO : Add list-groups command handler",
-        "TODO : Add inspect command handler",
-        "TODO : Add diff command handler",
-        "TODO : Fix fallback reload to call register() after module reloads",
-        "TODO : Add CLI subcommands to blender_cli for each new handler"
+        "DONE : Add open command handler to blender_server.py (bpy.ops.wm.open_mainfile)",
+        "DONE : Add export command handler to blender_server.py",
+        "DONE : Add list-groups command handler",
+        "DONE : Add inspect command handler",
+        "DONE : Add diff command handler",
+        "DONE : Fix fallback reload to call register() after module reloads",
+        "DONE : Add CLI subcommands to blender_cli for each new handler"
     ],
-    "unknowns": [
-        "Should diff compare mesh metrics (vertex/face count) or full geometry (vertex positions)?",
-        "How to handle export options from CLI (use defaults or CLI flags)?",
-        "Should open command clear the scene first or append?"
+    "unknowns-resolved": [
+        "Diff compares mesh metrics (vertex/edge/face count) with optional save/compare against JSON baseline.",
+        "Export options are exposed as CLI flags with sensible defaults (--use-helpers on, --split-frames off, --include-labels on, --include-locations off, --include-names off).",
+        "Open command replaces the scene (uses bpy.ops.wm.open_mainfile) and re-registers the command queue timer."
     ],
-    "changes-made": [],
+    "changes-made": [
+        "Added handle_open_file, handle_list_groups, handle_inspect_group, handle_export_group, handle_diff_group to blender_server.py",
+        "Created tools/commands/node_tools.py with @cli_command decorated functions: open, list_groups, inspect, export, diff",
+        "Registered tools.commands.node_tools import in blender_cli.py",
+        "Fixed fallback reload path to call register() after module reloads",
+        "Fixed open_mainfile handler to re-register _process_command_queue timer",
+        "Fixed cli_registry.py _normalize_annotation to handle string annotations from 'from __future__ import annotations'",
+        "Fixed handle_diff_group to pass 'group_name' (not 'group') to handle_apply_node_group"
+    ],
     "related-files": [
         "procedural_human/testing/blender_server.py",
-        "tools/blender_cli/"
+        "tools/blender_cli.py",
+        "tools/cli_registry.py",
+        "tools/commands/node_tools.py"
     ],
     "priority": 7
 }

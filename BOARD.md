@@ -84,21 +84,21 @@
 
 ## Blender Procedural Human (10 tickets, priority 4)
 
-### Todo (7)
+### Todo (6)
 
 - [BLEN-4](content/BLEN/BLEN-4.json) **BLEN-4** Additional Node Helpers -- Add @node_helper decorators to remaining helper functions in node_helpers.py so the exporter can...
 - [BLEN-5](content/BLEN/BLEN-5.json) **BLEN-5** Blocker Decomposition -- Use the node exporter's split-frames feature to decompose blocker.py (~950 lines) into a folder...
 - [BLEN-8](content/BLEN/BLEN-8.json) **BLEN-8** Frame Splitting Does Not Recurse Into Sub-Groups -- When split_frames is enabled, the exporter correctly splits top-level frames into separate files...
-- [BLEN-7](content/BLEN/BLEN-7.json) **BLEN-7** Blender CLI Improvements -- Add CLI commands that would accelerate geometry node development: export command to trigger node...
 - [BLEN-9](content/BLEN/BLEN-9.json) **BLEN-9** Continuous Codebase Refactoring via Re-Export -- Create a workflow (and CLI command) that re-exports existing hand-written geo_node_group code...
 - [BLEN-10](content/BLEN/BLEN-10.json) **BLEN-10** Surface Magic Numbers as Top-Level Parameters -- Add an exporter mode that identifies all 'magic numbers' buried in node properties (float curve...
 - [BLEN-6](content/BLEN/BLEN-6.json) **BLEN-6** DSL Armor Extension -- Extend the DSL system to replace armor_suit.py with a declarative configuration. Armor pieces...
 
-<details><summary>Done (3)</summary>
+<details><summary>Done (4)</summary>
 
 - ~~[BLEN-1](content/BLEN/BLEN-1.json) **BLEN-1** Neck Armor Geometry Fixes~~
 - ~~[BLEN-2](content/BLEN/BLEN-2.json) **BLEN-2** Node Exporter Rewrite~~
 - ~~[BLEN-3](content/BLEN/BLEN-3.json) **BLEN-3** Neck Trim Refactoring and Float Curve Helper~~
+- ~~[BLEN-7](content/BLEN/BLEN-7.json) **BLEN-7** Blender CLI Improvements~~
 
 </details>
 
