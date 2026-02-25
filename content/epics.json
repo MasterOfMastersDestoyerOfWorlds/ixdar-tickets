@@ -79,6 +79,12 @@
             "description": "Privateers, tribute, hiring pirates"
         },
         {
+            "prefix": "BLEN",
+            "name": "Blender Procedural Human",
+            "priority": 4,
+            "description": "Geometry nodes, node exporter, DSL, armor system, Blender CLI tooling"
+        },
+        {
             "prefix": "IX",
             "name": "Project Setup",
             "priority": 99,

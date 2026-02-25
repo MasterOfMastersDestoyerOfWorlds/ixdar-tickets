@@ -1,0 +1,31 @@
+{
+    "id": "BLEN-8",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["blender-addon", "geo-nodes"],
+    "title": "Frame Splitting Does Not Recurse Into Sub-Groups",
+    "description": "When split_frames is enabled, the exporter correctly splits top-level frames into separate files (e.g. Blocker -> Collar + Chest). However, the generated sub-group files are not further split even when they contain their own internal frames. For example, collar.py is 834 lines and still contains 7+ internal frames (General Collar Shape, Quilting, Gambeson Pattern, Thickness, UVMap, Displacement, Stitching) with nested parent assignments. The exporter should recursively apply frame splitting to each generated sub-group that exceeds a threshold or has its own top-level frames.",
+    "blocked-by": [],
+    "blocks": ["BLEN-5"],
+    "status": "TODO",
+    "definition-of-done": "1. When split_frames is enabled, sub-groups that contain their own top-level frames are recursively split into further sub-folders. 2. collar.py (834 lines, 7 frames) should become collar/ with 7+ files. 3. Nested frame hierarchies (frame_002.parent = frame_004) are handled correctly by only splitting frames whose parent is the sub-group root (not frames nested inside other frames). 4. Import paths are generated correctly for multi-level nesting (e.g. procedural_human.tmp.blocker.collar.quilting).",
+    "testing-plan": "1. Export Blocker with split_frames. 2. Verify collar/ folder is created with separate files per frame. 3. Verify all import paths resolve correctly. 4. Validate geometry matches original via blender-cli validate --group Blocker.",
+    "todos": [
+        "TODO : After generating a sub-group file, check if it has top-level frames and recurse",
+        "TODO : Handle multi-level package paths in import generation",
+        "TODO : Test with Blocker (2 top-level + 7 nested in Collar)",
+        "TODO : Handle edge case of deeply nested frames (frame inside frame inside frame)"
+    ],
+    "unknowns": [
+        "Should there be a size threshold below which recursion stops (e.g. <100 lines)?",
+        "How to name nested sub-folders (blocker/collar/quilting.py vs flat blocker/collar_quilting.py)?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/utils/node_exporter/exporter.py",
+        "procedural_human/utils/node_exporter/frame_split.py",
+        "procedural_human/tmp/blocker/collar.py",
+        "procedural_human/tmp/blocker/main.py"
+    ],
+    "priority": 6
+}

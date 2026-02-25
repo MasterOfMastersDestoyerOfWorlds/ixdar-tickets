@@ -1,0 +1,50 @@
+{
+    "id": "BLEN-2",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["blender-addon", "geo-nodes"],
+    "title": "Node Exporter Rewrite",
+    "description": "Complete rewrite of node_exporter.py with helper substitution via @node_helper decorator, known geo_node_group detection, frame splitting into separate files, export options (locations, labels, names), interleaved link emission, and split into a package with separate UI.",
+    "blocked-by": ["BLEN-1"],
+    "blocks": ["BLEN-4", "BLEN-5"],
+    "status": "DONE",
+    "definition-of-done": "1. Export panel with checkboxes for each option. 2. Helpers detected and substituted (math_op, vec_math_op, separate_xyz, combine_xyz, compare_op, create_float_curve). 3. Known geo_node_groups detected and emitted as imports. 4. Frame splitting generates folder with main.py + frame_name.py files. 5. Links emitted right after the furthest-down node they reference. 6. Blank lines between node sections. 7. Exporter split into package: utils.py, exporter.py, frame_split.py. 8. UI in separate node_export_ui.py with PropertyGroup.",
+    "testing-plan": "1. Export Neck Rails with helpers enabled - verify math_op/separate_xyz substitutions. 2. Export Bi-Rail Loft - verify known group detection skips regeneration. 3. Export Shoulders with split frames - verify folder structure. 4. Validate addon reload via blender-cli validate --group Neck.",
+    "todos": [
+        "DONE : Create @node_helper decorator with NodeHelperMeta dataclass",
+        "DONE : Decorate 6 existing helpers with @node_helper metadata",
+        "DONE : Refactor generate_group_code into classify + emit two-pass system",
+        "DONE : Implement frame splitting with cross-boundary interface analysis",
+        "DONE : Build dynamic import headers based on used helpers/groups",
+        "DONE : Add ExportOptions dataclass with BoolProperty fields",
+        "DONE : Detect known geo_node_groups from registry, exclude tmp/ modules",
+        "DONE : Split into package: utils.py, exporter.py, frame_split.py",
+        "DONE : Move operator/panel to node_export_ui.py with PropertyGroup",
+        "DONE : Interleave link emission after last referenced node",
+        "DONE : Add blank lines between node sections",
+        "DONE : Fix Blender socket id() instability with (node_name, idx) keys",
+        "DONE : Add fallback registry scan via _node_helper_meta function attributes"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Created procedural_human/decorators/node_helper_decorator.py with NodeHelperMeta and @node_helper decorator.",
+        "Decorated math_op, vec_math_op, separate_xyz, combine_xyz, compare_op, create_float_curve in node_helpers.py.",
+        "Deleted monolithic procedural_human/utils/node_exporter.py.",
+        "Created procedural_human/utils/node_exporter/ package with utils.py, exporter.py, frame_split.py, __init__.py.",
+        "Created procedural_human/utils/node_export_ui.py with NodeExportSettings PropertyGroup, operator, and panel.",
+        "Updated __init__.py to register/unregister NodeExportSettings and clear node_helper.registry.",
+        "Fixed socket identification to use (node_name, socket_index) tuples instead of id() to handle Blender's ephemeral Python wrappers.",
+        "Added fallback scan of _node_helper_meta attributes on functions when class-level registry is empty after reload."
+    ],
+    "related-files": [
+        "procedural_human/utils/node_exporter/exporter.py",
+        "procedural_human/utils/node_exporter/frame_split.py",
+        "procedural_human/utils/node_exporter/utils.py",
+        "procedural_human/utils/node_exporter/__init__.py",
+        "procedural_human/utils/node_export_ui.py",
+        "procedural_human/decorators/node_helper_decorator.py",
+        "procedural_human/geo_node_groups/node_helpers.py",
+        "procedural_human/__init__.py"
+    ],
+    "priority": 2
+}

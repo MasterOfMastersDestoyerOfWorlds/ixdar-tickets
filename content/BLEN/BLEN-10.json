@@ -1,0 +1,40 @@
+{
+    "id": "BLEN-10",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes", "blender-dsl"],
+    "title": "Surface Magic Numbers as Top-Level Parameters",
+    "description": "Add an exporter mode that identifies all 'magic numbers' buried in node properties (float curve control points, transform positions/rotations/scales, radii, subdivision counts, noise scales, map range bounds, etc.) and surfaces them as named group inputs with closures where needed. The goal is to separate topology (node graph wiring) from parameters (tunable values), producing two layers: (1) a ~100-line config file with all meaningful parameters and their names, and (2) the node graph plumbing that reads those parameters via group inputs. This makes each armor piece editable by an LLM or artist who only needs to understand the config file, not the 800-line node setup. Precursor to BLEN-6 (DSL Armor Extension) — the config file format may evolve into the DSL's ArmorPanelConfig.",
+    "blocked-by": ["BLEN-2", "BLEN-8"],
+    "blocks": ["BLEN-6"],
+    "status": "TODO",
+    "definition-of-done": "1. Exporter identifies non-default, non-trivial node property values as 'parameters'. 2. Each parameter gets a group input with a descriptive name derived from node label + property name. 3. Float curves are surfaced via closures with their control points as config values. 4. Transform positions/rotations/scales are surfaced as Vector inputs. 5. Generated config file is <150 lines for a group like Collar (currently 834 lines). 6. Node graph plumbing file reads all values from group inputs (zero hardcoded magic numbers). 7. Re-creating the group from config + plumbing produces identical geometry.",
+    "testing-plan": "1. Run on Collar sub-group. Verify config file lists all tunable values. 2. Modify a parameter in config (e.g. collar radius) and verify geometry changes as expected. 3. Verify unmodified config produces identical geometry to original. 4. Count magic numbers remaining in plumbing file (should be zero).",
+    "todos": [
+        "TODO : Define what constitutes a 'magic number' vs a structural default (e.g. mode='RADIUS' is structural, radius=0.13 is magic)",
+        "TODO : Build parameter extraction pass that walks all nodes and collects non-default values",
+        "TODO : Generate group input sockets for each extracted parameter with descriptive names",
+        "TODO : Handle float curves via closures (curve points become config, closure pipes to inner nodes)",
+        "TODO : Handle transform nodes (position/rotation/scale become Vector/Euler inputs)",
+        "TODO : Generate config file (thin wrapper that sets all group inputs)",
+        "TODO : Generate plumbing file (node graph with zero hardcoded values)",
+        "TODO : Design naming heuristic (frame_label + node_label + property = 'Collar_Shape_Radius')",
+        "TODO : Handle repeated patterns (e.g. two curve circles with different radii -> distinct named inputs)"
+    ],
+    "unknowns": [
+        "How to distinguish structural properties (mode, data_type, domain) from tunable parameters (radius, position)?",
+        "Should the config file be a Python dict, a dataclass, a YAML, or a DSL definition?",
+        "How to name parameters when nodes don't have labels (fall back to type + index)?",
+        "Should boolean properties (like shade_smooth) be surfaced or left as structural?",
+        "How deep should extraction go — only immediate node properties, or also defaults on unlinked inputs?",
+        "Will the config file format become the ArmorPanelConfig from BLEN-6?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/utils/node_exporter/exporter.py",
+        "procedural_human/utils/node_exporter/frame_split.py",
+        "procedural_human/geo_node_groups/armor/",
+        "procedural_human/dsl/"
+    ],
+    "priority": 9
+}

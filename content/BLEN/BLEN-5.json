@@ -1,0 +1,29 @@
+{
+    "id": "BLEN-5",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Blocker Decomposition",
+    "description": "Use the node exporter's split-frames feature to decompose blocker.py (~950 lines) into a folder structure like neck/. The blocker has 6+ top-level frames with significant cross-boundary dependencies. May require manual cleanup of the exported output to match coding standards.",
+    "blocked-by": ["BLEN-2"],
+    "blocks": ["BLEN-6"],
+    "status": "TODO",
+    "definition-of-done": "1. blocker.py replaced with blocker/ folder. 2. Each top-level frame in its own @geo_node_group file. 3. main.py orchestrates sub-groups. 4. All files use node_helpers where applicable. 5. Geometry unchanged vs original.",
+    "testing-plan": "blender-cli validate --group Blocker before and after. Compare mesh metrics (vertex/face count).",
+    "todos": [
+        "TODO : Export Blocker with split_frames + use_helpers via node exporter",
+        "TODO : Review generated output for correctness and coding standards",
+        "TODO : Clean up variable names and add missing helpers",
+        "TODO : Replace blocker.py with blocker/ folder",
+        "TODO : Validate geometry matches original"
+    ],
+    "unknowns": [
+        "How tangled are the cross-frame dependencies in practice?",
+        "Will the auto-generated interface sockets match readable naming?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/geo_node_groups/armor/blocker/blocker.py"
+    ],
+    "priority": 5
+}

@@ -1,0 +1,35 @@
+{
+    "id": "BLEN-1",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Neck Armor Geometry Fixes",
+    "description": "Fix four geometry issues in the manually decomposed neck armor group: JoinGeometry order dependency in centre_profile and side_profile, missing PingPong->Multiply closure for bi_rail_loft blending curve, uninitialized ShaderNodeFloatCurve in neck_rails, and swapped menu order in space_switch.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. JoinGeometry link order corrected in centre_profile.py and side_profile.py. 2. Closure (PingPong -> Multiply) replicated in main.py for bi_rail_loft profile blending. 3. ShaderNodeFloatCurve initialized with points (0,0), (0.654,0.058), (1,0). 4. Menu switch enum items in correct order in space_switch.py. 5. Neck geometry matches reference temp_5.py output.",
+    "testing-plan": "Visual comparison in Blender viewport. Validate via blender-cli validate --group Neck.",
+    "todos": [
+        "DONE : Swap JoinGeometry link order in centre_profile.py",
+        "DONE : Swap JoinGeometry link order in side_profile.py",
+        "DONE : Add PingPong -> Multiply closure in main.py",
+        "DONE : Initialize ShaderNodeFloatCurve control points in neck_rails.py",
+        "DONE : Swap enum item order in space_switch.py"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Fixed link order in centre_profile.py and side_profile.py JoinGeometry nodes.",
+        "Added NodeClosureInput/Output with PingPong and Multiply math nodes in main.py.",
+        "Set float curve control points (0,0), (0.654,0.058), (1,0) with AUTO handles in neck_rails.py.",
+        "Swapped GeometryNodeMenuSwitch enum item order in space_switch.py."
+    ],
+    "related-files": [
+        "procedural_human/geo_node_groups/armor/neck/main.py",
+        "procedural_human/geo_node_groups/armor/neck/centre_profile.py",
+        "procedural_human/geo_node_groups/armor/neck/side_profile.py",
+        "procedural_human/geo_node_groups/armor/neck/neck_rails.py",
+        "procedural_human/geo_node_groups/utilities/space_switch.py"
+    ],
+    "priority": 1
+}

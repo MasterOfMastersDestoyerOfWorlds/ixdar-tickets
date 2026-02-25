@@ -1,0 +1,34 @@
+{
+    "id": "BLEN-6",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["blender-dsl", "geo-nodes"],
+    "title": "DSL Armor Extension",
+    "description": "Extend the DSL system to replace armor_suit.py with a declarative configuration. Armor pieces currently exist as independent node groups placed at hardcoded positions. The DSL should support body-relative positioning via reference geometry (anchor points, surface projections), piece-to-piece connections, and parametric variations. Requires ArmorPanel and ArmorSuit DSL primitives.",
+    "blocked-by": ["BLEN-5"],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ArmorPanelConfig dataclass for declaring armor piece parameters. 2. ArmorPanel DSL primitive that creates and positions a piece relative to body geometry. 3. ArmorSuit DSL primitive that composes multiple ArmorPanels. 4. At least one armor piece (neck) converted to DSL definition. 5. Piece placement uses reference geometry instead of hardcoded positions.",
+    "testing-plan": "Create a test DSL definition for neck armor. Compare output geometry to existing manually-placed version.",
+    "todos": [
+        "TODO : Design ArmorPanelConfig dataclass (profile curves, rail curves, positioning)",
+        "TODO : Implement body anchor point system for relative positioning",
+        "TODO : Create ArmorPanel DSL primitive",
+        "TODO : Create ArmorSuit DSL primitive for composition",
+        "TODO : Convert neck armor to DSL definition as proof of concept",
+        "TODO : Add support for piece-to-piece connections"
+    ],
+    "unknowns": [
+        "How to define anchor points on body geometry (named vertices? UV space? proximity?)",
+        "Should positioning be absolute (world space) or relative (body surface)?",
+        "How to handle symmetry (mirror vs independent left/right pieces)?",
+        "What level of parametric variation is needed for greaves/gauntlets/etc?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/dsl/",
+        "procedural_human/geo_node_groups/armor/",
+        "procedural_human/dsl/primitives/"
+    ],
+    "priority": 10
+}

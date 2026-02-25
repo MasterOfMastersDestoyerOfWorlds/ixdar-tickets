@@ -1,0 +1,32 @@
+{
+    "id": "BLEN-3",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Neck Trim Refactoring and Float Curve Helper",
+    "description": "Refactored neck_trim.py from 248 lines of raw node code to 88 lines using node_helpers. Created create_float_curve helper in node_helpers.py with minimal [(x, y)] interface for ShaderNodeFloatCurve initialization.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. neck_trim.py uses math_op, vec_math_op, separate_xyz, combine_xyz, compare_op helpers. 2. create_float_curve helper accepts list of (x,y) tuples and optional factor. 3. Existing blocker.py and neck_rails.py updated to use create_float_curve.",
+    "testing-plan": "blender-cli validate --group Neck to verify geometry unchanged.",
+    "todos": [
+        "DONE : Create create_float_curve helper in node_helpers.py",
+        "DONE : Refactor neck_trim.py to use helpers",
+        "DONE : Update neck_rails.py to use create_float_curve",
+        "DONE : Update blocker.py to use create_float_curve"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Added create_float_curve(group, value, points, factor=1.0) to node_helpers.py.",
+        "Refactored neck_trim.py from 248 to 88 lines (64% reduction).",
+        "Replaced manual ShaderNodeFloatCurve setup in neck_rails.py and blocker.py."
+    ],
+    "related-files": [
+        "procedural_human/geo_node_groups/node_helpers.py",
+        "procedural_human/geo_node_groups/armor/neck/neck_trim.py",
+        "procedural_human/geo_node_groups/armor/neck/neck_rails.py",
+        "procedural_human/geo_node_groups/armor/blocker/blocker.py"
+    ],
+    "priority": 3
+}

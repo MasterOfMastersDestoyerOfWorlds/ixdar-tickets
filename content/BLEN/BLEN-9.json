@@ -1,0 +1,35 @@
+{
+    "id": "BLEN-9",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["blender-addon", "geo-nodes"],
+    "title": "Continuous Codebase Refactoring via Re-Export",
+    "description": "Create a workflow (and CLI command) that re-exports existing hand-written geo_node_group code through the improved node exporter pipeline. The loop is: load existing @geo_node_group -> create node group in Blender -> re-export with current helpers/options -> replace original file. This lets us iteratively improve the codebase as the exporter gets smarter (new helpers, better patterns, frame splitting). Each exporter improvement can be 'baked' across the entire codebase in one pass. Distinct from BLEN-7 (general CLI tools) — this is a specific refactoring workflow that needs careful handling of diffs, validation, and rollback.",
+    "blocked-by": ["BLEN-2", "BLEN-4"],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. CLI command (e.g. blender-cli refactor --group <name>) that re-exports a single group. 2. Batch mode (blender-cli refactor --all) that re-exports all registered groups. 3. Output overwrites original file only after validation passes (geometry unchanged). 4. Dry-run mode that shows diff without writing. 5. Handles the neck/ folder structure (multi-file groups) correctly. 6. Preserves @geo_node_group decorator and function signature. 7. Re-export of neck/ produces code that matches coding standards (helpers used, clean variable names, interleaved links).",
+    "testing-plan": "1. Re-export neck_trim.py and verify output matches existing hand-refactored version. 2. Re-export a raw file (e.g. from tmp/) and verify helper substitution. 3. Batch re-export all armor groups and validate geometry unchanged. 4. Dry-run on blocker.py to preview what changes would be made.",
+    "todos": [
+        "TODO : Add refactor command handler to blender_server.py",
+        "TODO : Implement single-group re-export with file replacement",
+        "TODO : Add geometry validation gate (compare before/after mesh metrics)",
+        "TODO : Add dry-run mode that outputs diff to console",
+        "TODO : Add batch mode that iterates all registered groups",
+        "TODO : Handle multi-file groups (neck/ folder structure)",
+        "TODO : Add CLI subcommand with --group, --all, --dry-run flags"
+    ],
+    "unknowns": [
+        "How to map re-exported code back to original file location (registry has module path)?",
+        "Should re-export preserve manual comments or documentation in existing files?",
+        "How to handle files that import from each other (dependency ordering)?",
+        "Should there be a .refactorignore or skip list for files that shouldn't be touched?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/utils/node_exporter/exporter.py",
+        "procedural_human/testing/blender_server.py",
+        "procedural_human/geo_node_groups/armor/"
+    ],
+    "priority": 8
+}

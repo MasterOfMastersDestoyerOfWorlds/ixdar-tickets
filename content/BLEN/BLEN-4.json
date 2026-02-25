@@ -1,0 +1,34 @@
+{
+    "id": "BLEN-4",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Additional Node Helpers",
+    "description": "Add @node_helper decorators to remaining helper functions in node_helpers.py so the exporter can substitute them automatically. Candidates: get_attr, int_op, switch_node/switch_int/switch_vec/switch_float, clamp01, smoother_step, create_node (generic), link_or_set. Also add new helpers for commonly repeated patterns: store_named_attribute, set_position, GeometryNodeCurvePrimitiveCircle, resample_curve.",
+    "blocked-by": ["BLEN-2"],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. All existing helper functions in node_helpers.py decorated with @node_helper. 2. New helpers added for top-5 most-repeated raw node patterns across armor code. 3. Exporter correctly substitutes all decorated helpers. 4. No regressions in existing exports.",
+    "testing-plan": "Export each armor group (Neck, Blocker, Shoulders, Chest) with helpers enabled and verify substitution count increases. Validate geometry unchanged.",
+    "todos": [
+        "TODO : Decorate get_attr with @node_helper",
+        "TODO : Decorate int_op with @node_helper",
+        "TODO : Decorate switch_node/switch_int/switch_vec/switch_float with @node_helper",
+        "TODO : Decorate clamp01 and smoother_step with @node_helper",
+        "TODO : Add store_named_attribute helper",
+        "TODO : Add set_position helper",
+        "TODO : Add resample_curve helper",
+        "TODO : Frequency analysis of raw nodes across all armor code to prioritize new helpers"
+    ],
+    "unknowns": [
+        "Which patterns appear most frequently across the full armor codebase?",
+        "Should switch_* variants be collapsed into a single generic switch helper with dtype param?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/geo_node_groups/node_helpers.py",
+        "procedural_human/decorators/node_helper_decorator.py",
+        "procedural_human/utils/node_exporter/exporter.py"
+    ],
+    "priority": 4
+}
