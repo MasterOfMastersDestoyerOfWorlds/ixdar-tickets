@@ -7,25 +7,36 @@
     "description": "When split_frames is enabled, the exporter correctly splits top-level frames into separate files (e.g. Blocker -> Collar + Chest). However, the generated sub-group files are not further split even when they contain their own internal frames. For example, collar.py is 834 lines and still contains 7+ internal frames (General Collar Shape, Quilting, Gambeson Pattern, Thickness, UVMap, Displacement, Stitching) with nested parent assignments. The exporter should recursively apply frame splitting to each generated sub-group that exceeds a threshold or has its own top-level frames.",
     "blocked-by": [],
     "blocks": ["BLEN-5"],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. When split_frames is enabled, sub-groups that contain their own top-level frames are recursively split into further sub-folders. 2. collar.py (834 lines, 7 frames) should become collar/ with 7+ files. 3. Nested frame hierarchies (frame_002.parent = frame_004) are handled correctly by only splitting frames whose parent is the sub-group root (not frames nested inside other frames). 4. Import paths are generated correctly for multi-level nesting (e.g. procedural_human.tmp.blocker.collar.quilting).",
     "testing-plan": "1. Export Blocker with split_frames. 2. Verify collar/ folder is created with separate files per frame. 3. Verify all import paths resolve correctly. 4. Validate geometry matches original via blender-cli validate --group Blocker.",
     "todos": [
-        "TODO : After generating a sub-group file, check if it has top-level frames and recurse",
-        "TODO : Handle multi-level package paths in import generation",
-        "TODO : Test with Blocker (2 top-level + 7 nested in Collar)",
-        "TODO : Handle edge case of deeply nested frames (frame inside frame inside frame)"
+        "DONE : After generating a sub-group file, check if it has top-level frames and recurse",
+        "DONE : Handle multi-level package paths in import generation",
+        "DONE : Test with Blocker (2 top-level + 7 nested in Collar)",
+        "DONE : Handle edge case of deeply nested frames (frame inside frame inside frame)"
     ],
-    "unknowns": [
-        "Should there be a size threshold below which recursion stops (e.g. <100 lines)?",
-        "How to name nested sub-folders (blocker/collar/quilting.py vs flat blocker/collar_quilting.py)?"
+    "unknowns-resolved": [
+        "No size threshold needed — recursion stops naturally when a frame has no child frames",
+        "Naming uses nested sub-folders: blocker/collar/gambeson_pattern/quilting.py (hierarchical, not flat)"
     ],
-    "changes-made": [],
+    "changes-made": [
+        "exporter.py: Refactored _generate_split to accept scope_nodes, file_prefix, group_name_override, parent_interface params and recurse when child frames exist",
+        "exporter.py: Updated _resolve_input with defensive fallback when source node is outside current scope (falls through to default value instead of KeyError)",
+        "exporter.py: Refactored get_files to handle nested file paths, replacing / with . in module paths and matching all main.py files (not just top-level)",
+        "frame_split.py: Added scope parameter to analyze_frame_interface to restrict cross-boundary analysis to within-scope links during recursive splitting",
+        "frame_split.py: Updated generate_main_code to accept scope_names, group_name_override, parent_interface params for recursive main.py generation",
+        "frame_split.py: Added Group Input/Output creation and boundary wiring (parent_interface → internal targets) in generate_main_code",
+        "frame_split.py: Added parent inbound_links to output_expr_map so cross-scope links resolve via Group Input expressions",
+        "frame_split.py: Added frame output_map entries to output_expr_map so links from sub-frame members resolve to sub-frame group outputs",
+        "frame_split.py: Added consumed_sockets check to outbound link wiring to prevent duplicate links with helper nodes",
+        "blender_server.py: Updated handle_export_group to create nested directories with __init__.py files for recursive splits",
+        "blender_server.py: Added import os"
+    ],
     "related-files": [
         "procedural_human/utils/node_exporter/exporter.py",
         "procedural_human/utils/node_exporter/frame_split.py",
-        "procedural_human/tmp/blocker/collar.py",
-        "procedural_human/tmp/blocker/main.py"
+        "procedural_human/testing/blender_server.py"
     ],
     "priority": 6
 }
