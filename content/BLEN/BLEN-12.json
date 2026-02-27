@@ -7,27 +7,41 @@
     "description": "blender_server.py is 1400+ lines with all command handlers in a single file. Split handlers into domain-specific modules mirroring the tools/commands/ client-side structure. Also identify client-only operations (e.g. promote) that receive a BlenderClient parameter they never use, and make the registry support client-only commands without requiring a running Blender instance.",
     "blocked-by": ["BLEN-14"],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. Server handlers split into separate modules (geometry_handlers, node_handlers, lifecycle_handlers, etc.). 2. blender_server.py imports and registers handlers from submodules. 3. COMMAND_HANDLERS dict is auto-assembled from submodules. 4. Client-only CLI commands (promote) skip the BlenderClient requirement. 5. All existing CLI commands still work.",
     "testing-plan": "1. Run blender-cli ping to verify server startup. 2. Run blender-cli validate --group NeckArmor to verify full pipeline. 3. Run blender-cli promote --group test --dest ... to verify client-only path.",
     "todos": [
-        "TODO : Create procedural_human/testing/handlers/ package with domain modules",
-        "TODO : Move geometry handlers (validate_geometry, check_watertight, etc.) to handlers/geometry.py",
-        "TODO : Move node handlers (export, inspect, list_groups, check_node_tree) to handlers/nodes.py",
-        "TODO : Move lifecycle handlers (reload, open_file, clean_scene) to handlers/lifecycle.py",
-        "TODO : Auto-assemble COMMAND_HANDLERS from submodule registrations",
-        "TODO : Add client-only command support to cli_registry (skip client param injection)"
+        "DONE : Create procedural_human/testing/handlers/ package with domain modules",
+        "DONE : Move geometry handlers (validate_geometry, check_watertight, etc.) to handlers/geometry.py",
+        "DONE : Move node handlers (export, inspect, list_groups, check_node_tree) to handlers/nodes.py",
+        "DONE : Move lifecycle handlers (reload, open_file, clean_scene) to handlers/lifecycle.py",
+        "DONE : Auto-assemble COMMAND_HANDLERS from submodule registrations",
+        "DONE : Add client-only command support to cli_registry (skip client param injection)"
     ],
-    "unknowns": [
-        "Should handlers use a decorator for self-registration (like @cli_command) or explicit dicts?",
-        "How should the handler modules handle shared state (e.g. _log, _log_path)?"
+    "unknowns": [],
+    "changes-made": [
+        "Created procedural_human/testing/handlers/ package with __init__.py",
+        "Moved shared utilities (_log_path, _log, _active_object, _create_plane_object) to handlers/common.py",
+        "Moved 8 geometry handlers to handlers/geometry.py",
+        "Moved 4 node handlers to handlers/nodes.py",
+        "Moved 4 lifecycle handlers to handlers/lifecycle.py",
+        "Moved 2 capture handlers to handlers/capture.py",
+        "Moved 6 test/data handlers to handlers/testing.py",
+        "Rewrote COMMAND_HANDLERS dict with clean from-imports",
+        "Cleaned up all fully-qualified references to use proper imports",
+        "blender_server.py reduced from 1444 to 341 lines"
     ],
-    "changes-made": [],
     "related-files": [
         "procedural_human/testing/blender_server.py",
+        "procedural_human/testing/handlers/__init__.py",
+        "procedural_human/testing/handlers/common.py",
+        "procedural_human/testing/handlers/geometry.py",
+        "procedural_human/testing/handlers/nodes.py",
+        "procedural_human/testing/handlers/lifecycle.py",
+        "procedural_human/testing/handlers/capture.py",
+        "procedural_human/testing/handlers/testing.py",
         "tools/blender_cli.py",
-        "tools/cli_registry.py",
-        "tools/commands/node_tools.py"
+        "tools/cli_registry.py"
     ],
     "priority": 3
 }

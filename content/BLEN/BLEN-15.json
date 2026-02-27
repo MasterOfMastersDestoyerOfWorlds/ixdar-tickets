@@ -1,0 +1,35 @@
+{
+    "id": "BLEN-15",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["cli-tooling"],
+    "title": "Refactoring CLI Hardening: batch moves, import cleanup, diagnostics",
+    "description": "Address friction discovered during BLEN-12 file split. move-symbol requires sequential execution (28 calls, ~2 min), rope leaves fully-qualified references instead of clean imports, transient parse errors need auto-retry, and post-move validation is missing. Add a batch split-file command, a fix-imports command, decorator pretty-printing in list-symbols, and automatic post-move syntax/import checks.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. move-symbol auto-retries once on transient rope parse errors. 2. move-symbol runs a post-move syntax check on source and dest. 3. move-symbol cleans up .ropeproject on completion. 4. list-symbols shows decorators as unparsed strings (e.g. @procedural_operator) instead of raw AST dump. 5. New command: fix-imports rewrites fully-qualified module.path.symbol references into from-imports. 6. New command: split-file accepts a source and a symbol-to-dest mapping, executes batch moves, then runs fix-imports on all affected files. 7. list-symbols --deps flag shows which same-file symbols each function calls.",
+    "testing-plan": "1. Run move-symbol on a test file and verify .ropeproject is cleaned up. 2. Introduce a transient rope error and verify auto-retry succeeds. 3. Run list-symbols and verify decorators render as @name. 4. Create a file with fully-qualified references, run fix-imports, verify clean from-imports. 5. Run split-file with a 3-symbol plan and verify all symbols moved and imports cleaned.",
+    "todos": [
+        "TODO : Add auto-retry (1 attempt) on rope parse errors in move-symbol",
+        "TODO : Add post-move syntax check (ast.parse both source and dest) in move-symbol",
+        "TODO : Clean up .ropeproject directory in move-symbol finally block",
+        "TODO : Pretty-print decorators in list-symbols (ast.unparse instead of ast.dump)",
+        "TODO : New command: fix-imports — rewrite fully-qualified refs to from-imports (AST-based, client-only)",
+        "TODO : New command: split-file — batch move with symbol-to-dest mapping + fix-imports pass",
+        "TODO : Add --deps flag to list-symbols showing intra-file call dependencies",
+        "TODO : move-symbol should report reference update details (what changed in each file)"
+    ],
+    "unknowns": [
+        "Should split-file accept a JSON file or inline JSON for the plan?",
+        "Should fix-imports operate on a single file or a directory?",
+        "Is rope's MoveGlobal reliable enough for batch use or should split-file use AST-based moves instead?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/commands/refactor.py",
+        "tools/cli_registry.py",
+        "tools/blender_cli.py"
+    ],
+    "priority": 3
+}
