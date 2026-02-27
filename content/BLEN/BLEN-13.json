@@ -1,0 +1,41 @@
+{
+    "id": "BLEN-13",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["blender-addon"],
+    "title": "Blender CLI Quality-of-Life Improvements",
+    "description": "A collection of CLI usability improvements identified through repeated use of the export/promote/validate workflow. Covers new commands, output trimming, observability, automatic validation, and state persistence.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "All accepted improvements are implemented and documented in --help output.",
+    "testing-plan": "Run each new/modified command and verify output matches expectations.",
+    "todos": [
+        "TODO : New command: `errors` — tail addon.log filtered to ERROR/WARNING lines, with optional --group filter and --clear flag to truncate the log before a test run",
+        "TODO : New command: `export-and-promote` — chain export --split-frames → promote in one step, accepting --group and --dest",
+        "TODO : New command: `deps` — show the dependency tree of a node group (which sub-groups it references, recursively)",
+        "TODO : Add --brief flag to `validate` — single-line pass/fail with vertex count and sub-group count instead of full JSON",
+        "TODO : Add --brief flag to `promote` — show counts (files copied, imports rewritten) instead of full file lists",
+        "TODO : Strip unhelpful fields from `export` output (e.g. helpers_used only when --verbose)",
+        "TODO : Expose orphan server handlers as CLI commands: verify_topology, get_csv_data, get_point_data, check_corner",
+        "TODO : Add post-promote auto-validate: `promote --validate` runs validate on the promoted group after copying",
+        "TODO : Add .blender-cli-state.json for remembering last --group, --dest, --blend-file across invocations",
+        "TODO : Add --last flag to export/promote/validate that re-uses the previous invocation's arguments from state file"
+    ],
+    "unknowns": [
+        "Should --brief be the default with --verbose for full output, or the reverse?",
+        "Should state file be per-repo (.blender-cli-state.json in repo root) or per-user?",
+        "Which orphan server handlers are actually useful from CLI vs. internal-only?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/blender_cli.py",
+        "tools/cli_registry.py",
+        "tools/commands/node_tools.py",
+        "tools/commands/validation.py",
+        "tools/commands/geometry.py",
+        "tools/commands/lifecycle.py",
+        "procedural_human/testing/blender_server.py"
+    ],
+    "priority": 4
+}

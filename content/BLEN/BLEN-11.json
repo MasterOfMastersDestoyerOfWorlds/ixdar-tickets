@@ -7,29 +7,33 @@
     "description": "The node exporter produces Python code that fails at runtime for several node patterns. Discovered when exporting the Blocker group with split_frames — downstream sub-group failures prevent the main Blocker from building. Five distinct issues identified.",
     "blocked-by": [],
     "blocks": ["BLEN-5", "BLEN-9"],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. All five bug classes are fixed. 2. Blocker exports with split_frames and all generated sub-groups build without errors. 3. blender-cli validate shows no errors for the reconstructed Blocker group.",
     "testing-plan": "1. Export Blocker with --split-frames. 2. Copy generated files to geo_node_groups/armor/blocker/. 3. Restart Blender and verify zero errors in terminal. 4. Run blender-cli validate --group Blocker.",
     "todos": [
-        "TODO : Fix helper return socket treated as node — displacement.py:75 calls .inputs on a NodeSocketVector returned by a helper (e.g. vec_math_op). Emitter should use .node.inputs[] when the output_expr is a socket alias.",
-        "TODO : Fix float-to-int default_value — piping.py sets a float on a NodeSocketInt. to_python_repr should emit int() for integer sockets.",
-        "TODO : Fix undefined variable reference — thickness.py:34 references separate_x_y_z_003 which was never assigned. Likely a separate_xyz helper whose variable was consumed but still referenced by a later link.",
-        "TODO : Fix NodeGroupInput virtual socket links — BlockerChest emits links from Group Input.outputs[0] which is a virtual/dynamic socket slot. The exporter should skip or remap virtual sockets on NodeGroupInput/NodeGroupOutput.",
-        "TODO : Fix CaptureAttribute virtual socket links — GeneralCollarShape emits links to/from CaptureAttribute dynamic input/output slots (inputs[1], outputs[1]) that only exist after an item is added. The exporter needs to handle capture_items or skip virtual sockets."
+        "DONE : Fix helper return socket treated as node — built node_input_map that maps helper nodes to their .node accessor expression, used in all link emission points.",
+        "DONE : Fix float-to-int default_value — added _typed_repr() to cast float→int for INT sockets, and made link_or_set() type-safe for runtime mismatches.",
+        "DONE : Fix undefined variable reference — same root cause as bug 1; multi-output helpers (separate_xyz) now use first-used-output.node accessor for input linking.",
+        "DONE : Fix NodeGroupInput virtual socket links — collect_frame_descendants now excludes NodeGroupInput/NodeGroupOutput from frame membership, so they remain as unframed nodes and their links become proper boundary interfaces.",
+        "DONE : Fix CaptureAttribute virtual socket links — added _emit_dynamic_items() to emit capture_items.new() / repeat_items.new() etc. before any links to dynamic sockets. Also added capture_items/repeat_items/index_switch_items to SKIP_PROPS."
     ],
-    "unknowns": [
-        "Are there other node types with dynamic/virtual sockets beyond NodeGroupInput, NodeGroupOutput, and CaptureAttribute (e.g. RepeatZone, IndexSwitch)?",
-        "Should to_python_repr infer the target socket type from context, or should _emit_raw_node cast based on socket.type?"
+    "unknowns-resolved": [
+        "Dynamic-socket node types handled: CaptureAttribute (capture_items), RepeatOutput (repeat_items), SimulationOutput (items), IndexSwitch (index_switch_items). RepeatInput/SimulationInput get items from their paired Output.",
+        "Type casting is handled at two layers: _typed_repr in the exporter for generated code, and link_or_set at runtime for edge cases like Compare node name-based socket resolution."
     ],
-    "changes-made": [],
+    "changes-made": [
+        "exporter.py: Added _typed_repr() for socket-type-aware value repr. Built node_input_map for helper node .node accessor. Updated _emit_interleaved_links, boundary links, and _emit_helper_node to use accessor map. Added _emit_dynamic_items() for CaptureAttribute etc.",
+        "frame_split.py: collect_frame_descendants excludes NodeGroupInput/NodeGroupOutput. _emit_interleaved_links and generate_main_code use node_input_map for link targets.",
+        "utils.py: Added capture_items, repeat_items, index_switch_items to SKIP_PROPS.",
+        "node_helpers.py: Made link_or_set type-safe — casts float→int for INT sockets and int→float for VALUE sockets.",
+        "tools/commands/node_tools.py: Added 'promote' CLI command to move tmp exports to permanent locations with import rewriting."
+    ],
     "related-files": [
         "procedural_human/utils/node_exporter/exporter.py",
+        "procedural_human/utils/node_exporter/frame_split.py",
         "procedural_human/utils/node_exporter/utils.py",
-        "procedural_human/geo_node_groups/armor/blocker/chest.py",
-        "procedural_human/geo_node_groups/armor/blocker/collar/displacement.py",
-        "procedural_human/geo_node_groups/armor/blocker/collar/thickness.py",
-        "procedural_human/geo_node_groups/armor/blocker/collar/gambeson_pattern/piping.py",
-        "procedural_human/geo_node_groups/armor/blocker/collar/general_collar_shape.py"
+        "procedural_human/geo_node_groups/node_helpers.py",
+        "tools/commands/node_tools.py"
     ],
     "priority": 5
 }

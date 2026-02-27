@@ -82,22 +82,24 @@
 
 ---
 
-## Blender Procedural Human (11 tickets, priority 4)
+## Blender Procedural Human (13 tickets, priority 4)
 
-### Todo (6)
+### Todo (7)
 
+- [BLEN-12](content/BLEN/BLEN-12.json) **BLEN-12** Split blender_server.py Handlers by Domain -- blender_server.py is 1400+ lines with all command handlers in a single file. Split handlers into...
 - [BLEN-4](content/BLEN/BLEN-4.json) **BLEN-4** Additional Node Helpers -- Add @node_helper decorators to remaining helper functions in node_helpers.py so the exporter can...
+- [BLEN-13](content/BLEN/BLEN-13.json) **BLEN-13** Blender CLI Quality-of-Life Improvements -- A collection of CLI usability improvements identified through repeated use of the...
 - [BLEN-5](content/BLEN/BLEN-5.json) **BLEN-5** Blocker Decomposition -- Use the node exporter's split-frames feature to decompose blocker.py (~950 lines) into a folder...
-- [BLEN-11](content/BLEN/BLEN-11.json) **BLEN-11** Node Exporter Code-Gen Quality Bugs -- The node exporter produces Python code that fails at runtime for several node patterns. Discovered...
 - [BLEN-9](content/BLEN/BLEN-9.json) **BLEN-9** Continuous Codebase Refactoring via Re-Export -- Create a workflow (and CLI command) that re-exports existing hand-written geo_node_group code...
 - [BLEN-10](content/BLEN/BLEN-10.json) **BLEN-10** Surface Magic Numbers as Top-Level Parameters -- Add an exporter mode that identifies all 'magic numbers' buried in node properties (float curve...
 - [BLEN-6](content/BLEN/BLEN-6.json) **BLEN-6** DSL Armor Extension -- Extend the DSL system to replace armor_suit.py with a declarative configuration. Armor pieces...
 
-<details><summary>Done (5)</summary>
+<details><summary>Done (6)</summary>
 
 - ~~[BLEN-1](content/BLEN/BLEN-1.json) **BLEN-1** Neck Armor Geometry Fixes~~
 - ~~[BLEN-2](content/BLEN/BLEN-2.json) **BLEN-2** Node Exporter Rewrite~~
 - ~~[BLEN-3](content/BLEN/BLEN-3.json) **BLEN-3** Neck Trim Refactoring and Float Curve Helper~~
+- ~~[BLEN-11](content/BLEN/BLEN-11.json) **BLEN-11** Node Exporter Code-Gen Quality Bugs~~
 - ~~[BLEN-8](content/BLEN/BLEN-8.json) **BLEN-8** Frame Splitting Does Not Recurse Into Sub-Groups~~
 - ~~[BLEN-7](content/BLEN/BLEN-7.json) **BLEN-7** Blender CLI Improvements~~
 
