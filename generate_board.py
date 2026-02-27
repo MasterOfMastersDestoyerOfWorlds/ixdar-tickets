@@ -1,14 +1,14 @@
-"""Generate tickets/BOARD.md from all ticket JSON files.
+"""Generate BOARD.md or print repo-filtered ticket summaries.
 
-Reads tickets/content/epics.json for epic names and priorities, globs all
-ticket JSONs, and writes a markdown board grouped by epic (sorted by epic
-priority), then by status within each epic, then by ticket priority.
-
-Usage: python tickets/generate_board.py
+Usage:
+    python ixdar-tickets/generate_board.py board              # regenerate BOARD.md
+    python ixdar-tickets/generate_board.py backlog REPO_NAME  # print tickets for a repo
 """
 
+import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 
@@ -90,6 +90,9 @@ def load_tickets() -> list[dict]:
                 "number": extract_number(ticket_id),
                 "priority": data.get("priority", extract_number(ticket_id)),
                 "rel_path": str(rel_path).replace("\\", "/"),
+                "repo": data.get("repo", ""),
+                "blocked_by": data.get("blocked-by", []),
+                "blocks": data.get("blocks", []),
             })
     return tickets
 
@@ -193,6 +196,56 @@ def render_board(
     return "\n".join(lines)
 
 
+def print_repo_tickets(repo: str) -> None:
+    """Print a compact ticket summary filtered to a single repo.
+
+    Groups by epic, shows actionable tickets (IN_PROGRESS, TODO) with
+    priorities and dependency info, and a count of DONE tickets.
+    """
+    epic_names, epic_priorities = load_epics()
+    all_tickets = load_tickets()
+    repo_tickets = [t for t in all_tickets if t["repo"] == repo]
+
+    if not repo_tickets:
+        print(f"No tickets found for repo '{repo}'.")
+        print(f"Available repos: {sorted({t['repo'] for t in all_tickets if t['repo']})}")
+        return
+
+    grouped = group_by_epic(repo_tickets)
+    sorted_prefixes = sorted(
+        grouped.keys(),
+        key=lambda p: epic_priorities.get(p, 50),
+    )
+
+    for prefix in sorted_prefixes:
+        status_groups = grouped[prefix]
+        epic_name = epic_names.get(prefix, prefix)
+        actionable = len(status_groups.get("IN_PROGRESS", [])) + len(status_groups.get("TODO", []))
+        done_count = len(status_groups.get("DONE", []))
+        print(f"\n{epic_name} ({prefix}) -- {actionable} actionable, {done_count} done")
+        print("=" * 60)
+
+        for status in ("IN_PROGRESS", "TODO"):
+            tickets_in_status = status_groups.get(status, [])
+            if not tickets_in_status:
+                continue
+            label = "IN PROGRESS" if status == "IN_PROGRESS" else "TODO"
+            print(f"\n  {label}:")
+            for t in tickets_in_status:
+                deps = ""
+                if t["blocked_by"]:
+                    deps = f"  (blocked-by: {', '.join(t['blocked_by'])})"
+                if t["blocks"]:
+                    deps += f"  (blocks: {', '.join(t['blocks'])})"
+                desc = truncate(t["description"], 80)
+                print(f"    {t['id']} [P{t['priority']}] {t['title']}{deps}")
+                if desc:
+                    print(f"      {desc}")
+
+        if done_count:
+            print(f"\n  DONE: {done_count} tickets (use BOARD.md for details)")
+
+
 def main() -> None:
     epic_names, epic_priorities = load_epics()
     tickets = load_tickets()
@@ -218,5 +271,35 @@ def main() -> None:
     )
 
 
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="generate_board",
+        description="Ticket board generator and backlog viewer.",
+    )
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("board", help="Regenerate BOARD.md from all ticket JSONs.")
+
+    backlog_parser = sub.add_parser(
+        "backlog",
+        help="Print actionable tickets for a specific repo.",
+    )
+    backlog_parser.add_argument(
+        "repo",
+        help="Repository name to filter by (e.g. Blender-Procedural-Human).",
+    )
+
+    return parser
+
+
 if __name__ == "__main__":
-    main()
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    if args.command == "backlog":
+        print_repo_tickets(args.repo)
+    elif args.command == "board":
+        main()
+    else:
+        parser.print_help()
+        sys.exit(1)

@@ -5,7 +5,7 @@
     "subsystem": ["blender-addon"],
     "title": "Split blender_server.py Handlers by Domain",
     "description": "blender_server.py is 1400+ lines with all command handlers in a single file. Split handlers into domain-specific modules mirroring the tools/commands/ client-side structure. Also identify client-only operations (e.g. promote) that receive a BlenderClient parameter they never use, and make the registry support client-only commands without requiring a running Blender instance.",
-    "blocked-by": [],
+    "blocked-by": ["BLEN-14"],
     "blocks": [],
     "status": "TODO",
     "definition-of-done": "1. Server handlers split into separate modules (geometry_handlers, node_handlers, lifecycle_handlers, etc.). 2. blender_server.py imports and registers handlers from submodules. 3. COMMAND_HANDLERS dict is auto-assembled from submodules. 4. Client-only CLI commands (promote) skip the BlenderClient requirement. 5. All existing CLI commands still work.",

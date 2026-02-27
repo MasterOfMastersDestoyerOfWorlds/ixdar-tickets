@@ -82,7 +82,11 @@
 
 ---
 
-## Blender Procedural Human (13 tickets, priority 4)
+## Blender Procedural Human (14 tickets, priority 4)
+
+### In Progress (1)
+
+- [BLEN-14](content/BLEN/BLEN-14.json) **BLEN-14** Refactoring CLI: list-symbols and move-symbol commands -- Add two client-only CLI commands that enable safe file splitting without manually retyping imports....
 
 ### Todo (7)
 

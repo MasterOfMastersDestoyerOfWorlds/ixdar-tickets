@@ -1,0 +1,37 @@
+{
+    "id": "BLEN-14",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["cli-tooling"],
+    "title": "Refactoring CLI: list-symbols and move-symbol commands",
+    "description": "Add two client-only CLI commands that enable safe file splitting without manually retyping imports. `list-symbols` uses Python's ast module to enumerate all top-level classes, functions, and constants with line numbers and methods. `move-symbol` uses the rope refactoring library to semantically move a symbol to another file and update all imports project-wide. Also adds client-only command support to the CLI registry so these commands (and promote) can run without a Blender server.",
+    "blocked-by": [],
+    "blocks": ["BLEN-12"],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. `uv run blender-cli list-symbols --file <path>` returns JSON with all top-level symbols, line numbers, methods, decorators, and bases. 2. `uv run blender-cli move-symbol --source <src> --symbol <name> --dest <dst>` moves the symbol and updates imports across the project. 3. Client-only commands (no `client` param) work without a running Blender instance. 4. `rope` added to pyproject.toml dependencies. 5. Existing CLI commands still work unchanged.",
+    "testing-plan": "1. Run `uv run blender-cli list-symbols --file procedural_human/testing/blender_server.py` and verify symbols are listed. 2. Create a test file with a class, run move-symbol to a new file, verify imports updated. 3. Run `uv run blender-cli --help` and verify list-symbols and move-symbol appear. 4. Run `uv run blender-cli ping` to verify existing commands still work.",
+    "todos": [
+        "DONE : Add needs_client field to CliCommand dataclass in cli_registry.py",
+        "DONE : Auto-detect client-only commands (no client param) in @cli_command decorator",
+        "DONE : Update _run() in blender_cli.py to skip BlenderClient injection for client-only commands",
+        "DONE : Create tools/commands/refactor.py with list_symbols and move_symbol",
+        "DONE : Add rope dependency to pyproject.toml",
+        "DONE : Import refactor module in blender_cli.py",
+        "DONE : Run uv sync to install rope",
+        "DONE : Verify list-symbols works on blender_server.py"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "tools/cli_registry.py: Added needs_client field, auto-detection of client-only commands",
+        "tools/blender_cli.py: Conditional client injection, added refactor import",
+        "tools/commands/refactor.py: New file with list_symbols and move_symbol commands",
+        "pyproject.toml: Added rope dependency"
+    ],
+    "related-files": [
+        "tools/cli_registry.py",
+        "tools/blender_cli.py",
+        "tools/commands/refactor.py",
+        "pyproject.toml"
+    ],
+    "priority": 2
+}
