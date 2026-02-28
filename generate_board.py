@@ -1,19 +1,24 @@
 """Generate BOARD.md or print repo-filtered ticket summaries.
 
 Usage:
-    python ixdar-tickets/generate_board.py board              # regenerate BOARD.md
-    python ixdar-tickets/generate_board.py backlog REPO_NAME  # print tickets for a repo
+    python ixdar-tickets/generate_board.py board               # regenerate BOARD.md
+    python ixdar-tickets/generate_board.py backlog REPO_NAME   # print tickets for a repo
+    python ixdar-tickets/generate_board.py archive             # move DONE tickets to done/
+    python ixdar-tickets/generate_board.py next-id EPIC        # print next ticket ID for epic
 """
 
 import argparse
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
 
-TICKETS_DIR = Path(__file__).parent / "content"
-BOARD_PATH = Path(__file__).parent / "BOARD.md"
+ROOT_DIR = Path(__file__).parent
+TICKETS_DIR = ROOT_DIR / "content"
+DONE_DIR = ROOT_DIR / "done"
+BOARD_PATH = ROOT_DIR / "BOARD.md"
 EPICS_PATH = TICKETS_DIR / "epics.json"
 
 STATUS_ORDER = {"IN_PROGRESS": 0, "TODO": 1, "DONE": 2}
@@ -246,6 +251,61 @@ def print_repo_tickets(repo: str) -> None:
             print(f"\n  DONE: {done_count} tickets (use BOARD.md for details)")
 
 
+def _scan_ticket_files(*dirs: Path) -> list[Path]:
+    """Glob all ticket JSONs across multiple directories."""
+    files = []
+    for d in dirs:
+        if not d.exists():
+            continue
+        for epic_dir in sorted(d.iterdir()):
+            if epic_dir.is_dir():
+                files.extend(sorted(epic_dir.glob("*.json")))
+    return files
+
+
+def archive_done() -> None:
+    """Move all DONE tickets from content/ to done/, preserving epic subdirectories."""
+    moved = []
+    for epic_dir in sorted(TICKETS_DIR.iterdir()):
+        if not epic_dir.is_dir():
+            continue
+        for ticket_file in sorted(epic_dir.glob("*.json")):
+            try:
+                data = json.loads(ticket_file.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                continue
+            if normalize_status(data.get("status")) != "DONE":
+                continue
+
+            dest_dir = DONE_DIR / epic_dir.name
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            dest = dest_dir / ticket_file.name
+            shutil.move(str(ticket_file), str(dest))
+            moved.append(f"{epic_dir.name}/{ticket_file.name}")
+
+    if moved:
+        print(f"Archived {len(moved)} done ticket(s) to done/:")
+        for name in moved:
+            print(f"  {name}")
+    else:
+        print("No DONE tickets to archive.")
+
+
+def print_next_id(epic: str) -> None:
+    """Find the highest ticket number for an epic across content/ and done/, print the next one."""
+    prefix = epic.upper()
+    pattern = re.compile(rf"^{re.escape(prefix)}-(\d+)\.json$")
+
+    max_num = 0
+    for ticket_file in _scan_ticket_files(TICKETS_DIR, DONE_DIR):
+        match = pattern.match(ticket_file.name)
+        if match:
+            max_num = max(max_num, int(match.group(1)))
+
+    next_id = f"{prefix}-{max_num + 1}"
+    print(next_id)
+
+
 def main() -> None:
     epic_names, epic_priorities = load_epics()
     tickets = load_tickets()
@@ -289,6 +349,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Repository name to filter by (e.g. Blender-Procedural-Human).",
     )
 
+    sub.add_parser("archive", help="Move all DONE tickets from content/ to done/.")
+
+    next_id_parser = sub.add_parser(
+        "next-id",
+        help="Print the next available ticket ID for an epic.",
+    )
+    next_id_parser.add_argument(
+        "epic",
+        help="Epic prefix (e.g. BLEN, ENG, TRADE).",
+    )
+
     return parser
 
 
@@ -300,6 +371,10 @@ if __name__ == "__main__":
         print_repo_tickets(args.repo)
     elif args.command == "board":
         main()
+    elif args.command == "archive":
+        archive_done()
+    elif args.command == "next-id":
+        print_next_id(args.epic)
     else:
         parser.print_help()
         sys.exit(1)

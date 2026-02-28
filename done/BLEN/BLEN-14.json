@@ -7,7 +7,7 @@
     "description": "Add two client-only CLI commands that enable safe file splitting without manually retyping imports. `list-symbols` uses Python's ast module to enumerate all top-level classes, functions, and constants with line numbers and methods. `move-symbol` uses the rope refactoring library to semantically move a symbol to another file and update all imports project-wide. Also adds client-only command support to the CLI registry so these commands (and promote) can run without a Blender server.",
     "blocked-by": [],
     "blocks": ["BLEN-12"],
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "definition-of-done": "1. `uv run blender-cli list-symbols --file <path>` returns JSON with all top-level symbols, line numbers, methods, decorators, and bases. 2. `uv run blender-cli move-symbol --source <src> --symbol <name> --dest <dst>` moves the symbol and updates imports across the project. 3. Client-only commands (no `client` param) work without a running Blender instance. 4. `rope` added to pyproject.toml dependencies. 5. Existing CLI commands still work unchanged.",
     "testing-plan": "1. Run `uv run blender-cli list-symbols --file procedural_human/testing/blender_server.py` and verify symbols are listed. 2. Create a test file with a class, run move-symbol to a new file, verify imports updated. 3. Run `uv run blender-cli --help` and verify list-symbols and move-symbol appear. 4. Run `uv run blender-cli ping` to verify existing commands still work.",
     "todos": [
