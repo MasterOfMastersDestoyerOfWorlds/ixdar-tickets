@@ -7,28 +7,43 @@
     "description": "Add @node_helper decorators to remaining helper functions in node_helpers.py so the exporter can substitute them automatically. Candidates: get_attr, int_op, switch_node/switch_int/switch_vec/switch_float, clamp01, smoother_step, create_node (generic), link_or_set. Also add new helpers for commonly repeated patterns: store_named_attribute, set_position, GeometryNodeCurvePrimitiveCircle, resample_curve.",
     "blocked-by": ["BLEN-2"],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. All existing helper functions in node_helpers.py decorated with @node_helper. 2. New helpers added for top-5 most-repeated raw node patterns across armor code. 3. Exporter correctly substitutes all decorated helpers. 4. No regressions in existing exports.",
     "testing-plan": "Export each armor group (Neck, Blocker, Shoulders, Chest) with helpers enabled and verify substitution count increases. Validate geometry unchanged.",
     "todos": [
-        "TODO : Decorate get_attr with @node_helper",
-        "TODO : Decorate int_op with @node_helper",
-        "TODO : Decorate switch_node/switch_int/switch_vec/switch_float with @node_helper",
-        "TODO : Decorate clamp01 and smoother_step with @node_helper",
-        "TODO : Add store_named_attribute helper",
-        "TODO : Add set_position helper",
-        "TODO : Add resample_curve helper",
-        "TODO : Frequency analysis of raw nodes across all armor code to prioritize new helpers"
+        "DONE : Decorate get_attr with @node_helper (signature changed to group, dtype, name; all callers updated)",
+        "DONE : Decorate int_op with @node_helper",
+        "DONE : Decorate switch_node with @node_helper (only generic; switch_int/vec/float are thin wrappers)",
+        "SKIP : Decorate clamp01 and smoother_step — composite helpers (multiple math_ops), not 1:1 with a bl_idname",
+        "SKIP : Decorate create_node and link_or_set — generic utilities, not node-type-specific",
+        "DONE : Add store_named_attribute helper",
+        "DONE : Add set_position helper",
+        "DONE : Add curve_circle helper",
+        "DONE : Add resample_curve helper",
+        "DONE : Frequency analysis of raw nodes across all armor code to prioritize new helpers",
+        "DONE : Fix exporter prop_args quoting for non-string types (bool, int, float)",
+        "DONE : Full export regression test (Neck, Blocker, Shoulders, Chest) with helpers enabled"
     ],
     "unknowns": [
-        "Which patterns appear most frequently across the full armor codebase?",
-        "Should switch_* variants be collapsed into a single generic switch helper with dtype param?"
+        "RESOLVED: Top armor patterns — StoreNamedAttribute (~25), SetPosition (~25), CurvePrimitiveCircle (~30), ResampleCurve (~20)",
+        "RESOLVED: switch_* variants — only switch_node (generic) decorated; switch_int/vec/float are convenience wrappers that call it"
     ],
-    "changes-made": [],
+    "changes-made": [
+        "node_helpers.py: Decorated get_attr (signature reordered to group, dtype, name), int_op, switch_node with @node_helper",
+        "node_helpers.py: Added 4 new helpers — store_named_attribute, set_position, curve_circle, resample_curve",
+        "node_helpers.py: Updated switch_node body to use link_or_set for sw input (was direct links.new)",
+        "exporter.py: Fixed prop_args quoting — non-string types (bool, int, float) now use repr() instead of string quotes",
+        "Updated get_attr callers: recreate_mesh_curve.py, charrot_gregory_patch.py, store_attr_on_points.py, coon_patch.py, cache_bezier.py"
+    ],
     "related-files": [
         "procedural_human/geo_node_groups/node_helpers.py",
         "procedural_human/decorators/node_helper_decorator.py",
-        "procedural_human/utils/node_exporter/exporter.py"
+        "procedural_human/utils/node_exporter/exporter.py",
+        "procedural_human/geo_node_groups/recreate_mesh_curve.py",
+        "procedural_human/geo_node_groups/charrot_gregory_patch.py",
+        "procedural_human/geo_node_groups/store_attr_on_points.py",
+        "procedural_human/geo_node_groups/coon_patch.py",
+        "procedural_human/geo_node_groups/cache_bezier.py"
     ],
     "priority": 4
 }
