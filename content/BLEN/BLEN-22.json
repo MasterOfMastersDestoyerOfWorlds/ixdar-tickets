@@ -1,0 +1,27 @@
+{
+    "id": "BLEN-22",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["cli"],
+    "title": "CLI: Parameterized Validate with Mesh Selection",
+    "description": "Extend the blender-cli validate command to accept modifier parameters and test mesh selection. Currently, testing a node group at different settings requires writing custom blender-cli exec scripts. This ticket adds: (1) --params flag accepting JSON modifier parameters (e.g. --params '{\"Socket_2\": 0.1, \"Socket_11\": true}') so specific configurations can be validated without exec scripts. (2) --mesh flag to select the test geometry (plane, cube, sphere, cylinder) instead of always using the default cube. This was repeatedly needed during quilting development where we tested on planes and cubes with different scale/subdivision settings.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. blender-cli validate --group Quilting --mesh plane --params '{\"Socket_2\": 0.1}' works and applies the specified parameters to the modifier before validation. 2. --mesh accepts at least: plane, cube, sphere, cylinder. 3. Default behavior (no --mesh, no --params) is unchanged. 4. Invalid --params JSON produces a clear error message.",
+    "testing-plan": "1. validate --group Quilting --mesh plane — uses plane instead of cube. 2. validate --group Quilting --params '{\"Socket_2\": 0.1}' — applies scale. 3. validate --group Quilting --mesh cube --params '{\"Socket_11\": true}' — cube with stitches. 4. Default validate still works as before.",
+    "todos": [
+        "Add --mesh argument to validate command with plane/cube/sphere/cylinder options",
+        "Add --params argument accepting JSON string for modifier socket values",
+        "Apply params to modifier after node group assignment",
+        "Test with Quilting group at various settings"
+    ],
+    "unknowns": [
+        "Should --params use socket names (\"Scale X\") or socket identifiers (\"Socket_2\")? Socket identifiers are more reliable but less readable."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/blender_cli.py"
+    ],
+    "priority": 7
+}

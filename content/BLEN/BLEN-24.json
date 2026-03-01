@@ -1,0 +1,29 @@
+{
+    "id": "BLEN-24",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["cli"],
+    "title": "CLI: Viewport Snapshot for Visual Regression Testing",
+    "description": "Add a blender-cli snapshot command that captures a viewport render of a node group applied to a test mesh and saves it as an image file. During quilting development, numeric validation (vertex counts, Z ranges) caught structural errors but could not detect visual issues like 'the quilting looks flat on one face' or 'the stitching pattern is wrong.' A snapshot command would render the evaluated geometry from a specified camera angle (front, top, perspective, or custom) and save to a file. This enables visual regression testing: compare snapshots before and after changes to detect visual regressions that numeric metrics miss.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. blender-cli snapshot --group Quilting --angle perspective --output quilting_test.png produces a viewport render. 2. Supports at least: front, top, right, perspective angles. 3. Accepts --mesh and --params flags. 4. Image is saved to the specified path. 5. Works headless (no GUI required).",
+    "testing-plan": "1. snapshot --group Quilting --angle perspective — produces a valid PNG. 2. snapshot --group Quilting --mesh cube --angle front — cube with quilting from front. 3. Verify the image clearly shows the quilting pattern and displacement.",
+    "todos": [
+        "Add snapshot subcommand to blender-cli",
+        "Set up camera at predefined angles (front, top, right, perspective)",
+        "Configure viewport shading for clear pattern visibility (solid mode with face orientation or matcap)",
+        "Render and save to specified output path",
+        "Support --mesh and --params flags"
+    ],
+    "unknowns": [
+        "Which viewport shading mode best reveals surface displacement? Matcap or solid with AO shows depth well. Wireframe overlay might help show the grid pattern.",
+        "Should this also support capturing the node tree layout as an image for documentation?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/blender_cli.py"
+    ],
+    "priority": 9
+}

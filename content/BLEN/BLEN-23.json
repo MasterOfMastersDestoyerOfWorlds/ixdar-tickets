@@ -1,0 +1,27 @@
+{
+    "id": "BLEN-23",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["cli"],
+    "title": "CLI: Geo-Node Statistics Command",
+    "description": "Add a blender-cli stats command that outputs quantitative metrics for a node group applied to a test mesh. During quilting development, we repeatedly wrote ad-hoc exec scripts to measure vertex counts, displacement ranges, stitch counts, bounding box extents, and Z-value distributions. A dedicated stats command would output these metrics in structured JSON. Metrics to include: vertex/edge/face/polygon counts, bounding box min/max/extent, displacement range (min/max Z or normal offset), unique value counts for sampled attributes, and derived metrics like stitch_count = (total_verts - base_verts) / verts_per_stitch.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. blender-cli stats --group Quilting outputs JSON with vertex_count, edge_count, face_count, bbox_min, bbox_max, bbox_extent, z_range (or displacement_range), and optionally stitch_count. 2. Accepts --mesh and --params flags (same as BLEN-22). 3. Output is machine-parseable JSON for use in scripts and CI.",
+    "testing-plan": "1. stats --group Quilting — verify counts match manual exec measurements. 2. stats --group Quilting --params '{\"Socket_11\": true}' — verify stitch count is reported. 3. Compare stats output across scale changes to confirm scaling behavior.",
+    "todos": [
+        "Add stats subcommand to blender-cli",
+        "Compute mesh metrics (counts, bbox, z-range) from evaluated mesh",
+        "Support --mesh and --params flags (shared with validate)",
+        "Output structured JSON"
+    ],
+    "unknowns": [
+        "Should stats include timing information (how long the node group takes to evaluate)? Useful for performance regression testing but adds complexity."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/blender_cli.py"
+    ],
+    "priority": 8
+}

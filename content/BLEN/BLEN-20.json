@@ -1,0 +1,29 @@
+{
+    "id": "BLEN-20",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Extract Seam Detection and Stitching Pipeline into Shared Utilities",
+    "description": "Extract the shortest-path seam detection and stitch instancing pipeline from tool_quilt.py into reusable functions. The pipeline detects cell corners (vertices where both dist_x and dist_y are small), computes shortest edge paths toward corners using dist as edge cost so paths follow seam lines, filters edges with FieldAtIndex to keep only near-seam edges, and converts to curves for stitch/mortar instancing. Also extract the adaptive threshold computation (bounding box → vertex spacing → normalized spacing → threshold) that ensures consistent results regardless of subdivision level or cell scale. For masonry, this same pipeline would generate mortar lines instead of stitches — the seam detection is identical, only the instanced geometry differs.",
+    "blocked-by": [],
+    "blocks": ["BLEN-17"],
+    "status": "TODO",
+    "definition-of-done": "1. Shared function(s) exist for seam detection: corner identification, shortest-path computation, edge filtering, and mesh-to-curve conversion. 2. Adaptive threshold computation is a standalone function taking (group, geometry, subdivisions, scale_x, scale_y) and returning (seam_thresh, vert_spacing, merge_dist). 3. tool_quilt.py uses the shared functions for its stitching. 4. The API is general enough for masonry mortar line generation.",
+    "testing-plan": "1. Refactor stitching in tool_quilt.py to use shared pipeline. 2. Verify stitch counts match at scale=0.3, 0.1, 0.05. 3. Validate --group Quilting still passes.",
+    "todos": [
+        "Extract adaptive_threshold(group, geometry, subdivisions, scale_x, scale_y) function",
+        "Extract seam_curves(group, geometry, dist, dist_x, dist_y, seam_thresh, merge_dist) function",
+        "Refactor tool_quilt.py stitching to use extracted functions",
+        "Verify stitch counts are unchanged after refactoring"
+    ],
+    "unknowns": [
+        "Should the seam_curves function return raw curves or fully instanced stitch/mortar geometry? Returning raw curves is more flexible — the caller handles instancing.",
+        "The corner detection threshold uses the same value as the seam threshold. Should these be independently configurable for finer control?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/geo_node_groups/utilities/tool_quilt.py",
+        "procedural_human/geo_node_groups/node_helpers.py"
+    ],
+    "priority": 6
+}

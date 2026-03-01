@@ -1,0 +1,29 @@
+{
+    "id": "BLEN-19",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Extract Surface-Tiling Primitives into Shared Module",
+    "description": "Extract the face-normal tangent frame, FRACT-based grid math, and face-local rotation from tool_quilt.py into a shared module (e.g. procedural_human/geo_node_groups/utilities/surface_tiling.py). These three primitives are the foundation of any surface-tiling pattern (quilting, masonry, herringbone, etc.). The tangent frame derives T1/T2 from a face normal with singularity handling (Z-aligned faces use X as reference). The FRACT grid math (axis_cell_dist) computes normalized cell distance for any axis. The face-local rotation applies cos/sin rotation to (local_u, local_v) coordinates. All three are currently implemented inline in tool_quilt.py and will be needed by BLEN-17 (masonry) with only minor modifications (e.g. masonry adds a row-dependent offset before FRACT).",
+    "blocked-by": [],
+    "blocks": ["BLEN-17"],
+    "status": "TODO",
+    "definition-of-done": "1. A new module surface_tiling.py (or similar) exists with functions for tangent frame derivation, axis_cell_dist, and face-local rotation. 2. tool_quilt.py imports and uses these shared functions instead of inline implementations. 3. The tangent frame function takes (group, face_normal, position) and returns (local_u, local_v). 4. axis_cell_dist accepts an optional offset parameter (for masonry running bond). 5. The rotation function takes (group, u, v, angle) and returns (rotated_u, rotated_v). 6. validate --group Quilting still passes after refactoring.",
+    "testing-plan": "1. Refactor tool_quilt.py to use extracted functions. 2. validate --group Quilting — same geometry output as before. 3. Manually verify the API is clean enough for masonry to consume.",
+    "todos": [
+        "Create surface_tiling.py with tangent_frame(), axis_cell_dist(), and face_local_rotation() functions",
+        "Add optional offset parameter to axis_cell_dist for running bond patterns",
+        "Refactor tool_quilt.py to import from surface_tiling.py",
+        "Verify quilting output is unchanged after refactoring"
+    ],
+    "unknowns": [
+        "Should the tangent frame return (T1, T2) vectors or (local_u, local_v) scalars? Returning vectors allows the caller to use them for other purposes (e.g. set_position offset direction).",
+        "Should axis_cell_dist also return the raw cell fraction and seam distances, or just the normalized distance? Masonry needs cell_frac and seam_dist for running bond and mortar gap."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/geo_node_groups/utilities/tool_quilt.py",
+        "procedural_human/geo_node_groups/node_helpers.py"
+    ],
+    "priority": 6
+}

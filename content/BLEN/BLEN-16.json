@@ -1,0 +1,46 @@
+{
+    "id": "BLEN-16",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Quilting Node Group Configurability",
+    "description": "Rewrite the Quilting geometry node group (tool_quilt.py) using face-normal tangent frames for per-face quilting. Each vertex derives a tangent frame (T1, T2) from its face normal, projects position into face-local 2D space, applies rotation in that plane, then computes FRACT-based cell distance analytically. Features: (1) Depth Profile — internal default closure (concave pillow curve), with boolean toggle to use external custom closure. (2) Edge Profile — internal default closure (V-shape: deep at corners, shallow at mid-edge), with boolean toggle for external. (3) Face-local rotation. (4) Independent Scale X / Scale Y. (5) Shortest-path stitching with adaptive thresholds.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Face-normal tangent frame. 2. FRACT-based cell distance in face-local rotated 2D. 3. Works on all face orientations. 4. Depth Profile: internal default (0,0)→(0.42,0.54)→(1,0.78) with Custom toggle. 5. Edge Profile: internal default (0.005,1)→(0.5,0.51)→(1,1) with Custom toggle. 6. Displacement: depth*(1-(1-profile)*edge_factor). 7. Shortest-path stitching with adaptive thresholds (1.2*norm_spacing). 8. Defaults: Scale X/Y=0.3, Depth=0.05, Rotation=75deg, Subdivisions=9.",
+    "testing-plan": "1. validate --group Quilting — clean node tree. 2. Plane with defaults — z range ~0..0.044 (concave profile). 3. Cube — all faces quilted. 4. Stitching scales linearly with seam count (scale=0.3→374, 0.1→1353, 0.05→4472). 5. Custom toggle ON — external closure overrides default.",
+    "todos": [
+        "DONE : Face-normal tangent frame with singularity handling",
+        "DONE : FRACT-based cell distance with face-local rotation",
+        "DONE : Internal default Depth Profile closure (concave pillow) with Custom toggle",
+        "DONE : Internal default Edge Profile closure (V-shape) with Custom toggle",
+        "DONE : Fixed displacement formula: depth*(1-(1-profile)*edge_factor)",
+        "DONE : Shortest-path stitching via ShortestEdgePaths + EdgePathsToSelection",
+        "DONE : Adaptive stitch thresholds (1.2*norm_spacing) — fixes bunching at small scales",
+        "DONE : Validate on plane and cube at multiple scales"
+    ],
+    "unknowns": [
+        "RESOLVED: Default closures use internal closure zones with shaped float curves. Boolean toggle switches to external group input closure.",
+        "RESOLVED: Stitch bunching at small scales was caused by seam_thresh multiplier being too wide (2.0). Reduced to 1.2 and widened merge distance to 3*vert_spacing.",
+        "RESOLVED: Edge Profile V-shape default: deep at corners (edge_factor≈1), shallow at mid-edge (≈0.51). Matches real quilting pin behavior.",
+        "FUTURE: Extract tangent frame, grid math, and stitching pipeline into shared utils for masonry reuse.",
+        "FUTURE: CLI improvements — validate with params, mesh selection, stats, viewport snapshot."
+    ],
+    "changes-made": [
+        "tool_quilt.py: Added internal default closure zones for Depth Profile and Edge Profile",
+        "tool_quilt.py: Added Custom Depth Profile and Custom Edge Profile boolean toggle sockets",
+        "tool_quilt.py: switch_float selects between internal default and external custom closure output",
+        "tool_quilt.py: _build_closure_with_curve() helper creates closure zones with custom curve points",
+        "tool_quilt.py: _evaluate_closure() helper wraps NodeEvaluateClosure wiring",
+        "tool_quilt.py: Stitch threshold tightened from 2.0*norm_spacing to 1.2*norm_spacing",
+        "tool_quilt.py: Merge distance widened from 2*vert_spacing to 3*vert_spacing",
+        "tool_quilt.py: Bbox computation refactored — y_axis extracted as reusable combine_xyz"
+    ],
+    "related-files": [
+        "procedural_human/geo_node_groups/utilities/tool_quilt.py",
+        "procedural_human/geo_node_groups/closures.py",
+        "procedural_human/geo_node_groups/node_helpers.py"
+    ],
+    "priority": 7
+}

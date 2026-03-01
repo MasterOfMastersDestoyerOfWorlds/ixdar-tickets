@@ -1,0 +1,40 @@
+{
+    "id": "BLEN-17",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["geo-nodes"],
+    "title": "Procedural Stone Masonry Node Group",
+    "description": "Create a new geometry node group for procedural stone masonry generation, using the distance-field approach from tool_quilt.py. The distance field is chosen over Instance on Points because it naturally wraps around corners and edges of arbitrary geometry (e.g. a pyramid corner stone's mortar seam bends around the edge) without requiring expensive per-stone boolean cuts. The quilting group's FRACT(pos/scale) cell computation is extended with: (1) running bond via FLOOR/MODULO row detection to shift X before FRACT, (2) independent width/height for rectangular cells, (3) per-cell depth variance using cell IDs (FLOOR of grid coordinates) as noise seeds, and (4) composable worn-edge chipping via the existing WornEdges node group as a post-process. Reference images in procedural_human/masonry/ show the target aesthetic. The deep research document (masonry_deep_research.md) details the full pipeline.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A new @geo_node_group 'StoneMasonry' node group exists that generates staggered masonry geometry on a subdivided input mesh using the distance-field approach. 2. Running bond offset works correctly: odd rows are shifted by half the block width via FLOOR/MODULO row detection applied before the FRACT cell computation. 3. Independent Stone Width and Stone Height inputs control cell aspect ratio. 4. Per-stone depth variance uses cell IDs (FLOOR of shifted_x/width, FLOOR of y/height) fed into a Noise Texture to produce a deterministic random depth offset per cell. 5. Mortar gap width is controllable — seam depth/width is a visible groove, not just a displacement crease. 6. The pattern wraps correctly around geometry corners (e.g. pyramid edges) because it operates on the input mesh's own vertices and normals. 7. Erosion/chipping is handled by composing with the WornEdges node group as a post-process, not by reimplementing erosion inline. 8. validate --group StoneMasonry passes with default inputs.",
+    "testing-plan": "1. validate --group StoneMasonry with default inputs — geometry exists, not degenerate. 2. Verify running bond visually: odd rows clearly offset from even rows. 3. Set Stone Width != Stone Height and confirm rectangular blocks. 4. Increase depth variance and confirm stones protrude/recess at varying depths. 5. Adjust mortar gap and confirm seam width changes. 6. Apply to a cube or pyramid mesh and verify the pattern wraps continuously around corners — mortar seams should bend around edges, not terminate. 7. Chain WornEdges after StoneMasonry and confirm chipped/worn stone surfaces that respect mortar boundaries (boolean intersection clips erosion to original volume). 8. Compare visual output against reference images in procedural_human/masonry/.",
+    "todos": [
+        "Fork the distance-field approach from tool_quilt.py into a new masonry module (procedural_human/geo_node_groups/utilities/tool_masonry.py)",
+        "Replace the 3-axis uniform FRACT cell with a 2-axis cell (XY only — masonry is a surface pattern, not volumetric)",
+        "Add independent Stone Width and Stone Height inputs to control cell aspect ratio",
+        "Implement running bond offset: use FLOOR(y/height) to get row index, MODULO 2 to detect odd rows, shift X by 0.5 * Stone Width before FRACT cell computation",
+        "Compute per-cell IDs via FLOOR(shifted_x/width) and FLOOR(y/height), feed into a Noise Texture as position to get deterministic per-stone random values",
+        "Add Depth Variance float input; use per-cell random value to offset displacement along normal by a random amount within the variance range",
+        "Add Mortar Gap float input that controls the seam width/depth between stones",
+        "Apply pillow/chamfer displacement profile at cell boundaries for rounded stone edges (reuse depth closure pattern from quilting if beneficial)",
+        "Ensure the group composes cleanly with WornEdges as a downstream post-process for chipping/erosion",
+        "Register with @geo_node_group decorator and validate in Blender"
+    ],
+    "unknowns": [
+        "How to handle the edge stones at the boundary where the running bond offset creates half-width stones — clip them or let them wrap via FRACT?",
+        "Should this compose with BLEN-16's rotation/FloatCurveClosure features, or remain independent? Rotation of the grid could be shared.",
+        "Per-stone rotation jitter is difficult in a distance field (no discrete instances to rotate). Is depth variance alone sufficient for visual irregularity, or do we need a more complex approach for rotation?",
+        "Should the WornEdges composition be wired internally (StoneMasonry calls WornEdges as a sub-group) or left to the user to chain externally?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "procedural_human/geo_node_groups/utilities/tool_quilt.py",
+        "procedural_human/geo_node_groups/worn_edges.py",
+        "procedural_human/geo_node_groups/node_helpers.py",
+        "procedural_human/masonry/masonry_deep_research.md",
+        "procedural_human/masonry/"
+    ],
+    "priority": 7
+}

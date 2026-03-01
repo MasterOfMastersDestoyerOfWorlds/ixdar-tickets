@@ -1,0 +1,43 @@
+{
+    "id": "BLEN-18",
+    "epic": "BLEN",
+    "repo": "Blender-Procedural-Human",
+    "subsystem": ["cli", "testing", "infra"],
+    "title": "Containerized Headless Blender for Parallel Agent Validation",
+    "description": "Isolate Blender environments so that multiple agents (or multiple CLI sessions) can validate changes concurrently without port collisions or shared state. Today, a single Blender instance runs on a hardcoded port (9876) with a single PID file (tmp/.blender_pid), meaning only one agent can validate at a time. This ticket covers three layers: (1) headless mode — launch Blender with the -b flag so no GUI is required, reducing resource usage and enabling server/CI environments; (2) containerization — package Blender + the addon + the HTTP command server into a Docker image so each agent gets a fully isolated filesystem and network namespace; (3) dynamic port/session management — replace the global singleton port and PID file with per-session state so the CLI can start, address, and tear down multiple Blender instances without the agent needing to track port numbers manually. The Gemini-suggested Docker-label-by-CWD approach is one option; an alternative is ephemeral port assignment (bind to port 0, let the OS pick a free port) written to a session file the CLI reads back. Either way the goal is: an agent runs `blender-cli start` and gets an isolated Blender it can talk to, even if other agents are doing the same thing simultaneously.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Blender can be launched in headless mode (-b) by the CLI, and the HTTP command server starts and responds to health checks without a GUI window. 2. A Dockerfile exists that packages Blender, the procedural_human addon, and the blender_server.py HTTP server into a runnable image. 3. `blender-cli start` can spawn a containerized (or local headless) Blender instance with a dynamically assigned port — no hardcoded 9876. 4. The session's port/container-ID is persisted in a per-session state file (not a single global PID file) so multiple concurrent sessions do not collide. 5. `blender-cli` commands (ping, validate, shutdown, etc.) transparently resolve the correct port/container for the current session without the caller specifying --base-url manually. 6. `blender-cli shutdown` tears down the container (or headless process) and cleans up the session file. 7. Two agents can simultaneously run `blender-cli start` + `blender-cli validate --group <X>` in separate terminals/directories without interfering with each other. 8. Blender's stdout/stderr noise is redirected so it does not corrupt CLI JSON output when running headless.",
+    "testing-plan": "1. Start Blender headless locally (no Docker) — confirm the HTTP server responds on the assigned port and no GUI window appears. 2. Build the Docker image and run `blender-cli start` — confirm a container starts and health check passes. 3. In a second terminal (same or different CWD), run `blender-cli start` — confirm a second container starts on a different port with no collision. 4. Run `blender-cli validate --group CoonPatch` in both terminals concurrently — both should succeed independently. 5. Run `blender-cli shutdown` in each terminal — confirm containers are removed and session files cleaned up. 6. Run `blender-cli ping` after shutdown — confirm it reports no server running. 7. Verify that Blender's noisy stdout (version banners, debug prints) does not appear in the CLI's JSON output.",
+    "todos": [
+        "Add -b (background/headless) flag to the Blender launch command in lifecycle.py start()",
+        "Replace the hardcoded port 9876 with ephemeral port assignment (port=0) in blender_server.py; have the server report its actual bound port back to the CLI",
+        "Replace the global singleton PID file (tmp/.blender_pid) with per-session state files that store PID + port + optional container ID",
+        "Update BlenderClient and blender_cli.py to resolve the session's port from the session state file instead of DEFAULT_BASE_URL",
+        "Redirect Blender's stdout/stderr noise away from the CLI's stdout when launching headless (pipe to log file or /dev/null)",
+        "Create a Dockerfile that installs Blender, copies the addon and blender_server into the image, and sets the entrypoint to headless Blender with the HTTP server",
+        "Add a --container flag (or auto-detect) to blender-cli start that uses docker run instead of subprocess.Popen",
+        "Wire docker run with --rm, -d, and a label or session file so the CLI can find the container later",
+        "Update shutdown to handle both local-process and container teardown paths",
+        "End-to-end test: two concurrent validate runs in separate sessions with no interference"
+    ],
+    "unknowns": [
+        "Ephemeral port vs Docker-label-by-CWD: ephemeral port (bind 0, OS picks port) is simpler for local dev and works inside containers too. Docker labels are elegant but couple the CLI to Docker. Should we support both local-headless and containerized modes behind the same interface?",
+        "How does the headless Blender process communicate its bound port back to the CLI? Options: (a) write to a temp file that the CLI polls, (b) the bootstrap script prints a sentinel line to stderr that the CLI parses, (c) the CLI picks the port and passes it as an argument to the bootstrap script.",
+        "Windows containers vs WSL2/Linux containers: Blender's official Docker images are Linux-based. On Windows, Docker Desktop with WSL2 backend should work, but GPU acceleration (needed for Eevee/Cycles renders in validate screenshots) may not be available headless. Is CPU-only Cycles sufficient for validation screenshots?",
+        "Session file location: per-directory (CWD-scoped, like .blender-session) or centralized (tmp/sessions/<uuid>.json)? CWD-scoped is simpler but fails if two agents share the same CWD. Centralized needs a lookup mechanism.",
+        "Should the Dockerfile bake in a specific Blender version or accept it as a build arg? The project currently discovers Blender via multiple fallback paths — the container needs a fixed, known binary.",
+        "How to handle addon hot-reload inside a container? The current reload command re-imports Python modules. Inside Docker the source is baked into the image — do we need a volume mount for live code, or is rebuild-and-restart the workflow?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/commands/lifecycle.py",
+        "tools/commands/common.py",
+        "tools/blender_cli.py",
+        "procedural_human/testing/blender_server.py",
+        "tools/blender_bootstrap.py",
+        "tools/cli_registry.py"
+    ],
+    "priority": 5
+}
