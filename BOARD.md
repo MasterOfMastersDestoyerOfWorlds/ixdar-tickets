@@ -61,7 +61,7 @@
 
 ---
 
-## Blender Procedural Human (15 tickets, priority 4)
+## Blender Procedural Human (14 tickets, priority 4)
 
 ### Todo (14)
 
@@ -80,15 +80,9 @@
 - [BLEN-24](content/BLEN/BLEN-24.json) **BLEN-24** CLI: Viewport Snapshot for Visual Regression Testing -- Add a blender-cli snapshot command that captures a viewport render of a node group applied to a...
 - [BLEN-6](content/BLEN/BLEN-6.json) **BLEN-6** DSL Armor Extension -- Extend the DSL system to replace armor_suit.py with a declarative configuration. Armor pieces...
 
-<details><summary>Done (1)</summary>
-
-- ~~[BLEN-16](content/BLEN/BLEN-16.json) **BLEN-16** Quilting Node Group Configurability~~
-
-</details>
-
 ---
 
-## Mesh Nodes & Geometry Processing (31 tickets, priority 5)
+## Mesh Nodes & Geometry Processing (30 tickets, priority 5)
 
 ### Todo (30)
 
@@ -122,12 +116,6 @@
 - [MESH-27](content/MESH/MESH-27.json) **MESH-27** SDF Grid Nodes -- Implement 4 signed distance field (SDF) grid nodes for volumetric operations. MeshToSDFGrid:...
 - [MESH-28](content/MESH/MESH-28.json) **MESH-28** Advanced Control Flow Nodes (ForEach, Closures, MenuSwitch) -- Implement 5 advanced control flow nodes. ForeachGeometryElementInput/Output: iterate over each...
 - [MESH-29](content/MESH/MESH-29.json) **MESH-29** Utility and Remaining Nodes (Viewer, Warning, Reroute, SetMaterial, Image) -- Implement the remaining utility and infrastructure nodes. Viewer: marks a point in the graph for...
-
-<details><summary>Done (1)</summary>
-
-- ~~[MESH-5](content/MESH/MESH-5.json) **MESH-5** MeshNodeViewerScene with Orbit Camera and Automation Endpoints~~
-
-</details>
 
 ---
 
@@ -272,18 +260,12 @@
 
 ---
 
-## Project Setup (4 tickets, priority 99)
+## Project Setup (3 tickets, priority 99)
 
 ### Todo (3)
 
 - [IX-2](content/IX/IX-2.json) **IX-2** Enforce Shader/Scene Validation via Cursor Hooks -- Add Cursor hooks that enforce screenshot validation whenever shader files (.fs, .vs, .glsl) or...
 - [IX-4](content/IX/IX-4.json) **IX-4** Add Drag-Based Input Validation for Orbit and Pan Behaviors -- Extend the automation stack so camera orbit and pan interactions can be validated intentionally...
 - [IX-5](content/IX/IX-5.json) **IX-5** Refactor AutomationRuntime Scene State Export via Reflection -- Refactor AutomationRuntime so scene-specific debug/state export does not require hardcoded...
-
-<details><summary>Done (1)</summary>
-
-- ~~[IX-3](content/IX/IX-3.json) **IX-3** Improve Ixdar CLI Ergonomics for Scene Validation~~
-
-</details>
 
 ---
