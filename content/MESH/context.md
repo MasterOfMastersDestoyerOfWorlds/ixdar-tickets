@@ -36,7 +36,7 @@ Scenes extend `Canvas3D` (or `Scene` which extends `Canvas3D`). Lifecycle: `init
 
 **To create a new scene**: Use the CLI scaffolder:
 ```bash
-python tools/ixdar-automation-cli/ixdar_cli.py new-scene \
+uv run ixdar-cli new-scene \
   --name MeshNodeViewerScene --id mesh-viewer \
   --subfolder mesh --display-name "Mesh Node Viewer" \
   --base Scene --camera 3d --maven-profile mesh-viewer
@@ -74,10 +74,10 @@ The automation system has a Java HTTP server (`AutomationApiServer`) running ins
 
 **For mesh node validation**, use the same pattern as the Blender CLI in `/home/acw/Code/Blender-Procedural-Human/tools/`:
 1. Launch the scene: `mvn -P mesh-viewer`
-2. Wait for health: `python ixdar_cli.py health`
-3. Load a node graph: `python ixdar_cli.py mesh-load-graph --file graph.json`
-4. Validate geometry: `python ixdar_cli.py mesh-validate`
-5. Take a screenshot: `python ixdar_cli.py screenshot`
+2. Wait for health: `uv run ixdar-cli health`
+3. Load a node graph: `uv run ixdar-cli mesh-load-graph --file graph.json`
+4. Validate geometry: `uv run ixdar-cli mesh-validate`
+5. Take a screenshot: `uv run ixdar-cli screenshot`
 
 **Key files**:
 - `ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java` -- HTTP routes
@@ -136,14 +136,14 @@ Every ticket should be validated through the automation CLI, not just by compili
 
 1. **Compile**: `mvn -DskipTests compile` from `ixdar-app/`
 2. **Launch**: `mvn -P mesh-viewer` (starts the mesh viewer scene)
-3. **Health check**: `python tools/ixdar-automation-cli/ixdar_cli.py health`
-4. **Mesh state**: `python tools/ixdar-automation-cli/ixdar_cli.py mesh-state` (returns vertex/face counts, bounding box)
-5. **Screenshot**: `python tools/ixdar-automation-cli/ixdar_cli.py screenshot --out tmp/test.png`
-6. **Shutdown**: `python tools/ixdar-automation-cli/ixdar_cli.py shutdown`
+3. **Health check**: `uv run ixdar-cli health`
+4. **Mesh state**: `uv run ixdar-cli mesh-state` (returns vertex/face counts, bounding box)
+5. **Screenshot**: `uv run ixdar-cli screenshot --out tmp/test.png`
+6. **Shutdown**: `uv run ixdar-cli shutdown`
 
 For node-specific validation:
-- **Load a graph**: `python tools/ixdar-automation-cli/ixdar_cli.py mesh-load-graph --file path/to/graph.json`
-- **Validate geometry**: `python tools/ixdar-automation-cli/ixdar_cli.py mesh-validate` (checks watertight, not degenerate, correct normals)
+- **Load a graph**: `uv run ixdar-cli mesh-load-graph --file path/to/graph.json`
+- **Validate geometry**: `uv run ixdar-cli mesh-validate` (checks watertight, not degenerate, correct normals)
 
 ## Dependency Order (What to Build First)
 
