@@ -1,0 +1,32 @@
+{
+    "id": "MESH-12",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Input and Query Nodes (InputPosition, InputNormal, InputIndex, InputRadius)",
+    "description": "Implement 4 context-reading nodes that provide per-element data from the current mesh being processed. InputPosition outputs the position of the current vertex. InputNormal outputs the normal at the current vertex/face. InputIndex outputs the index of the current element. InputRadius outputs the distance from the origin. These are used in field expressions -- e.g., 'move vertices outward by their distance from center' would wire InputPosition -> VectorMath(length) -> ScaleElements.",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Four node classes in nodes/input/. 2. Each reads from the evaluation context's current mesh and element index. 3. InputPosition outputs VECTOR3 vertex position. 4. InputNormal outputs VECTOR3 normal (per-vertex or per-face depending on context domain). 5. InputIndex outputs INT element index. 6. InputRadius outputs FLOAT distance from origin. 7. All work correctly when evaluated per-element in a field context.",
+    "testing-plan": "1. InputPosition on a unit cube: evaluate at vertex 0, verify position matches. 2. InputNormal on a cube face: verify normal is axis-aligned. 3. InputIndex: evaluate across all vertices, verify 0..N-1 sequence. 4. InputRadius on a unit sphere: verify all outputs are ~1.0.",
+    "todos": [
+        "Create nodes/input/ package",
+        "Implement InputPositionNode",
+        "Implement InputNormalNode",
+        "Implement InputIndexNode",
+        "Implement InputRadiusNode",
+        "Define how NodeContext exposes current element index and mesh for per-element evaluation"
+    ],
+    "unknowns": [
+        "Whether per-element evaluation should be explicit (loop in the node) or implicit (framework evaluates the node once per element)"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,40 @@
+{
+    "id": "MESH-23",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Attribute System and Attribute Nodes",
+    "description": "Implement a named attribute system for meshes and 10 attribute operation nodes. Attributes are named data arrays stored per-domain (point, edge, face, corner) on a HalfEdgeMesh -- e.g., 'temperature' as a float per vertex, 'material_id' as an int per face. The attribute system enables passing custom data between nodes beyond just geometry. Nodes: CaptureAttribute (snapshot a computed value as a named attribute), StoreNamedAttribute (write values to a named attribute), InputNamedAttribute (read a named attribute), AttributeStatistic (min/max/mean/median/range), AttributeDomainSize (count of elements per domain), BlurAttribute (smooth values across neighbors), FieldAtIndex (read attribute at specific index), FieldAverage (average of field values), FieldOnDomain (interpolate attribute to a different domain), SampleIndex (read attribute at a given element index).",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. HalfEdgeMesh has an AttributeStore that maps String names to typed arrays (float[], int[], Vector3f[]). 2. Attributes are scoped by domain (POINT, EDGE, FACE, CORNER). 3. Ten attribute node classes exist in nodes/attributes/. 4. CaptureAttribute stores a computed field as a named attribute. 5. AttributeStatistic computes min/max/mean correctly. 6. FieldOnDomain interpolates point attributes to face domain and vice versa.",
+    "testing-plan": "1. Store a float attribute 'weight' on a cube's vertices, read it back, verify values. 2. AttributeStatistic on vertex positions: verify min/max match bounding box. 3. BlurAttribute on a sharp step function: verify values are smoothed. 4. FieldOnDomain: vertex colors -> face colors, verify average of face's vertex values. 5. CaptureAttribute -> InputNamedAttribute round trip.",
+    "todos": [
+        "Add AttributeStore to HalfEdgeMesh with domain-scoped named arrays",
+        "Define AttributeDomain enum: POINT, EDGE, FACE, CORNER",
+        "Create nodes/attributes/ package",
+        "Implement CaptureAttributeNode",
+        "Implement StoreNamedAttributeNode",
+        "Implement InputNamedAttributeNode",
+        "Implement AttributeStatisticNode",
+        "Implement AttributeDomainSizeNode",
+        "Implement BlurAttributeNode using neighbor averaging",
+        "Implement FieldAtIndexNode",
+        "Implement FieldAverageNode",
+        "Implement FieldOnDomainNode with domain interpolation",
+        "Implement SampleIndexNode"
+    ],
+    "unknowns": [
+        "Whether to support generic attribute types (Object[]) or only specific types (float[], int[], Vector3f[])",
+        "Whether corner attributes (per face-vertex) are needed initially or can be deferred"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

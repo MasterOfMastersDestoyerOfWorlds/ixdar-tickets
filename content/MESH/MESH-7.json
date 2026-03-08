@@ -1,0 +1,33 @@
+{
+    "id": "MESH-7",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Math and Function Nodes",
+    "description": "Implement 7 math and function utility nodes that operate on scalar and boolean values. These nodes are the plumbing that connects parameter sliders to geometry operations -- e.g., a slider value goes through IntegerMath to compute segment count for a cylinder. Pure data nodes with no mesh dependency. Nodes: BooleanMath (AND/OR/NOT/XOR), IntegerMath (Add/Subtract/Multiply/Divide/Modulo/Power/Min/Max), FloatToInt (Round/Floor/Ceil/Truncate), Compare (Less/Greater/Equal with epsilon), RandomValue (float/int/vector in range with seed), InputInt (constant integer), InputVector (constant Vector3f).",
+    "blocked-by": [
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Seven node classes exist in nodes/math/. 2. Each implements MeshNode with correct port types. 3. BooleanMath supports AND/OR/NOT/XOR via a mode parameter. 4. IntegerMath supports Add/Subtract/Multiply/Divide/Modulo/Power/Min/Max. 5. Compare supports float comparison with configurable epsilon. 6. RandomValue produces deterministic output for a given seed. 7. All nodes evaluate correctly in isolation.",
+    "testing-plan": "1. Unit test each math operation mode with known inputs/outputs. 2. Test BooleanMath truth tables. 3. Test Compare with values near the epsilon boundary. 4. Test RandomValue determinism: same seed produces same output. 5. Wire IntegerMath into a MeshCylinder segments input via NodeGraph, verify the cylinder changes.",
+    "todos": [
+        "Create nodes/math/ package",
+        "Implement BooleanMathNode with mode enum",
+        "Implement IntegerMathNode with mode enum",
+        "Implement FloatToIntNode with mode enum (Round/Floor/Ceil/Truncate)",
+        "Implement CompareNode with epsilon parameter",
+        "Implement RandomValueNode with seed, min, max inputs",
+        "Implement InputIntNode (constant with exposed value)",
+        "Implement InputVectorNode (constant Vector3f with exposed x/y/z)"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNode.java"
+    ],
+    "priority": 2
+}

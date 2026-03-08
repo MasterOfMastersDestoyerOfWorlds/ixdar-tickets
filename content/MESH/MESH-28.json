@@ -1,0 +1,33 @@
+{
+    "id": "MESH-28",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Advanced Control Flow Nodes (ForEach, Closures, MenuSwitch)",
+    "description": "Implement 5 advanced control flow nodes. ForeachGeometryElementInput/Output: iterate over each vertex/edge/face of a mesh, applying a subgraph to each element -- e.g., extrude each face by a different amount. MenuSwitch: select from named options (for UI integration with dropdowns). NodeClosureInput/Output and EvaluateClosure: define and invoke reusable function-like subgraphs that can be passed as values between nodes. These enable higher-order procedural patterns.",
+    "blocked-by": [
+        "MESH-13"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Five node classes in nodes/control/. 2. ForEach iterates over mesh elements, evaluating a subgraph per element with the element index available in context. 3. MenuSwitch selects between named options and integrates with the DropdownMenu UI. 4. Closures can be defined, passed as port values, and evaluated at a different point in the graph. 5. The evaluation engine handles ForEach's per-element subgraph invocation.",
+    "testing-plan": "1. ForEach over cube faces with a per-face extrude: verify each face is extruded. 2. MenuSwitch with 3 mesh options: select each, verify correct mesh passes through. 3. Define a closure that doubles a float, pass it to EvaluateClosure, verify result. 4. ForEach with element count=0: verify no crash.",
+    "todos": [
+        "Implement ForeachGeometryElementInputNode and ForeachGeometryElementOutputNode",
+        "Integrate ForEach execution into the evaluation engine (per-element subgraph invocation)",
+        "Implement MenuSwitchNode with named string options",
+        "Wire MenuSwitch to DropdownMenu UI component from MESH-15",
+        "Implement NodeClosureInputNode and NodeClosureOutputNode",
+        "Implement EvaluateClosureNode",
+        "Define Closure as a portable subgraph reference that can be passed through ports"
+    ],
+    "unknowns": [
+        "Whether ForEach should support parallel element evaluation for performance",
+        "Whether closures need to capture variables from their definition scope"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

@@ -1,0 +1,38 @@
+{
+    "id": "MESH-29",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "rendering"
+    ],
+    "title": "Utility and Remaining Nodes (Viewer, Warning, Reroute, SetMaterial, Image)",
+    "description": "Implement the remaining utility and infrastructure nodes. Viewer: marks a point in the graph for viewport display (the node whose output is rendered). Warning: emit a warning message to the user when a condition is met. Reroute: pass-through node for graph layout cleanliness. Frame: visual grouping of nodes (no computational effect). ObjectInfo: read metadata about the current object. SetMaterial: assign a material/color to geometry. ImageInfo: read dimensions and metadata of an image. ImageTexture: sample color from an image at UV coordinates. EdgePathsToSelection: convert edge paths to boolean selection. InputShortestEdgePaths: find shortest paths between vertices along edges.",
+    "blocked-by": [
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Node classes in nodes/utility/. 2. Viewer marks the graph output point for rendering. 3. Warning stores a condition+message that the UI can display. 4. Reroute is a no-op pass-through for any port type. 5. SetMaterial assigns a color attribute to faces. 6. ImageTexture samples from a loaded image at UV coordinates. 7. InputShortestEdgePaths computes shortest path using Dijkstra on edge weights.",
+    "testing-plan": "1. Viewer on a cube graph: verify the cube is what renders in the viewport. 2. Reroute: wire a mesh through a reroute, verify identical output. 3. SetMaterial with red color: verify face color attribute is set. 4. Warning with always-true condition: verify warning message is stored. 5. InputShortestEdgePaths between two opposite cube vertices: verify path length is 3 edges.",
+    "todos": [
+        "Create nodes/utility/ package",
+        "Implement ViewerNode",
+        "Implement WarningNode",
+        "Implement RerouteNode (generic pass-through)",
+        "Implement FrameNode (visual-only, no-op)",
+        "Implement ObjectInfoNode",
+        "Implement SetMaterialNode",
+        "Implement ImageInfoNode",
+        "Implement ImageTextureNode",
+        "Implement EdgePathsToSelectionNode",
+        "Implement InputShortestEdgePathsNode using Dijkstra"
+    ],
+    "unknowns": [
+        "Whether ImageTexture should load from file or accept a texture handle from the rendering system",
+        "Whether SetMaterial should integrate with the MeshShader's existing material system or define a new one"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

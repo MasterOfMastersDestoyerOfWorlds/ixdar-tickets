@@ -1,0 +1,34 @@
+{
+    "id": "MESH-10",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Mesh Modification Nodes A (Extrude, Subdivide, SubdivisionSurface, Boolean, Triangulate, DualMesh, FlipFaces)",
+    "description": "Implement 7 mesh topology modification nodes -- the heavy-hitter algorithms that change mesh structure. These are essential for procedural modeling (e.g., extrude a face to create a finger from a palm, subdivide to add detail, boolean to cut holes). ExtrudeMesh: extrude selected faces along normals. SubdivideMesh: split each face into 4 by adding midpoints. SubdivisionSurface: Catmull-Clark or Loop subdivision for smooth surfaces. MeshBoolean: union/intersect/difference of two meshes. Triangulate: convert quads/ngons to triangles. DualMesh: replace each vertex with a face and each face with a vertex. FlipFaces: reverse winding order (flip normals).",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Seven node classes in nodes/operations/. 2. ExtrudeMesh creates new faces along normals with configurable offset. 3. SubdivideMesh splits each triangle into 4 via edge midpoints. 4. SubdivisionSurface produces smooth surface (Loop for tris, Catmull-Clark for quads). 5. MeshBoolean supports Union/Intersect/Difference modes and produces manifold output. 6. Triangulate handles quads correctly. 7. DualMesh produces valid dual. 8. FlipFaces reverses all face winding. 9. All outputs are valid HalfEdgeMeshes with correct adjacency.",
+    "testing-plan": "1. Extrude one face of a cube, verify 1 new face + side faces created. 2. Subdivide a cube, verify face count = original * 4. 3. SubdivisionSurface on a cube, verify vertices move toward smooth limit positions. 4. Boolean union of two overlapping cubes, verify manifold output. 5. Boolean difference (cube minus sphere), verify hole exists. 6. Triangulate a quad, verify 2 triangles. 7. FlipFaces on a cube, verify normals point inward. 8. DualMesh on a cube (8v, 6f), verify output has 6v, 8f. 9. For each operation: create a node graph JSON (MeshCube -> operation -> output), run 'mesh-load-graph', 'mesh-validate', and 'screenshot' via automation CLI.",
+    "todos": [
+        "Implement ExtrudeMeshNode with face selection and offset inputs",
+        "Implement SubdivideMeshNode (midpoint subdivision)",
+        "Implement SubdivisionSurfaceNode (Loop subdivision for triangle meshes)",
+        "Implement MeshBooleanNode with Union/Intersect/Difference mode enum",
+        "Implement TriangulateNode",
+        "Implement DualMeshNode",
+        "Implement FlipFacesNode"
+    ],
+    "unknowns": [
+        "MeshBoolean is algorithmically complex -- consider using a simplified approach (BSP-based) or deferring to Tier 2 if it blocks progress",
+        "Whether SubdivisionSurface should support boundary rules for open meshes"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,34 @@
+{
+    "id": "MESH-22",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve-Mesh Conversion Nodes",
+    "description": "Implement 5 nodes that convert between curves and meshes. CurveToMesh: sweep a profile curve along a path curve to generate a mesh (essential for organic modeling -- tubes, limbs, fingers). CurveToPoints: sample points along a curve. FillCurve: create a mesh face from a closed planar curve. MeshToCurve: extract boundary edges of a mesh as curves. PointsToCurves: connect ordered points into curve splines. CurveToMesh is the most important node in this ticket -- it enables creating tubular geometry from curves, which is fundamental for organic procedural modeling.",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-18"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Five node classes in nodes/conversion/. 2. CurveToMesh generates a clean manifold mesh by sweeping a profile along a path. 3. CurveToPoints outputs vertex positions and tangents along the curve. 4. FillCurve triangulates a closed planar curve into a mesh face. 5. MeshToCurve extracts boundary edges as curve splines. 6. PointsToCurves creates Splines from ordered point lists.",
+    "testing-plan": "1. CurveToMesh: sweep a circle profile along a line path, verify a cylinder-like mesh. 2. CurveToMesh: sweep a circle along a curved path, verify a bent tube with no self-intersection. 3. FillCurve on a square: verify 2 triangles (or appropriate triangulation). 4. MeshToCurve on an open plane: verify boundary edges extracted as a curve. 5. CurveToPoints on a circle with count=8: verify 8 evenly spaced points.",
+    "todos": [
+        "Create nodes/conversion/ package",
+        "Implement CurveToMeshNode: compute Frenet frames along path, sweep profile at each frame, connect into mesh",
+        "Handle CurveToMesh twist prevention (minimize rotation between frames)",
+        "Implement CurveToPointsNode with count or spacing parameter",
+        "Implement FillCurveNode using ear-clipping or Delaunay triangulation for planar curves",
+        "Implement MeshToCurveNode: find boundary half-edges, order them into splines",
+        "Implement PointsToCurvesNode"
+    ],
+    "unknowns": [
+        "Whether CurveToMesh should support scaling the profile along the path (taper) or if that requires a separate attribute",
+        "How to handle non-planar curves in FillCurve (project to best-fit plane?)"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,37 @@
+{
+    "id": "MESH-6",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Mesh Primitive Nodes (Cube, Cone, Cylinder, Grid, IcoSphere, UVSphere, Line)",
+    "description": "Implement the 7 mesh primitive generator nodes. Each node takes numeric parameters (size, radius, segments, rings, etc.) and outputs a HalfEdgeMesh. These are the building blocks of the entire procedural modeling system. The existing Icosphere class should be refactored into MeshIcoSphere node. All primitives must produce clean, manifold half-edge meshes with correct normals. Each node is annotated with @MeshNodeAnnotation for registry discovery.",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Seven node classes exist in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/primitives/. 2. Each is annotated with @MeshNodeAnnotation and implements MeshNode. 3. Each outputs a valid HalfEdgeMesh via evaluate(). 4. MeshCube: width/height/depth params. MeshCone: radius/depth/segments. MeshCylinder: radius/depth/segments. MeshGrid: sizeX/sizeY/subdivisionsX/subdivisionsY. MeshIcoSphere: radius/subdivisions. MeshUVSphere: radius/segments/rings. MeshLine: start/end/count. 5. All meshes pass Euler characteristic validation (V-E+F=2 for closed meshes). 6. All meshes have correct outward-facing normals.",
+    "testing-plan": "1. For each primitive: instantiate with default params, evaluate, verify vertex/face counts match expected. 2. For each primitive: create a node graph JSON with just that node, run 'ixdar_cli.py mesh-load-graph --file <graph>', then 'mesh-validate' to check geometry health, then 'screenshot' to visually verify. 3. Verify normals point outward (dot product with centroid direction > 0 for closed meshes). 4. Verify MeshIcoSphere matches the old Icosphere output. 5. Test edge cases: 3-segment cone, 1-subdivision grid, 0-subdivision icosphere. 6. Run 'mesh-state' for each primitive, verify vertex/face counts match expected values.",
+    "todos": [
+        "Create nodes/primitives/ package",
+        "Implement MeshCube node: 8 vertices, 12 triangles",
+        "Implement MeshCone node: fan cap + side triangles",
+        "Implement MeshCylinder node: two circle caps + quad strip sides",
+        "Implement MeshGrid node: subdivided plane",
+        "Refactor existing Icosphere into MeshIcoSphere node with subdivision parameter",
+        "Implement MeshUVSphere node: latitude/longitude grid with polar caps",
+        "Implement MeshLine node: chain of edges between two points"
+    ],
+    "unknowns": [
+        "Whether MeshLine should output a degenerate mesh (line of zero-area faces) or a separate geometry type",
+        "Whether subdivision parameter on MeshIcoSphere should use Loop subdivision or midpoint subdivision"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/Icosphere.java"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,39 @@
+{
+    "id": "MESH-18",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve Data Structure",
+    "description": "Implement the core curve data structure supporting Bezier, NURBS, and polyline spline types. A Curve contains one or more Splines, each with an ordered list of ControlPoints. ControlPoints have position, left handle, right handle (for Bezier), weight (for NURBS), tilt, and radius. Splines can be cyclic (closed) or open. Must support: evaluation at parameter t (position, tangent, normal), arc-length parameterization, subdivision, and conversion between spline types. This is the curve equivalent of MESH-1's HalfEdgeMesh.",
+    "blocked-by": [
+        "MESH-2"
+    ],
+    "blocks": [
+        "MESH-19",
+        "MESH-20",
+        "MESH-21",
+        "MESH-22"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Curve, Spline, ControlPoint classes exist in ixdar-app/src/main/java/ixdar/geometry/curve/. 2. SplineType enum: BEZIER, NURBS, POLY. 3. Spline.evaluatePosition(float t) returns Vector3f on the curve. 4. Spline.evaluateTangent(float t) returns tangent vector. 5. Spline supports cyclic and open modes. 6. ControlPoint has position, leftHandle, rightHandle, tilt, radius fields. 7. Curve can hold multiple splines. 8. Arc-length parameterization via lookup table.",
+    "testing-plan": "1. Create a Bezier spline with 4 control points, evaluate at t=0, 0.5, 1.0, verify positions. 2. Create a cyclic polyline (square), verify t=1.0 == t=0.0. 3. Evaluate tangent at midpoint of a straight line, verify tangent is the line direction. 4. Arc-length parameterize a semicircle, verify uniform spacing.",
+    "todos": [
+        "Define ControlPoint class with position, handles, tilt, radius, weight",
+        "Define SplineType enum",
+        "Define Spline class with control points list, type, cyclic flag",
+        "Implement Bezier evaluation using De Casteljau algorithm",
+        "Implement polyline evaluation via linear interpolation",
+        "Implement tangent computation via derivative of evaluation",
+        "Implement arc-length parameterization via adaptive sampling",
+        "Define Curve container holding multiple Splines"
+    ],
+    "unknowns": [
+        "Whether to implement full NURBS evaluation or defer to a later ticket",
+        "Resolution of the arc-length lookup table (adaptive vs fixed)"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,50 @@
+{
+    "id": "MESH-5",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "ui",
+        "automation"
+    ],
+    "title": "MeshNodeViewerScene with Orbit Camera and Automation Endpoints",
+    "description": "Create the foundational viewer scene that all subsequent mesh node work validates against. This is the FIRST ticket to build -- without it, no other ticket has a way to visually or programmatically validate its output. The scene renders a hardcoded test cube using raw GL calls (same pattern as IcosphereRuntime -- VAO/VBO/EBO with 8-float interleaved vertices). Camera orbits the mesh center via left-click drag. Scroll zooms. The scene also exposes mesh state to the AutomationRuntime.uiState() so the CLI can query vertex/face counts and bounding box for automated validation. Later tickets (MESH-4) will replace the hardcoded cube renderer with the generalized HalfEdgeMeshRuntime.",
+    "blocked-by": [],
+    "blocks": [
+        "MESH-15",
+        "MESH-16",
+        "MESH-30"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. MeshNodeViewerScene exists at ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java with @SceneAnnotation(id='mesh-viewer'). 2. Camera orbits the mesh center on left-click drag (azimuth + elevation). 3. Scroll wheel zooms in/out. 4. Scene renders a hardcoded unit cube with correct lighting via MeshShader. 5. VS Code launch config and Maven profile ('mesh-viewer') are generated. 6. Scene compiles and launches without errors via 'mvn -P mesh-viewer'. 7. AutomationRuntime.uiState() includes a 'mesh' section when this scene is active, with vertexCount, faceCount, boundingBoxMin, boundingBoxMax. 8. 'python ixdar_cli.py health' returns ok when the scene is running. 9. 'python ixdar_cli.py screenshot' captures the rendered cube.",
+    "testing-plan": "1. Launch via 'mvn -P mesh-viewer', verify cube appears. 2. Left-click drag to orbit, verify smooth rotation around cube center. 3. Scroll to zoom, verify camera distance changes. 4. Run 'python ixdar_cli.py health', verify ok. 5. Run 'python ixdar_cli.py ui-state', verify mesh section with vertexCount=8, faceCount=12. 6. Run 'python ixdar_cli.py screenshot --out tmp/mesh-test.png', verify image shows a cube. 7. Run 'python ixdar_cli.py shutdown', verify clean exit.",
+    "todos": [
+        "Run scenes-new-scene.md CLI to scaffold MeshNodeViewerScene with --base Scene --camera 3d --id mesh-viewer --maven-profile mesh-viewer",
+        "Create OrbitMouseTrap extending MouseTrap: azimuth, elevation, distance fields",
+        "Wire mouseDragged to update azimuth/elevation, recompute camera position on sphere around target",
+        "Wire scroll to adjust orbit distance",
+        "In initGL(), create a hardcoded unit cube: 8 vertices, 12 triangles, VAO/VBO/EBO upload (same 8-float layout as MeshShader expects)",
+        "In drawScene(), set MeshShader uniforms and draw the cube with drawElements",
+        "Store mesh stats (vertexCount, faceCount, bboxMin, bboxMax) as fields on the scene",
+        "Add a 'mesh' section to AutomationRuntime.uiState() when canvas is MeshNodeViewerScene",
+        "Add shutdown() that cleans up GL resources",
+        "Verify via automation CLI: health, ui-state, screenshot, shutdown"
+    ],
+    "unknowns": [
+        "Whether to add a grid floor and axis indicators for spatial reference in the initial version",
+        "Whether middle-click should pan the orbit target in addition to left-click orbit"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ui/IcosphereSavePointScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/ModelLoadScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/IcosphereRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/AssimpModelRuntime.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/MouseTrap.java",
+        "ixdar-app/src/main/java/ixdar/graphics/cameras/Camera3D.java",
+        ".cursor/commands/scenes-new-scene.md"
+    ],
+    "priority": 1
+}

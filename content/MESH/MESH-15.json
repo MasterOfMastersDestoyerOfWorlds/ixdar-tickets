@@ -1,0 +1,36 @@
+{
+    "id": "MESH-15",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Dropdown Menu UI Primitive",
+    "description": "Create a compact dropdown menu UI component for the mesh node viewer scene. Unlike the existing full-screen MenuBox, this is an inline widget that sits in a panel: a label showing the current selection, which opens a scrollable list of options on click and closes when an option is selected or the user clicks away. Used for switching between example meshes, selecting node types, choosing operation modes (e.g., Boolean Union/Intersect/Difference), etc. Should be reusable across scenes. Render using SDF primitives consistent with the existing UI style.",
+    "blocked-by": [
+        "MESH-5"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. DropdownMenu class exists in ixdar-app/src/main/java/ixdar/gui/ui/. 2. Displays current selection as a compact label with a chevron indicator. 3. On click, expands to show a scrollable list of options. 4. Selecting an option fires a callback and closes the dropdown. 5. Clicking outside the dropdown closes it. 6. Supports programmatic set/get of selected index. 7. Renders with SDF borders consistent with existing UI style. 8. Integrated into MeshNodeViewerScene for switching example meshes.",
+    "testing-plan": "1. Add a dropdown to MeshNodeViewerScene with 3-4 mesh options. 2. Click the dropdown, verify it opens. 3. Select an option, verify the mesh changes in the viewport. 4. Click outside, verify it closes without changing selection. 5. Verify the dropdown renders correctly at different window sizes.",
+    "todos": [
+        "Create DropdownMenu class with options list, selected index, and selection callback",
+        "Implement closed state rendering: label + chevron using SDF primitives",
+        "Implement open state rendering: list of options with highlight on hover",
+        "Handle click-to-open and click-to-select input via MouseTrap integration",
+        "Handle click-outside-to-close",
+        "Add scroll support for long option lists",
+        "Integrate into MeshNodeViewerScene as the mesh/example switcher"
+    ],
+    "unknowns": [
+        "Whether to render the dropdown above or below the trigger depending on available screen space",
+        "Whether to support keyboard navigation (arrow keys, enter) in addition to mouse"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/ui/menu/MenuBox.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/menu/MenuItem.java"
+    ],
+    "priority": 3
+}

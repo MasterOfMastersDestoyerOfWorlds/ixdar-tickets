@@ -1,0 +1,33 @@
+{
+    "id": "MESH-11",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Mesh Modification Nodes B (MergeByDistance, SplitEdges, ScaleElements, DuplicateElements, SetShadeSmooth, DeleteGeometry)",
+    "description": "Implement 6 additional mesh modification nodes. MergeByDistance: weld vertices closer than a threshold. SplitEdges: disconnect faces along selected edges (sharp edges). ScaleElements: scale individual faces/edges around their own centers. DuplicateElements: copy selected elements in-place. SetShadeSmooth: mark faces as smooth or flat shaded (stores a shade-smooth attribute). DeleteGeometry: remove selected vertices/edges/faces and clean up adjacency.",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Six node classes in nodes/operations/. 2. MergeByDistance welds vertices within threshold and updates face references. 3. SplitEdges duplicates vertices along selected edges to disconnect faces. 4. ScaleElements scales each selected element around its centroid. 5. DuplicateElements creates copies of selected faces with new vertices. 6. SetShadeSmooth sets a boolean attribute on faces. 7. DeleteGeometry removes elements and maintains valid half-edge structure.",
+    "testing-plan": "1. MergeByDistance on two cubes sharing a face, verify vertex count decreases. 2. SplitEdges on a cube edge, verify the edge is no longer shared. 3. ScaleElements: scale one face of a cube by 0.5, verify it shrinks toward its center. 4. DuplicateElements: duplicate a face, verify face count increases by 1. 5. DeleteGeometry: delete one face of a cube, verify 5 faces remain with correct adjacency. 6. SetShadeSmooth: mark all faces smooth, verify attribute stored.",
+    "todos": [
+        "Implement MergeByDistanceNode with distance threshold input",
+        "Implement SplitEdgesNode with edge selection input",
+        "Implement ScaleElementsNode with scale factor and element type (face/edge) inputs",
+        "Implement DuplicateElementsNode with selection input",
+        "Implement SetShadeSmoothNode with boolean input",
+        "Implement DeleteGeometryNode with selection mask and domain (point/face/edge) inputs"
+    ],
+    "unknowns": [
+        "Whether MergeByDistance should use spatial hashing or brute-force for vertex proximity",
+        "Whether ScaleElements should support non-uniform scaling"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

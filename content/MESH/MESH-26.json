@@ -1,0 +1,35 @@
+{
+    "id": "MESH-26",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Points and Sampling Nodes",
+    "description": "Implement 8 point distribution and spatial sampling nodes. Points: create a point cloud from count/position. PointsToVertices: convert point cloud to mesh vertices. DistributePointsOnFaces: scatter points on mesh surface (random or Poisson disk). MeshToPoints: extract vertex positions as points. Proximity: find nearest point/edge/face on target geometry. Raycast: cast rays and find mesh intersections. SampleNearestSurface: sample an attribute from the nearest point on a mesh surface. SampleUVSurface: sample mesh attribute at UV coordinates. These are critical for effects like hair placement, texture projection, and collision detection.",
+    "blocked-by": [
+        "MESH-1"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Eight node classes in nodes/sampling/. 2. DistributePointsOnFaces produces well-distributed points on mesh faces using area-weighted random or Poisson disk sampling. 3. Raycast finds the nearest face intersection along a ray direction. 4. Proximity returns distance and nearest position on target geometry. 5. SampleNearestSurface interpolates attributes from the nearest surface point. 6. MeshToPoints extracts all vertex positions.",
+    "testing-plan": "1. DistributePointsOnFaces on a unit plane with density=100: verify ~100 points, all with y=0. 2. Raycast from (0,2,0) toward (0,-1,0) on a unit plane at y=0: verify hit at (0,0,0). 3. Proximity from (2,0,0) to a unit sphere: verify distance ~1.0 and nearest point at (1,0,0). 4. MeshToPoints on a cube: verify 8 points matching vertex positions.",
+    "todos": [
+        "Create nodes/sampling/ package",
+        "Implement PointsNode (point cloud generator)",
+        "Implement PointsToVerticesNode",
+        "Implement DistributePointsOnFacesNode with random and Poisson disk modes",
+        "Implement MeshToPointsNode",
+        "Implement ProximityNode with BVH or brute-force nearest search",
+        "Implement RaycastNode with ray-triangle intersection",
+        "Implement SampleNearestSurfaceNode",
+        "Implement SampleUVSurfaceNode"
+    ],
+    "unknowns": [
+        "Whether to implement a BVH (bounding volume hierarchy) for accelerated spatial queries or defer to a utility ticket",
+        "Whether DistributePointsOnFaces should support weighted density maps"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

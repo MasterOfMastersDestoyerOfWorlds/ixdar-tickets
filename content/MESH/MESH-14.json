@@ -1,0 +1,36 @@
+{
+    "id": "MESH-14",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Node Group System (Collapsible Subgraphs with Exposed Parameters)",
+    "description": "Implement the node group system that allows collapsing a subgraph into a single reusable node with exposed parameters. This is the core of the semantic hierarchy -- a 'Hand' group contains 'Palm', 'Thumb', 'Finger' sub-groups, each with their own exposed parameters. Groups can nest arbitrarily. A group is defined by a NodeGraph with GroupInput/GroupOutput nodes marking its interface. When used in a parent graph, the group appears as a single node whose inputs/outputs match the GroupInput/GroupOutput ports. Groups are serializable to JSON as named, reusable templates. The LLM generates these groups as the DSL representation of semantic parts.",
+    "blocked-by": [
+        "MESH-3"
+    ],
+    "blocks": [
+        "MESH-16",
+        "MESH-17"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. NodeGroup class wraps a NodeGraph with a name, description, and interface (inputs/outputs derived from GroupInput/GroupOutput nodes). 2. NodeGroupInstance can be placed in a parent graph and behaves like a single node. 3. Groups can be nested (a group containing another group instance). 4. Exposed parameters from GroupInput are editable from the parent scope. 5. JSON serialization/deserialization of groups works, including nested groups. 6. A library/registry of saved groups can be loaded by name.",
+    "testing-plan": "1. Create a 'ScaledCube' group: GroupInput(size) -> MeshCube(size) -> Transform(scale=size) -> GroupOutput(mesh). 2. Instantiate it in a parent graph with size=2, verify output is a 2x cube. 3. Nest: create a 'TwoCubes' group containing two ScaledCube instances, verify both appear in output. 4. Serialize TwoCubes to JSON, deserialize, verify identical output. 5. Change an exposed parameter, re-evaluate, verify output updates.",
+    "todos": [
+        "Define NodeGroup class with name, description, inner NodeGraph, and derived interface",
+        "Define NodeGroupInstance that implements MeshNode using a NodeGroup as its backing implementation",
+        "Wire NodeGroupInstance.evaluate() to evaluate the inner graph with inputs mapped to GroupInput",
+        "Support arbitrary nesting of groups",
+        "Implement JSON serialization of groups (inline the inner graph)",
+        "Implement a GroupLibrary that stores named groups and resolves them by name during deserialization",
+        "Add validation: every group must have exactly one GroupInput and one GroupOutput"
+    ],
+    "unknowns": [
+        "Whether groups should support multiple outputs or just one",
+        "Whether to support group versioning for when the LLM modifies a group that is instanced multiple times"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

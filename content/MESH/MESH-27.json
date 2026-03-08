@@ -1,0 +1,32 @@
+{
+    "id": "MESH-27",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "SDF Grid Nodes",
+    "description": "Implement 4 signed distance field (SDF) grid nodes for volumetric operations. MeshToSDFGrid: voxelize a mesh into a 3D signed distance field. GridToMesh: extract a mesh isosurface from an SDF grid using Marching Cubes. SDFGridBoolean: union/intersect/difference of two SDF grids (trivial: min/max/negate+max). SDFGridFillet: smooth the transition between boolean operations using smooth-min. SDF operations are useful for organic modeling where precise mesh topology is less important than the final shape (e.g., blending two shapes together smoothly).",
+    "blocked-by": [
+        "MESH-1"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Four node classes in nodes/sdf/. 2. SDFGrid class: 3D float array with resolution, bounds, and sample(x,y,z) method. 3. MeshToSDFGrid computes signed distances on a uniform grid. 4. GridToMesh implements Marching Cubes and outputs a valid HalfEdgeMesh. 5. SDFGridBoolean supports Union (min), Intersect (max), Difference (max(a, -b)). 6. SDFGridFillet uses smooth-min for rounded transitions.",
+    "testing-plan": "1. MeshToSDFGrid on a unit sphere: verify SDF values are ~0 on the surface, negative inside, positive outside. 2. GridToMesh on a sphere SDF: verify a mesh approximating a sphere (face count depends on resolution). 3. SDFGridBoolean Union of two overlapping spheres: GridToMesh the result, verify a merged shape. 4. SDFGridFillet: verify rounded transition between two box SDFs.",
+    "todos": [
+        "Define SDFGrid class with resolution, bounds, and float[] data",
+        "Create nodes/sdf/ package",
+        "Implement MeshToSDFGridNode: compute signed distance from mesh faces to each grid point",
+        "Implement GridToMeshNode using Marching Cubes algorithm",
+        "Implement SDFGridBooleanNode with Union/Intersect/Difference modes",
+        "Implement SDFGridFilletNode with smooth-min blending"
+    ],
+    "unknowns": [
+        "Resolution/performance tradeoff: what default grid resolution balances quality vs memory",
+        "Whether to use exact signed distance (ray casting) or approximate (point-to-face distance) for MeshToSDF"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

@@ -1,0 +1,54 @@
+{
+    "id": "MESH-1",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Half-Edge Mesh Data Structure",
+    "description": "Implement a half-edge mesh data structure as the core geometry representation for the mesh nodes system. This replaces the existing Face/FaceState model with a proper topology-aware structure that supports efficient adjacency queries (vertex neighbors, edge loops, face corners). The half-edge mesh is foundational -- every mesh node will produce or consume this type. Must support: vertex/edge/face creation and deletion, splitting, merging, normal computation, boundary detection, and iteration over all adjacency relationships. Should be designed for large meshes (100k+ faces) with O(1) adjacency lookups. NOTE: This ticket can be developed in parallel with MESH-5 (the viewer scene). MESH-5 uses a hardcoded cube for initial rendering; this ticket provides the real data structure that MESH-4 will render.",
+    "blocked-by": [],
+    "blocks": [
+        "MESH-2",
+        "MESH-4",
+        "MESH-6",
+        "MESH-9",
+        "MESH-10",
+        "MESH-11",
+        "MESH-12",
+        "MESH-22",
+        "MESH-23",
+        "MESH-24",
+        "MESH-25",
+        "MESH-26",
+        "MESH-27"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. HalfEdgeMesh, HalfEdge, Vertex, Edge, MeshFace classes exist in ixdar-app/src/main/java/ixdar/geometry/mesh/. 2. Adjacency queries work in O(1): vertex->outgoing half-edges, half-edge->twin/next/prev/face/vertex, face->half-edges, edge->half-edges. 3. Can build a cube and icosphere from raw vertex/face data and traverse all adjacency. 4. Supports add/remove vertex, edge, face operations. 5. Computes per-face and per-vertex normals. 6. Boundary edges are detectable. 7. No per-frame allocations in traversal methods.",
+    "testing-plan": "1. Unit test: build a cube (8 verts, 12 tris), verify adjacency counts. 2. Unit test: build an icosphere, verify Euler characteristic V-E+F=2. 3. Unit test: delete a face, verify adjacency updates. 4. Unit test: boundary detection on a plane (open mesh). 5. Unit test: normal computation matches expected directions. 6. Stress test: build a 100k-face subdivided sphere, verify no OOM and traversal completes in <100ms.",
+    "todos": [
+        "Define HalfEdge class with twin, next, prev, vertex, face references",
+        "Define Vertex class with position, normal, one outgoing half-edge reference",
+        "Define Edge class wrapping a half-edge pair",
+        "Define MeshFace class with one half-edge reference and normal",
+        "Define HalfEdgeMesh container with indexed storage and factory methods",
+        "Implement addVertex, addFace, addEdge operations that maintain invariants",
+        "Implement adjacency iterators: vertexFaces, vertexEdges, faceVertices, faceEdges",
+        "Implement removeFace with adjacency cleanup",
+        "Implement computeNormals (per-face and per-vertex via area-weighted average)",
+        "Implement boundary edge detection",
+        "Implement buildFromIndexedMesh(float[] positions, int[] faceIndices) factory",
+        "Write unit tests for all of the above"
+    ],
+    "unknowns": [
+        "Whether to use array-based (index) references or object references for half-edge pointers -- array-based is more cache-friendly for large meshes but harder to code",
+        "Whether to support non-manifold geometry (edges shared by 3+ faces) or reject it at construction time"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/Face.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/FaceState.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/Icosphere.java"
+    ],
+    "priority": 1
+}

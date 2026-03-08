@@ -1,0 +1,30 @@
+{
+    "id": "MESH-19",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve Primitive Nodes",
+    "description": "Implement 7 curve primitive generator nodes. CurveArc: arc from start/middle/end points or center/radius/angle. CurveBezierSegment: single Bezier segment from control points. CurveCircle: full circle from radius or 3 points. CurveLine: straight line between two points. CurveQuadrilateral: rectangle/rhombus/parallelogram/kite/trapezoid from parameters. CurveQuadraticBezier: quadratic Bezier from 3 control points. Each outputs a Curve.",
+    "blocked-by": [
+        "MESH-18"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Seven node classes in nodes/primitives/curves/. 2. Each outputs a valid Curve. 3. CurveCircle produces a cyclic curve. 4. CurveArc handles both 3-point and center/angle modes. 5. CurveQuadrilateral supports all 5 shape modes. 6. All primitives evaluate correctly at t=0, 0.5, 1.0.",
+    "testing-plan": "1. CurveCircle with radius=1: evaluate at 4 equally spaced t values, verify they lie on the unit circle. 2. CurveLine from (0,0,0) to (1,0,0): evaluate at t=0.5, verify (0.5,0,0). 3. CurveArc from 0 to 180 degrees: verify semicircle shape. 4. Render each curve as a mesh (via CurveToMesh once available) to visually verify.",
+    "todos": [
+        "Create nodes/primitives/curves/ package",
+        "Implement CurveArcNode with 3-point and center/angle modes",
+        "Implement CurveBezierSegmentNode",
+        "Implement CurveCircleNode",
+        "Implement CurveLineNode",
+        "Implement CurveQuadrilateralNode with shape mode enum",
+        "Implement CurveQuadraticBezierNode"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

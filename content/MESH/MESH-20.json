@@ -1,0 +1,38 @@
+{
+    "id": "MESH-20",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve Operation Nodes",
+    "description": "Implement 12 curve operation nodes that modify curves. CurveSetHandles: set handle type (Free/Auto/Vector/Align). CurveSplineType: convert between Bezier/NURBS/Poly. FilletCurve: round corners. ReverseCurve: reverse point order. SubdivideCurve: insert midpoints. TrimCurve: cut curve at start/end parameters. ResampleCurve: redistribute points by count or length. SetCurveHandlePositions: set handle positions explicitly. SetCurveNormal: set twist-free normal mode. SetCurveRadius: set per-point radius. SetCurveTilt: set per-point tilt angle. SetSplineCyclic: toggle open/closed.",
+    "blocked-by": [
+        "MESH-18"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Twelve node classes in nodes/operations/curves/. 2. Each takes a Curve input and outputs a modified Curve. 3. ResampleCurve produces evenly spaced points. 4. TrimCurve correctly shortens the curve. 5. SubdivideCurve doubles the point count. 6. FilletCurve rounds sharp corners. 7. SetSplineCyclic toggles between open and closed.",
+    "testing-plan": "1. ResampleCurve on a circle with count=8: verify 8 evenly spaced points. 2. TrimCurve on a line from 0.25 to 0.75: verify the result is the middle half. 3. SubdivideCurve on a 4-point polyline: verify 7 points result. 4. ReverseCurve: verify start and end swap. 5. SetSplineCyclic on an open line: verify it becomes closed.",
+    "todos": [
+        "Create nodes/operations/curves/ package",
+        "Implement CurveSetHandlesNode",
+        "Implement CurveSplineTypeNode",
+        "Implement FilletCurveNode",
+        "Implement ReverseCurveNode",
+        "Implement SubdivideCurveNode",
+        "Implement TrimCurveNode",
+        "Implement ResampleCurveNode",
+        "Implement SetCurveHandlePositionsNode",
+        "Implement SetCurveNormalNode",
+        "Implement SetCurveRadiusNode",
+        "Implement SetCurveTiltNode",
+        "Implement SetSplineCyclicNode"
+    ],
+    "unknowns": [
+        "Whether FilletCurve should use arc or Bezier for the fillet geometry"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

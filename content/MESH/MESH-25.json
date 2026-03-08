@@ -1,0 +1,35 @@
+{
+    "id": "MESH-25",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Instance System Nodes",
+    "description": "Implement 5 instancing nodes that enable placing copies of geometry at many points efficiently. This is critical for procedural modeling -- e.g., placing fingers on a hand, scales on a fish, teeth in a mouth. InstanceOnPoints: place an instance of geometry at each point with optional rotation/scale per point. GeometryToInstance: convert geometry to an instance reference (lightweight handle, not duplicated data). RealizeInstances: flatten all instances into real geometry (expand references into actual vertices/faces). ScaleInstances: scale each instance around its own pivot. SplitToInstances: break a mesh into connected components, each becoming an instance.",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-3"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Five node classes in nodes/instances/. 2. Instance concept defined: a reference to source geometry + transform (position, rotation, scale). 3. InstanceOnPoints places one instance per input point with per-point transform. 4. RealizeInstances produces a HalfEdgeMesh with all instance geometry merged. 5. ScaleInstances scales each instance independently. 6. SplitToInstances creates separate instances from disconnected mesh components. 7. GeometryToInstance wraps a mesh as an instance reference.",
+    "testing-plan": "1. InstanceOnPoints: place a cube at 4 corner positions, RealizeInstances, verify 4 * 8 = 32 vertices. 2. ScaleInstances by 2x, realize, verify vertex positions doubled from each instance center. 3. SplitToInstances on two disjoint cubes, verify 2 instances. 4. GeometryToInstance -> InstanceOnPoints round-trip with a single point, verify identical geometry after realize.",
+    "todos": [
+        "Define Instance class with source geometry reference, position, rotation, scale",
+        "Define InstanceCollection as a container of instances",
+        "Create nodes/instances/ package",
+        "Implement InstanceOnPointsNode",
+        "Implement GeometryToInstanceNode",
+        "Implement RealizeInstancesNode: merge all instances into one HalfEdgeMesh",
+        "Implement ScaleInstancesNode",
+        "Implement SplitToInstancesNode using connected component detection"
+    ],
+    "unknowns": [
+        "Whether instances should support nested instancing (instance of instances)",
+        "How to handle instance attributes (e.g., per-instance color)"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

@@ -1,0 +1,36 @@
+{
+    "id": "MESH-17",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Hierarchical Tree View (Semantic Part Navigation)",
+    "description": "Create the hierarchical tree view panel that shows the semantic structure of a procedural model. This is the 'Spore editor' navigation -- the user sees a tree like Hand > Thumb > Fingernail, clicks on 'Thumb', and the camera orbits to show just the thumb geometry while the rest of the hand fades or hides. The tree is derived from the nested node group structure: each node group becomes a tree node with its name. Expanding a tree node shows its child groups and their exposed parameters. Clicking a node: (1) isolates that part's geometry in the viewport, (2) updates the parameter panel to show that group's parameters, (3) re-centers the camera on that part. Double-clicking zooms into the group, making it the 'root' with its children visible.",
+    "blocked-by": [
+        "MESH-16"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. TreeView class exists in ixdar-app/src/main/java/ixdar/gui/ui/. 2. Renders a collapsible tree with indent levels and expand/collapse arrows. 3. Tree nodes are derived from the node group hierarchy. 4. Single click on a tree node: highlights it, orbits camera to that part, updates parameter panel. 5. The non-selected parts dim or hide in the viewport. 6. Double-click zooms into a group, making it the visible root. 7. Breadcrumb trail or back button to navigate up the hierarchy. 8. Tree sits on the left side of the MeshNodeViewerScene.",
+    "testing-plan": "1. Create a nested group structure (Hand > Palm, Thumb, Fingers > Finger1..4). 2. Verify the tree renders with correct hierarchy. 3. Click 'Thumb', verify camera orbits to thumb geometry and parameter panel updates. 4. Double-click 'Thumb', verify it becomes the root and its children (bone, nail, skin) are visible. 5. Click back/breadcrumb, verify return to Hand level. 6. Verify expand/collapse arrows work.",
+    "todos": [
+        "Create TreeView class with hierarchical TreeNode model",
+        "Derive TreeNode hierarchy from nested NodeGroup structure",
+        "Implement tree rendering with indentation, expand/collapse arrows, and item labels",
+        "Implement single-click selection: highlight, camera orbit, parameter panel update",
+        "Implement geometry isolation: show selected part, dim/hide siblings",
+        "Implement double-click zoom-in: make selected group the visible root",
+        "Implement breadcrumb navigation for zoom-out",
+        "Integrate into MeshNodeViewerScene left-side panel area",
+        "Wire tree selection changes to camera re-framing via HalfEdgeMeshRuntime"
+    ],
+    "unknowns": [
+        "Whether geometry isolation should hide siblings entirely or render them as wireframe/transparent",
+        "Whether the tree should show leaf nodes (individual operations) or only named groups",
+        "How to compute the bounding box of a sub-group's geometry for camera framing"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

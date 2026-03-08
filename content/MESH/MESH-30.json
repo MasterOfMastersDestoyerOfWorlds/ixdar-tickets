@@ -1,0 +1,43 @@
+{
+    "id": "MESH-30",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Mesh Node Automation CLI and Validation Pipeline",
+    "description": "Extend the automation CLI and API server with mesh-specific commands for validating node development work. Modeled after the Blender CLI validation pattern (see /home/acw/Code/Blender-Procedural-Human/tools/commands/validation.py and geometry.py). The validation pipeline is: launch scene → health check → load node graph JSON → validate geometry → screenshot → shutdown. This ticket adds: (1) new AutomationApiServer endpoints for mesh state, graph loading, and geometry validation, (2) new Python CLI commands (mesh-state, mesh-load-graph, mesh-validate, mesh-probe), (3) a validation orchestrator that runs the full pipeline in sequence. Every subsequent node ticket should validate its work through these commands.",
+    "blocked-by": [
+        "MESH-5"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. AutomationApiServer has new routes: GET /mesh/state, POST /mesh/load-graph, GET /mesh/validate. 2. /mesh/state returns JSON with vertexCount, faceCount, edgeCount, eulerCharacteristic, boundingBoxMin, boundingBoxMax, isWatertight. 3. /mesh/load-graph accepts a node graph JSON body, evaluates it, and replaces the current mesh in the viewer. 4. /mesh/validate runs geometry checks (vertex count > 0, face count > 0, not degenerate/collapsed to origin, normals computed) and returns pass/fail with details. 5. CLI commands exist: 'mesh-state', 'mesh-load-graph --file <path>', 'mesh-validate', 'mesh-probe' (health + state + validate + screenshot in one). 6. mesh-probe returns a single JSON with all validation results. 7. Validation commands are documented in context.md.",
+    "testing-plan": "1. Launch mesh-viewer scene, run 'mesh-state', verify vertex/face counts for the default cube. 2. Create a simple 2-node graph JSON (MeshCube -> output), run 'mesh-load-graph --file test.json', verify mesh changes in viewport and mesh-state reports new counts. 3. Run 'mesh-validate' on a valid mesh, verify all checks pass. 4. Load a degenerate mesh (all vertices at origin), run 'mesh-validate', verify failure reported. 5. Run 'mesh-probe', verify combined JSON output. 6. Run 'shutdown', verify clean exit.",
+    "todos": [
+        "Add /mesh/state endpoint to AutomationApiServer returning mesh geometry stats",
+        "Add /mesh/load-graph endpoint accepting JSON node graph, evaluating it, updating viewer mesh",
+        "Add /mesh/validate endpoint running geometry checks (non-empty, not degenerate, normals exist, optionally watertight)",
+        "Extend AutomationRuntime.uiState() with mesh section when MeshNodeViewerScene is active",
+        "Create tools/ixdar-automation-cli/mesh_validation.py with validation logic",
+        "Add 'mesh-state' CLI command to ixdar_cli.py",
+        "Add 'mesh-load-graph' CLI command with --file argument",
+        "Add 'mesh-validate' CLI command returning pass/fail + details",
+        "Add 'mesh-probe' CLI command (health + mesh-state + validate + screenshot in one call)",
+        "Create a sample node graph JSON for testing",
+        "Update context.md validation section with the new commands"
+    ],
+    "unknowns": [
+        "Whether /mesh/load-graph should accept inline JSON or only file paths",
+        "Whether mesh-validate should include watertight check by default or as an opt-in flag",
+        "Whether to add a 'mesh-list-nodes' command that lists all registered MeshNode types from the registry"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java",
+        "tools/ixdar-automation-cli/ixdar_cli.py",
+        "tools/ixdar-automation-cli/automation_client.py"
+    ],
+    "priority": 1
+}

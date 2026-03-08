@@ -1,0 +1,33 @@
+{
+    "id": "MESH-21",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve Query and Info Nodes",
+    "description": "Implement 9 curve query nodes that read data from curves without modifying them. CurveLength: total arc length. CurveEndpointSelection: boolean selection of start/end points. CurveOfPoint: which curve a point belongs to. InputCurveHandlePositions: read handle positions. InputCurveTilt: read per-point tilt. InputTangent: read tangent at each point. SplineLength: length per spline. SplineParameter: normalized 0-1 parameter per spline. SampleCurve: evaluate position/tangent/normal at arbitrary parameter.",
+    "blocked-by": [
+        "MESH-18"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Nine node classes in nodes/input/curves/. 2. CurveLength outputs correct arc length. 3. SampleCurve evaluates position, tangent, and normal at the given parameter. 4. SplineParameter outputs 0.0 at start, 1.0 at end for each point. 5. InputTangent returns correct tangent direction at each control point.",
+    "testing-plan": "1. CurveLength on a unit circle: verify length is ~2*PI. 2. SampleCurve on a line at t=0.5: verify midpoint position. 3. SplineParameter on a 5-point polyline: verify 0.0, 0.25, 0.5, 0.75, 1.0. 4. CurveEndpointSelection on a 5-point open curve: verify only indices 0 and 4 are selected.",
+    "todos": [
+        "Create nodes/input/curves/ package",
+        "Implement CurveLengthNode",
+        "Implement CurveEndpointSelectionNode",
+        "Implement CurveOfPointNode",
+        "Implement InputCurveHandlePositionsNode",
+        "Implement InputCurveTiltNode",
+        "Implement InputTangentNode",
+        "Implement SplineLengthNode",
+        "Implement SplineParameterNode",
+        "Implement SampleCurveNode"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

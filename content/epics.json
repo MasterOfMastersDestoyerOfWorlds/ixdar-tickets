@@ -79,6 +79,12 @@
             "description": "Privateers, tribute, hiring pirates"
         },
         {
+            "prefix": "MESH",
+            "name": "Mesh Nodes & Geometry Processing",
+            "priority": 5,
+            "description": "Blender-style geometry nodes system, half-edge mesh, node graph evaluation, procedural modeling workbench"
+        },
+        {
             "prefix": "BLEN",
             "name": "Blender Procedural Human",
             "priority": 4,

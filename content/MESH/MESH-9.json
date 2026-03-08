@@ -1,0 +1,34 @@
+{
+    "id": "MESH-9",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Transform and Join Operation Nodes",
+    "description": "Implement 6 geometry operation nodes for spatial transformation and combining meshes. These are the most frequently used operations in any node graph. Nodes: Transform (translate/rotate/scale a mesh), SetPosition (set vertex positions from a vector field), JoinGeometry (merge multiple meshes into one), SeparateComponents (split mesh into connected components), SeparateGeometry (split mesh by selection mask), BoundBox (compute axis-aligned bounding box, output min/max/center vectors).",
+    "blocked-by": [
+        "MESH-1",
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Six node classes in nodes/operations/. 2. Transform applies translation, rotation (quaternion), and scale to all vertices. 3. JoinGeometry merges vertex/face arrays from multiple MESH inputs into one HalfEdgeMesh. 4. SeparateComponents uses flood-fill to identify connected components and outputs them as separate meshes. 5. SeparateGeometry splits by a boolean selection input. 6. BoundBox outputs min, max, and center as VECTOR3. 7. SetPosition replaces vertex positions from a VECTOR3 input per vertex.",
+    "testing-plan": "1. Transform a cube by (1,2,3) translation, verify all vertices shifted. 2. JoinGeometry on two cubes, verify vertex count is sum. 3. SeparateComponents on two disjoint cubes joined together, verify two output meshes. 4. BoundBox on unit cube centered at origin, verify min=(-0.5,-0.5,-0.5), max=(0.5,0.5,0.5). 5. SetPosition: set all vertices to (0,0,0), verify collapsed mesh.",
+    "todos": [
+        "Create nodes/operations/ package",
+        "Implement TransformNode with translate/rotate/scale inputs",
+        "Implement SetPositionNode",
+        "Implement JoinGeometryNode accepting a list of MESH inputs",
+        "Implement SeparateComponentsNode using flood-fill adjacency traversal",
+        "Implement SeparateGeometryNode with boolean selection mask",
+        "Implement BoundBoxNode computing AABB"
+    ],
+    "unknowns": [
+        "Whether JoinGeometry should merge coincident vertices or keep them separate",
+        "Whether SeparateComponents should output a list or use indexed outputs"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

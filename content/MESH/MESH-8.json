@@ -1,0 +1,33 @@
+{
+    "id": "MESH-8",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Vector and Rotation Function Nodes",
+    "description": "Implement 6 vector and rotation utility nodes for spatial math operations. These are essential for procedural modeling -- positioning parts, aligning bones, rotating elements. Nodes: AlignRotationToVector (create rotation that aligns one axis to a target vector), AxesToRotation (construct rotation from two orthogonal axes), InvertRotation, RotateRotation (compose two rotations), RotateVector (apply rotation to vector), SeparateColor (split color into R/G/B/A channels).",
+    "blocked-by": [
+        "MESH-2"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Six node classes exist in nodes/math/. 2. Each implements MeshNode with correct port types (ROTATION, VECTOR3, FLOAT). 3. Rotation nodes use JOML Quaternionf internally. 4. AlignRotationToVector handles degenerate cases (parallel/anti-parallel vectors). 5. RotateVector correctly applies quaternion rotation. 6. SeparateColor outputs four FLOAT channels from a VECTOR3+FLOAT input.",
+    "testing-plan": "1. AlignRotationToVector: align Z to (0,1,0), verify resulting rotation. 2. AxesToRotation: provide X and Y axes, verify Z is the cross product. 3. InvertRotation: rotate then invert-rotate a vector, verify identity. 4. RotateRotation: compose 90-degree X rotation with 90-degree Y, verify result. 5. RotateVector: rotate (1,0,0) by 90 degrees around Y, verify (0,0,-1). 6. SeparateColor: input (0.5, 0.8, 0.2), verify channels.",
+    "todos": [
+        "Implement AlignRotationToVectorNode",
+        "Implement AxesToRotationNode",
+        "Implement InvertRotationNode",
+        "Implement RotateRotationNode",
+        "Implement RotateVectorNode",
+        "Implement SeparateColorNode"
+    ],
+    "unknowns": [
+        "Whether ROTATION port type should be a Quaternionf or Euler angles -- Quaternionf avoids gimbal lock"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNode.java"
+    ],
+    "priority": 2
+}

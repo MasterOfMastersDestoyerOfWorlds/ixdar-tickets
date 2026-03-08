@@ -1,0 +1,35 @@
+{
+    "id": "MESH-13",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Control Flow Nodes (Switch, IndexSwitch, RepeatInput/Output, GroupInput/Output)",
+    "description": "Implement 6 control flow nodes that enable conditional and iterative behavior in node graphs. Switch: select between two inputs based on a boolean. IndexSwitch: select from N inputs based on an integer index. RepeatInput/RepeatOutput: loop a subgraph N times, passing output of iteration i as input to iteration i+1. NodeGroupInput/NodeGroupOutput: define the interface of a node group (exposed parameters in, results out). These depend on the evaluation engine since they affect graph traversal order.",
+    "blocked-by": [
+        "MESH-3"
+    ],
+    "blocks": [
+        "MESH-28"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Six node classes in nodes/control/. 2. Switch correctly passes through input A or B based on boolean. 3. IndexSwitch handles N inputs with out-of-range clamping. 4. RepeatInput/Output loops the enclosed subgraph N times with state forwarding. 5. GroupInput/GroupOutput define exposed parameters and results for node groups. 6. The evaluation engine correctly handles these nodes' special traversal requirements.",
+    "testing-plan": "1. Switch: wire two cubes, toggle boolean, verify correct mesh passes through. 2. IndexSwitch: wire 3 meshes, set index to each, verify. 3. Repeat: subdivide a cube 3 times via repeat, verify face count = 12 * 4^3. 4. GroupInput/Output: create a 'scale cube' group with size parameter, invoke with different sizes.",
+    "todos": [
+        "Create nodes/control/ package",
+        "Implement SwitchNode with boolean condition and two generic inputs",
+        "Implement IndexSwitchNode with integer index and N inputs",
+        "Implement RepeatInputNode and RepeatOutputNode as a loop pair",
+        "Integrate repeat loop execution into NodeGraph evaluator",
+        "Implement GroupInputNode and GroupOutputNode for node group interfaces",
+        "Add special-case handling in the evaluation engine for control flow nodes"
+    ],
+    "unknowns": [
+        "Whether Repeat should have a maximum iteration cap to prevent infinite loops",
+        "How GroupInput/Output integrate with the node group system (MESH-14) -- may need co-development"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

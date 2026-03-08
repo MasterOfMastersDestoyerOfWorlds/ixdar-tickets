@@ -1,0 +1,39 @@
+{
+    "id": "MESH-31",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Dockerized Build Environment for Parallel Agent Development",
+    "description": "Create a Docker-based development environment that allows multiple AI agents to develop mesh nodes in parallel, each in their own isolated container. Each container must be able to: (1) compile the Java codebase, (2) run the mesh viewer scene with headless OpenGL rendering (Mesa llvmpipe or Xvfb), (3) expose the automation API on a unique port, (4) execute CLI validation commands against its own instance. This enables N agents working on N different node tickets simultaneously without port collisions, shared state, or build interference. Modeled after standard CI/CD container patterns but optimized for iterative agent development rather than one-shot builds.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Dockerfile at docker/Dockerfile builds the full Ixdar codebase with Java 21, Maven, LWJGL. 2. Container can run the mesh-viewer scene headlessly with software rendering (Mesa llvmpipe or Xvfb + LWJGL). 3. docker-compose.yml defines a template service that can be scaled to N instances. 4. Each container gets a unique automation API port (e.g., 47832 + container_index) via environment variable. 5. The automation CLI can target a specific container via --base-url. 6. A helper script (docker/agent-env.sh) starts a container, runs compilation, launches the scene, and outputs the base URL. 7. Containers can be torn down cleanly. 8. README.md in docker/ documents usage for agents.",
+    "testing-plan": "1. Build the Docker image: 'docker build -t ixdar-dev docker/'. 2. Start two containers on different ports. 3. Run 'mvn -DskipTests compile' inside each, verify success. 4. Launch mesh-viewer in each with different automation ports. 5. Run 'ixdar_cli.py --base-url http://localhost:PORT health' against each, verify both respond. 6. Run 'ixdar_cli.py --base-url http://localhost:PORT screenshot' against each, verify both produce screenshots. 7. Tear down containers, verify clean shutdown.",
+    "todos": [
+        "Create docker/ directory at repo root",
+        "Write Dockerfile: Java 21 base, Maven, LWJGL native libs, Mesa for software rendering",
+        "Configure Xvfb or Mesa llvmpipe for headless OpenGL in container",
+        "Write docker-compose.yml with scalable service definition and port mapping",
+        "Parameterize automation API port via -Dixdar.automation.port environment variable",
+        "Write docker/agent-env.sh helper script: build, launch scene, output base URL",
+        "Write docker/teardown.sh for clean container shutdown",
+        "Write docker/README.md with agent usage instructions",
+        "Test that LWJGL loads and MeshShader compiles inside the container",
+        "Test that screenshots work with software rendering"
+    ],
+    "unknowns": [
+        "Whether LWJGL works with Mesa llvmpipe out of the box or requires specific LWJGL configuration flags",
+        "Whether to use Xvfb (virtual X server) or EGL offscreen rendering for headless GL",
+        "Whether to prebuild the Maven dependencies in the Docker image or mount the local .m2 cache",
+        "Whether agents need git inside the container or should mount the workspace read-write"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/pom.xml",
+        ".vscode/launch.json"
+    ],
+    "priority": 1
+}

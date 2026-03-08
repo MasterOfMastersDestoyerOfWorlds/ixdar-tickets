@@ -1,0 +1,39 @@
+{
+    "id": "MESH-16",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Parameter Panel UI (Sliders, Numbers, Toggles for Exposed Node Parameters)",
+    "description": "Create a parameter panel that displays the exposed parameters of the currently selected node group and allows the user to modify them with appropriate widgets. Float parameters get sliders with min/max range. Integer parameters get stepper controls. Boolean parameters get toggle switches. Vector3 parameters get three linked number inputs (X/Y/Z). When a parameter changes, the node graph is re-evaluated and the viewport updates live. This panel sits on the right side of the MeshNodeViewerScene. This is the 'Spore editor' parameter tweaking interface.",
+    "blocked-by": [
+        "MESH-5",
+        "MESH-14"
+    ],
+    "blocks": [
+        "MESH-17"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. ParameterPanel class exists in ixdar-app/src/main/java/ixdar/gui/ui/. 2. Renders a vertical list of parameter widgets based on a node group's exposed parameters. 3. FloatSlider widget: draggable slider with min/max/current value display. 4. IntStepper widget: increment/decrement buttons with current value. 5. BoolToggle widget: clickable toggle with on/off visual state. 6. Vec3Input widget: three FloatSliders for X/Y/Z. 7. Changing any widget triggers a callback that re-evaluates the node graph. 8. Panel scrolls if parameters exceed visible area.",
+    "testing-plan": "1. Create a node group with float, int, boolean, and vector3 parameters. 2. Display in ParameterPanel, verify all widget types render. 3. Drag a float slider, verify the value updates and the mesh re-renders. 4. Click a boolean toggle, verify it flips and triggers re-evaluation. 5. Step an integer, verify the value changes by 1. 6. Verify scroll works with 10+ parameters.",
+    "todos": [
+        "Create ParameterPanel container class with layout logic",
+        "Implement FloatSlider widget with drag interaction and value display",
+        "Implement IntStepper widget with +/- buttons",
+        "Implement BoolToggle widget with click interaction",
+        "Implement Vec3Input widget composing three FloatSliders",
+        "Wire parameter change callbacks to node graph re-evaluation",
+        "Add scroll support for the parameter list",
+        "Integrate into MeshNodeViewerScene right-side panel area"
+    ],
+    "unknowns": [
+        "Whether to support undo/redo for parameter changes",
+        "Whether to display parameter names from the node definition or allow custom display names"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/ui/menu/MenuBox.java"
+    ],
+    "priority": 3
+}
