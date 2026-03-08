@@ -12,32 +12,39 @@
         "MESH-5"
     ],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. HalfEdgeMeshRuntime class exists in ixdar-app/src/main/java/ixdar/graphics/render/model/. 2. upload(HalfEdgeMesh mesh) extracts interleaved vertex data (pos+normal+uv) and indices, uploads to a single VAO/VBO/EBO. 3. render(Camera3D camera) draws the mesh with correct lighting via MeshShader. 4. reupload(HalfEdgeMesh mesh) updates GPU buffers when the mesh changes without creating new VAO/VBO. 5. dispose() cleans up GPU resources. 6. frameCamera(Camera3D camera) positions the camera to frame the mesh's bounding box. 7. No ByteBuffer.allocateDirect calls in render() or reupload() paths. 8. MeshNodeViewerScene updated to use HalfEdgeMeshRuntime instead of the hardcoded cube. 9. Automation CLI 'mesh-state' returns correct stats from the HalfEdgeMesh. 10. Validated via screenshot showing a mesh rendered through this runtime.",
     "testing-plan": "1. Create a HalfEdgeMesh cube, upload via HalfEdgeMeshRuntime, launch mesh-viewer scene, verify cube appears identically to MESH-5's hardcoded cube. 2. Create an icosphere HalfEdgeMesh, upload, verify it renders correctly. 3. Change the mesh (e.g., subdivide), call reupload, verify the viewport updates. 4. Run 'ixdar_cli.py mesh-state', verify vertex/face counts match the HalfEdgeMesh. 5. Profile render() to confirm no per-frame allocations. 6. Call dispose(), verify no GL resource leaks.",
     "todos": [
-        "Create HalfEdgeMeshRuntime class with MeshShader, cached VAO/VBO/EBO, cached projection Matrix4f",
-        "Implement upload(HalfEdgeMesh): extract interleaved float[] and int[] indices, upload to GPU",
-        "Implement render(Camera3D): set uniforms, bind VAO, drawElements",
-        "Implement reupload(HalfEdgeMesh): clear and re-upload buffer data without reallocating VAO",
-        "Implement frameCamera(Camera3D): compute mesh bounding box, position camera at 2.5x radius",
-        "Implement dispose(): delete EBO, VBO, VAO",
-        "Cache reusable IxBuffer/ByteBuffer fields for uniform uploads",
-        "Replace MeshNodeViewerScene's hardcoded cube with HalfEdgeMeshRuntime",
-        "Update scene mesh stats to pull from HalfEdgeMesh",
-        "Validate via automation CLI: mesh-state, screenshot"
+        "DONE : Create HalfEdgeMeshRuntime class with MeshShader, cached VAO/VBO/EBO, cached projection Matrix4f",
+        "DONE : Implement upload(HalfEdgeMesh): extract interleaved vertex data and indices, upload to a single VAO/VBO/EBO",
+        "DONE : Implement render(Camera3D): set uniforms, bind VAO, drawElements",
+        "DONE : Implement reupload(HalfEdgeMesh): re-upload buffer data without reallocating VAO/VBO/EBO",
+        "DONE : Implement frameCamera(Camera3D): compute mesh bounds and position camera from compiled mesh radius",
+        "DONE : Implement dispose(): delete EBO, VBO, VAO",
+        "DONE : Keep render/reupload free of ByteBuffer.allocateDirect usage and reuse the EBO IntBuffer across uploads",
+        "DONE : Replace MeshNodeViewerScene's hardcoded cube with HalfEdgeMeshRuntime",
+        "DONE : Update scene mesh stats to pull from HalfEdgeMesh",
+        "DONE : Validate via automation CLI: health, mesh-state, screenshot"
     ],
     "unknowns": [
         "Whether to support wireframe rendering mode in addition to solid shading",
         "Whether to compute UVs automatically (e.g., spherical projection) or leave them at 0 when the mesh has none"
     ],
-    "changes-made": [],
+    "changes-made": [
+        "Added HalfEdgeMeshRuntime to compile, upload, reupload, frame, render, and dispose a single HalfEdgeMesh through MeshShader.",
+        "Replaced MeshNodeViewerScene's inline hardcoded cube VAO/VBO/EBO setup with a HalfEdgeMesh plus HalfEdgeMeshRuntime consumer boundary.",
+        "Added headless Java tests for HalfEdgeMeshRuntime and MeshNodeViewerScene lifecycle alongside the packed mesh tests.",
+        "Added automation CLI mesh-state command and verified health, mesh-state, and screenshot against a live mesh-viewer run."
+    ],
     "related-files": [
-        "ixdar-app/src/main/java/ixdar/graphics/render/model/IcosphereRuntime.java",
-        "ixdar-app/src/main/java/ixdar/graphics/render/model/AssimpModelRuntime.java",
-        "ixdar-app/src/main/java/ixdar/graphics/render/model/ModelRuntime.java",
-        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/MeshShader.java",
-        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java"
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeCompiledMeshData.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java",
+        "ixdar-app/test/unit/model/HalfEdgeMeshRuntimeTest.java",
+        "ixdar-app/test/unit/model/MeshNodeViewerSceneLifecycleTest.java",
+        "ixdar_automation_cli/cli_commands/flat_commands.py",
+        "ixdar_automation_cli/test_cli.py"
     ],
     "priority": 1
 }

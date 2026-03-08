@@ -23,32 +23,37 @@
         "MESH-26",
         "MESH-27"
     ],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. HalfEdgeMesh, HalfEdge, Vertex, Edge, MeshFace classes exist in ixdar-app/src/main/java/ixdar/geometry/mesh/. 2. Adjacency queries work in O(1): vertex->outgoing half-edges, half-edge->twin/next/prev/face/vertex, face->half-edges, edge->half-edges. 3. Can build a cube and icosphere from raw vertex/face data and traverse all adjacency. 4. Supports add/remove vertex, edge, face operations. 5. Computes per-face and per-vertex normals. 6. Boundary edges are detectable. 7. No per-frame allocations in traversal methods.",
     "testing-plan": "1. Unit test: build a cube (8 verts, 12 tris), verify adjacency counts. 2. Unit test: build an icosphere, verify Euler characteristic V-E+F=2. 3. Unit test: delete a face, verify adjacency updates. 4. Unit test: boundary detection on a plane (open mesh). 5. Unit test: normal computation matches expected directions. 6. Stress test: build a 100k-face subdivided sphere, verify no OOM and traversal completes in <100ms.",
     "todos": [
-        "Define HalfEdge class with twin, next, prev, vertex, face references",
-        "Define Vertex class with position, normal, one outgoing half-edge reference",
-        "Define Edge class wrapping a half-edge pair",
-        "Define MeshFace class with one half-edge reference and normal",
-        "Define HalfEdgeMesh container with indexed storage and factory methods",
-        "Implement addVertex, addFace, addEdge operations that maintain invariants",
-        "Implement adjacency iterators: vertexFaces, vertexEdges, faceVertices, faceEdges",
-        "Implement removeFace with adjacency cleanup",
-        "Implement computeNormals (per-face and per-vertex via area-weighted average)",
-        "Implement boundary edge detection",
-        "Implement buildFromIndexedMesh(float[] positions, int[] faceIndices) factory",
-        "Write unit tests for all of the above"
+        "DONE : Replace the object-reference prototype with a packed, index-based HalfEdgeMesh plus storage-neutral MeshTopology API",
+        "DONE : Implement addVertex, addFace, addEdge operations that maintain invariants",
+        "DONE : Implement adjacency traversal APIs for vertices, faces, edges, and half-edges",
+        "DONE : Implement removeFace with adjacency cleanup",
+        "DONE : Implement computeNormals (per-face and per-vertex via area-weighted average)",
+        "DONE : Implement boundary edge detection",
+        "DONE : Implement buildFromIndexedMesh(float[] positions, int[] faceIndices) factory",
+        "DONE : Add unit tests for topology, normals, boundary handling, compiled surface export, and large procedural grid builds",
+        "Decide whether split/merge editing primitives belong in MESH-1 proper or should land with later mesh operation/node tickets"
     ],
     "unknowns": [
-        "Whether to use array-based (index) references or object references for half-edge pointers -- array-based is more cache-friendly for large meshes but harder to code",
-        "Whether to support non-manifold geometry (edges shared by 3+ faces) or reject it at construction time"
+        "Whether explicit split/merge topology editing primitives should be implemented in MESH-1 or deferred to later mesh operation tickets",
+        "How much of the compiled surface export should move into MESH-4 versus stay as a reusable CPU-side DTO boundary in geometry/render"
     ],
-    "changes-made": [],
+    "changes-made": [
+        "Added packed, index-based HalfEdgeMesh storage with paired boundary half-edge invariants and stable IDs.",
+        "Added MeshTopology as the storage-neutral public traversal API and moved mutation/validation work into HalfEdgeMeshEngine.",
+        "Added HalfEdgeCompiledMeshData as a compiled surface boundary for later runtime integration.",
+        "Replaced the old object-reference mesh tests with ID-based coverage for cube adjacency, Euler characteristic, boundary detection, face deletion, non-manifold rejection, compiled export, and a 100k-face-class procedural grid."
+    ],
     "related-files": [
-        "ixdar-app/src/main/java/ixdar/geometry/mesh/Face.java",
-        "ixdar-app/src/main/java/ixdar/geometry/mesh/FaceState.java",
-        "ixdar-app/src/main/java/ixdar/geometry/mesh/Icosphere.java"
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/HalfEdgeMesh.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/HalfEdgeMeshEngine.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/MeshTopology.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/IntIdList.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeCompiledMeshData.java",
+        "ixdar-app/test/unit/mesh/HalfEdgeMeshTest.java"
     ],
     "priority": 1
 }
