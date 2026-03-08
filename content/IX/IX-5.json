@@ -1,0 +1,40 @@
+{
+    "id": "IX-5",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "platform"
+    ],
+    "title": "Refactor AutomationRuntime Scene State Export via Reflection",
+    "description": "Refactor AutomationRuntime so scene-specific debug/state export does not require hardcoded per-scene branches in uiState(). Explore a reflection-driven approach that inspects scene getters and public fields to build scene-specific state payloads automatically. This ticket is for the refactor design and implementation work itself, not for immediate changes during MESH-5 follow-up.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. AutomationRuntime no longer requires hand-maintained scene-specific branches for every new scene debug payload. 2. Scene state export uses a reflection-based mechanism or similarly generic system to discover eligible getters and public fields. 3. The generated scene-specific payload is machine-readable and stable enough for CLI consumption. 4. There is a clear rule for what members are included or excluded from export. 5. Existing scene automation payloads continue to work without regression or have a compatibility transition path. 6. The new export mechanism is documented for future scene authors.",
+    "testing-plan": "1. Run ui-state against existing scenes that currently expose scene-specific payloads and compare the resulting JSON shape before and after the refactor. 2. Verify that newly added eligible getters/fields on a scene are surfaced automatically without additional AutomationRuntime branching. 3. Confirm that ineligible or unsafe fields are excluded from export. 4. Validate that existing CLI consumers still function or are updated with a clear migration path. 5. Exercise the export mechanism on at least one 2D scene and one 3D scene.",
+    "todos": [
+        "Define which getters and public fields are eligible for reflection-based export",
+        "Design the JSON shape for generic scene-specific state payloads",
+        "Refactor AutomationRuntime.uiState() to delegate scene export instead of branching per scene",
+        "Add exclusion rules for unsafe, noisy, or non-serializable members",
+        "Verify compatibility with existing scene payload consumers",
+        "Document how scene authors expose automation-visible state under the new approach"
+    ],
+    "unknowns": [
+        "Whether a pure reflection approach is sufficient or whether scenes need annotations to opt in specific members",
+        "How to keep exported field names stable when Java method names evolve",
+        "How to prevent accidental export of large, cyclic, or internal-only objects",
+        "Whether scene payloads should live under a generic sceneState key or keep feature-specific top-level keys for compatibility"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/IrregularGridScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/trade/TradeScene.java",
+        "tools/ixdar-automation-cli/ixdar_cli.py"
+    ],
+    "priority": 5
+}

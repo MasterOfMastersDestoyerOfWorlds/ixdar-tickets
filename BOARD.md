@@ -90,13 +90,12 @@
 
 ## Mesh Nodes & Geometry Processing (31 tickets, priority 5)
 
-### Todo (31)
+### Todo (30)
 
 - [MESH-1](content/MESH/MESH-1.json) **MESH-1** Half-Edge Mesh Data Structure -- Implement a half-edge mesh data structure as the core geometry representation for the mesh nodes...
 - [MESH-2](content/MESH/MESH-2.json) **MESH-2** MeshNode Interface Redesign with Typed Ports -- Redesign the MeshNode interface from its current TerminalOption-style shape...
 - [MESH-3](content/MESH/MESH-3.json) **MESH-3** Node Graph Evaluation Engine -- Build the evaluation engine that takes a directed acyclic graph of MeshNode instances,...
 - [MESH-4](content/MESH/MESH-4.json) **MESH-4** Generalized Mesh Runtime for HalfEdgeMesh -- Create a generalized GPU renderer that takes a HalfEdgeMesh and renders it using the existing...
-- [MESH-5](content/MESH/MESH-5.json) **MESH-5** MeshNodeViewerScene with Orbit Camera and Automation Endpoints -- Create the foundational viewer scene that all subsequent mesh node work validates against. This is...
 - [MESH-30](content/MESH/MESH-30.json) **MESH-30** Mesh Node Automation CLI and Validation Pipeline -- Extend the automation CLI and API server with mesh-specific commands for validating node...
 - [MESH-31](content/MESH/MESH-31.json) **MESH-31** Dockerized Build Environment for Parallel Agent Development -- Create a Docker-based development environment that allows multiple AI agents to develop mesh nodes...
 - [MESH-6](content/MESH/MESH-6.json) **MESH-6** Mesh Primitive Nodes (Cube, Cone, Cylinder, Grid, IcoSphere, UVSphere, Line) -- Implement the 7 mesh primitive generator nodes. Each node takes numeric parameters (size, radius,...
@@ -123,6 +122,12 @@
 - [MESH-27](content/MESH/MESH-27.json) **MESH-27** SDF Grid Nodes -- Implement 4 signed distance field (SDF) grid nodes for volumetric operations. MeshToSDFGrid:...
 - [MESH-28](content/MESH/MESH-28.json) **MESH-28** Advanced Control Flow Nodes (ForEach, Closures, MenuSwitch) -- Implement 5 advanced control flow nodes. ForeachGeometryElementInput/Output: iterate over each...
 - [MESH-29](content/MESH/MESH-29.json) **MESH-29** Utility and Remaining Nodes (Viewer, Warning, Reroute, SetMaterial, Image) -- Implement the remaining utility and infrastructure nodes. Viewer: marks a point in the graph for...
+
+<details><summary>Done (1)</summary>
+
+- ~~[MESH-5](content/MESH/MESH-5.json) **MESH-5** MeshNodeViewerScene with Orbit Camera and Automation Endpoints~~
+
+</details>
 
 ---
 
@@ -267,10 +272,18 @@
 
 ---
 
-## Project Setup (1 tickets, priority 99)
+## Project Setup (4 tickets, priority 99)
 
-### Todo (1)
+### Todo (3)
 
 - [IX-2](content/IX/IX-2.json) **IX-2** Enforce Shader/Scene Validation via Cursor Hooks -- Add Cursor hooks that enforce screenshot validation whenever shader files (.fs, .vs, .glsl) or...
+- [IX-4](content/IX/IX-4.json) **IX-4** Add Drag-Based Input Validation for Orbit and Pan Behaviors -- Extend the automation stack so camera orbit and pan interactions can be validated intentionally...
+- [IX-5](content/IX/IX-5.json) **IX-5** Refactor AutomationRuntime Scene State Export via Reflection -- Refactor AutomationRuntime so scene-specific debug/state export does not require hardcoded...
+
+<details><summary>Done (1)</summary>
+
+- ~~[IX-3](content/IX/IX-3.json) **IX-3** Improve Ixdar CLI Ergonomics for Scene Validation~~
+
+</details>
 
 ---

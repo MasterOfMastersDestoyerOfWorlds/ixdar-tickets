@@ -1,0 +1,41 @@
+{
+    "id": "IX-4",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "platform",
+        "ui"
+    ],
+    "title": "Add Drag-Based Input Validation for Orbit and Pan Behaviors",
+    "description": "Extend the automation stack so camera orbit and pan interactions can be validated intentionally instead of inferred indirectly from screenshots and scroll events. This ticket is specifically about drag-capable input primitives and the unknowns around how to validate viewport interactions like orbit and pan. Keep it separate from general CLI ergonomics work so input validation design can evolve on its own.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The automation API and CLI support a drag-oriented input primitive suitable for viewport interaction testing. 2. Orbit and pan behaviors can be exercised through automation without requiring manual mouse use. 3. A validation approach is documented for asserting camera motion resulting from drag input. 4. The design accounts for both raw pointer movement and higher-level gesture semantics where appropriate. 5. At least one viewport interaction test is demonstrated against an existing scene. 6. Unknowns and trade-offs for future input validation are documented clearly in the ticket or related docs.",
+    "testing-plan": "1. Launch a scene with camera interaction and issue a drag command through automation. 2. Verify the target scene receives the drag input and camera state or rendered output changes as expected. 3. Exercise both positive and negative cases, such as drag below the gesture threshold and drag above it. 4. Confirm that scroll/click behavior remains unchanged after adding drag support. 5. Document how orbit/pan validation should be interpreted when only visual evidence is available.",
+    "todos": [
+        "Design an automation drag primitive that can represent press-move-release gestures",
+        "Decide whether validation should rely on camera telemetry, scene-specific state, screenshot deltas, or a combination",
+        "Expose the drag capability through the CLI in an agent-friendly form",
+        "Test orbit behavior on a 3D scene",
+        "Test pan behavior on a scene that supports camera panning",
+        "Document remaining unknowns around viewport input validation"
+    ],
+    "unknowns": [
+        "Whether drag should be modeled as a single high-level command or as reusable low-level mouse press/move/release building blocks",
+        "Whether camera telemetry needs to be exposed explicitly to validate orbit and pan robustly",
+        "How to avoid flaky assertions when validating camera motion through screenshots alone",
+        "How to represent drag duration and interpolation so behavior is deterministic across scenes"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/ixdar-automation-cli/ixdar_cli.py",
+        "tools/ixdar-automation-cli/automation_client.py",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/OrbitMouseTrap.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java"
+    ],
+    "priority": 4
+}

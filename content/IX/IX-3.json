@@ -1,0 +1,37 @@
+{
+    "id": "IX-3",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Improve Ixdar CLI Ergonomics for Scene Validation",
+    "description": "Improve the automation CLI so scene and rendering validation flows are easier to run without hand-assembling multiple low-level commands. The goal is to make common agent workflows like launch-wait-probe-screenshot-shutdown and scene state inspection simpler, more discoverable, and less error-prone.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The CLI exposes higher-level helpers for common validation workflows without requiring users to manually compose multiple raw commands. 2. Scene state inspection has a simpler interface than dumping the full generic ui-state payload when only scene-specific data is needed. 3. Screenshot-oriented validation helpers are easier to run from the CLI and documented in help output. 4. Command names and arguments remain backward compatible or provide clear compatibility aliases. 5. README or command help documents the intended validation flow for standalone scenes. 6. The resulting commands are exercised against an existing standalone scene and verified to return stable JSON.",
+    "testing-plan": "1. Run the updated CLI help and verify new validation-oriented commands are discoverable. 2. Validate an existing standalone scene using the new helpers instead of manually chaining health/ui-state/screenshot/shutdown. 3. Confirm legacy commands still function or emit clear migration guidance. 4. Verify JSON output remains machine-readable for agent use. 5. Run at least one end-to-end scene validation flow using only the improved CLI surface.",
+    "todos": [
+        "DONE : Design a higher-level command surface for common scene validation workflows",
+        "DONE : Add focused scene-state helpers so callers do not always need the full ui-state payload",
+        "DONE : Add or refine screenshot validation helpers for agent-friendly use",
+        "DONE : Preserve backward compatibility for existing low-level commands where practical",
+        "DONE : Document the preferred workflow in CLI help text or README",
+        "DONE : Validate the updated command surface against an existing standalone scene"
+    ],
+    "unknowns": [
+        "Whether the best UX is a single combined probe command or several smaller task-oriented helpers",
+        "How much of the current ui-state payload should remain exposed directly versus routed through scene-specific commands",
+        "Whether screenshot comparison helpers belong in the core CLI or in scene-specific validation scripts"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "tools/ixdar-automation-cli/ixdar_cli.py",
+        "tools/ixdar-automation-cli/automation_client.py",
+        "tools/ixdar-automation-cli/trade_scenarios.py",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java"
+    ],
+    "priority": 3
+}

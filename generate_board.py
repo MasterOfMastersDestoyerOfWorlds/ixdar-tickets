@@ -5,6 +5,7 @@ Usage:
     python ixdar-tickets/generate_board.py backlog REPO_NAME   # print tickets for a repo
     python ixdar-tickets/generate_board.py archive             # move DONE tickets to done/
     python ixdar-tickets/generate_board.py next-id EPIC        # print next ticket ID for epic
+    python ixdar-tickets/generate_board.py mark done TICKET_ID # mark a ticket DONE and regenerate BOARD.md
 """
 
 import argparse
@@ -306,7 +307,7 @@ def print_next_id(epic: str) -> None:
     print(next_id)
 
 
-def main() -> None:
+def _write_board() -> tuple[int, int, int]:
     epic_names, epic_priorities = load_epics()
     tickets = load_tickets()
     grouped = group_by_epic(tickets)
@@ -325,6 +326,59 @@ def main() -> None:
         len(g.get("DONE", []))
         for g in grouped.values()
     )
+    return total_ip, total_todo, total_done
+
+
+def regenerate_board() -> None:
+    total_ip, total_todo, total_done = _write_board()
+    print(
+        f"Board updated: {total_ip} in-progress, "
+        f"{total_todo} todo, {total_done} done"
+    )
+
+
+def _ticket_path(ticket_id: str) -> Path:
+    normalized_id = ticket_id.strip().upper()
+    prefix = extract_prefix(normalized_id)
+    number = extract_number(normalized_id)
+    if not prefix or number <= 0:
+        raise ValueError(f"Invalid ticket ID '{ticket_id}'. Expected format like IX-3.")
+
+    ticket_path = TICKETS_DIR / prefix / f"{normalized_id}.json"
+    if not ticket_path.exists():
+        raise FileNotFoundError(f"Ticket not found: {normalized_id}")
+    return ticket_path
+
+
+def _normalize_done_todos(todos: list[str]) -> list[str]:
+    normalized = []
+    for todo in todos:
+        text = str(todo).strip()
+        if not text:
+            continue
+        if text.startswith("DONE : "):
+            normalized.append(text)
+            continue
+        if text.startswith("DONE:"):
+            normalized.append(f"DONE : {text[len('DONE:'):].strip()}")
+            continue
+        normalized.append(f"DONE : {text}")
+    return normalized
+
+
+def mark_ticket_done(ticket_id: str) -> None:
+    """Mark a ticket DONE, normalize todo prefixes, and regenerate BOARD.md."""
+    ticket_path = _ticket_path(ticket_id)
+    data = json.loads(ticket_path.read_text(encoding="utf-8"))
+    normalized_id = data.get("id", ticket_id.strip().upper())
+
+    data["status"] = "DONE"
+    if isinstance(data.get("todos"), list):
+        data["todos"] = _normalize_done_todos(data["todos"])
+
+    ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    total_ip, total_todo, total_done = _write_board()
+    print(f"Marked {normalized_id} DONE")
     print(
         f"Board updated: {total_ip} in-progress, "
         f"{total_todo} todo, {total_done} done"
@@ -360,6 +414,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Epic prefix (e.g. BLEN, ENG, TRADE).",
     )
 
+    mark_parser = sub.add_parser(
+        "mark",
+        help="Update ticket lifecycle state.",
+    )
+    mark_sub = mark_parser.add_subparsers(dest="mark_command")
+
+    mark_done_parser = mark_sub.add_parser(
+        "done",
+        help="Mark a ticket DONE and regenerate BOARD.md.",
+    )
+    mark_done_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to mark done (e.g. IX-3).",
+    )
+
     return parser
 
 
@@ -370,11 +439,13 @@ if __name__ == "__main__":
     if args.command == "backlog":
         print_repo_tickets(args.repo)
     elif args.command == "board":
-        main()
+        regenerate_board()
     elif args.command == "archive":
         archive_done()
     elif args.command == "next-id":
         print_next_id(args.epic)
+    elif args.command == "mark" and args.mark_command == "done":
+        mark_ticket_done(args.ticket_id)
     else:
         parser.print_help()
         sys.exit(1)
