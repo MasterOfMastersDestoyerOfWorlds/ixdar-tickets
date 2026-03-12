@@ -23,7 +23,7 @@
         "MESH-26",
         "MESH-27"
     ],
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "definition-of-done": "1. HalfEdgeMesh, HalfEdge, Vertex, Edge, MeshFace classes exist in ixdar-app/src/main/java/ixdar/geometry/mesh/. 2. Adjacency queries work in O(1): vertex->outgoing half-edges, half-edge->twin/next/prev/face/vertex, face->half-edges, edge->half-edges. 3. Can build a cube and icosphere from raw vertex/face data and traverse all adjacency. 4. Supports add/remove vertex, edge, face operations. 5. Computes per-face and per-vertex normals. 6. Boundary edges are detectable. 7. No per-frame allocations in traversal methods.",
     "testing-plan": "1. Unit test: build a cube (8 verts, 12 tris), verify adjacency counts. 2. Unit test: build an icosphere, verify Euler characteristic V-E+F=2. 3. Unit test: delete a face, verify adjacency updates. 4. Unit test: boundary detection on a plane (open mesh). 5. Unit test: normal computation matches expected directions. 6. Stress test: build a 100k-face subdivided sphere, verify no OOM and traversal completes in <100ms.",
     "todos": [
@@ -35,7 +35,7 @@
         "DONE : Implement boundary edge detection",
         "DONE : Implement buildFromIndexedMesh(float[] positions, int[] faceIndices) factory",
         "DONE : Add unit tests for topology, normals, boundary handling, compiled surface export, and large procedural grid builds",
-        "Decide whether split/merge editing primitives belong in MESH-1 proper or should land with later mesh operation/node tickets"
+        "DONE : Defer explicit split/merge editing primitives to later mesh operation/node tickets rather than blocking the packed mesh foundation"
     ],
     "unknowns": [
         "Whether explicit split/merge topology editing primitives should be implemented in MESH-1 or deferred to later mesh operation tickets",

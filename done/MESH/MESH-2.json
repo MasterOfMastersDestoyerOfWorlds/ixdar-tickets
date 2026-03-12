@@ -1,0 +1,65 @@
+{
+    "id": "MESH-2",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MeshNode Interface Redesign with Typed Ports",
+    "description": "Redesign the MeshNode interface from its current TerminalOption-style shape (usage/desc/fullName/options) to a geometry-nodes-style interface with typed input/output ports and an evaluate() method. Define port types (MESH, FLOAT, INT, BOOLEAN, VECTOR3, STRING, ROTATION) and a NodeContext that carries evaluation state. Keep @MeshNodeAnnotation(id=...) for registry discovery. Each node declares its ports statically and implements evaluate(NodeContext) which reads inputs and writes outputs. The interface must be clean enough that an LLM can generate new node implementations from a description.",
+    "blocked-by": [
+        "MESH-1"
+    ],
+    "blocks": [
+        "MESH-3",
+        "MESH-6",
+        "MESH-7",
+        "MESH-8",
+        "MESH-9",
+        "MESH-10",
+        "MESH-11",
+        "MESH-12",
+        "MESH-18",
+        "MESH-23",
+        "MESH-29"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. MeshNode interface in annotations module has: List<InputPort> inputs(), List<OutputPort> outputs(), void evaluate(NodeContext ctx). 2. InputPort and OutputPort classes exist with name, type, default value. 3. PortType enum covers MESH, FLOAT, INT, BOOLEAN, VECTOR3, STRING, ROTATION. 4. NodeContext allows reading typed inputs and writing typed outputs. 5. @MeshNodeAnnotation still works with the annotation processor. 6. At least one example node (preferably a cube primitive node instead of a pass-through placeholder) compiles and evaluates correctly. 7. The old MeshNode methods (usage, desc, etc.) are removed or moved to a separate metadata interface.",
+    "testing-plan": "1. Compile the annotations and app modules with the new interface. 2. Create a cube primitive node with a FLOAT size input and MESH output. 3. Create a NodeContext, set the size input, call evaluate, verify the output mesh counts and bounds. 4. Verify @MeshNodeAnnotation processor still generates the registry map. 5. Verify port type validation rejects wiring MESH output to FLOAT input.",
+    "todos": [
+        "DONE : Define PortType enum in annotations module",
+        "DONE : Define InputPort record/class with name, type, defaultValue",
+        "DONE : Define OutputPort record/class with name, type",
+        "DONE : Define NodeContext interface with getInput(String name, Class<T>), setOutput(String name, Object value)",
+        "DONE : Redesign MeshNode interface with inputs(), outputs(), evaluate(NodeContext)",
+        "DONE : Remove old usage/desc/fullName/shortName/options/argLength/minArgLength methods",
+        "DONE : Verify MeshNodeAnnotation processor still works with the new interface",
+        "DONE : Create a cube primitive example node to validate the contract",
+        "DONE : Keep Icosphere unannotated rather than forcing the geometry helper into the node contract"
+    ],
+    "unknowns": [
+        "Whether to keep node metadata (display name, description, category) in the annotation or in the interface",
+        "Whether NodeContext should support lazy evaluation (pull-based) or eager evaluation (push-based)"
+    ],
+    "changes-made": [
+        "Replaced the old TerminalOption-style MeshNode contract with typed input/output ports and evaluate(NodeContext) in the annotations module.",
+        "Added PortType, InputPort, OutputPort, MeshValue, MapNodeContext, and lightweight VECTOR3/ROTATION value records for cross-module typed node evaluation.",
+        "Added CubeMeshNode as the first real mesh primitive node with a FLOAT size input and MESH output so the mesh stack can reuse the existing cube validation path.",
+        "Added tests covering cube node evaluation, generated registry discovery, and mesh-to-float port validation failure."
+    ],
+    "related-files": [
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNode.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNodeAnnotation.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNodeRegistry.java",
+        "annotations/src/main/java/ixdar/annotations/RegistryProcessor.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/PortType.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/InputPort.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/OutputPort.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/NodeContext.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/MapNodeContext.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshValue.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/primitives/CubeMeshNode.java",
+        "ixdar-app/test/unit/mesh/CubeMeshNodeTest.java"
+    ],
+    "priority": 1
+}

@@ -1,0 +1,45 @@
+{
+    "id": "IX-6",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "platform"
+    ],
+    "title": "Add Mesh Validation Commands to Automation CLI",
+    "description": "Extend the automation API and Python CLI with mesh-focused validation helpers on top of the new mesh viewer/runtime path. The goal is to make procedural mesh work easier to validate without hand-inspecting the full generic ui-state payload or manually chaining health, mesh-state, and screenshot commands. Focus on agent-friendly commands like mesh validation summaries and mesh-specific probe flows that can be reused by later mesh node tickets.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The automation stack exposes mesh-focused validation data beyond the minimal vertex/face counts currently available. 2. The Python CLI has a mesh validation command that returns machine-readable mesh health information and a non-zero exit code on failure. 3. The Python CLI has a mesh-focused probe command that bundles the common health/state/screenshot flow for mesh scenes. 4. Command help stays registry-driven and machine-readable for agent use. 5. At least one automated validation path is exercised against the mesh viewer scene. 6. Existing CLI commands remain backward compatible.",
+    "testing-plan": "1. Run Python CLI unit tests covering the new mesh commands. 2. Run targeted Java tests for any new scene/runtime automation-visible mesh state. 3. Launch mesh-viewer and run health, mesh-state, mesh-validate, and mesh-probe end to end. 4. Confirm mesh-validate exits successfully for the default cube mesh and returns stable JSON. 5. Confirm mesh-probe captures a screenshot and includes mesh-specific summary data.",
+    "todos": [
+        "DONE : Expose richer mesh validation fields through the automation-visible mesh scene state",
+        "DONE : Add a mesh-validate CLI command with clear machine-readable pass/fail semantics",
+        "DONE : Add a mesh-probe CLI command for the common health + mesh-state + screenshot flow",
+        "DONE : Add Python CLI tests for the new mesh commands",
+        "DONE : Add or update Java tests covering the underlying mesh scene/runtime state",
+        "DONE : Validate the new commands against a live mesh-viewer run"
+    ],
+    "unknowns": [
+        "Whether mesh validation should remain derived from ui-state or get its own dedicated automation endpoint later",
+        "How much structural mesh analysis belongs in the CLI versus the Java automation runtime",
+        "Whether future mesh commands should load alternate built-in shapes or graph files directly"
+    ],
+    "changes-made": [
+        "Extended the mesh viewer automation payload with edge count, boundary edge count, degenerate face count, Euler characteristic, closed/open status, radius, and center.",
+        "Added mesh-validate and mesh-probe as registry-driven automation CLI commands on top of the existing mesh-state helper.",
+        "Added Python CLI test coverage for mesh-state, mesh-validate success/failure, and mesh-probe.",
+        "Expanded the mesh viewer lifecycle test to assert the new automation-visible mesh validation fields.",
+        "Validated the commands against a live mesh-viewer run, including screenshot capture."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java",
+        "ixdar_automation_cli/cli_commands/flat_commands.py",
+        "ixdar_automation_cli/cli_commands/scenario_commands.py",
+        "ixdar_automation_cli/test_cli.py",
+        "ixdar-app/test/unit/model/MeshNodeViewerSceneLifecycleTest.java"
+    ],
+    "priority": 3
+}
