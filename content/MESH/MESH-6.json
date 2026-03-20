@@ -17,12 +17,13 @@
     "testing-plan": "1. For each primitive: instantiate with default params, evaluate, verify vertex/face counts match expected. 2. For each primitive: create a node graph JSON with just that node, run 'ixdar_cli.py mesh-load-graph --file <graph>', then 'mesh-validate' to check geometry health, then 'screenshot' to visually verify. 3. Verify normals point outward (dot product with centroid direction > 0 for closed meshes). 4. Verify MeshIcoSphere matches the old Icosphere output. 5. Test edge cases: 3-segment cone, 1-subdivision grid, 0-subdivision icosphere. 6. Run 'mesh-state' for each primitive, verify vertex/face counts match expected values.",
     "todos": [
         "Create nodes/primitives/ package",
-        "Implement MeshCube node: 8 vertices, 12 triangles",
-        "Implement MeshCone node: fan cap + side triangles",
-        "Implement MeshCylinder node: two circle caps + quad strip sides",
+        "DONE: Implement MeshCube node: 8 vertices, 12 triangles",
+        "DONE: Implement MeshCone node: fan cap + side triangles",
+        "DONE: Implement MeshCylinder node: two circle caps + quad strip sides",
         "Implement MeshGrid node: subdivided plane",
         "Refactor existing Icosphere into MeshIcoSphere node with subdivision parameter",
-        "Implement MeshUVSphere node: latitude/longitude grid with polar caps",
+        "DONE: Implement MeshUVSphere node: latitude/longitude grid with polar caps",
+        "DONE: Implement QuadSphereMeshNode node: 6 faces of a cube wrapped around a sphere",
         "Implement MeshLine node: chain of edges between two points"
     ],
     "unknowns": [
