@@ -15,19 +15,29 @@
     "definition-of-done": "1. Seven node classes exist in nodes/math/. 2. Each implements MeshNode with correct port types. 3. BooleanMath supports AND/OR/NOT/XOR via a mode parameter. 4. IntegerMath supports Add/Subtract/Multiply/Divide/Modulo/Power/Min/Max. 5. Compare supports float comparison with configurable epsilon. 6. RandomValue produces deterministic output for a given seed. 7. All nodes evaluate correctly in isolation.",
     "testing-plan": "1. Unit test each math operation mode with known inputs/outputs. 2. Test BooleanMath truth tables. 3. Test Compare with values near the epsilon boundary. 4. Test RandomValue determinism: same seed produces same output. 5. Wire IntegerMath into a MeshCylinder segments input via NodeGraph, verify the cylinder changes.",
     "todos": [
-        "Create nodes/math/ package",
-        "Implement BooleanMathNode with mode enum",
-        "Implement IntegerMathNode with mode enum",
-        "Implement FloatToIntNode with mode enum (Round/Floor/Ceil/Truncate)",
-        "Implement CompareNode with epsilon parameter",
-        "Implement RandomValueNode with seed, min, max inputs",
-        "Implement InputIntNode (constant with exposed value)",
-        "Implement InputVectorNode (constant Vector3f with exposed x/y/z)"
+        "DONE : Create nodes/math/ package",
+        "DONE : Implement BooleanMathNode with mode enum",
+        "DONE : Implement IntegerMathNode with mode enum",
+        "DONE : Implement FloatToIntNode with mode enum (Round/Floor/Ceil/Truncate)",
+        "DONE : Implement CompareNode with epsilon parameter",
+        "DONE : Implement RandomValueNode with seed, min, max inputs",
+        "DONE : Implement InputIntNode (constant with exposed value)",
+        "DONE : Implement InputVectorNode (constant Vector3f with exposed x/y/z)"
     ],
     "unknowns": [],
-    "changes-made": [],
+    "changes-made": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/BooleanMathNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/IntegerMathNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/FloatToIntNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/CompareNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/RandomValueNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/InputIntNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/InputVectorNode.java",
+        "ixdar-app/test/unit/mesh/MathNodesTest.java"
+    ],
     "related-files": [
-        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNode.java"
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNode.java",
+        "annotations/src/main/java/ixdar/annotations/meshnode/Vector3Value.java"
     ],
     "priority": 2
 }

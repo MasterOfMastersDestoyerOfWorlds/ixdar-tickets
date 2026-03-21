@@ -20,15 +20,14 @@
         "DONE: Implement MeshCube node: 8 vertices, 12 triangles",
         "DONE: Implement MeshCone node: fan cap + side triangles",
         "DONE: Implement MeshCylinder node: two circle caps + quad strip sides",
-        "Implement MeshGrid node: subdivided plane",
-        "Refactor existing Icosphere into MeshIcoSphere node with subdivision parameter",
+        "DONE: Implement MeshGrid node: subdivided plane",
+        "DONE: Refactor existing Icosphere into MeshIcoSphere node with subdivision parameter",
         "DONE: Implement MeshUVSphere node: latitude/longitude grid with polar caps",
         "DONE: Implement QuadSphereMeshNode node: 6 faces of a cube wrapped around a sphere",
         "Implement MeshLine node: chain of edges between two points"
     ],
     "unknowns": [
-        "Whether MeshLine should output a degenerate mesh (line of zero-area faces) or a separate geometry type",
-        "Whether subdivision parameter on MeshIcoSphere should use Loop subdivision or midpoint subdivision"
+        "Whether MeshLine should output a degenerate mesh (line of zero-area faces) or a separate geometry type"
     ],
     "changes-made": [],
     "related-files": [
