@@ -1,0 +1,46 @@
+{
+    "id": "DSL-5",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Port SubdivideMesh and modifier nodes to ArrayMesh",
+    "description": "Rewrite SubdivideMeshNode.subdivideOnce to operate on ArrayMesh with flat array arithmetic — pre-compute output size, allocate float[outV*3] + int[outF*4], fill in one pass. No addVertex/addFace calls, no HashMap growth. Port SetPosition, DeleteGeometry, MergeByDistance, JoinGeometry, InstanceOnPoints, CaptureAttribute likewise. All modifier and geometry nodes should consume and produce ArrayMesh instead of HalfEdgeMesh. The rendering pipeline already has ArrayMesh.compileSurfaceData() for GPU upload.",
+    "blocked-by": [
+        "DSL-4"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. SubdivideMeshNode produces ArrayMesh. Subdivision level 8 completes in <2s with <1GB heap. 2. All modifier/geometry nodes (SetPosition, DeleteGeometry, MergeByDistance, JoinGeometry, InstanceOnPoints, CaptureAttribute) produce ArrayMesh. 3. GeometryBundle wraps ArrayMesh instead of HalfEdgeMesh. 4. HalfEdgeMesh is only used for rendering (via compileSurfaceData or toHalfEdgeMesh at the end). 5. All mesh tests pass. 6. tool_quilt.dsl at subdivision level 6 runs without OOM at -Xmx1g.",
+    "testing-plan": "1. Run all existing mesh tests, verify pass. 2. Run ToolQuiltDslTest at subdivision level 6 with -Xmx1g, verify no OOM. 3. Benchmark subdivision at level 8, verify <2s. 4. Compare mesh fingerprint at level 4 against the old HalfEdgeMesh implementation to verify identical geometry.",
+    "todos": [
+        "Port SubdivideMeshNode to use ArrayMesh factory from DSL-4",
+        "Port SetPositionNode to modify ArrayMesh positions in-place",
+        "Port DeleteGeometryNode to use ArrayMesh delete factories",
+        "Port MergeByDistanceNode to use ArrayMesh merge factory",
+        "Port JoinGeometryNode to use ArrayMesh join factory",
+        "Port InstanceOnPointsNode to build ArrayMesh directly",
+        "Port CaptureAttributeNode to work with ArrayMesh bundles",
+        "Update GeometryBundle to use ArrayMesh as primary mesh type",
+        "Add HalfEdgeMesh conversion only at the rendering boundary",
+        "Run benchmarks and verify memory targets"
+    ],
+    "unknowns": [
+        "Whether all nodes need porting at once or can be done incrementally with MeshTopology interface bridging",
+        "Whether InstanceOnPoints needs the full CSR topology from ArrayMesh or can work from positions alone"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/SubdivideMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/SetPositionNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/DeleteGeometryNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/MergeByDistanceNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/JoinGeometryNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/InstanceOnPointsNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/data/CaptureAttributeNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/GeometryBundle.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ArrayMesh.java"
+    ],
+    "priority": 1
+}

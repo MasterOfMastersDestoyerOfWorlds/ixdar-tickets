@@ -1,0 +1,40 @@
+{
+    "id": "DSL-8",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "geometry"
+    ],
+    "title": "DSL LSP server",
+    "description": "Lightweight Language Server Protocol implementation for .dsl files. Reads the node reference JSON (from DSL-6) at startup to know all available nodes and their ports. Provides: completions for node IDs after '= ', port name completions after '(' and ',', mode enum completions for string-typed ports with ModeConstraints, hover info showing port types and defaults, diagnostics from GraphValidator (from DSL-7). The schema is finite (45+ nodes with typed ports) so the LSP is a thin wrapper over the reference data, not a full compiler.",
+    "blocked-by": [
+        "DSL-6",
+        "DSL-7"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. LSP server starts and connects to Cursor/VSCode. 2. .dsl files get syntax diagnostics (unknown nodes, wrong ports, type mismatches). 3. Typing '= ' after a variable name offers node ID completions. 4. Typing a port name inside () offers available port names for that node. 5. Hover over a node ID shows its inputs/outputs/description. 6. Mode-constrained string ports (e.g., operation=) offer enum completions (ADD, SUBTRACT, etc.).",
+    "testing-plan": "1. Open a .dsl file in Cursor, verify completions appear for node IDs. 2. Verify port name completions inside parentheses. 3. Introduce an error (wrong port name), verify diagnostic appears. 4. Hover over a node, verify tooltip shows port info.",
+    "todos": [
+        "Choose LSP implementation language (Python with pygls, or TypeScript)",
+        "Load node reference JSON at startup",
+        "Implement textDocument/completion for node IDs and port names",
+        "Implement textDocument/hover for node documentation",
+        "Implement textDocument/publishDiagnostics by calling dsl-validate",
+        "Package as a Cursor/VSCode extension",
+        "Add .dsl file association to the extension"
+    ],
+    "unknowns": [
+        "Whether to implement in Python (pygls — can reuse existing CLI infrastructure) or TypeScript (native VSCode extension pattern)",
+        "Whether to call dsl-validate as a subprocess or reimplement validation in the LSP language",
+        "How to handle incremental parsing for real-time diagnostics without lag"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar_automation_cli/ixdar_cli.py",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/GraphValidator.java",
+        "ixdar-app/src/main/java/ixdar/parsing/python/PythonParser.java"
+    ],
+    "priority": 5
+}

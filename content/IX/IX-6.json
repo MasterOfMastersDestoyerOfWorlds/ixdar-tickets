@@ -1,0 +1,36 @@
+{
+    "id": "IX-6",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "geometry"
+    ],
+    "title": "Heavy mesh smoke test at production subdivision levels",
+    "description": "Add a JUnit test tagged @Tag(\"heavy\") that runs tool_quilt.dsl at the DSL's default subdivision level (6) with -Xmx4g. Asserts: completes within 10s, no OOM, vertex count in expected range for subdivision level, vertex positions show displacement. Excluded from the fast unit/mesh/*Test suite via surefire tag filtering, but agents must run it before completing mesh/DSL tickets. This is the missing verification step that would have caught the OOM before a user hit it.",
+    "blocked-by": [],
+    "blocks": [
+        "IX-7"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. A test class (e.g., HeavyMeshSmokeTest) tagged @Tag(\"heavy\") exists. 2. It runs tool_quilt.dsl at subdivision level 6 (the DSL default, no override). 3. It asserts: mesh is non-null, vertex count > 100k, vertex positions show displacement (radial range > 0.001), completes within 10s. 4. The default surefire configuration excludes the 'heavy' tag. 5. A Maven command to run only heavy tests is documented: mvn test -Dgroups=heavy -Xmx4g.",
+    "testing-plan": "1. Run mvn test -Dtest='unit/mesh/*Test' and verify the heavy test is NOT included. 2. Run mvn test -Dgroups=heavy and verify the heavy test runs and passes. 3. Verify the test completes in <10s on a developer machine.",
+    "todos": [
+        "Create HeavyMeshSmokeTest.java with @Tag(\"heavy\")",
+        "Configure surefire to exclude 'heavy' tag by default",
+        "Add test that runs tool_quilt.dsl at default params (subdivisions=6)",
+        "Assert vertex count, displacement, and runtime budget",
+        "Document the mvn command for running heavy tests"
+    ],
+    "unknowns": [
+        "Whether surefire supports tag exclusion via pom.xml or needs a profile",
+        "Whether 10s is a realistic budget at subdivision 6 with the current HalfEdgeMesh implementation"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/test/unit/mesh/ToolQuiltDslTest.java",
+        "ixdar-app/pom.xml",
+        "ixdar-app/src/main/resources/dsl/tool_quilt.dsl"
+    ],
+    "priority": 1
+}

@@ -1,0 +1,32 @@
+{
+    "id": "IX-7",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Agent verification rule for mesh and DSL work",
+    "description": "Add a rule to workflow-review.mdc and a critical-severity learning: before completing any MESH or DSL ticket, the agent must run the heavy smoke test (IX-6) or launch the mesh viewer at production parameters and verify no OOM or >5s runtime. The rule must be severity:critical so it is treated as a hard constraint, not optional guidance. This addresses the recurring problem of agents declaring success after running unit tests at artificially low subdivision levels (0 or 1) while the real application OOMs at production parameters.",
+    "blocked-by": [
+        "IX-6"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. workflow-review.mdc has a section requiring production-parameter verification for MESH and DSL tickets. 2. A learning in .cursor/docs/ai-learnings/ with severity:critical documents the anti-pattern (testing at low subdivision only) and the required verification step. 3. The ixdar.mdc foundation rule references the verification requirement.",
+    "testing-plan": "1. Start a new agent conversation on a MESH ticket. Verify the agent reads the rule and runs the heavy smoke test before marking the ticket done.",
+    "todos": [
+        "Add production-parameter verification section to workflow-review.mdc",
+        "Create critical-severity learning in .cursor/docs/ai-learnings/",
+        "Reference the requirement in ixdar.mdc under Practical Defaults"
+    ],
+    "unknowns": [
+        "Whether the rule should mandate the heavy smoke test specifically or accept mesh-validate CLI as an alternative"
+    ],
+    "changes-made": [],
+    "related-files": [
+        ".cursor/rules/workflow-review.mdc",
+        ".cursor/rules/ixdar.mdc",
+        ".cursor/docs/ai-learnings/"
+    ],
+    "priority": 1
+}

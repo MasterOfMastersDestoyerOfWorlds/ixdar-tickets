@@ -1,0 +1,40 @@
+{
+    "id": "DSL-4",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "ArrayMesh builder for topology-modifying operations",
+    "description": "Add factory/builder methods to ArrayMesh for operations that change topology: delete-vertices, delete-edges, merge-by-distance, join, linear subdivide. Each returns a new ArrayMesh from computed flat arrays without constructing a HalfEdgeMesh intermediate. ArrayMesh already has the right structure — dense float[] positions, int[] faceIndices, fixed vertsPerFace, lazy CSR topology via QuadMeshTopologyHelper. It is structurally identical to Blender's internal mesh representation. The gap is that there is no way to create a new ArrayMesh from a topology-changing operation without going through HalfEdgeMesh. This is the foundation for porting all node operations off HalfEdgeMesh, which is the primary cause of OOM and slowness at high subdivision levels.",
+    "blocked-by": [],
+    "blocks": [
+        "DSL-5"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. ArrayMesh has static factory methods for: subdivideQuads(positions, faceIndices) -> ArrayMesh, deleteVertices(mesh, boolean[]) -> ArrayMesh, deleteEdges(mesh, boolean[]) -> ArrayMesh, mergeByDistance(mesh, float) -> ArrayMesh, join(meshA, meshB) -> ArrayMesh. 2. Each method operates on flat arrays without constructing HalfEdgeMesh. 3. Unit tests verify each operation produces correct geometry (vertex counts, face indices, topology). 4. Subdivision at level 6 on a cube produces correct vertex/face counts matching the HalfEdgeMesh implementation.",
+    "testing-plan": "1. For each factory method, create a test that applies the operation to a known mesh and verifies vertex count, face count, and a sampling of vertex positions. 2. Compare ArrayMesh subdivision output against HalfEdgeMesh subdivision output at levels 1-4 (mesh fingerprint). 3. Benchmark ArrayMesh subdivision at level 6 and verify it completes in <1s with <512MB heap.",
+    "todos": [
+        "Implement ArrayMesh.subdivideQuads — flat array arithmetic for edge midpoints and face centroids",
+        "Implement ArrayMesh.deleteVertices — compact arrays, remap face indices",
+        "Implement ArrayMesh.deleteEdges — identify affected faces, rebuild arrays",
+        "Implement ArrayMesh.mergeByDistance — spatial hash, union-find on flat arrays",
+        "Implement ArrayMesh.join — concatenate position arrays, offset face indices",
+        "Write unit tests for each operation",
+        "Benchmark against HalfEdgeMesh at subdivision level 6"
+    ],
+    "unknowns": [
+        "Whether deleteEdges on ArrayMesh can maintain the uniform vertsPerFace invariant or needs to support mixed face sizes",
+        "Whether mergeByDistance needs the full CSR topology or can work from face indices alone"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ArrayMesh.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/QuadMeshTopologyHelper.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MeshDeleteVertices.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MeshDeleteEdges.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MeshMergeByDistance.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MeshAppend.java"
+    ],
+    "priority": 1
+}

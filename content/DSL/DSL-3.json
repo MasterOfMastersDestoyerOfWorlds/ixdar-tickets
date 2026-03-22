@@ -1,0 +1,36 @@
+{
+    "id": "DSL-3",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Investigate and fix quilting pillow scale mismatch vs Blender",
+    "description": "The quilting output from tool_quilt.dsl on a plain cube with subdivide_mesh shows visible quilting pillows, but the pillow scale does not match Blender's output at the same parameters (scale_x=0.3, scale_y=0.3, depth=0.05, rotation=75deg). The double subdivision and spherize have already been removed. The remaining scale mismatch has a different root cause that needs investigation. Possible causes: CubeMeshNode vertex positions differ from Blender's default cube (-1,-1,-1 to 1,1,1 vs -0.5 to 0.5), tangent frame computation differences, float_curve control point interpolation differences, or SubdivideMesh producing a different vertex layout than Blender's GeometryNodeSubdivideMesh.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Root cause of the scale mismatch is identified and documented. 2. The quilting output on a cube at default parameters visually matches Blender's output (pillow count, pillow size, trench depth proportional to mesh size). 3. A mesh fingerprint or vertex count comparison test confirms parity.",
+    "testing-plan": "1. Export the Blender quilting result at matching parameters as OBJ, compute mesh fingerprint. 2. Run tool_quilt.dsl at the same parameters, compute mesh fingerprint. 3. Compare vertex counts, bounding box dimensions, and pillow structure. 4. Add a regression test with the expected vertex count or fingerprint.",
+    "todos": [
+        "Compare CubeMeshNode vertex positions with Blender's default cube",
+        "Compare SubdivideMeshNode output vertex layout with Blender's SubdivideMesh",
+        "Compare tangent frame computation on flat faces vs Blender's implementation",
+        "Compare float_curve interpolation with Blender's Float Curve node",
+        "Fix the identified root cause",
+        "Add a parity test"
+    ],
+    "unknowns": [
+        "Whether the mismatch is in the base mesh geometry, the subdivision vertex layout, the tangent frame, or the curve interpolation",
+        "Whether Blender's SubdivideMesh produces a different vertex ordering than our implementation"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/tool_quilt.dsl",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/primitives/CubeMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/SubdivideMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/VectorMathNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/curve/FloatCurveNode.java"
+    ],
+    "priority": 2
+}

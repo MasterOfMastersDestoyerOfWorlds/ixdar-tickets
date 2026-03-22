@@ -1,0 +1,37 @@
+{
+    "id": "DSL-6",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "geometry"
+    ],
+    "title": "DSL node reference generator",
+    "description": "Java entrypoint that introspects MeshNodeRegistry_MeshNodes.MAP, instantiates each node, calls inputs() and outputs(), and emits a structured JSON schema per node: {id, sourceFile, inputs: [{name, type, default, modeConstraint}], outputs: [{name, type}]}. Exposed via 'uv run ixdar-cli dsl-node-reference'. Currently 45 annotated nodes. This reference is the foundation for both LSP support and AI-agent context — an agent working on a DSL file can read the reference to know what nodes exist, what ports they have, and what values are valid.",
+    "blocked-by": [],
+    "blocks": [
+        "DSL-7",
+        "DSL-8"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. A Java main class (e.g., ixdar.tools.DslNodeReference) emits JSON to stdout with all registered node definitions. 2. Each node entry includes: id, Java source file path, inputs (name, PortType, default value, mode constraint if any), outputs (name, PortType). 3. The CLI command 'uv run ixdar-cli dsl-node-reference' invokes the Java tool and returns the JSON. 4. The output is valid JSON and includes all 45+ registered nodes. 5. The output is stable (sorted by node id) for diffing.",
+    "testing-plan": "1. Run the Java tool, parse the JSON output, verify it contains all registered nodes. 2. Spot-check a few nodes (e.g., float_math, subdivide_mesh, input_position) against their actual Java implementations. 3. Run the CLI command, verify it returns the same JSON.",
+    "todos": [
+        "Create ixdar.tools.DslNodeReference Java main class",
+        "Iterate MeshNodeRegistry, instantiate each node, extract inputs/outputs",
+        "Serialize to JSON with node id, source path, ports, defaults, mode constraints",
+        "Add dsl-node-reference command to the Python CLI",
+        "Write a test verifying the output covers all registered nodes"
+    ],
+    "unknowns": [
+        "Whether to invoke the Java tool via mvn exec:java or a pre-built jar",
+        "Whether to cache the reference JSON on disk or regenerate each time"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/NodeGraphRuntime.java",
+        "ixdar_automation_cli/ixdar_cli.py",
+        "ixdar_automation_cli/cli_registry.py"
+    ],
+    "priority": 2
+}

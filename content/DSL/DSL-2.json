@@ -1,0 +1,32 @@
+{
+    "id": "DSL-2",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Remove custom profile toggles from quilt DSL",
+    "description": "The custom_depth_profile and custom_edge_profile boolean toggles plus the separate depth_curve_default/depth_curve_custom pairs are a Blender UI pattern that does not translate to our DSL. In Blender, the user can toggle between a built-in curve and a custom one via a checkbox in the node group panel. In our DSL, the user edits the float_curve nodes directly — there is no need for a toggle. Simplify to a single depth_profile and edge_profile float_curve (initialized with the Blender defaults). Remove the compare toggles and switch_float branching for profile selection.",
+    "blocked-by": [
+        "DSL-1"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. tool_quilt.dsl has one depth_profile float_curve and one edge_profile float_curve, initialized with the Blender default control points. 2. The compare toggles (custom_depth_profile, custom_edge_profile) and their associated switch_float nodes are removed. 3. The depth and edge profile closures are evaluated directly against the single curve. 4. All tests pass. 5. Visual output matches or improves on the previous version.",
+    "testing-plan": "1. Run ToolQuiltDslTest, verify all tests pass. 2. Run mesh viewer, verify quilting output looks correct with the default curves. 3. Modify a curve's control points, verify the quilting pattern changes.",
+    "todos": [
+        "Replace depth_curve_default/depth_curve_custom pair with single depth_profile curve",
+        "Replace edge_curve_default/edge_curve_custom pair with single edge_profile curve",
+        "Remove custom_depth_profile and custom_edge_profile compare nodes",
+        "Remove switch_float nodes that branched on the toggles",
+        "Wire profile evaluation directly to the single curves",
+        "Update ToolQuiltDslTest if needed"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/tool_quilt.dsl",
+        "ixdar-app/test/unit/mesh/ToolQuiltDslTest.java"
+    ],
+    "priority": 3
+}

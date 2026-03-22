@@ -91,6 +91,12 @@
             "description": "Geometry nodes, node exporter, DSL, armor system, Blender CLI tooling"
         },
         {
+            "prefix": "DSL",
+            "name": "DSL & Quilting Pipeline",
+            "priority": 6,
+            "description": "Domain-specific language for procedural mesh generation — parser, node runtime, quilting algorithm parity with Blender, user-editable parameter system, and developer tooling (validation, documentation, LSP)"
+        },
+        {
             "prefix": "IX",
             "name": "Project Setup",
             "priority": 99,

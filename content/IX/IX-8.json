@@ -1,0 +1,35 @@
+{
+    "id": "IX-8",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "CLI mesh-smoke-test command",
+    "description": "An automation CLI command 'uv run ixdar-cli mesh-smoke-test' that: (1) checks if the app is running via health endpoint, (2) triggers DSL graph execution at default parameters via the automation HTTP endpoint, (3) polls mesh-state for completion, (4) asserts vertex count within expected range and response time < threshold, (5) reports pass/fail as structured JSON. This gives agents and developers a single command to verify that the mesh pipeline works at production parameters without needing to manually launch and inspect the viewer.",
+    "blocked-by": [
+        "MESH-30"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. 'uv run ixdar-cli mesh-smoke-test' runs the full pipeline and returns JSON with pass/fail, vertex count, face count, and elapsed time. 2. Exit code is 0 on pass, 1 on fail. 3. Failure reasons include: app not running, timeout, OOM (detected via error response), vertex count out of range. 4. The command can be run by an agent as a verification step.",
+    "testing-plan": "1. Launch the mesh viewer. Run mesh-smoke-test, verify pass. 2. Without the app running, run mesh-smoke-test, verify it reports 'app not running'. 3. Modify the DSL to produce a degenerate mesh, run mesh-smoke-test, verify it reports failure.",
+    "todos": [
+        "Add mesh-smoke-test command to Python CLI",
+        "Implement health check, graph execution trigger, state polling, and assertions",
+        "Define expected vertex count range for tool_quilt.dsl at default params",
+        "Define timeout threshold (e.g., 30s for graph execution)",
+        "Return structured JSON result with timing and mesh stats"
+    ],
+    "unknowns": [
+        "Whether the automation API already supports triggering DSL execution or if a new endpoint is needed",
+        "Whether to hardcode the expected vertex count range or compute it from subdivision level"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar_automation_cli/ixdar_cli.py",
+        "ixdar_automation_cli/cli_commands/flat_commands.py",
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationApiServer.java"
+    ],
+    "priority": 2
+}

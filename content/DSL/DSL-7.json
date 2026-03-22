@@ -1,0 +1,39 @@
+{
+    "id": "DSL-7",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "geometry"
+    ],
+    "title": "DSL static validator CLI command",
+    "description": "A CLI command 'uv run ixdar-cli dsl-validate <path>' that parses a .dsl file using PythonLexer/PythonParser, runs GraphValidator.validate(), and returns errors with line numbers. Can run without the GUI — pure offline validation. This gives red-squiggle-equivalent feedback for DSL files without a full LSP server. The Java side already has GraphValidator; this ticket wires it into a CLI-accessible entrypoint.",
+    "blocked-by": [
+        "DSL-6"
+    ],
+    "blocks": [
+        "DSL-8"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. 'uv run ixdar-cli dsl-validate path/to/file.dsl' parses the file, validates the graph, and returns JSON with errors (or empty array on success). 2. Each error includes the node name, line number (if available from parser), and descriptive message. 3. Validation covers: unknown node IDs, port name mismatches, type mismatches, circular references. 4. Exit code is 0 on success, 1 on validation errors. 5. Works on tool_quilt.dsl (valid file) and a deliberately broken file.",
+    "testing-plan": "1. Run dsl-validate on tool_quilt.dsl, verify success (exit 0, empty errors). 2. Create a broken DSL file with unknown node, wrong port name, type mismatch. Run dsl-validate, verify each error is reported with the correct node name. 3. Verify exit code is 1 on failure.",
+    "todos": [
+        "Create Java entrypoint (e.g., ixdar.tools.DslValidator) that accepts a file path, parses, validates, outputs JSON",
+        "Add dsl-validate command to Python CLI that invokes the Java tool",
+        "Ensure GraphValidator reports node names with errors",
+        "Add line number tracking to PythonParser if not already present",
+        "Write test with valid and invalid DSL files"
+    ],
+    "unknowns": [
+        "Whether PythonParser currently tracks line numbers in ParsedNode — if not, adding it is part of this ticket",
+        "Whether to validate in-process (load Java as subprocess) or via HTTP automation API"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/GraphValidator.java",
+        "ixdar-app/src/main/java/ixdar/parsing/python/PythonParser.java",
+        "ixdar-app/src/main/java/ixdar/parsing/python/PythonLexer.java",
+        "ixdar_automation_cli/ixdar_cli.py"
+    ],
+    "priority": 3
+}

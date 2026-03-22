@@ -1,0 +1,38 @@
+{
+    "id": "DSL-1",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Input parameter nodes for user-editable DSL values",
+    "description": "Replace the float_math(operation=ADD, a=X, b=0.0) hack for user-editable values with proper input parameter nodes. These are the values the UI will expose as sliders, checkboxes, and spinners when the user drills into a DSL subtree. New nodes: input_float(name, default, min, max), input_int(name, default, min, max), input_boolean(name, default). float_curve already serves this role for curve parameters. All share a common 'user-editable input' semantic. The node graph runtime should be able to enumerate all input parameter nodes in a graph to build a UI parameter panel automatically.",
+    "blocked-by": [],
+    "blocks": [
+        "DSL-2"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. input_float, input_int, input_boolean nodes exist with name, default, min, max (where applicable) inputs. 2. Each outputs a single value on its 'result' port. 3. NodeGraphRuntime can enumerate all input parameter nodes in a parsed graph (names, types, defaults, ranges). 4. float_curve is documented as part of the same input-parameter family. 5. tool_quilt.dsl compiles with the new input nodes replacing the float_math hacks. 6. All existing mesh tests pass.",
+    "testing-plan": "1. Write a unit test that parses a DSL with input_float, input_int, input_boolean nodes and verifies the runtime can enumerate them with correct metadata. 2. Verify tool_quilt.dsl still validates and executes after replacing float_math hacks with input nodes. 3. Verify that overriding an input value at runtime (e.g., changing subdivisions) produces the expected mesh difference.",
+    "todos": [
+        "Create InputFloatNode with name/default/min/max ports",
+        "Create InputIntNode (or verify existing one has name/default/min/max)",
+        "Create InputBooleanNode with name/default ports",
+        "Add enumeration API to NodeGraphRuntime for discovering input parameter nodes",
+        "Update tool_quilt.dsl to use input nodes instead of float_math hacks",
+        "Verify float_curve fits the same pattern and document it"
+    ],
+    "unknowns": [
+        "Whether min/max should be enforced at evaluation time or just metadata for UI",
+        "Whether input nodes need a 'group' or 'category' field for UI organization"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/InputIntNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/InputVectorNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/curve/FloatCurveNode.java",
+        "ixdar-app/src/main/resources/dsl/tool_quilt.dsl",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/NodeGraphRuntime.java"
+    ],
+    "priority": 2
+}
