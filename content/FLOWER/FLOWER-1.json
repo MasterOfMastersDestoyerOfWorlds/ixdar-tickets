@@ -1,0 +1,42 @@
+{
+    "id": "FLOWER-1",
+    "epic": "FLOWER",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Single cherry blossom petal geometry",
+    "description": "Create a single cherry blossom petal DSL file using existing mesh nodes. Use mesh_grid as a base surface, subdivide_mesh for detail, then input_position + separate_xyz + float_math chains to: (1) cup the petal upward using SIN/COS displacement on z based on distance from center, (2) create the characteristic tip notch using ABS on x near the far edge. Apply set_position with the computed displacement, then transform_geometry to scale to petal proportions (~0.3 wide, ~0.5 long). The petal should be a smooth, slightly cupped surface with a small V-notch at the tip. Output file: ixdar-app/src/main/resources/dsl/petal.dsl. Must validate with the DSL validator. Use mesh-dsl mode for node catalog reference.\n\n### Follow-up: mesh quality and authoring (2026-04-04)\n\n**Art / silhouette**\n- Tip margin (edge away from stem): reads as a single curve folded or pointed toward the stem instead of flaring outward like a natural petal margin.\n- Many real petals have a lobed/undulating margin (series of in-out curves along the free edge). Target authoring model: drive the horizontal free edge with a float_curve where parameter runs along that edge; the two points where the horizontal edge meets the vertical side edges of the petal are enforced as curve zeros (t=0 and t=1); curve value shapes the edge normal to the span (outward bulge/inset).\n- Midrib / centerline should read more strongly (deeper ridge or stronger displacement/shading cue).\n\n**Mesh integrity**\n- Visible broken or degenerate geometry along the vertical side edges of the petal (likely interaction of solidify with clipped/trimmed planform or noisy boundary normals). Reproduce in mesh viewer with wireframe; compare before/after solidify; consider repair, merge, or planform change.\n\n**Techniques worth promoting to dedicated nodes**\n- solidify_mesh: landed as reusable modifier.\n- Planform / margin: width-or-silhouette from float_curve along v or arc length; optional lobes as sampled multiplier.\n- Midrib / ridge: shared field template or small node for center-anchored raised vein.\n- Boundary hygiene: repair or offset path that stays stable after clip/boolean-style cuts (if solidify remains sensitive).\n\n**Daud harness: first petal.dsl iteration \u2014 postmortem**\n- Wrong: mostly Z-only displacement on a rectangle; no explicit planform; stem-vs-tip weighting could read stem-heavy; margin too synthetic; no geometry acceptance tests beyond parse.\n- Right: coherent node graph (inputs, subdivide, cup + notch intent); executable in NodeGraphRuntime; good base for human/tool iteration.\n- **Harness self-judgment (tie-in to backlog)**: stack deterministic gates (DAUD-19 validate_dsl, DAUD-21 linter, ixdar-cli mesh-probe / unit tests like closed mesh, boundary edge count, axis-aligned bounds) before any subjective pass; optional DAUD-16 VLM screenshot compare when a reference exists; human/async loop via GATE-14 review pages + GATE-10 embedded viewer + GATE-11 review comment sidecar fed back into Daud context on the next round.\n",
+    "blocked-by": [],
+    "blocks": [
+        "FLOWER-2"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. petal.dsl exists in ixdar-app/src/main/resources/dsl/. 2. File validates with validate_dsl tool (zero errors). 3. Uses mesh_grid, subdivide_mesh, input_position, separate_xyz, float_math, combine_xyz, set_position, transform_geometry. 4. Petal is curved (not flat) with a notch at the tip. 5. Tip margin reads outward-flared, not pinched toward stem. 6. Optional lobed margin authorable via float_curve with zeros at side-edge junctions. 7. Midrib reads clearly. 8. No degenerate faces or boundary artifacts on vertical petal edges (wireframe/visual + mesh metrics).\n",
+    "testing-plan": "1. Run validate_dsl on petal.dsl \u2014 must pass. 2. Visual inspection when loaded in mesh viewer. 3. mvn test -pl ixdar-app (PetalDslTest + mesh probes). 4. mesh-viewer wireframe pass on vertical edges after solidify. 5. Optional: scripted screenshot for manual or VLM review (DAUD-16).\n",
+    "todos": [
+        "DONE : Create mesh_grid base surface for petal shape",
+        "DONE : Add subdivide_mesh for smooth detail",
+        "DONE : Add math chain for petal cupping (z displacement based on distance from center)",
+        "DONE : Add math chain for tip notch (V-indent at far edge)",
+        "DONE : Apply set_position with computed displacement",
+        "DONE : Scale with transform_geometry to petal proportions",
+        "DONE : Validate with validate_dsl tool",
+        "DONE : Correct tip margin orientation / outward natural flaring",
+        "DONE : Implement float_curve-driven horizontal margin with zeros at vertical side junctions",
+        "DONE : Strengthen midrib / centerline read",
+        "DONE : Diagnose and fix vertical-edge mesh breakage (solidify vs clipped planform)",
+        "DONE : Spike dedicated margin-from-curve or planform node if DSL becomes too verbose"
+    ],
+    "unknowns": [
+        "Best graph pattern to pin float_curve endpoints exactly at the two side-edge corners of the free petal edge."
+    ],
+    "changes-made": [
+        "2026-04-04: Captured art + mesh follow-ups, harness postmortem, and node candidates from petal.dsl review; reopened for iteration."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/petal.dsl",
+        "ixdar-app/test/unit/mesh/PetalDslTest.java"
+    ],
+    "priority": 1
+}

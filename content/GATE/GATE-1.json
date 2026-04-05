@@ -1,0 +1,31 @@
+{
+    "id": "GATE-1",
+    "epic": "GATE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Ground truth 3D model comparison (Hausdorff/Chamfer distance)",
+    "description": "Add mesh-distance metrics between an Ixdar-generated ArrayMesh and a reference OBJ/PLY file. Implement Hausdorff distance (worst-case surface deviation) and Chamfer distance (average bidirectional nearest-point distance). These are the standard metrics for mesh similarity comparison. Returns a similarity score 0-100%. Java-side in Ixdar's geometry package. Expose via automation CLI so Daud can call it.",
+    "priority": 1,
+    "status": "DONE",
+    "blocked-by": [],
+    "definition-of-done": [
+        "Load OBJ/PLY reference mesh into ArrayMesh",
+        "Compute Hausdorff distance between two ArrayMesh instances",
+        "Compute Chamfer distance between two ArrayMesh instances",
+        "Return normalized similarity percentage (0-100%)",
+        "Accessible via automation CLI endpoint"
+    ],
+    "todos": [
+        "DONE : Add OBJ/PLY loader to geometry package",
+        "DONE : Implement Hausdorff distance (max of min-distances between point sets)",
+        "DONE : Implement Chamfer distance (mean of min-distances, bidirectional)",
+        "DONE : Normalize to 0-100% similarity score",
+        "DONE : Add automation endpoint: POST /compare with DSL name + reference file path",
+        "DONE : Add Daud tool wrapping the automation endpoint"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/"
+    ]
+}

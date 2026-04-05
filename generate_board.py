@@ -5,7 +5,9 @@ Usage:
     python ixdar-tickets/generate_board.py backlog REPO_NAME   # print tickets for a repo
     python ixdar-tickets/generate_board.py archive             # move DONE tickets to done/
     python ixdar-tickets/generate_board.py next-id EPIC        # print next ticket ID for epic
+    python ixdar-tickets/generate_board.py create ...          # new ticket JSON + board
     python ixdar-tickets/generate_board.py mark done TICKET_ID # mark a ticket DONE and regenerate BOARD.md
+    python ixdar-tickets/generate_board.py update TICKET_ID --status IN_PROGRESS --append-description "..."
 """
 
 import argparse
@@ -292,8 +294,8 @@ def archive_done() -> None:
         print("No DONE tickets to archive.")
 
 
-def print_next_id(epic: str) -> None:
-    """Find the highest ticket number for an epic across content/ and done/, print the next one."""
+def _next_ticket_id(epic: str) -> str:
+    """Return the next ticket id (e.g. IX-10) for an epic across content/ and done/."""
     prefix = epic.upper()
     pattern = re.compile(rf"^{re.escape(prefix)}-(\d+)\.json$")
 
@@ -303,8 +305,55 @@ def print_next_id(epic: str) -> None:
         if match:
             max_num = max(max_num, int(match.group(1)))
 
-    next_id = f"{prefix}-{max_num + 1}"
-    print(next_id)
+    return f"{prefix}-{max_num + 1}"
+
+
+def print_next_id(epic: str) -> None:
+    """Find the highest ticket number for an epic across content/ and done/, print the next one."""
+    print(_next_ticket_id(epic))
+
+
+def create_ticket(
+    epic: str,
+    repo: str,
+    title: str,
+    description: str,
+    subsystem: str,
+    priority: int,
+    definition_of_done: str,
+    testing_plan: str,
+    todos: list[str],
+) -> Path:
+    """Write a new ticket JSON under content/<EPIC>/ and regenerate BOARD.md."""
+    ticket_id = _next_ticket_id(epic)
+    prefix = extract_prefix(ticket_id)
+    epic_dir = TICKETS_DIR / prefix
+    epic_dir.mkdir(parents=True, exist_ok=True)
+    ticket_path = epic_dir / f"{ticket_id}.json"
+    if ticket_path.exists():
+        raise FileExistsError(f"Refusing to overwrite existing ticket: {ticket_path}")
+
+    data = {
+        "id": ticket_id,
+        "epic": prefix,
+        "repo": repo,
+        "subsystem": [subsystem],
+        "title": title,
+        "description": description,
+        "blocked-by": [],
+        "blocks": [],
+        "status": "TODO",
+        "definition-of-done": definition_of_done,
+        "testing-plan": testing_plan,
+        "todos": todos,
+        "unknowns": [],
+        "changes-made": [],
+        "related-files": [],
+        "priority": priority,
+    }
+    ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    regenerate_board()
+    return ticket_path
 
 
 def _write_board() -> tuple[int, int, int]:
@@ -385,6 +434,116 @@ def mark_ticket_done(ticket_id: str) -> None:
     )
 
 
+def mark_ticket_status(ticket_id: str, status: str) -> None:
+    """Set a ticket to an arbitrary normalized status and regenerate BOARD.md."""
+    normalized_status = normalize_status(status)
+    ticket_path = _ticket_path(ticket_id)
+    data = json.loads(ticket_path.read_text(encoding="utf-8"))
+    normalized_id = data.get("id", ticket_id.strip().upper())
+
+    data["status"] = normalized_status
+    if normalized_status == "DONE" and isinstance(data.get("todos"), list):
+        data["todos"] = _normalize_done_todos(data["todos"])
+
+    ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    total_ip, total_todo, total_done = _write_board()
+    print(f"Marked {normalized_id} {normalized_status}")
+    print(
+        f"Board updated: {total_ip} in-progress, "
+        f"{total_todo} todo, {total_done} done"
+    )
+
+
+def show_ticket(ticket_id: str) -> None:
+    """Print full ticket JSON to stdout."""
+    ticket_path = _ticket_path(ticket_id)
+    print(ticket_path.read_text(encoding="utf-8"))
+
+
+def _append_text_field(data: dict, key: str, fragment: str) -> None:
+    fragment = (fragment or "").strip()
+    if not fragment:
+        return
+    existing = (data.get(key) or "").rstrip()
+    if existing:
+        data[key] = f"{existing}\n\n{fragment}\n"
+    else:
+        data[key] = f"{fragment}\n"
+
+
+def _extend_list_field(data: dict, key: str, items: list[str]) -> None:
+    if not items:
+        return
+    current = data.get(key)
+    if not isinstance(current, list):
+        current = []
+    for item in items:
+        text = (item or "").strip()
+        if text:
+            current.append(text)
+    data[key] = current
+
+
+def update_ticket(
+    ticket_id: str,
+    *,
+    append_description: str | None = None,
+    definition_of_done: str | None = None,
+    testing_plan: str | None = None,
+    append_definition_of_done: str | None = None,
+    append_testing_plan: str | None = None,
+    add_unknowns: list[str] | None = None,
+    add_changes: list[str] | None = None,
+    add_todos: list[str] | None = None,
+    add_related_files: list[str] | None = None,
+    status: str | None = None,
+) -> Path:
+    """Patch an existing ticket JSON and regenerate BOARD.md."""
+    ticket_path = _ticket_path(ticket_id)
+    data = json.loads(ticket_path.read_text(encoding="utf-8"))
+    normalized_id = data.get("id", ticket_id.strip().upper())
+
+    if append_description:
+        _append_text_field(data, "description", append_description)
+    if definition_of_done is not None:
+        data["definition-of-done"] = definition_of_done.strip() + "\n"
+    elif append_definition_of_done:
+        _append_text_field(data, "definition-of-done", append_definition_of_done)
+    if testing_plan is not None:
+        data["testing-plan"] = testing_plan.strip() + "\n"
+    elif append_testing_plan:
+        _append_text_field(data, "testing-plan", append_testing_plan)
+
+    _extend_list_field(data, "unknowns", add_unknowns or [])
+    _extend_list_field(data, "changes-made", add_changes or [])
+    _extend_list_field(data, "related-files", add_related_files or [])
+
+    if add_todos:
+        todos = data.get("todos")
+        if not isinstance(todos, list):
+            todos = []
+        for item in add_todos:
+            text = (item or "").strip()
+            if text:
+                todos.append(text)
+        data["todos"] = todos
+
+    if status is not None:
+        normalized_status = normalize_status(status)
+        data["status"] = normalized_status
+        if normalized_status == "DONE" and isinstance(data.get("todos"), list):
+            data["todos"] = _normalize_done_todos(data["todos"])
+
+    ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    total_ip, total_todo, total_done = _write_board()
+    print(f"Updated {normalized_id}")
+    print(
+        f"Board updated: {total_ip} in-progress, "
+        f"{total_todo} todo, {total_done} done"
+    )
+    return ticket_path
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="generate_board",
@@ -429,6 +588,145 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Ticket ID to mark done (e.g. IX-3).",
     )
 
+    mark_ip_parser = mark_sub.add_parser(
+        "in_progress",
+        help="Mark a ticket IN_PROGRESS and regenerate BOARD.md.",
+    )
+    mark_ip_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to mark in progress (e.g. IX-3).",
+    )
+
+    mark_todo_parser = mark_sub.add_parser(
+        "todo",
+        help="Mark a ticket TODO (rollback) and regenerate BOARD.md.",
+    )
+    mark_todo_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to mark todo (e.g. IX-3).",
+    )
+
+    show_parser = sub.add_parser(
+        "show",
+        help="Print full ticket JSON.",
+    )
+    show_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to show (e.g. IX-3).",
+    )
+
+    create_parser = sub.add_parser(
+        "create",
+        help="Create a new ticket JSON and regenerate BOARD.md.",
+    )
+    create_parser.add_argument("--epic", required=True, help="Epic prefix (e.g. IX, DSL).")
+    create_parser.add_argument("--repo", required=True, help="Repository name (e.g. Ixdar).")
+    create_parser.add_argument("--title", required=True, help="Ticket title.")
+    create_parser.add_argument("--description", required=True, help="Full description.")
+    create_parser.add_argument(
+        "--subsystem",
+        required=True,
+        help="Subsystem id from subsystems.json (e.g. platform, rendering).",
+    )
+    create_parser.add_argument(
+        "--priority",
+        type=int,
+        default=3,
+        help="Lower = higher priority (default 3).",
+    )
+    create_parser.add_argument(
+        "--definition-of-done",
+        required=True,
+        dest="definition_of_done",
+        help="Numbered definition of done text.",
+    )
+    create_parser.add_argument(
+        "--testing-plan",
+        required=True,
+        dest="testing_plan",
+        help="Numbered testing plan text.",
+    )
+    create_parser.add_argument(
+        "--todo",
+        action="append",
+        default=[],
+        dest="todos",
+        help="Todo line (repeatable).",
+    )
+
+    update_parser = sub.add_parser(
+        "update",
+        help="Patch fields on an existing ticket JSON and regenerate BOARD.md.",
+    )
+    update_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID (e.g. FLOWER-1).",
+    )
+    update_parser.add_argument(
+        "--append-description",
+        dest="append_description",
+        default=None,
+        help="Text appended to description (after a blank line if non-empty).",
+    )
+    update_parser.add_argument(
+        "--definition-of-done",
+        dest="definition_of_done",
+        default=None,
+        help="Replace definition-of-done entirely.",
+    )
+    update_parser.add_argument(
+        "--append-definition-of-done",
+        dest="append_definition_of_done",
+        default=None,
+        help="Append to definition-of-done.",
+    )
+    update_parser.add_argument(
+        "--testing-plan",
+        dest="testing_plan",
+        default=None,
+        help="Replace testing-plan entirely.",
+    )
+    update_parser.add_argument(
+        "--append-testing-plan",
+        dest="append_testing_plan",
+        default=None,
+        help="Append to testing-plan.",
+    )
+    update_parser.add_argument(
+        "--status",
+        dest="status",
+        default=None,
+        help="Set status: TODO, IN_PROGRESS, or DONE.",
+    )
+    update_parser.add_argument(
+        "--add-unknown",
+        action="append",
+        default=[],
+        dest="add_unknowns",
+        help="Append one unknowns[] line (repeatable).",
+    )
+    update_parser.add_argument(
+        "--add-changes",
+        action="append",
+        default=[],
+        dest="add_changes",
+        help="Append one changes-made[] line (repeatable).",
+    )
+    update_parser.add_argument(
+        "--add-todo",
+        action="append",
+        default=[],
+        dest="add_todos",
+        help="Append one todos[] line (repeatable).",
+    )
+    update_parser.add_argument(
+        "--add-related-file",
+        action="append",
+        default=[],
+        dest="add_related_files",
+        help="Append one related-files[] path (repeatable).",
+    )
+
     return parser
 
 
@@ -446,6 +744,39 @@ if __name__ == "__main__":
         print_next_id(args.epic)
     elif args.command == "mark" and args.mark_command == "done":
         mark_ticket_done(args.ticket_id)
+    elif args.command == "mark" and args.mark_command == "in_progress":
+        mark_ticket_status(args.ticket_id, "IN_PROGRESS")
+    elif args.command == "mark" and args.mark_command == "todo":
+        mark_ticket_status(args.ticket_id, "TODO")
+    elif args.command == "show":
+        show_ticket(args.ticket_id)
+    elif args.command == "create":
+        path = create_ticket(
+            epic=args.epic,
+            repo=args.repo,
+            title=args.title,
+            description=args.description,
+            subsystem=args.subsystem,
+            priority=args.priority,
+            definition_of_done=args.definition_of_done,
+            testing_plan=args.testing_plan,
+            todos=list(args.todos or []),
+        )
+        print(f"Created {path}")
+    elif args.command == "update":
+        update_ticket(
+            args.ticket_id,
+            append_description=args.append_description,
+            definition_of_done=args.definition_of_done,
+            testing_plan=args.testing_plan,
+            append_definition_of_done=args.append_definition_of_done,
+            append_testing_plan=args.append_testing_plan,
+            add_unknowns=list(args.add_unknowns or []),
+            add_changes=list(args.add_changes or []),
+            add_todos=list(args.add_todos or []),
+            add_related_files=list(args.add_related_files or []),
+            status=args.status,
+        )
     else:
         parser.print_help()
         sys.exit(1)

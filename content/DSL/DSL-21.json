@@ -1,0 +1,26 @@
+{
+    "id": "DSL-21",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "DSL Replication: Woman Face",
+    "description": "Replicate the 'Woman Face' mesh in Ixdar's DSL node graph system. Source: /Users/acw28/Blends/Woman Face/WomanFace.blend. Original stats: 513,324 vertices, 1,026,644 faces, 1 mesh object(s), 97.1MB OBJ. Complexity: ultra-high-poly (likely needs decimation). The goal is to approximate the overall form and silhouette using available DSL nodes (mesh primitives, subdivide, set_position displacement, solidify, curve_sweep, birail_loft, coons_patch, etc). Reference OBJ at /Users/acw28/Blends/exports/Woman_Face.obj can be loaded for visual comparison. Focus on structural accuracy over surface detail \u2014 match proportions, major features, and silhouette rather than individual wrinkles or fine texture.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. DSL file at resources/dsl/woman_face.dsl compiles without errors. 2. Mesh probe reports reasonable vertex/face counts for the complexity level. 3. Visual comparison with reference thumbnail shows recognizable silhouette match. 4. Key proportions (aspect ratio, major protrusions) are approximately correct.",
+    "testing-plan": "1. validate_dsl passes on woman_face.dsl. 2. Mesh probe shows finite bounds and non-degenerate geometry. 3. Visual screenshot compared to reference thumbnail.",
+    "todos": [
+        "Study reference OBJ/thumbnail for Woman Face",
+        "Plan DSL node graph approach (primitives, displacement, sweep, etc)",
+        "Implement woman_face.dsl",
+        "Run validate_dsl and mesh probe",
+        "Visual comparison with reference"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 5
+}

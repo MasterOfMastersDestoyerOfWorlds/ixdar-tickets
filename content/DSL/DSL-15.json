@@ -1,0 +1,26 @@
+{
+    "id": "DSL-15",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "DSL Replication: Charles",
+    "description": "Replicate the 'Charles' mesh in Ixdar's DSL node graph system. Source: /Users/acw28/Blends/Charles/charles4.blend. Original stats: 377,964 vertices, 377,962 faces, 1 mesh object(s), 69.7MB OBJ. Complexity: high-poly. The goal is to approximate the overall form and silhouette using available DSL nodes (mesh primitives, subdivide, set_position displacement, solidify, curve_sweep, birail_loft, coons_patch, etc). Reference OBJ at /Users/acw28/Blends/exports/Charles.obj can be loaded for visual comparison. Focus on structural accuracy over surface detail \u2014 match proportions, major features, and silhouette rather than individual wrinkles or fine texture.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. DSL file at resources/dsl/charles.dsl compiles without errors. 2. Mesh probe reports reasonable vertex/face counts for the complexity level. 3. Visual comparison with reference thumbnail shows recognizable silhouette match. 4. Key proportions (aspect ratio, major protrusions) are approximately correct.",
+    "testing-plan": "1. validate_dsl passes on charles.dsl. 2. Mesh probe shows finite bounds and non-degenerate geometry. 3. Visual screenshot compared to reference thumbnail.",
+    "todos": [
+        "Study reference OBJ/thumbnail for Charles",
+        "Plan DSL node graph approach (primitives, displacement, sweep, etc)",
+        "Implement charles.dsl",
+        "Run validate_dsl and mesh probe",
+        "Visual comparison with reference"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

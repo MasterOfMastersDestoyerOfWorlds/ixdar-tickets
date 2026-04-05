@@ -1,0 +1,26 @@
+{
+    "id": "IX-11",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Headless mesh render CLI (PNG export)",
+    "description": "Add a small Java CLI (or reuse existing entry pattern) that: initializes HeadlessGL/offscreen context, loads a .dsl file, executes NodeGraphRuntime to mesh, renders with existing mesh shading path to an offscreen framebuffer, reads pixels, writes PNG. Goal: deterministic screenshots and Daud/ticket-worker coverage without requiring a live desktop automation server. Related: MESH-31 Docker headless exploration; automation /ui/screenshot today requires running app.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Documented CLI main class or exec profile in ixdar-app pom.xml. 2. Produces a PNG for at least one bundled sample DSL (e.g. cube or curve_sweep_tube). 3. Uses existing GL abstraction (HeadlessGL) without per-frame direct buffer leaks. 4. Non-zero exit and stderr on DSL/render failures. 5. README or ticket testing-plan documents JVM flags / Mesa if needed for CI.",
+    "testing-plan": "1. mvn -P <profile> run against sample DSL writes PNG. 2. File exists and non-empty; spot-check dimensions. 3. Optional: wire into Daud or ixdar-cli as follow-up ticket.",
+    "todos": [
+        "Spike HeadlessGL init + simple clear color PNG",
+        "Load DSL + execute to HalfEdgeMesh/ArrayMesh",
+        "Reuse minimal mesh draw path to FBO",
+        "PNG write and CLI flags (-Ddsl.file, -Dout.png)",
+        "Document headless/Mesa constraints for Linux CI"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 5
+}
