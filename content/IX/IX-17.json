@@ -1,0 +1,25 @@
+{
+    "id": "IX-17",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MapRangeNode \u2014 remap float values between ranges",
+    "description": "Implement a map_range DSL node equivalent to Blender's ShaderNodeMapRange. Remaps a float value from one range to another, with optional clamping. Supports LINEAR and SMOOTH_STEP interpolation modes. This is used extensively in every Blender-Procedural-Human workflow for normalizing distances, creating falloff curves, converting between coordinate spaces, and blending weights. Without this, agents must manually write (value - from_min) / (from_max - from_min) * (to_max - to_min) + to_min inline, which is error-prone and verbose.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New MapRangeNode class in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/math/ with @MeshNodeAnnotation id 'map_range'\n2. Input ports: value (FloatField), from_min (FloatField, default=0), from_max (FloatField, default=1), to_min (FloatField, default=0), to_max (FloatField, default=1), clamp (BooleanField, default=true), mode (StringField: 'LINEAR' or 'SMOOTH_STEP', default='LINEAR')\n3. Output port: result (FloatField)\n4. LINEAR mode: standard linear interpolation remap\n5. SMOOTH_STEP mode: apply smoothstep (3t^2 - 2t^3) to the normalized value before remapping\n6. When clamp=true, clamp output to [to_min, to_max]\n7. Works as both scalar and per-vertex field\n8. Registered in MeshNodeRegistry and usable in .dsl files",
+    "testing-plan": "1. Unit test: map 0.5 from [0,1] to [0,10] \u2014 verify result is 5.0\n2. Unit test: map 2.0 from [0,1] to [0,10] with clamp=true \u2014 verify result is 10.0\n3. Unit test: map 2.0 from [0,1] to [0,10] with clamp=false \u2014 verify result is 20.0\n4. Unit test: SMOOTH_STEP mode \u2014 verify smoothed interpolation curve\n5. DSL integration: use map_range to remap vertex Y positions, validate with ValidateDsl",
+    "todos": [
+        "DONE : Implement linear remap formula",
+        "DONE : Implement smoothstep interpolation",
+        "DONE : Wire up as DSL node with FloatField support",
+        "DONE : Write unit tests"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

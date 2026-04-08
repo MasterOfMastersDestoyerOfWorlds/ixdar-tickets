@@ -1,0 +1,25 @@
+{
+    "id": "IX-13",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "ExtrudeMeshNode \u2014 extrude faces along normals",
+    "description": "Implement an extrude_mesh DSL node equivalent to Blender's GeometryNodeExtrudeMesh. Extrudes selected faces (or all faces if no selection) along their normals by a given offset distance. This is the single most critical missing node for armor detail, rivets, raised patterns, and any geometry that needs volume added from a flat surface. No workaround exists in the current DSL \u2014 agents are forced to use displacement math on flat grids. Reference: Blender-Procedural-Human armor/neck workflows use this in nearly every piece.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New ExtrudeMeshNode class in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/ with @MeshNodeAnnotation id 'extrude_mesh'\n2. Input ports: geometry (MeshValue), offset (FloatField, default=0.1), selection (optional BooleanField \u2014 if absent, extrude all faces)\n3. Output port: geometry (MeshValue) containing the extruded mesh\n4. For each selected face: duplicate face vertices, offset along face normal by offset amount, create side quads connecting original and offset vertices\n5. Handles both quad and triangle faces correctly\n6. Registered in MeshNodeRegistry and usable in .dsl files\n7. validate_dsl passes on a DSL using extrude_mesh",
+    "testing-plan": "1. Unit test: extrude all faces of a cube by 0.1 \u2014 verify vertex count doubles, face count increases by 4 per original face (side quads)\n2. Unit test: extrude with selection field (only top face) \u2014 verify only top face extruded\n3. DSL integration: write a test DSL that creates a cube, extrudes top face, validate with ValidateDsl\n4. Mesh probe: verify extruded mesh has expected bounding box (cube 1.0 + 0.1 extrusion on top = max.y should be ~0.6)",
+    "todos": [
+        "DONE : Read existing modifier nodes (SubdivideMeshNode, SolidifyMeshNode) for implementation patterns",
+        "DONE : Implement face extrusion algorithm on HalfEdgeMesh",
+        "DONE : Wire up as DSL node with annotation",
+        "DONE : Write unit tests"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

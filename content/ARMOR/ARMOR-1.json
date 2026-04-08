@@ -1,0 +1,20 @@
+{
+    "id": "ARMOR-1",
+    "epic": "ARMOR",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Armor: Shoulders",
+    "description": "Replicate the shoulder armor piece from Blender-Procedural-Human in Ixdar DSL. Source: procedural_human/geo_node_groups/armor/shoulders.py. Key techniques: Bezier curves, curve-to-mesh, instance-on-points, arc geometry, gem placement. Reference neck_armor.dsl for proven bi_rail_loft + pipes + rivets pattern.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. shoulders.dsl compiles without errors. 2. Mesh comparison gate passes (similarity >= 70%, coverage >= 50%, proximity >= 60%). 3. Visual comparison shows recognizable silhouette match to Blender reference.",
+    "testing-plan": "1. Export Blender reference OBJ. 2. Run validate-dsl to export generated OBJ. 3. Run mesh_distance() comparison. 4. Visual inspection via automation screenshot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

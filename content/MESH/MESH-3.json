@@ -15,7 +15,7 @@
         "MESH-14",
         "MESH-25"
     ],
-    "status": "IN_PROGRESS",
+    "status": "TODO",
     "definition-of-done": "1. NodeGraph class holds nodes and connections, supports addNode/connect/disconnect. 2. Topological sort produces correct evaluation order. 3. Cycle detection throws a clear error. 4. Type mismatch on connect throws a clear error. 5. evaluate() walks the sorted graph, creates NodeContext per node, wires outputs to downstream inputs. 6. JSON serialization round-trips a graph with 3+ nodes correctly. 7. Re-evaluation after changing a parameter produces updated output without rebuilding the graph.",
     "testing-plan": "1. Build a 3-node graph: MeshCube -> Transform -> output. Evaluate and verify transformed mesh. 2. Attempt to create a cycle, verify error. 3. Attempt to connect FLOAT output to MESH input, verify type error. 4. Serialize a graph to JSON, deserialize, re-evaluate, verify identical output. 5. Change a parameter (cube size), re-evaluate, verify output changed. 6. Test a diamond-shaped DAG (one node feeds two downstream, both feed a join) to verify correct evaluation order.",
     "todos": [

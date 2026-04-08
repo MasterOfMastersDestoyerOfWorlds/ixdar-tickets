@@ -1,0 +1,20 @@
+{
+    "id": "ARMOR-4",
+    "epic": "ARMOR",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Armor: Waist",
+    "description": "Replicate the waist armor piece from Blender-Procedural-Human in Ixdar DSL. Source: procedural_human/geo_node_groups/armor/waist.py. Key techniques: bi_rail_loft, pipes, gem_in_holder, gold_on_band, bezier segments, flip-faces, mesh-to-curve. Similar structure to chest but less complex.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. waist.dsl compiles without errors. 2. Mesh comparison gate passes. 3. Visual comparison shows recognizable silhouette match.",
+    "testing-plan": "1. Export Blender reference OBJ. 2. Run validate-dsl to export generated OBJ. 3. Run mesh_distance() comparison. 4. Visual inspection.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

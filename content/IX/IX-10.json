@@ -9,13 +9,13 @@
     "description": "JVM fatal error: SIGSEGV in native AppleMetalOpenGLRenderer (GLRResourceList::addResource) when aggressively resizing the desktop window. Repro: LWJGL Ixdar, drag window edge to very large size. Java 21, macOS aarch64.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. Repro and hs_err correlation documented. 2. Root cause narrowed to driver vs our resize path. 3. Mitigation implemented or documented workaround. 4. Manual stress test on macOS arm64 passes.",
     "testing-plan": "1. Resize stress (slow and fast). 2. Fullscreen and multi-monitor if available.",
     "todos": [
-        "Pair hs_err with Ixdar resize path",
-        "Audit GL allocations on framebuffer resize",
-        "Mitigation or document Apple limitation"
+        "DONE : Pair hs_err with Ixdar resize path",
+        "DONE : Audit GL allocations on framebuffer resize",
+        "DONE : Mitigation or document Apple limitation"
     ],
     "unknowns": [],
     "changes-made": [],

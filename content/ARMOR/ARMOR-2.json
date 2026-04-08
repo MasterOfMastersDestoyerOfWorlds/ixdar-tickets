@@ -1,0 +1,20 @@
+{
+    "id": "ARMOR-2",
+    "epic": "ARMOR",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Armor: Sleeves",
+    "description": "Replicate the sleeve armor pieces from Blender-Procedural-Human in Ixdar DSL. Source: procedural_human/geo_node_groups/armor/sleeves.py. Key techniques: bi_rail_loft, pipes, cone primitives, noise texture displacement, extrude-mesh, mesh-to-curve. Use boundary_a/boundary_b from BiRailLoftNode for surface-following pipes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. sleeves.dsl compiles without errors. 2. Mesh comparison gate passes. 3. Visual comparison shows recognizable silhouette match.",
+    "testing-plan": "1. Export Blender reference OBJ. 2. Run validate-dsl to export generated OBJ. 3. Run mesh_distance() comparison. 4. Visual inspection.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

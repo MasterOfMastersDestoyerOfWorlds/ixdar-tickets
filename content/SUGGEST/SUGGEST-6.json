@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-6",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "harness"
+    ],
+    "title": "Suggested: Validate file extensions in read_image tool",
+    "description": "DSL-17 attempt 1 failed because the agent called read_image on Procedural.obj (329MB OBJ file). The read_image tool accepted it, base64-encoded the massive text file as an image, and caused an API streaming error \u2014 killing the session after only 51 messages. The read_file size guard was bypassed because the agent used read_image instead. Fix: read_image should validate file extensions and reject non-image files (.obj, .stl, .dsl, .json, etc). Only accept known image extensions (.png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "read_image rejects non-image file extensions with a helpful error message directing the agent to use obj_summary or read_file instead",
+    "testing-plan": "Call read_image on a .obj file and verify it returns an error instead of trying to encode it",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

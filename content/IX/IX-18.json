@@ -1,0 +1,26 @@
+{
+    "id": "IX-18",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "SeparateGeometryNode \u2014 filter geometry by boolean selection",
+    "description": "Implement a separate_geometry DSL node equivalent to Blender's GeometryNodeSeparateGeometry. Splits input geometry into two outputs based on a boolean selection field: 'selected' (vertices/faces where selection=true) and 'inverted' (where selection=false). This is essential for working on subsets of geometry \u2014 selecting top faces for extrusion, isolating boundary edges, splitting meshes by material region, etc. Currently delete_geometry exists but only removes selected elements; separate_geometry preserves both halves.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New SeparateGeometryNode class in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/ with @MeshNodeAnnotation id 'separate_geometry'\n2. Input ports: geometry (MeshValue), selection (BooleanField \u2014 per-vertex or per-face)\n3. Output ports: selected (MeshValue \u2014 geometry where selection=true), inverted (MeshValue \u2014 geometry where selection=false)\n4. Domain mode: VERTEX (split by vertex selection) or FACE (split by face selection)\n5. Both outputs are valid standalone meshes (no dangling edges/faces)\n6. Registered in MeshNodeRegistry and usable in .dsl files",
+    "testing-plan": "1. Unit test: separate cube by top-face selection \u2014 verify two valid meshes with correct face counts\n2. Unit test: separate by vertex Y > 0 \u2014 verify split at equator\n3. Unit test: both outputs combined should equal original vertex/face count\n4. DSL integration: separate_geometry in a .dsl file, validate with ValidateDsl\n5. Mesh probe: verify both output meshes have sensible bounding boxes",
+    "todos": [
+        "DONE : Read DeleteGeometryNode for implementation patterns",
+        "DONE : Implement face-domain separation (extract selected + inverted submeshes)",
+        "DONE : Implement vertex-domain separation",
+        "DONE : Wire up as DSL node with two output ports",
+        "DONE : Write unit tests"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

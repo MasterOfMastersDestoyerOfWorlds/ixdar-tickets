@@ -1,0 +1,25 @@
+{
+    "id": "IX-15",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "CurveToMeshNode \u2014 sweep profile along curve path",
+    "description": "Implement a curve_to_mesh DSL node equivalent to Blender's GeometryNodeCurveToMesh. Converts a curve into a mesh by sweeping a profile curve along the path curve. If no profile is provided, creates a simple ribbon/strip mesh along the curve. This enables pipe/tube generation, edge-to-cylinder conversion, and decorative trim creation. Reference: Blender-Procedural-Human pipes.py utility uses this for cylindrical pipe generation from mesh edges. Note: CurveSweepMeshNode already exists but requires an explicit mesh profile face \u2014 this node should accept a curve profile or default to a circle.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New CurveToMeshNode class in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/curve/ with @MeshNodeAnnotation id 'curve_to_mesh'\n2. Input ports: curve (GeometryBundleValue \u2014 curve data), profile_curve (optional GeometryBundleValue \u2014 profile shape), fill_caps (BooleanField, default=true), resolution (IntField, default=12 \u2014 circle resolution when no profile given)\n3. Output port: geometry (MeshValue) \u2014 the generated tube/sweep mesh\n4. When no profile_curve: generate a circular cross-section with given resolution\n5. When profile_curve provided: use it as the sweep cross-section\n6. Sweep maintains parallel transport frame along path (like existing CurveSweepMeshNode)\n7. Registered in MeshNodeRegistry and usable in .dsl files",
+    "testing-plan": "1. Unit test: curve_to_mesh on a straight line curve \u2014 verify cylinder-like output with expected vertex count\n2. Unit test: curve_to_mesh with circular profile \u2014 verify tube mesh topology\n3. Unit test: curve_to_mesh with fill_caps=true vs false \u2014 verify cap faces present/absent\n4. DSL integration: create a grid, mesh_to_curve, curve_to_mesh \u2014 verify pipe mesh\n5. Mesh probe: verify bounding box matches expected dimensions",
+    "todos": [
+        "DONE : Read CurveSweepMeshNode for frame transport implementation",
+        "DONE : Implement default circular profile generation",
+        "DONE : Wire up as DSL node",
+        "DONE : Write unit tests"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

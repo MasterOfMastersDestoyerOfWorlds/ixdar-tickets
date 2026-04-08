@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-2",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "harness"
+    ],
+    "title": "Suggested: Filter test DSL debris from agent commits",
+    "description": "DSL-10 committed test_cylinder.dsl and test_minimal.dsl alongside archipelago.dsl. Harness should filter out test_*.dsl or flag unexpected files before committing.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Agent commits do not include debugging artifact files like test_*.dsl",
+    "testing-plan": "Run a DSL ticket, verify only the target DSL file is committed",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

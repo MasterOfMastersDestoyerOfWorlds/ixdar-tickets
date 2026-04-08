@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-3",
+    "epic": "SUGGEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Suggested: Support variable reassignment in DSL NodeGraphRuntime",
+    "description": "DSL-10 attempt 7 reassigned coons_output 5 times to incrementally combine geometry. This is standard programming behavior but NodeGraphRuntime only keeps the last assignment, silently discarding earlier ones. The runtime should support variable reassignment so all assignments produce evaluated nodes in the graph. Also add join_geometry examples to the mesh-dsl context so agents use the right combiner node.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "NodeGraphRuntime supports variable reassignment — all assignments evaluate, not just the last. join_geometry is documented in mesh-dsl context.",
+    "testing-plan": "Write a DSL that reassigns a variable (e.g. result = cube(); result = subdivide(result)) and verify both nodes execute. Run validate_dsl to confirm.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

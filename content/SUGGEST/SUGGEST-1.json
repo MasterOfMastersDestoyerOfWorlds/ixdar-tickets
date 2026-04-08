@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-1",
+    "epic": "SUGGEST",
+    "repo": "Ixdar",
+    "subsystem": [
+        "harness"
+    ],
+    "title": "Suggested: Fix validate_dsl tool in worker worktree environment",
+    "description": "DSL-10 attempt 6 showed validate_dsl failing on ALL DSL files including known-good ones. Agent burned multiple rounds debugging a systemic validator issue. Likely classpath or working-directory problem in worktree.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "validate_dsl works correctly in worktree environments during agent runs",
+    "testing-plan": "Run daud-worker on a DSL ticket and verify validate_dsl passes on known-good DSL files",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

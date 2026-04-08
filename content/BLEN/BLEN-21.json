@@ -2,19 +2,21 @@
     "id": "BLEN-21",
     "epic": "BLEN",
     "repo": "Blender-Procedural-Human",
-    "subsystem": ["geo-nodes"],
+    "subsystem": [
+        "geo-nodes"
+    ],
     "title": "Promote Geo-Node Helper Functions to node_helpers.py",
-    "description": "Move small helper functions currently defined inline in tool_quilt.py into node_helpers.py where they can be shared across all geo-node modules. Functions to promote: boolean_and(group, a, b) — FunctionNodeBooleanMath AND wrapper; boolean_not(group, a) — FunctionNodeBooleanMath NOT wrapper; field_at_index(group, domain, value, index) — GeometryNodeFieldAtIndex wrapper; _evaluate_closure(group, closure_socket, input_socket) — NodeEvaluateClosure wiring; _build_closure_with_curve(nodes, links, label, points) — creates a closure zone with custom float curve points. These are general-purpose geometry node building blocks used by quilting and needed by masonry, worn edges, and future node groups.",
+    "description": "Move small helper functions currently defined inline in tool_quilt.py into node_helpers.py where they can be shared across all geo-node modules. Functions to promote: boolean_and(group, a, b) \u2014 FunctionNodeBooleanMath AND wrapper; boolean_not(group, a) \u2014 FunctionNodeBooleanMath NOT wrapper; field_at_index(group, domain, value, index) \u2014 GeometryNodeFieldAtIndex wrapper; _evaluate_closure(group, closure_socket, input_socket) \u2014 NodeEvaluateClosure wiring; _build_closure_with_curve(nodes, links, label, points) \u2014 creates a closure zone with custom float curve points. These are general-purpose geometry node building blocks used by quilting and needed by masonry, worn edges, and future node groups.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. boolean_and, boolean_not, field_at_index are in node_helpers.py. 2. evaluate_closure and build_closure_with_curve are in closures.py (or node_helpers.py, depending on whether they need closure-specific imports). 3. tool_quilt.py imports from the shared location. 4. All existing node groups still validate.",
     "testing-plan": "1. Move functions. 2. Update imports in tool_quilt.py. 3. validate --group Quilting passes. 4. Verify no other modules break.",
     "todos": [
-        "Move boolean_and, boolean_not, field_at_index to node_helpers.py",
-        "Move evaluate_closure, build_closure_with_curve to closures.py",
-        "Update imports in tool_quilt.py",
-        "Run full addon validation"
+        "DONE : Move boolean_and, boolean_not, field_at_index to node_helpers.py",
+        "DONE : Move evaluate_closure, build_closure_with_curve to closures.py",
+        "DONE : Update imports in tool_quilt.py",
+        "DONE : Run full addon validation"
     ],
     "unknowns": [],
     "changes-made": [],

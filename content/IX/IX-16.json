@@ -1,0 +1,26 @@
+{
+    "id": "IX-16",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "CurvePrimitiveBezierNode \u2014 create bezier curve segments",
+    "description": "Implement a curve_bezier DSL node equivalent to Blender's GeometryNodeCurvePrimitiveBezierSegment. Creates a cubic Bezier curve from start point, start handle, end handle, and end point. This is the foundational curve primitive \u2014 all armor cross-sections and rail curves in Blender-Procedural-Human are defined with Bezier segments. Without this, agents cannot create arbitrary smooth curves for lofting, sweeping, or profile definition. Should also support a quadratic variant (3 control points) as a mode parameter.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New CurvePrimitiveBezierNode class in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/curve/ with @MeshNodeAnnotation id 'curve_bezier'\n2. Input ports: start (Vec3Field), handle_start (Vec3Field), handle_end (Vec3Field), end (Vec3Field), resolution (IntField, default=16), mode (StringField: 'CUBIC' or 'QUADRATIC', default='CUBIC')\n3. Output port: curve (GeometryBundleValue) \u2014 polyline approximation of the Bezier curve\n4. CUBIC mode: standard cubic Bezier with 4 control points\n5. QUADRATIC mode: quadratic Bezier with 3 control points (start, handle_start as single control, end)\n6. Resolution controls how many line segments approximate the curve\n7. Output curve is compatible with existing curve nodes (resample_curve, curve_sweep, mesh_to_curve)\n8. Registered in MeshNodeRegistry and usable in .dsl files",
+    "testing-plan": "1. Unit test: straight line bezier (handles on line) \u2014 verify points are collinear\n2. Unit test: semicircle bezier \u2014 verify approximate circular arc within tolerance\n3. Unit test: quadratic mode with 3 points \u2014 verify correct interpolation\n4. Unit test: resolution parameter \u2014 verify output point count matches resolution+1\n5. DSL integration: create bezier curve, pipe through curve_sweep \u2014 verify smooth tube\n6. Mesh probe: verify bounding box encompasses all control points",
+    "todos": [
+        "DONE : Implement cubic Bezier evaluation (de Casteljau or direct formula)",
+        "DONE : Implement quadratic Bezier mode",
+        "DONE : Output as GeometryBundleValue curve compatible with CurveSweepMeshNode",
+        "DONE : Wire up as DSL node",
+        "DONE : Write unit tests"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

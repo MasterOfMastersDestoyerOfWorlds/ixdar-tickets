@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-4",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "harness"
+    ],
+    "title": "Suggested: Fix Blender-Procedural-Human quality gate Python environment",
+    "description": "BLEN-15 attempt 1 failed because the pytest quality gate ran with Daud's venv python (/Users/acw28/Code/Daud/.venv/bin/python) which doesn't have pytest. The Blender-Procedural-Human quality gate command 'python -m pytest' needs to either: (a) use the repo's own venv, (b) prefix with 'uv run' to resolve from the repo's pyproject, or (c) use an absolute path to the correct interpreter. This caused a full 26-minute agent run to be wasted.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Blender-Procedural-Human quality gates use the correct Python environment and pytest is found",
+    "testing-plan": "Run daud-worker on a BLEN ticket and verify pytest gate passes",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

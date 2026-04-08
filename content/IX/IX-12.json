@@ -9,18 +9,31 @@
     "description": "Create a CLI entry point that renders a .dsl mesh to a PNG image without requiring the desktop app. Currently the Daud agent relies on the Ixdar automation server (port 47832) which needs the desktop app running with MeshNodeViewerScene active. For standalone/CI agent operation, we need: 1) Initialize headless GL context (HeadlessGL or Mesa/EGL offscreen). 2) Load and execute a .dsl node graph via NodeGraphRuntime. 3) Render the resulting mesh to an offscreen framebuffer with the standard blue shader. 4) Read pixels back and write PNG to stdout or file. Ixdar already has GL interface abstraction with HeadlessGL, LwjglPlatform, and WebGL implementations. The headless path needs to wire up framebuffer creation, mesh rendering, and pixel readback. Output should match the automation server screenshot format for VLM visual quality gate compatibility.",
     "blocked-by": [],
     "blocks": [],
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "definition-of-done": "1. CLI entry point: java -cp ... ixdar.cli.RenderDsl <file.dsl> <output.png>. 2. Renders mesh with default shader matching MeshNodeViewerScene appearance. 3. Configurable resolution (default 512x512). 4. No X11/display required. 5. Output PNG usable by Daud visual quality gate. 6. Works on macOS (primary) and Linux CI.",
     "testing-plan": "1. Render petal.dsl to PNG headlessly, verify non-black non-uniform image. 2. Compare headless render to automation server screenshot for same DSL. 3. Run on macOS without display server. 4. Verify Daud visual_quality.py can score the headless output.",
     "todos": [
-        "Survey HeadlessGL capabilities and framebuffer support",
-        "Create RenderDsl CLI entry point",
-        "Wire up NodeGraphRuntime mesh loading in headless context",
-        "Implement offscreen framebuffer render and PNG export",
-        "Add Maven profile or exec goal for headless render"
+        "DONE : Survey HeadlessGL capabilities and framebuffer support",
+        "DONE : Create RenderDsl CLI entry point",
+        "DONE : Wire up NodeGraphRuntime mesh loading in headless context",
+        "DONE : Implement offscreen framebuffer render and PNG export",
+        "DONE : Add Maven profile or exec goal for headless render"
     ],
     "unknowns": [],
-    "changes-made": [],
-    "related-files": [],
+    "changes-made": [
+        "Created ixdar.cli.RenderDsl CLI entry point with --node, --port, --width, --height options",
+        "Rewrote HeadlessGL to use correct LWJGL GL11/GL13/GL15/GL20/GL30 classes instead of all-GL11",
+        "Added HeadlessBuffer.getBuffer() for FloatBuffer view needed by real GL calls",
+        "Added render-dsl Maven exec profile to pom.xml",
+        "Fixed MeshDistance.extractVertices Vector3f clone cast",
+        "Fixed AutomationRuntime.meshCompare lambda variable capture issues"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/cli/RenderDsl.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessGL.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessBuffer.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessPlatform.java",
+        "ixdar-app/pom.xml"
+    ],
     "priority": 1
 }

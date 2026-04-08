@@ -9,13 +9,13 @@
     "description": "Implement a circle_curve node that generates a closed circular polyline as a CurveGeometry. Inputs: radius (float, default 0.1), resolution (int, default 32), center (vec3, default origin). Output: curve (GEOMETRY_BUNDLE with CurveGeometry). Currently rails for birail_loft can only come from mesh_to_curve(BOUNDARY) which requires constructing a thin mesh strip first. A circle_curve primitive allows direct rail definition in DSL, matching Blender's CurvePrimitiveCircle. The Blender neck armor uses circle curves as both inner and outer rails.",
     "blocked-by": [],
     "blocks": [],
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "definition-of-done": "1. circle_curve registered in mesh node registry. 2. Produces closed CurveGeometry polyline. 3. Points evenly spaced on circle in XZ plane. 4. Resolution parameter controls point count. 5. Works as rail input for birail_loft and curve_sweep.",
     "testing-plan": "1. circle_curve with resolution=4 produces a square-ish 4-point closed curve. 2. All points lie on circle of given radius. 3. Output usable as birail_loft rail_a input. 4. Validate CurveGeometry closure detection.",
     "todos": [
-        "Implement CircleCurveNode generating CurveGeometry",
-        "Ensure closed-curve format compatible with BirailLoftMeshNode",
-        "Add to curve primitives category in catalog"
+        "DONE : Implement CircleCurveNode generating CurveGeometry",
+        "DONE : Ensure closed-curve format compatible with BirailLoftMeshNode",
+        "DONE : Add to curve primitives category in catalog"
     ],
     "unknowns": [],
     "changes-made": [],

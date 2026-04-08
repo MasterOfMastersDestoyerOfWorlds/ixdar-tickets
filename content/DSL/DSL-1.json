@@ -11,16 +11,16 @@
     "blocks": [
         "DSL-2"
     ],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. input_float, input_int, input_boolean nodes exist with name, default, min, max (where applicable) inputs. 2. Each outputs a single value on its 'result' port. 3. NodeGraphRuntime can enumerate all input parameter nodes in a parsed graph (names, types, defaults, ranges). 4. float_curve is documented as part of the same input-parameter family. 5. tool_quilt.dsl compiles with the new input nodes replacing the float_math hacks. 6. All existing mesh tests pass.",
     "testing-plan": "1. Write a unit test that parses a DSL with input_float, input_int, input_boolean nodes and verifies the runtime can enumerate them with correct metadata. 2. Verify tool_quilt.dsl still validates and executes after replacing float_math hacks with input nodes. 3. Verify that overriding an input value at runtime (e.g., changing subdivisions) produces the expected mesh difference.",
     "todos": [
-        "Create InputFloatNode with name/default/min/max ports",
-        "Create InputIntNode (or verify existing one has name/default/min/max)",
-        "Create InputBooleanNode with name/default ports",
-        "Add enumeration API to NodeGraphRuntime for discovering input parameter nodes",
-        "Update tool_quilt.dsl to use input nodes instead of float_math hacks",
-        "Verify float_curve fits the same pattern and document it"
+        "DONE : Create InputFloatNode with name/default/min/max ports",
+        "DONE : Create InputIntNode (or verify existing one has name/default/min/max)",
+        "DONE : Create InputBooleanNode with name/default ports",
+        "DONE : Add enumeration API to NodeGraphRuntime for discovering input parameter nodes",
+        "DONE : Update tool_quilt.dsl to use input nodes instead of float_math hacks",
+        "DONE : Verify float_curve fits the same pattern and document it"
     ],
     "unknowns": [
         "Whether min/max should be enforced at evaluation time or just metadata for UI",

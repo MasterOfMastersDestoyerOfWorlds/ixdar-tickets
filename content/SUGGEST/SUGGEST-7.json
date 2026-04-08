@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-7",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "harness"
+    ],
+    "title": "Suggested: Skip visual confirmation for non-rendering tickets",
+    "description": "ENG-9 (Resilient Automation API Port Binding) implemented code successfully and called implementation_done, but then failed the visual confirmation step. Visual confirmation asks the agent to verify a render, which makes no sense for infrastructure/tooling tickets. The harness should detect ticket type (epic, subsystem, or description keywords) and skip visual confirmation for non-rendering tickets (ENG, DAUD, SUGGEST epics, or tickets with no DSL/shader/scene in subsystem). This caused a 43-minute successful implementation to be marked as failed with no diff saved.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Non-rendering tickets skip visual confirmation and proceed directly to quality gates",
+    "testing-plan": "Run daud-worker on an ENG ticket and verify visual confirmation is skipped",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

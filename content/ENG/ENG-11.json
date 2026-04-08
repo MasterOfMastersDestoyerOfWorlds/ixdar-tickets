@@ -9,7 +9,7 @@
     "description": "The input handling layer has five overlapping classes (TradeKeyGuy, TradeMouseTrap, KeyGuy, MouseTrap, Scene2DMousePanTrap) with duplicated patterns for key/mouse event routing, camera binding, and scene-specific overrides. Consolidate these into a unified input abstraction that scenes can configure declaratively, reducing the surface area for input bugs and making new scene creation simpler.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. A single composable input handler abstraction replaces the five separate classes. 2. Existing scenes (TradeScene, IrregularGridScene, LineScene, etc.) work identically with the new input system. 3. Camera pan/zoom behavior from Scene2DMousePanTrap is available as a reusable component. 4. Scene-specific key bindings (TradeKeyGuy extras) are expressible via configuration or composition, not separate classes. 5. MouseTrap static scroll-region subscription API is preserved or replaced with equivalent. 6. AutomationInputBinder still works for test automation.",
     "testing-plan": "1. Verify TradeScene camera pan, zoom, and key shortcuts work identically. 2. Verify IrregularGridScene pan/zoom with Scene2DMousePanTrap behavior preserved. 3. Verify scroll-region subscriptions still fire correctly. 4. Verify automation input binding works through the new abstraction. 5. Regression test all scenes that currently use any of the five classes.",
     "todos": [

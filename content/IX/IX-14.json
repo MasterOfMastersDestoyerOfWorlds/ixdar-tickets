@@ -1,0 +1,25 @@
+{
+    "id": "IX-14",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MeshBooleanNode \u2014 CSG union/difference/intersect",
+    "description": "Implement a mesh_boolean DSL node equivalent to Blender's GeometryNodeMeshBoolean. Performs constructive solid geometry (CSG) operations: UNION (combine two meshes), DIFFERENCE (subtract mesh B from A), INTERSECT (keep only overlapping volume). This is essential for collar blockers, cutouts, combining armor pieces, and any geometry that needs additive/subtractive modeling. Without this node, agents cannot create holes, trim geometry, or combine complex shapes. Reference: Blender-Procedural-Human armor/blocker/collar workflows.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New MeshBooleanNode class in ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/ with @MeshNodeAnnotation id 'mesh_boolean'\n2. Input ports: mesh_a (MeshValue), mesh_b (MeshValue), operation (StringField: 'UNION', 'DIFFERENCE', 'INTERSECT')\n3. Output port: geometry (MeshValue) containing the result mesh\n4. Implements BSP-tree or plane-splitting CSG algorithm\n5. Handles non-manifold edge cases gracefully (return mesh_a unchanged if boolean fails)\n6. Registered in MeshNodeRegistry and usable in .dsl files",
+    "testing-plan": "1. Unit test: UNION of two overlapping cubes \u2014 verify combined mesh is watertight\n2. Unit test: DIFFERENCE cube minus sphere \u2014 verify hole created\n3. Unit test: INTERSECT two overlapping cubes \u2014 verify result is smaller than either input\n4. DSL integration: write a test DSL using mesh_boolean, validate with ValidateDsl\n5. Mesh probe: verify result bounding boxes are correct for each operation",
+    "todos": [
+        "DONE : Research BSP-tree CSG algorithm suitable for HalfEdgeMesh",
+        "DONE : Implement boolean operation core",
+        "DONE : Wire up as DSL node",
+        "DONE : Write unit tests"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

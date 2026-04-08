@@ -9,15 +9,15 @@
     "description": "Replicate the 'Solaris' mesh in Ixdar's DSL node graph system. Source: /Users/acw28/Blends/Solaris/Solaris.blend. Original stats: 1,969 vertices, 2,083 faces, 7 mesh object(s), 329.5MB OBJ. Complexity: low-poly. The goal is to approximate the overall form and silhouette using available DSL nodes (mesh primitives, subdivide, set_position displacement, solidify, curve_sweep, birail_loft, coons_patch, etc). Reference OBJ at /Users/acw28/Blends/exports/Solaris.obj can be loaded for visual comparison. Focus on structural accuracy over surface detail \u2014 match proportions, major features, and silhouette rather than individual wrinkles or fine texture.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. DSL file at resources/dsl/solaris.dsl compiles without errors. 2. Mesh probe reports reasonable vertex/face counts for the complexity level. 3. Visual comparison with reference thumbnail shows recognizable silhouette match. 4. Key proportions (aspect ratio, major protrusions) are approximately correct.",
     "testing-plan": "1. validate_dsl passes on solaris.dsl. 2. Mesh probe shows finite bounds and non-degenerate geometry. 3. Visual screenshot compared to reference thumbnail.",
     "todos": [
-        "Study reference OBJ/thumbnail for Solaris",
-        "Plan DSL node graph approach (primitives, displacement, sweep, etc)",
-        "Implement solaris.dsl",
-        "Run validate_dsl and mesh probe",
-        "Visual comparison with reference"
+        "DONE : Study reference OBJ/thumbnail for Solaris",
+        "DONE : Plan DSL node graph approach (primitives, displacement, sweep, etc)",
+        "DONE : Implement solaris.dsl",
+        "DONE : Run validate_dsl and mesh probe",
+        "DONE : Visual comparison with reference"
     ],
     "unknowns": [],
     "changes-made": [],
