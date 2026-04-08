@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-1",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Per-vertex color shader",
+    "description": "Extend the MeshShader vertex format from 8 to 11 floats (add RGB per-vertex color). Add a useVertexColor uniform toggle so the shader can switch between uniform solidColor and per-vertex colors. Update HalfEdgeCompiledMeshData to carry an optional color array, and HalfEdgeMeshRuntime.uploadCompiledMesh to bind the color attribute at location 3.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Vertex format is pos3+norm3+uv2+color3 (11 floats) when vertex colors are present. 2. MeshShader.glsl reads vertex color attribute and uses it when useVertexColor=true. 3. Existing meshes without vertex colors render identically to before (uniform solidColor). 4. A test mesh with per-vertex colors renders correctly.",
+    "testing-plan": "1. Compile and run existing mesh viewer tests. 2. Create a test mesh with rainbow vertex colors, verify visual output. 3. Verify neck_armor.dsl and skull.dsl still render with uniform color.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

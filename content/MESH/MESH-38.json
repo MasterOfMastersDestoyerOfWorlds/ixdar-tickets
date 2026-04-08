@@ -1,0 +1,20 @@
+{
+    "id": "MESH-38",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Explore quad-preserving boolean operations",
+    "description": "Research how to perform CSG boolean operations while preserving quad topology. Current mesh_boolean triangulates everything, breaking downstream nodes that expect quads. Options to explore: 1) Re-quadrangulation post-boolean (instant quads, catmull-clark). 2) SDF-based boolean + dual contouring remesh. 3) Topology-aware face classification that preserves quads where possible. Goal: determine feasibility and pick a path forward.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Research document with pros/cons of each approach. 2. Recommendation for which approach to implement. 3. Prototype of recommended approach (can be rough).",
+    "testing-plan": "1. Compare boolean output topology (quad ratio) before and after. 2. Visual comparison of boolean results with current triangulating approach.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

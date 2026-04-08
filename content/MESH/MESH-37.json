@@ -1,0 +1,20 @@
+{
+    "id": "MESH-37",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "solidify_mesh: support triangle meshes",
+    "description": "solidify_mesh currently throws 'requires uniform quad meshes' when given triangulated input. mesh_boolean produces triangulated output, so the natural boolean\u2192solidify workflow is blocked. Add triangle and mixed-face support to solidify_mesh.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. solidify_mesh accepts triangle meshes without error. 2. solidify_mesh accepts mixed quad/tri meshes. 3. Output normals are correct for all face types.",
+    "testing-plan": "1. Unit test: solidify_mesh on a triangulated icosphere. 2. Unit test: solidify_mesh after mesh_boolean (tri output). 3. Unit test: solidify_mesh on mixed quad/tri mesh.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

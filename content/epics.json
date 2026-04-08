@@ -97,6 +97,12 @@
             "description": "Domain-specific language for procedural mesh generation — parser, node runtime, quilting algorithm parity with Blender, user-editable parameter system, and developer tooling (validation, documentation, LSP)"
         },
         {
+            "prefix": "VIEW",
+            "name": "Mesh Viewer & Visualization",
+            "priority": 7,
+            "description": "Mesh viewer UI: per-vertex color rendering, tag-based region visualization, tree panel navigation, camera controls, visual comparison tooling"
+        },
+        {
             "prefix": "IX",
             "name": "Project Setup",
             "priority": 99,
