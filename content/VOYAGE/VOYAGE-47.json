@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-47",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Expose /ui/multiview as a voyage-scoped Daud tool",
+    "description": "The Ixdar automation server already ships POST /ui/multiview (AutomationApiServer.java:67, delivered under MESH-39) which composites 8 orthogonal+diagonal viewpoints into a 4x2 PNG grid, and AutomationClient.multiview() wraps it (automation_client.py:119). Neither is exposed to the voyage agent. In a live skull voyage run, the single-angle validator render hid a cheese-grater artifact on the top of the cage for an entire iteration because the only visible face was the front; a 4x2 multiview would have made it obvious. Add an ixdar_multiview @tool in Daud scoped {daud, voyage}, mirroring the shape of ixdar_screenshot (POST body {path, inline: true}, return is_visual_data dict). Also consider an ixdar_orbit wrapper around /ui/orbit so the agent can author custom angles when multiview isn't enough.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. New @tool(scopes={daud, voyage}) named ixdar_multiview lives in Daud/src/daud/tools/ixdar_screenshot.py (or a new ixdar_multiview.py) and calls POST http://127.0.0.1:47832/ui/multiview. 2. Tool returns the same is_visual_data envelope as ixdar_screenshot so the agent loop injects it as an image. 3. tools_for_scope('voyage') includes the new tool (verified by unit test). 4. Voyage technique prompts mention it under a 'verify from multiple angles' step.",
+    "testing-plan": "1. Unit test mocking the Ixdar automation server; assert ixdar_multiview posts to /ui/multiview with inline=true and returns is_visual_data. 2. Live voyage-batch run on Skull.obj: after each validate_dsl, agent calls ixdar_multiview; transcript confirms 4x2 grid PNG was injected and agent identified the cheese-grater from the top-down tile within one round.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "MESH-46",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "inset_faces: merge inner verts on shared edges between selected adjacent faces",
+    "description": "Analogous to MESH-45 but for the plain inset_faces node (InsetFacesNode.java, @MeshNodeAnnotation id='inset_faces'). The class doc says 'creates inner vertices by lerping each vertex toward the face center' and currently emits 1 inner quad + 4 side quads per selected face unconditionally with fresh inner verts \u2014 same per-face-fresh-verts structural issue as coons_inset_faces. When two or more selected faces share an edge, their inner quads end up edge-disconnected. Downstream extrude_mesh(region=true) (the plain, non-coons extrude) cannot form a single connected region from what should be one contiguous inset patch.\\n\\nFix direction mirrors MESH-45 flavor A: along shared edges between selected faces, drop both per-face side quads, merge the 2 inner-edge verts into one shared pair along that cage edge, and let inner quads become directly edge-adjacent. At corners where 3+ selected faces meet, the near-corner inner verts from those faces merge into one. Unlike MESH-45, this node does NOT need to keep verts on a Coons surface \u2014 it uses flat centroid-lerp placement, so merging can use the standard lerp position (two faces' lerp-to-centroid produce different positions; pick a deterministic rule, likely: place merged vertex at the inset distance along the shared cage edge, i.e. lerp from the shared edge's midpoint/endpoints rather than from each face's centroid).\\n\\nThis ticket should land alongside or after MESH-45 so the two nodes stay behaviorally consistent for the 'select adjacent faces \u2192 inset \u2192 extrude' pattern.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Selected cage faces sharing an edge produce one shared pair of inner verts along that edge. 2. At corners with N>=3 selected faces, N near-corner inner verts merge into one. 3. Side quads only emitted on selection-boundary cage edges. 4. Merged inner verts placed deterministically (document the rule in the class javadoc \u2014 likely lerp along the shared cage edge, not from face centroids). 5. Downstream extrude_mesh(selection=generated, region=true) produces one connected extrusion per selection-connected-component. 6. Behavior stays consistent with MESH-45's coons variant: same topological structure for the merged output.",
+    "testing-plan": "1. Unit: 2x1 grid with both faces selected, inset=0.2. Assert shared inner-edge verts exist (count = 6 inner verts total instead of 8). 2. Unit: 2x2 grid, all 4 selected, inset=0.2. Assert the 4 center-adjacent inner verts collapse to 1 shared vert. 3. Integration: plain inset_faces \u2192 plain extrude_mesh(region=true) on adjacent selection produces a single connected region. 4. Parity: for a connected selection, inset_faces topology matches coons_inset_faces topology (same face/vert counts, same adjacency structure); only vertex positions differ (flat lerp vs Coons surface).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

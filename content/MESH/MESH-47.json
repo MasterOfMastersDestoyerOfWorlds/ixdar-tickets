@@ -1,0 +1,20 @@
+{
+    "id": "MESH-47",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "coons_inset_faces / inset_faces \u2014 handle 3+ cage-corner merges with pentagon + Gregory tri patches",
+    "description": "Follow-up to MESH-45 and MESH-46 (shared-edge merge for two selected cage faces). Those tickets shipped the 2-face case only; 3-or-more selected faces meeting at a single cage vertex still get per-face inner verts and do not merge, leaving a visible seam at cube corners when the user selects 3 cage faces meeting there (e.g. wrapping a feature around a corner of the cage).\\n\\nTarget behaviour (per user sketch): at a cage vertex where N>=3 selected faces meet, place N cyan merge points \u2014 one on each shared cage edge emanating from the corner, at parameter s=t along that edge's bezier curve (for coons_inset_faces) or flat-lerp (for inset_faces). Each face's inner region near that corner becomes a PENTAGON: 2 on-edge cyan dots + 3 face-interior inner corners (at the other 3 cage corners). A new small triangle fills the middle of the N-corner, connecting the N cyan dots.\\n\\nSurface fit: the inner pentagon is NOT rendered as a raw pentagon \u2014 Gregory patches scale poorly with side count, so split each pentagon into a quad + a triangle at emission time. The middle triangle between cyan dots is rendered as a Gregory patch (3-sided), since a degenerate Coons patch on a triangle produces visible artifacts. The Gregory/Coons pentagon infrastructure exists in Blender-Procedural-Human's generalized Gregory implementation \u2014 reuse that scheme here.\\n\\nTightening from MESH-45/46 implementation: both tickets currently require 'fully mergeable' shared edges (both endpoints 2-face corners) before merging, because partial merges (one endpoint 2-face, the other 3+) caused manifold violations downstream. That restriction stays until this ticket lands \u2014 it keeps output always-manifold at the cost of missing optimization opportunities at mixed corners.\\n\\nCommon case (confirmed by user): insetting a 4-patch of adjacent cage faces on a loop-cut grid is the dominant workflow and is FULLY handled by MESH-45/46. This ticket is quality-of-life for wrap-around-corner features.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. CoonsInsetFacesNode and InsetFacesNode handle N-face (N>=3) cage corners by emitting: N cyan verts on the N shared edges, N pentagon inner patches (one per selected face near the corner), and 1 triangular central fill patch. 2. Each pentagon is split into 1 quad + 1 triangle at emission time so the output topology stays within quads+tris. 3. The central triangle patch is rendered using a Gregory patch (not degenerate Coons). Port the implementation from Blender-Procedural-Human \u2014 link the source file(s) in this ticket once identified. 4. Fully-mergeable-edge restriction from MESH-45/46 is relaxed: mixed 2-face+3+face edges merge at the 2-face end using the 2-face merge position, with the 3+ end participating via the new N-face algorithm. 5. Regression: all existing MESH-45, MESH-46, HandDslTest, ToolQuiltDslTest, and voyage skull-fixture scenarios remain green or improve. 6. New test CoonsInset3PlusCornerTest covers cube with 3 adjacent cage faces selected and verifies topology + Gregory patch evaluation.",
+    "testing-plan": "1. Unit: 3 adjacent cage faces on a cube meeting at a single corner, all selected, inset=0.25. Assert topology has 3 pentagons (as quad+tri) + 1 central tri, all sharing the N cyan verts. 2. Unit: assert Gregory patch produces smooth surface (sample interior, check continuity with adjacent bezier edges). 3. Integration: a skull DSL that wraps features around cube corners shows smooth inset regions in the multiview screenshot, no visible seam at the corner. 4. Live voyage run: target similarity +2-5% over MESH-45/46 baseline when selections straddle cube corners.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

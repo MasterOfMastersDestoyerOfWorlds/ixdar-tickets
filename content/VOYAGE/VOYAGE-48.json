@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-48",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Fix coons_cage technique prompt (cube.mesh transition and boolean_math port example)",
+    "description": "The Coons Patch Control Cage technique prompt shipped to the voyage agent has two prose-level inaccuracies that burn rounds on real runs. (1) The pipeline diagram 'cube \u2192 loop_cuts \u2192 assign_bezier_handles \u2192 ...' implies a single .geometry chain, but cube only exposes .mesh \u2014 the MESH\u2192GEOMETRY_BUNDLE handoff happens inside loop_cut (which accepts both). First-time authors hit 'Node base has no output port geometry. Valid outputs: mesh'. Fix: one sentence clarifying 'cube outputs only .mesh \u2014 feed into loop_cut(mesh=...), then use .geometry downstream'. (2) The selection section says 'Combine with boolean_math(AND/OR) as needed' without showing port names. Authors extrapolate from float_math(operation=ADD) and write boolean_math(operation=OR).result, which errors; real ports are mode= and .value. Fix: replace the prose hint with a tiny example showing 'sel = boolean_math(mode=OR, a=x.selection, b=y.selection)' and threading sel.value into the next op. Surfaced from a live skull voyage run; see VOYAGE-46 for the broader tool-schema lookup fix that would also catch these drifts automatically. Note: VOYAGE-46 (tool-schema lookup) is the structural fix; this ticket is the immediate prose patch.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Technique prompt file (likely under Daud/src/daud/voyage/ or similar) updated with the cube.mesh clarification. 2. boolean_math prose hint replaced with a working code example using mode= and .value. 3. Any other *_math example in the prompt uses the correct per-node input/output port names. 4. Ideally, these examples are lint-checked against the live tool / node schemas in CI so the prose cannot silently drift again.",
+    "testing-plan": "1. Run voyage-batch on Skull.obj with the updated prompt; verify the agent's first validate_dsl call succeeds without the cube.geometry or boolean_math.operation errors that occurred in the baseline run. 2. grep the prompt for any remaining boolean_math(operation= or .result references. 3. CI lint (if added) catches a synthetic bad example added to the prompt.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

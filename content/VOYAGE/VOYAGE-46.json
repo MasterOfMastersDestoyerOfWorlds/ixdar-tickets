@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-46",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Tool-schema lookup tool for voyage agent",
+    "description": "During live interactive voyage runs the agent burns rounds on tool kwarg mismatches because the workflow prose in the system prompt disagrees with the actual OpenAI-format tool schemas shipped in the tools array. Examples hit in a real skull run: reference_sample_points(n=30) actual kwarg n_points; mesh_distance(candidate_obj=...) actual kwargs are generated/reference; edit_file(new_content=...) actual kwargs are old_text/new_text; implementation_done missing required status kwarg. The schemas ARE present in the request, but the agent must cross-reference prose-level examples against them on every call. Add a describe_tool(name) lookup or autogenerate prose examples from live schemas so they cannot drift.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Agent can fetch the authoritative schema of any voyage-scoped tool by name during a run. 2. Kwarg mismatch errors no longer require a full round of describe_node-style trial-and-error. 3. Technique prompts (e.g. Coons Patch Control Cage) either stop showing prose-level tool call examples OR those examples are generated from the live tool schemas and verified in CI.",
+    "testing-plan": "1. Run voyage-batch with a tool-lookup tool exposed; manually inject known-bad kwargs and verify the agent can recover in one extra round via the lookup instead of multiple describe_node calls. 2. Unit test: lint the technique prompt against the live tool schema set and fail CI if any shown arg is not a real kwarg for that tool.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

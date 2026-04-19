@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-50",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Prevent Java subprocess orphans beyond the RenderGrid/RenderDsl exit fix",
+    "description": "RenderGrid and RenderDsl now call System.exit(0) at the end of main(), which handles the common case where LWJGL/GLFW non-daemon threads prevented clean JVM exit on macOS. Two edge cases can still leak a Java subprocess:\\n\\n1. ValidateDsl already calls System.exit(valid ? 0 : 1) but can hang before reaching that line (one instance observed, PID 26884 was stuck for 9h50m). Likely causes: a shutdown hook wedged on a native call, or a blocking read on the parent pipe after the parent exited. Needs a guaranteed timeout-to-halt path: register a shutdown watchdog thread that calls Runtime.getRuntime().halt(code) after N seconds if shutdown hasn't completed. halt bypasses shutdown hooks and forces immediate JVM termination.\\n\\n2. If voyage-batch itself is SIGKILL'd (no atexit handler runs), its spawned Java children get reparented to init and stay alive. Fix: launch all Java subprocesses via subprocess.Popen with preexec_fn=os.setsid so they live in their own process group, track the group pgid, and register an atexit handler (plus signal handler for SIGTERM/SIGINT) that sends SIGTERM to the group on shutdown, with SIGKILL escalation after a short grace period.\\n\\nContext: VOYAGE-49 probes whether the embedded automation server is stale; this ticket covers the cleanup of the child Java processes that validate_dsl, render grid composites, and similar CLI invocations spawn when the server path is bypassed. Today those run via subprocess.run which waits for them \u2014 if they hang, Python blocks; if Python is killed, they orphan.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. All Ixdar CLI entry points that use LWJGL/GLFW install a shutdown watchdog that calls Runtime.halt(code) after a configurable timeout (default 10s) if normal shutdown stalls. 2. All Java subprocesses spawned from Python (validate_dsl, RenderGrid, RenderDsl, param_sweep, skeleton tools, mesh_distance if it uses Java) launch in their own process group. 3. Python side registers atexit + SIGTERM/SIGINT handler that sends SIGTERM to each tracked process group, escalating to SIGKILL after a grace period. 4. Running voyage-batch, interrupting it with kill (SIGTERM or SIGKILL), and then checking for leftover 'ixdar.cli' or 'ixdar.geometry.mesh.documentation.ValidateDsl' processes shows zero orphans.",
+    "testing-plan": "1. Unit: spawn a Java sleep process via the new wrapper, verify pgid is set (os.getpgid(pid) != os.getpid()). 2. Unit: trigger the atexit handler manually and verify tracked groups get SIGTERM. 3. Integration: run a full voyage-batch end-to-end, ps afterward should show only the IxdarWindow GUI (if running) and no CLI Java processes. 4. Stress: send SIGKILL to voyage-batch mid-render, verify no orphans (pre-SIGKILL launch of Java children had setsid, so an external reaper script or similar fallback may be needed \u2014 document the limit since SIGKILL defeats in-process handlers). 5. Shutdown-watchdog: inject a synthetic shutdown hook that sleeps forever into ValidateDsl, run it, verify the watchdog halts the JVM after the configured timeout.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

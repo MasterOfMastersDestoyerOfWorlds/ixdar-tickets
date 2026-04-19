@@ -1,0 +1,20 @@
+{
+    "id": "MESH-43",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Connectivity-aware region=true on coons_extrude_mesh (group selection into connected components)",
+    "description": "coons_extrude_mesh(selection=mask, region=true) currently treats the entire boolean mask as one region. When the mask covers multiple disconnected face clusters (e.g. select_by_normal(direction=<0,1,0>, threshold=0.7) on a cage that already has brow / maxilla / chin bump extrusions picks the tops of ALL of them plus the cranium crown), each face ends up extruding along its own normal with no shared perimeter \u2014 the classic cheese-grater artifact. Fix: before extruding, split the selection into connected components by walking face-face adjacency through shared edges, then extrude each component as its own region (shared extruded verts, averaged normal, own perimeter ring). Surfaced from a live voyage skull run (checkpoint #2, 68.7% similarity) where the top cranium round-off produced disjoint tiny extrusions. Related: maybe also expose select_connected_components(selection) as a standalone node so authors can split/filter masks explicitly, but making region=true do this by default matches author intent.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. coons_extrude_mesh with region=true performs connected-component splitting on the selection mask before extrusion. 2. Each component produces its own shared extruded vertices and averaged surface normal. 3. Fallback/flag to keep the legacy behavior is NOT added (solo dev, clean semantics). 4. Same treatment applied to coons_inset_faces if it exhibits the analogous issue. 5. Regression test: a mask with 2+ disconnected clusters produces 2+ distinct extruded regions with no shared vertices between them.",
+    "testing-plan": "1. Unit test: build a cage, select two disconnected top-face clusters, call coons_extrude_mesh(selection, region=true, offset=0.1), verify two regions exist with correct averaged normals and no cross-cluster vertex sharing. 2. Re-run the skull voyage DSL from VOYAGE-46/47 investigation; checkpoint render shows a smooth cranium rather than cheese-grater. 3. Similarity for the skull test case improves measurably (target: 68.7% \u2192 75%+ on identical DSL).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "MESH-44",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Extend CanonicalPortNames to enforce input port naming (operation role)",
+    "description": "CanonicalPortNames.java (annotations/src/main/java/ixdar/annotations/meshnode/CanonicalPortNames.java) and the accompanying MeshNodeCanonicalOutputNamesTest currently only enforce OUTPUT port naming. MESH-42 renamed boolean_math and integer_math input port from 'mode' to 'operation' manually but there is no build-time guarantee another node will not regress \u2014 e.g. a new math node could ship with 'mode' again. Extend the canonical-name rule with a role concept for INPUT ports (start with OPERATION_SELECTOR: STRING input with ModeConstraint on *_math nodes must be named 'operation'). Add a sibling test to MeshNodeCanonicalOutputNamesTest that walks the registry and fails the build if any OPERATION_SELECTOR-role input is named anything other than 'operation'. Future roles can be added under the same pattern (e.g. selection masks named 'selection', seed inputs named 'seed'). Surfaced while completing MESH-42.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. CanonicalPortNames (or a sibling class) gains a role/rule for input ports with a STRING+ModeConstraint operation-selector signature, requiring the name 'operation'. 2. New test MeshNodeCanonicalInputNamesTest walks the registry and fails the build when a node violates the rule. 3. Test currently passes (boolean_math, integer_math, float_math, vector_math all use 'operation' post-MESH-42). 4. Test is added to CI and documented alongside the output-port equivalent. 5. Design stays conservative \u2014 only the operation-selector role is covered initially; future roles are explicit extensions, not a generic allowlist.",
+    "testing-plan": "1. Green path: run the new test on the post-MESH-42 codebase; should pass. 2. Regression path: add a temporary test fixture node with input port 'mode' (STRING + ModeConstraint) and verify the test fails with an actionable error message. 3. Remove the fixture; verify green again.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

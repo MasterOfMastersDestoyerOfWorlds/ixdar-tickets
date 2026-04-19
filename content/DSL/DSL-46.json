@@ -1,0 +1,20 @@
+{
+    "id": "DSL-46",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Auto-tag generated faces with DSL LHS variable name",
+    "description": "Today tag_geometry is a manual final step, and mesh_compare_regions reports regions by auto-segmented spatial bins (e.g. spatial_Z-_5) that are opaque to the agent. The DSL parser already knows each assignment's left-hand-side variable name (eye_inset in 'eye_inset = coons_inset_faces(...)'). Thread that name into NodeGraphRuntime so the newly created faces of feature-creating nodes (coons_inset_faces.generated, coons_extrude_mesh.generated, inset_faces, extrude_mesh, and similar) are auto-tagged with the LHS name. Effect: mesh_compare_regions can then report 'eye_inset: p95=0.42, coverage=18%' instead of 'spatial_Z-_5', giving the agent actionable per-feature error signal that lines up with the DSL it just wrote. Surfaced from a live voyage skull run where the worst region was reported as spatial_Z-_5 with no way to map it back to which extrusion caused it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. NodeGraphRuntime threads the LHS variable name of each assignment into MeshFieldContext (or equivalent) during execution. 2. Feature-creating nodes that expose a 'generated' output (coons_inset_faces, coons_extrude_mesh, inset_faces, extrude_mesh) auto-tag those generated faces with the LHS name at assignment time. 3. Tags accumulate (chaining adds names) and survive the same ops that tag_geometry survives today; destructive ops (coons_patch, subdivide_mesh) still invalidate them, matching current semantics. 4. Subsequent tag_geometry(tags=...) appends to auto-tags rather than overwriting. 5. validate_dsl export writes the LHS tags into the .tags.json sidecar. 6. mesh_compare_regions output includes the LHS-named regions alongside or instead of auto-segmented spatial bins.",
+    "testing-plan": "1. Unit test: parse 'x = coons_inset_faces(...)' + 'y = coons_extrude_mesh(generated=x.generated)', run, verify generated faces carry tags ['x'] and ['x','y'] respectively. 2. Integration test on a skull DSL: validate_dsl export .tags.json contains entries for eye_inset, nose_in, brow, maxilla, chin, then mesh_compare_regions report names those regions. 3. Destructive op test: coons_patch after an auto-tagged cage invalidates tags, matching tag_geometry behavior.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

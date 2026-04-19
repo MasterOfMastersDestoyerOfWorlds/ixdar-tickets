@@ -1,0 +1,20 @@
+{
+    "id": "MESH-42",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Standardize math-node operation input: rename mode to operation on boolean_math and integer_math",
+    "description": "FloatMathNode and VectorMathNode use input port name 'operation' for the operation-selector string (e.g. ADD, MULTIPLY, DOT_PRODUCT). BooleanMathNode and IntegerMathNode use 'mode' for the same role. This inconsistency burns agent rounds during voyage runs (a live skull voyage hit it when boolean_math(operation=OR) errored with 'unknown input port operation. Valid inputs: a, b, mode'). The in-progress CanonicalPortNames.java work covers OUTPUT port standardization but not INPUT port standardization; this ticket adds the complementary input-side rule. Files affected: BooleanMathNode.java (input port), IntegerMathNode.java (input port), any .dsl scripts that reference boolean_math(mode=...) or integer_math(mode=...), any documentation/technique prompts that show example args.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. BooleanMathNode and IntegerMathNode input port name changed from 'mode' to 'operation'. 2. CanonicalPortNames.java (or sibling rule) enforces that any port with role OPERATION_SELECTOR is named 'operation'; test fails build if a math node regresses. 3. All in-tree .dsl files updated (grep -rn 'boolean_math(mode='). 4. System prompt / technique prompts regenerated or patched to use 'operation='. 5. No backwards-compat alias kept (solo dev, clean rename).",
+    "testing-plan": "1. Unit test parses 'x = boolean_math(operation=OR, a=..., b=...)' successfully; old 'mode=OR' fails with a clear rename hint. 2. Build-time test enforces the canonical input naming rule across all *_math nodes. 3. Full validate_dsl sweep over in-tree .dsl files still passes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
