@@ -1,0 +1,20 @@
+{
+    "id": "MESH-48",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Port 3+ cage-corner cyan-dot emission to plain inset_faces (mirror MESH-47 in modifier/InsetFacesNode)",
+    "description": "MESH-47 landed cyan-dot + central n-sided fill emission at 3+ cage corners in CoonsInsetFacesNode (patch/, used by the voyage coons_cage technique). The plain InsetFacesNode (modifier/, used by hand.dsl and similar DSLs) still has the conservative 'fully-mergeable edges only' restriction and does not emit 3+ corner cyan dots \u2014 it keeps face-local inner verts at those corners.\\n\\nPort the same algorithm: detect 3+ corners, walk the selected-face fan around each such corner, allocate N cyan dots at s=t along each shared cage edge from the corner, record (backCyan, fwdCyan) per face-corner pair, emit variable-vpf inner polygons (pentagon/hexagon/...) plus one central N-sided fill face per 3+ corner, drop side quads where both endpoints have allocated merges. Lift the fully-mergeable-edges restriction in the process.\\n\\nOne difference from the Coons variant: inset_faces uses flat-lerp positions, not Coons surface evaluation. Cyan dot position = lerp(v, other_endpoint, t) along the shared cage edge (straight line). Face-local position stays lerp(v, centroid, t) as today. Reuse the existing  structure; the allocate3PlusCorner helper translates directly (swap  for edge-endpoint lerp).\\n\\nAfter this lands, inset_faces downstream of coons_patch's Gregory dispatch will also render smoothly at 3+ corners for any DSL that uses the flat-lerp variant.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. InsetFacesNode.insetFacesQuadWithSharedEdgeMerge (or successor) detects 3+ corners and emits N cyan dots + central fill analogous to CoonsInsetFacesNode. 2. Face-local allocations use flat centroid-lerp; cyan dots use flat edge-lerp (both matching the node's existing flat-lerp semantics). 3. Fully-mergeable-edges restriction lifted \u2014 shared cage edges with both endpoints allocated (2-face merge OR 3+ cyan dot) drop side quads. 4. Output uses HalfEdgeMeshEngine.bulkAllocateMixed when non-quad faces are present (via the existing finalizeMixedMesh pattern from CoonsExtrudeMeshNode). 5. New test InsetFaces3PlusCornerTest mirrors CoonsInset3PlusCornerTest: cube+all-faces produces octagon inner faces + 8 triangle central fills + preserves 1-face selection as all-quad. 6. Existing InsetFacesSharedEdgeTest and HandDslTest stay green.",
+    "testing-plan": "1. mvn -pl ixdar-app test -Dtest=InsetFaces3PlusCornerTest,InsetFacesSharedEdgeTest,HandDslTest passes. 2. Hand-crafted DSL using plain inset_faces on 3 adjacent cube faces produces one connected inner region via the central triangle fill; mesh is manifold.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
