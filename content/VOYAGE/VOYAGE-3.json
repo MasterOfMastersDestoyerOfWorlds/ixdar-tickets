@@ -1,0 +1,26 @@
+{
+    "id": "VOYAGE-3",
+    "epic": "VOYAGE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Headless Grid Renderer",
+    "description": "New CLI RenderGrid that renders N mesh candidates in a single labeled grid image for VLM tournament consumption. Each cell auto-framed with consistent camera angle, labeled 1-N. Extends the existing RenderDsl headless rendering pattern.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. RenderGrid CLI accepts --inputs dir/ --output grid.png --cols N --cell-size N. 2. Renders each DSL/OBJ in the input directory to a cell. 3. Cells auto-framed with consistent camera. 4. Cells labeled 1-N. 5. Grid image suitable for VLM consumption (clear labels, consistent lighting).",
+    "testing-plan": "1. Render 4 known DSL files in a 2x2 grid. 2. Verify output PNG dimensions match cols * cell-size. 3. Render 16 files in a 4x4 grid and visually confirm labeling.",
+    "todos": [
+        "Create RenderGrid.java CLI entry point",
+        "Implement per-cell mesh loading and auto-framing",
+        "Add cell labeling (1-N text overlay)",
+        "Composite cells into grid image",
+        "Add Maven profile for RenderGrid"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

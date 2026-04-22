@@ -1,0 +1,27 @@
+{
+    "id": "VOYAGE-8",
+    "epic": "VOYAGE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "DSL Function Syntax",
+    "description": "Extend PythonParser and NodeGraphRuntime to support sub-graph definitions (functions). Syntax: def name(param: TYPE) -> TYPE: ... end. Parser: new tokens DEF, COLON, ARROW, END in PythonLexer.java; function definition and call parsing in PythonParser.java. Runtime: function template storage, parameter binding, isolated subgraph execution in NodeGraphRuntime.java. All existing DSL files must continue to parse unchanged.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Parser accepts def/end function definitions with typed parameters. 2. Functions can be called like regular nodes. 3. Runtime executes function bodies with parameter binding. 4. Functions can call other functions. 5. All existing DSL files parse unchanged. 6. New test DSL files exercise function definition and calling.",
+    "testing-plan": "1. Parse a DSL with function definition + call. 2. Execute function that wraps cube + subdivide. 3. Test function with multiple parameters. 4. Test nested function calls. 5. Verify all existing DSL files still parse and execute.",
+    "todos": [
+        "DONE : Add DEF, COLON, ARROW, END tokens to PythonLexer",
+        "DONE : Parse function definitions in PythonParser",
+        "DONE : Parse function calls (distinguish from node calls)",
+        "DONE : Store function templates in NodeGraphRuntime",
+        "DONE : Implement parameter binding and subgraph execution",
+        "DONE : Test backward compatibility with all existing DSL files"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

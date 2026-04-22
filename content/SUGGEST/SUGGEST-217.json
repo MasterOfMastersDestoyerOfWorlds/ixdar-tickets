@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-217",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Implement completion validation gate",
+    "description": "Add a pre-implementation_done gate that verifies: 1) all ticket DoD items are addressed, 2) tests pass, 3) type checks pass, 4) diff contains expected changes. This catches premature completion attempts.\n\nSource: auto-review of attempt on VOYAGE-10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

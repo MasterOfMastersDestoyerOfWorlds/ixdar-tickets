@@ -1,0 +1,27 @@
+{
+    "id": "VOYAGE-6",
+    "epic": "VOYAGE",
+    "repo": "KriegEterna",
+    "subsystem": [
+        "website"
+    ],
+    "title": "Voyage Dashboard on KriegEterna",
+    "description": "Dashboard hosted as Hugo section at /voyage/ on KriegEterna site. Daud generates Hugo-compatible markdown + frontmatter for each run, plus static assets (grid PNGs, fitness CSVs). KriegEterna has layouts for run index and individual run pages with fitness curves, grid renders, technique success rates, skill library growth. Viewable via hugo server. Depends on VOYAGE-5.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Hugo section at web/content/voyage/ with _index.md. 2. voyagelist.html layout for run index. 3. voyage.html layout for individual run pages. 4. Data mount in config.toml for voyage run data. 5. Daud report.py generates Hugo-compatible content per run. 6. voyage-report CLI entry point. 7. Viewable via hugo server.",
+    "testing-plan": "1. Generate report for a completed voyage run. 2. hugo server shows /voyage/ listing. 3. Individual run page shows fitness curves and grid renders. 4. Verify live-update during active run.",
+    "todos": [
+        "Create web/content/voyage/_index.md",
+        "Create voyagelist.html layout",
+        "Create voyage.html layout for individual runs",
+        "Add data mount to config.toml",
+        "Implement Daud report.py for Hugo content generation",
+        "Add voyage-report CLI entry"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-242",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add type error auto-fix capability",
+    "description": "Implement a tool that can automatically fix common type errors (like adding type imports, fixing import paths, or adding type annotations). This reduces the cognitive load on the agent for routine type issues.\n\nSource: auto-review of attempt on VOYAGE-11",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

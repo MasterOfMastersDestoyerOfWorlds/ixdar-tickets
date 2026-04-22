@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-411",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Increase Vertex Budget for Complex Geometry",
+    "description": "[capability] The current vertex counts (~7k) may be insufficient for the high-frequency detail of a human skull; test if increasing the allowed vertex limit improves similarity.\n\nSource: voyage review of run=20260419-183559 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

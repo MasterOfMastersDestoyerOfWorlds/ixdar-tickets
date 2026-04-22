@@ -1,0 +1,20 @@
+{
+    "id": "DSL-44",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "coons_inset_faces radial edge handles: fit cubic bezier from iso-direction tangents",
+    "description": "Follow-up polish for DSL-42. Today coons_inset_faces sets zero handles on radial edges (outer cage corner to inner surface corner) because the edge traces a diagonal in (u,v) parameter space rather than a clean iso-curve. Zero handles produce straight radial segments, which is fine for typical inset values (t=0.2-0.35) but would curve correctly if we sampled \u2202S/\u2202u + \u2202S/\u2202v at the endpoints and magnitudes at chord/3. Low priority \u2014 feature is functional and clean without it \u2014 but worth doing for surface fidelity on high-curvature cages.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Radial edges get tangent-sampled handles. 2. Visible smoother transition in high-curvature render vs current zero-handle version.",
+    "testing-plan": "1. Render a coons_inset on a high-curvature cage (weight=1.5). 2. Compare side-quad silhouettes before/after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

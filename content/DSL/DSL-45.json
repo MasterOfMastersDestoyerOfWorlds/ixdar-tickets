@@ -1,0 +1,20 @@
+{
+    "id": "DSL-45",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Consider un-unifying loop_cut: separate coons_loop_cut node",
+    "description": "Design question raised during DSL-42: loop_cut currently dispatches silently to CoonsLoopCutNode when input carries bezier handles, otherwise does midpoint cuts. That silent behavior-depending-on-attached-data pattern is what prompted the separate coons_inset_faces node (DSL-42) rather than overloading inset_faces. For consistency, re-register coons_loop_cut as its own public node id and have loop_cut be topology-only (midpoint). Agent picks explicitly. Breaking change for any DSL using loop_cut post-handles today \u2014 update the coons_cage technique prompt accordingly.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. coons_loop_cut re-registered with @MeshNodeAnnotation. 2. loop_cut reverts to topology-only midpoint cuts; strips (or passes through unchanged) handle slots. 3. Coons cage technique prompt updated to call coons_loop_cut after handles. 4. MeshNodePortDocumentationTest green (socket docs on the re-registered node).",
+    "testing-plan": "1. DSL with loop_cut-after-handles falls through to midpoint (verify). 2. DSL with coons_loop_cut-after-handles does de Casteljau (verify). 3. Existing tests still pass.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

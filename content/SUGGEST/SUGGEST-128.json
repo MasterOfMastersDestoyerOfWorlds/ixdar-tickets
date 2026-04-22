@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-128",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add ticket milestone tracking",
+    "description": "Create a tool that parses the ticket definition-of-done and tracks which items are complete. The agent can call this to verify it has met all criteria before calling implementation_done.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

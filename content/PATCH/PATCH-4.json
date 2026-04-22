@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-4",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "patch-rendering"
+    ],
+    "title": "Welsh-Powell 4-coloring for adjacency-aware palette",
+    "description": "Replace the current 'pid % 20 palette-wrap' coloring in PatchRenderer with a Welsh-Powell greedy graph coloring over the patch-adjacency graph, so neighboring patches always get different colors.\n\nCurrent behavior: PatchRenderer.buildFaceColors picks PALETTE[pid % 20]. With 82 patches on the skull, colors wrap ~4x so adjacent same-color patches visually merge \u2014 the human viewer sees one blob where there are actually 4-5 distinct patches.\n\nNew behavior:\n1. Build a patch-adjacency graph from the face-adjacency graph already computed in SemanticPatchDecomposer.\n2. Order patches by descending degree (Welsh-Powell).\n3. For each patch in that order, pick the lowest-index color not used by any already-colored neighbor.\n4. By the four-color theorem, planar patch arrangements are always 4-colorable; in practice 4-6 colors suffice even on high-patch-count meshes.\n5. Keep the existing 20-color palette as the source pool \u2014 pick 4-6 visually distinct colors from it, assign in Welsh-Powell order.\n\nExpected outcome on the skull: no more visual merging of adjacent same-colored patches; every patch boundary is a visible color change in the render.\n\nOriginated from PATCH-1+2 follow-up discussion.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "PatchRenderer switched to Welsh-Powell coloring fed by patch-adjacency from SemanticPatchDecomposer (or a new decomposer output field for patch adjacency). Skull multiview visibly shows no two touching patches sharing a color.",
+    "testing-plan": "uv run label-patches /tmp/skull.obj --force and visually inspect the multiview \u2014 every patch boundary is a color transition.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

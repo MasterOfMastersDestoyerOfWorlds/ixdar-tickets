@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-39",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Pluggable agent client with file-handoff interactive mode",
+    "description": "Add a pluggable agent-client layer so DAUD_AGENT_CLIENT=interactive lets a human (or another Claude session) drive the streaming tool-call loop via file handoff. Default (openai) mode is bit-for-bit unchanged: const.client is a plain openai.OpenAI. Interactive mode wraps it in an InteractiveAgentClient that intercepts stream=True on the agent path (main.py:135) and forwards stream=False (judge/condenser/tournament calls) to the real endpoint. Request/response JSON handoff via ~/.ix/daud-interactive/ with transcript.jsonl for post-run review.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Default DAUD_AGENT_CLIENT=openai mode unchanged. 2. DAUD_AGENT_CLIENT=interactive intercepts streaming calls, forwards non-streaming. 3. Synthetic chunk matches OpenAI delta shape consumed at main.py:173-186. 4. Handoff dir configurable via DAUD_INTERACTIVE_DIR. 5. Transcript.jsonl persists both sides of each exchange.",
+    "testing-plan": "1. Default mode loads an OpenAI client. 2. Interactive mode wraps the OpenAI client as fallback. 3. End-to-end roundtrip with a pre-seeded response.json produces a valid streaming chunk. 4. request.json and response.json are cleaned up after each roundtrip; transcript.jsonl grows.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-361",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "DSL Syntax Validation Audit",
+    "description": "[tooling] Investigate the specific reasons for checkpoint failure. Determine if the techniques are producing syntactically incorrect DSL or if the output is empty/malformed, as both failed simultaneously.\n\nSource: voyage review of run=20260418-213259 round=1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

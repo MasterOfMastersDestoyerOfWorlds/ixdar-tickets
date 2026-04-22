@@ -11,7 +11,7 @@
     "description": "Extend the automation stack so camera orbit and pan interactions can be validated intentionally instead of inferred indirectly from screenshots and scroll events. This ticket is specifically about drag-capable input primitives and the unknowns around how to validate viewport interactions like orbit and pan. Keep it separate from general CLI ergonomics work so input validation design can evolve on its own.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. The automation API and CLI support a drag-oriented input primitive suitable for viewport interaction testing. 2. Orbit and pan behaviors can be exercised through automation without requiring manual mouse use. 3. A validation approach is documented for asserting camera motion resulting from drag input. 4. The design accounts for both raw pointer movement and higher-level gesture semantics where appropriate. 5. At least one viewport interaction test is demonstrated against an existing scene. 6. Unknowns and trade-offs for future input validation are documented clearly in the ticket or related docs.",
     "testing-plan": "1. Launch a scene with camera interaction and issue a drag command through automation. 2. Verify the target scene receives the drag input and camera state or rendered output changes as expected. 3. Exercise both positive and negative cases, such as drag below the gesture threshold and drag above it. 4. Confirm that scroll/click behavior remains unchanged after adding drag support. 5. Document how orbit/pan validation should be interpreted when only visual evidence is available.",
     "todos": [

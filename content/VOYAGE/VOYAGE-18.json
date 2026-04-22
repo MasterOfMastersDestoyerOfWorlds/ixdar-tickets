@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-18",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/loop"
+    ],
+    "title": "Ensure automation server is running during voyage",
+    "description": "All skeleton tools depend on Ixdar automation server on port 47832. Voyage loop never starts or checks it. Add a health check at voyage start and optionally auto-launch via mvn -P mesh-viewer. If server is unavailable, skeleton tools fail silently. At minimum log a warning, ideally start the server as a subprocess.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Voyage loop checks automation server health at startup. If unavailable, either auto-launches it or logs a clear warning. Skeleton tools work during voyage runs.",
+    "testing-plan": "Start a voyage run without automation server running. Verify it either auto-starts or prints a clear warning about skeleton tools being unavailable.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

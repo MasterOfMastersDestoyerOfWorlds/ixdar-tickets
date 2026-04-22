@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-193",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Improve agent's code review strategy",
+    "description": "Update the system prompt to require agents to verify existing code actually works before claiming it's done. Agents should run tests/type checks on existing code rather than assuming it's sufficient.\n\nSource: auto-review of attempt on VOYAGE-2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

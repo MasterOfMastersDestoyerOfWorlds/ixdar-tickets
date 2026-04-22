@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-147",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation_done_gate",
+    "description": "Add a mandatory gate that requires the agent to call implementation_done before the session can end. Currently the agent can run indefinitely without signaling completion. This gate should fail the attempt if not called within the time limit.\n\nSource: auto-review of attempt on MESH-39",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

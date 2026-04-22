@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-278",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add incremental test execution capability",
+    "description": "Provide a run_single_test tool that allows the agent to test individual test classes incrementally rather than waiting for full compilation. This helps identify specific compilation errors faster and guides fixes.\n\nSource: auto-review of attempt on VOYAGE-7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

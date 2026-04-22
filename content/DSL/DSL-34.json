@@ -1,0 +1,20 @@
+{
+    "id": "DSL-34",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "SelectByDistance and SelectByNormal selection primitives",
+    "description": "Add two new nodes both producing BOOLEAN selection fields. select_by_distance(geometry, point, radius) - true for faces within radius of point (default: face center). select_by_normal(geometry, direction, threshold) - true for faces whose normal dot direction exceeds threshold. Both compose with boolean_math AND/OR and with the generated output from modifiers.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. select_by_distance produces correct selection. 2. select_by_normal produces correct selection. 3. Both compose with existing boolean_math. 4. Documented in node catalog.",
+    "testing-plan": "1. DSL: select_by_distance on cube, verify only near-point faces selected. 2. select_by_normal with +Y direction selects top face of cube.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-34",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Enable file write tool with DSL validation",
+    "description": "Add a write_file tool that validates DSL syntax before committing changes. Currently the agent can explore but has no clear path to actually create the DSL file. The tool should provide immediate feedback on syntax errors.\n\nSource: auto-review of attempt on DSL-9",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

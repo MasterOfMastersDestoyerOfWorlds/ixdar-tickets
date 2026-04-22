@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-389",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Primitive Expansion",
+    "description": "[tooling] Introduce specific DSL primitives for concave subtractions or 'boolean-like' operations to better define the eye sockets and nasal cavity, which are likely the primary sources of similarity loss.\n\nSource: voyage review of run=20260419-005624 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

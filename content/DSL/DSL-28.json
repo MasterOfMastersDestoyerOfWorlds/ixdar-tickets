@@ -1,0 +1,20 @@
+{
+    "id": "DSL-28",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Unify loop_cut and coons_loop_cut into one handle-aware node",
+    "description": "Collapse coons_loop_cut into loop_cut: if bundle has _bezier_handles_start slot, do de Casteljau subdivision (current coons_loop_cut behavior); otherwise straight cut (current loop_cut). Remove coons_loop_cut node id. Update all resources/dsl/*.dsl examples and any test DSLs.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Single loop_cut node handles both cases. 2. coons_loop_cut node removed. 3. Existing DSL files updated. 4. Existing tests pass.",
+    "testing-plan": "1. DSL with loop_cut on handled mesh produces same output as current coons_loop_cut. 2. DSL with loop_cut on plain mesh unchanged behavior.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

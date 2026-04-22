@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-27",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/batch"
+    ],
+    "title": "Watertight checkpoint enforcement in voyage batch",
+    "description": "Non-watertight meshes are checkpointed and count toward best similarity. Agent gets no feedback that its mesh is open. Fix: gate _maybe_checkpoint() on watertight status \u2014 reject non-watertight meshes and return feedback to the agent via _visual_round_callback. Remove post-hoc watertight gate.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. _maybe_checkpoint rejects non-watertight meshes before checkpointing. 2. Rejection returns feedback dict with reason and guidance. 3. _visual_round_callback injects rejection message into agent messages. 4. Post-hoc watertight error flag removed from best checkpoint selection.",
+    "testing-plan": "1. During a voyage run, agent produces non-watertight DSL. 2. Verify no checkpoint is created. 3. Verify agent receives rejection feedback message. 4. Only watertight meshes appear in checkpoint_history.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

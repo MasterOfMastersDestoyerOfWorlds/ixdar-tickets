@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-339",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Review Mesh Closing Algorithms",
+    "description": "[capability] Investigate if the current DSL primitives are capable of creating closed volumes for complex organic shapes or if new 'cap' or 'stitch' functions are required.\n\nSource: voyage review of run=20260418-134413 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

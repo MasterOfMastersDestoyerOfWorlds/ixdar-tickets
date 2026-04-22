@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-7",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Tighten concavity halo and emit rims as dedicated patches",
+    "description": "The concavity carve-out pass currently expands each concavity component by CONCAVITY_RING_EXPAND=1 face-ring so the rim renders as a distinct color change. On the skull this causes two issues:\n\n1. Nasal cavity leakage: the 1-ring halo oversteps the cavity edge and absorbs part of the nasal floor / surrounding bone.\n2. The halo dilutes the 'this is a concave region' signal \u2014 the expanded region mixes concave interior vertices with convex rim vertices, so the labeler sometimes sees a confused shape.\n\nNew behavior:\n1. Drop CONCAVITY_RING_EXPAND to 0 (concavity patches are exactly the concave interior).\n2. Emit a separate 'rim' patch along the high-curvature crease bounding each concavity. Rim patches are thin (1-2 face-rings wide) and get their own patch id.\n3. Labeler prompt updated to explain this pairing: rim+bowl patches usually deserve a single anatomical label like 'right_eye_socket' (rim+bowl), so the prompt instructs Claude to recognize paired (concavity, rim) patches and label them accordingly \u2014 or give both the same semantic name with _rim / _bowl suffixes.\n\nOriginated from PATCH-1+2 follow-up user observation: 'the left nose cavity is still leaking'.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Concavity patches are now strictly interior (no halo); paired rim patches surround each. Nose cavity stops leaking into adjacent bone. Eye sockets still come out clean.",
+    "testing-plan": "uv run label-patches /tmp/skull.obj --force and verify: (a) nasal cavity vertices are strictly within the piriform aperture, no overflow; (b) rim patches appear as thin colored rings around the orbital plates and nasal cavity in the multiview.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

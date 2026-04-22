@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-56",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add task breakdown requirement",
+    "description": "Modify the system prompt to require agents to output a numbered task breakdown before making any tool calls. The breakdown should include estimated tool calls per task and a clear success criterion for each subtask. This forces the agent to commit to a plan before execution.\n\nSource: auto-review of attempt on DSL-18",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

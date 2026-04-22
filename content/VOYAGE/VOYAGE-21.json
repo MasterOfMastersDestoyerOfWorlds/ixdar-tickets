@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-21",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/loop"
+    ],
+    "title": "Fix WinnerRecord serialization bug blocking resume and carry-forward",
+    "description": "WinnerRecord.to_dict() uses key 'round' but __init__() expects 'round_number'. Deserialization crashes on resume with TypeError. This blocks winner carry-forward between rounds (VOYAGE-14) from actually working \u2014 the agent cannot resume from saved state or iterate on prior winners.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. WinnerRecord.to_dict() uses 'round_number' key matching __init__() parameter. 2. Resume path has backward-compat shim: if saved JSON has 'round' key, rename to 'round_number' before constructing WinnerRecord. 3. Voyage run can be stopped and resumed without crash.",
+    "testing-plan": "1. Start a voyage run, let it complete one round. 2. Stop the process. 3. Resume with --resume flag. 4. Verify state loads without TypeError. 5. Verify prior round winners are injected into next round agents.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

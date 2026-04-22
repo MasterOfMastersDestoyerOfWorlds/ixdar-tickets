@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-40",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Implement grep_search timeout handling and path scoping",
+    "description": "The grep_search tool timed out on large directories. Add automatic path scoping to limit searches to relevant subdirectories (e.g., src/main/java/ixdar/geometry) and implement timeout retry with smaller scope. Consider adding a file_index tool that pre-builds a searchable index of the codebase.\n\nSource: auto-review of attempt on MESH-38",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-209",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add pre-completion type check gate",
+    "description": "Implement a mandatory pyright/syntax check step that must pass before the agent can call implementation_done. This prevents agents from claiming completion when type errors exist in main.py or other files.\n\nSource: auto-review of attempt on VOYAGE-10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

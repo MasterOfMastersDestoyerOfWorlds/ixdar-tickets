@@ -35,7 +35,7 @@
     {
         "id": "automation",
         "description": "Testing automation API, CLI tooling, CI/CD, Cursor hooks, developer workflows",
-        "repos": ["Ixdar", "ixdar-tickets"],
+        "repos": ["Ixdar", "Daud", "ixdar-tickets"],
         "entry-points": [
             "ixdar-app/src/main/java/ixdar/platform/automation/",
             "tools/ixdar-automation-cli/",

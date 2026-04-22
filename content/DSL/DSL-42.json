@@ -1,0 +1,20 @@
+{
+    "id": "DSL-42",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "coons_inset_faces: curve-preserving inset for bezier cages",
+    "description": "New node with id \"coons_inset_faces\". Places inner corners on the Coons patch surface (bilinear blend at parameters (t,t), (1-t,t), (1-t,1-t), (t,1-t)) rather than on the flat cage centroid-lerp used by inset_faces. Inner-boundary edges carry handles derived from iso-curve tangent sampling. Radial edges get zero handles (acceptable for short segments). Outer boundary edges preserve original handles. Fail-loud warning if input lacks bezier handle slots. Shared CoonsHandleBuilder helpers extracted for evalFaceEdgeAt, evalCoonsSurface, cubicBezier, smootherStep. Ships separate from inset_faces (no silent data-dependent behavior switching \u2014 agent picks coons_inset_faces explicitly when they want surface fidelity).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New node registered with id coons_inset_faces. 2. Fail-loud warning when input lacks handles (no crash). 3. Multi-feature DSL with 3 coons_inset_faces + coons_patch + merge produces watertight mesh. 4. At high handle weight, visibly cleaner surface than plain inset_faces (no spiky artifacts). 5. MeshNodePortDocumentationTest green (socket docs for all 5 ports).",
+    "testing-plan": "1. Single coons_inset + coons_patch + merge - watertight. 2. 3x coons_inset chain + coons_patch + merge - watertight. 3. Render at weight=1.2 and compare to plain inset_faces version - coons version is smooth; plain has spikes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

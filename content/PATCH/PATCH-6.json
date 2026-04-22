@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-6",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Patch flatness + side-count stop criterion replaces MAX_PATCH_VERTS",
+    "description": "Today SemanticPatchDecomposer splits any final patch that exceeds MAX_PATCH_VERTS (2500) via positional k-means. This is a vertex-count heuristic, not a geometric-quality heuristic: a patch with 2000 verts that's highly curved and 12-sided is treated as 'done' (no split), while a flat 4-sided patch with 2600 verts gets split for no good reason.\n\nReplace MAX_PATCH_VERTS with a composite 'needs further subdivision' criterion:\n1. Curvature variance: stddev of per-vertex curvature across the patch. Low = flat = keep. High = bumpy = split.\n2. Boundary 'side count': count corner vertices on the patch boundary \u2014 vertices where boundary dihedral (or boundary direction) changes by > threshold. A patch with 4 corners is already well-suited to Coons representation; 5+ means a split could simplify.\n3. Aspect ratio: patches with area-to-perimeter\u00b2 ratios far from 1:4\u03c0 are elongated or concave and likely want further splitting.\n\nA patch is 'done' (no further split) when: side_count \u2248 4 AND curvature_variance < T_FLAT AND aspect_ratio is reasonable. Otherwise split with k informed by the dominant deviation.\n\nMotivation: from the PATCH-1+2 follow-up \u2014 'obviously you could technically make a mesh from just two patches if you have N-sided patches but that wouldn't be simplifying the mesh'. The stopping rule should reward patches that actually look like Coons-patch candidates.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Composite quality score replaces the MAX_PATCH_VERTS branch in SemanticPatchDecomposer. Validated on skull and one other reference that the patch count tracks complexity rather than raw vertex density.",
+    "testing-plan": "Run on the skull and a simpler organic reference (hand or tube). Compare patch counts vs. visible complexity. A smooth tube should produce 4-6 patches; the skull should not balloon.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-28",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "website"
+    ],
+    "title": "Per-technique validation and tool charts on dashboard",
+    "description": "Validation and tool charts only show the active member's data. When a new member starts, previous member's chart data is lost. The technique_events dict in live_status.json already stores per-technique data but the frontend ignores it. Add technique selector dropdown that switches validation/tool charts between techniques.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Technique selector dropdown added before validation chart. 2. Poll function populates selector from technique_events keys. 3. Switching techniques shows that technique's validation/tool timeline. 4. Active Member option shows current member data.",
+    "testing-plan": "1. Run a voyage batch through multiple techniques. 2. Technique selector shows all techniques. 3. Switching shows correct per-technique event data. 4. Active Member shows current data.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

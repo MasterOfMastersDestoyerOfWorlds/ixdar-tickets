@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-384",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Organic Topology Prompting",
+    "description": "[prompt] The current similarity is stalling below 70%. Introduce specific prompts for 'subdivision surfaces' or 'spherical interpolation' within the DSL to better capture the curved contours of the brow ridge and eye sockets.\n\nSource: voyage review of run=20260419-005624 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-52",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add filesystem exploration commands",
+    "description": "Allow basic shell commands like ls, find, pwd to help the agent navigate the filesystem when file paths are unclear. Currently only git, mvn, pytest, pyright, black, hugo, prettier, uv run python, gh pr, gh auth are allowed - adding ls would prevent the agent from getting stuck trying to read files it can't locate.\n\nSource: auto-review of attempt on DSL-16",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

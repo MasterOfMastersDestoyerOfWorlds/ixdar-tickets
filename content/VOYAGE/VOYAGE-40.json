@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-40",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "be-voyage-agent skill for Claude to role-play the voyage agent",
+    "description": "SKILL.md at ~/.claude/skills/be-voyage-agent/SKILL.md that walks Claude through driving a single-member voyage-batch in DAUD_AGENT_CLIENT=interactive mode. Purpose: feel the actual friction the real agent hits (opaque validator errors, cheese-grater artifacts, selection boilerplate) so we can iterate on tool surface + prompt wording from direct experience, not just logs. Includes friction-discovery checklist to report after each run.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. SKILL.md describes env setup (DAUD_AGENT_CLIENT + DAUD_INTERACTIVE_DIR). 2. Documents voyage-batch invocation with interactive mode. 3. Documents request/response file schemas. 4. Lists friction-discovery checklist items to report after each run.",
+    "testing-plan": "1. Skill is discoverable from Claude sessions. 2. Following the skill, a single voyage round against the skull reference completes with at least one tool_call roundtrip. 3. Transcript.jsonl captures the exchange.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "DSL-26",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Structured destructive/consumes metadata on MeshNode",
+    "description": "Add default methods destructive() and consumes() to MeshNode interface; add fields to MeshNodeSchema record; export them in the mesh-node-catalog.json. Mark CoonsPatchNode and SubdivideMeshNode destructive with consumes=[_bezier_handles_start, _bezier_handles_end, _bezier_handle_weight]. Surface DESTRUCTIVE flag in agent catalog rendering.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. MeshNode has destructive() and consumes() defaults. 2. MeshNodeSchema record includes the fields. 3. Catalog JSON export includes them. 4. CoonsPatchNode and SubdivideMeshNode marked destructive. 5. Agent catalog text shows DESTRUCTIVE flag.",
+    "testing-plan": "1. Regenerate catalog, verify coons_patch entry has destructive=true. 2. Existing tests pass.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,25 @@
+{
+    "id": "VOYAGE-12",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Skill Retrieval and Injection",
+    "description": "Before each batch round, retrieve relevant skills for current task: 1) Build query string from reference description + ticket context. 2) Query ChromaDB for top-K skills. 3) Format as callable function signatures with descriptions and fitness provenance. 4) Inject into build_mesh_system_prompt(). LLM sees available skills and can call them in DSL scripts. Depends on VOYAGE-10 and VOYAGE-11.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. build_mesh_system_prompt() accepts optional skills list. 2. Query ChromaDB with task description for top-K skills. 3. Format skills as function signatures with descriptions. 4. Include fitness provenance in skill descriptions. 5. LLM can call retrieved skills in generated DSL.",
+    "testing-plan": "1. Add 5 skills to index, query with 'organic horn', verify correct skills retrieved. 2. Verify formatted prompt includes skill signatures. 3. Verify LLM-generated DSL can call an injected skill.",
+    "todos": [
+        "Implement skill retrieval from ChromaDB",
+        "Format retrieved skills for system prompt",
+        "Add skills parameter to build_mesh_system_prompt()",
+        "Include fitness provenance in skill descriptions"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

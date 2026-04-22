@@ -1,0 +1,20 @@
+{
+    "id": "DSL-37",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "High-valence corner regression test for AssignBezierHandlesNode",
+    "description": "After extrude/inset, cage corners can have 5+ edges meeting. AssignBezierHandlesNode.handleOffsetAtVertex averages adjacent edge directions - behavior at high valence is untested. Add regression test: build cage, do two overlapping extrudes creating a 6-valent corner, run assign_bezier_handles + coons_patch, verify output is watertight with no NaN vertices.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. HighValenceCornerTest class added. 2. Test covers 5-valent and 6-valent corners. 3. Output mesh watertight and NaN-free.",
+    "testing-plan": "1. Run test after other plan changes. 2. If fails, file follow-up ticket for AssignBezierHandlesNode fix.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

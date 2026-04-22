@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-180",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Gate error classification",
+    "description": "Improve gate failure classification to distinguish between code errors (type check failed, lint failed) and infrastructure errors (tool not installed). Infrastructure errors should trigger a different workflow path, possibly auto-fixing or escalating to human.\n\nSource: auto-review of attempt on VOYAGE-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

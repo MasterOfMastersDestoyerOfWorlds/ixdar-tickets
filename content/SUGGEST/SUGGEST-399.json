@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-399",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Iteration Efficiency Cap",
+    "description": "[infrastructure] freeroam is consuming 3x the resources of coons_cage for negligible gains. Implement a convergence threshold to stop generation when similarity delta falls below 0.1% over 10 rounds.\n\nSource: voyage review of run=20260419-183559 round=3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

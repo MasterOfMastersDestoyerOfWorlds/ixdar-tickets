@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-44",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add DSL syntax reference tool",
+    "description": "Create a dedicated tool to read DSL documentation and provide syntax examples. The agent wasted time searching for .dsl files and reading unrelated design documents. A read_dsl_docs tool with syntax examples would accelerate implementation.\n\nSource: auto-review of attempt on DSL-11",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

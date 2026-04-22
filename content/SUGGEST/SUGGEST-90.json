@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-90",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add 'write first' requirement",
+    "description": "Modify agent workflow to require at least one file modification within first 10 minutes, even if incomplete. This prevents the agent from getting stuck in analysis paralysis and encourages iterative development.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

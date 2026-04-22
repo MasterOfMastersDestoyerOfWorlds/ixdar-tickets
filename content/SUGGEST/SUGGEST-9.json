@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-9",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add exploration-to-implementation gate",
+    "description": "Implement a gate that triggers when an agent has read N files without making any code changes. This gate should prompt the agent to either commit to a plan or ask for clarification, preventing 40+ minute stalls in the exploration phase.\n\nSource: auto-review of attempt on VIEW-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

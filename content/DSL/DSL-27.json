@@ -1,0 +1,20 @@
+{
+    "id": "DSL-27",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "CoonsHandleBuilder shared de Casteljau utility",
+    "description": "Extract the de Casteljau split + directed-handle-map pattern from CoonsLoopCutNode (lines 109-184, 278-301) into a shared utility in the same package. Other nodes (inset, extrude, mirror, merge) will use this to preserve bezier handles through topology changes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. CoonsHandleBuilder class created with split-at-t, directed-map, and flush-to-slots methods. 2. CoonsLoopCutNode refactored to use it (no behavior change). 3. Existing coons tests pass.",
+    "testing-plan": "1. CoonsCubeDslTest still produces the same vertex/face count. 2. Diff loop_cut output before/after refactor - identical positions and handles.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

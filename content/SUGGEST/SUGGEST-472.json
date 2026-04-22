@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-472",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Topology Constraint Enforcement",
+    "description": "[capability] Update the DSL compiler to enforce closed-loop boundaries to prevent the 'not watertight' errors seen in coons_cage.\n\nSource: voyage review of run=20260421-080023 round=9",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

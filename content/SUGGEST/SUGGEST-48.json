@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-48",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Require screenshot attachment for mesh tickets",
+    "description": "The agent claimed validation without visual proof. Make screenshot attachment mandatory for mesh comparison gates. Add a take_screenshot tool that captures the mesh in the viewport for visual verification.\n\nSource: auto-review of attempt on DSL-11",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

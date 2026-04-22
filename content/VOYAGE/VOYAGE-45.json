@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-45",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "claude-harness-test CLI for interactive voyage-batch sessions",
+    "description": "Single-command entry point registered in pyproject.toml as . Creates a timestamped handoff dir under ~/.ix/claude-harness-test-<ts>, sets DAUD_AGENT_CLIENT=interactive + DAUD_INTERACTIVE_DIR, and invokes voyage-batch with the interactive client. Prints the handoff dir path up-front. Defaults: skull reference, coons_cage technique, 10 rounds, 900s budget. Flags: --reference, --description, --techniques, --rounds, --time-budget, --handoff-dir, --skills.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. pyproject.toml registers claude-harness-test = daud.claude_harness_test:main. 2. uv run claude-harness-test --help works. 3. Running the command kicks off a voyage-batch round with DAUD_AGENT_CLIENT=interactive and prints the handoff dir.",
+    "testing-plan": "1. uv sync then uv run claude-harness-test --help. 2. uv run claude-harness-test --rounds 1 --time-budget 60 and confirm request.json appears in the printed handoff dir.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

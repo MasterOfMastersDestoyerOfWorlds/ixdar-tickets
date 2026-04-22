@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-65",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation_done() gate before visual confirmation",
+    "description": "Implement a mandatory gate that checks if the agent called implementation_done(status='done') before allowing visual confirmation. This prevents the agent from skipping the completion signal and failing the final gate.\n\nSource: auto-review of attempt on DSL-23",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

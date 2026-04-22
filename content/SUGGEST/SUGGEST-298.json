@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-298",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Enhance Topological Prompts",
+    "description": "[prompt] Update generation prompts to explicitly define negative space and internal cavity constraints for skull features like eye sockets and nasal cavities to improve structural accuracy.\n\nSource: voyage review of run=20260416-084400 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

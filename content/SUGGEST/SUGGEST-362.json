@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-362",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Simplify Reference Geometry",
+    "description": "[prompt] The human skull is a complex organic shape. Test the pipeline with a primitive (e.g., a cube or sphere) to isolate whether the failure is due to geometry complexity or a broken generation pipeline.\n\nSource: voyage review of run=20260418-213259 round=1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

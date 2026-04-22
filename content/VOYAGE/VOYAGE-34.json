@@ -1,0 +1,34 @@
+{
+    "id": "VOYAGE-34",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Extract model_protocol module (tool-call parsers + reasoning-tag strip)",
+    "description": "Daud's tool-call parsing and Qwen <think>...</think> stripping are currently inlined in main.py (lines ~95-125 and ~240-250) plus duplicated in voyage/condenser.py (_THINK_RE at line 33). Extract into a new src/daud/model_protocol.py with parse_tool_calls_from_text() that tries Qwen XML format first, then Gemma <|tool_call>call:name{...}<tool_call|> format, returning OpenAI-shape dicts. Add strip_reasoning_tags() that consolidates the <think> regex. Wire into main.py and voyage/condenser.py. Pure refactor; no behavior change on Qwen. Prerequisite for the Gemma 4 migration since Gemma emits a different tool-call wire format.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. src/daud/model_protocol.py exists with parse_tool_calls_from_text(), _parse_qwen_xml(), _parse_gemma_tokens(), and strip_reasoning_tags(). 2. main.py imports from model_protocol instead of defining _XML_TOOL_CALL_RE / _THINK_RE locally. 3. voyage/condenser.py imports strip_reasoning_tags from model_protocol instead of defining _THINK_RE. 4. Unit tests cover: Qwen single-arg, Qwen multi-arg, Gemma single-arg, Gemma multi-arg, numeric arg, empty args, malformed input returns []. 5. Existing tool-call round-trip against Qwen server still works end-to-end.",
+    "testing-plan": "1. uv run pytest tests/ -k model_protocol passes all parser cases. 2. grep 'tool_call' src/daud/main.py returns no regex (only imports from model_protocol). 3. uv run daud starts, user requests a tool call (e.g. list_dir), tool executes successfully. 4. uv run daud with a reasoning-heavy prompt: <think> tags are stripped from displayed output.",
+    "todos": [
+        "DONE : Create src/daud/model_protocol.py with Qwen + Gemma parsers",
+        "DONE : Add strip_reasoning_tags() consolidating _THINK_RE",
+        "DONE : Wire model_protocol into main.py (replace inline regex/constants)",
+        "DONE : Wire strip_reasoning_tags into voyage/condenser.py (delete local _THINK_RE)",
+        "DONE : Write unit tests: Qwen XML, Gemma tokens, reasoning strip, edge cases",
+        "DONE : Verify end-to-end tool call still works on current Qwen server"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Created src/daud/model_protocol.py with parse_tool_calls_from_text(), strip_reasoning_tags(), strip_tool_call_markers()",
+        "Qwen XML parser lifted verbatim from main.py; Gemma 4 parser added for <|tool_call>call:name{...}<tool_call|> format with string (<|\"|>...<|\"|>) and bare-numeric value handling",
+        "Qwen wins on both-match for backward compat",
+        "main.py now imports parse_tool_calls_from_text/strip_reasoning_tags/strip_tool_call_markers; removed 4 local regex/function defs and the unused 'import re'",
+        "voyage/condenser.py imports strip_reasoning_tags; local _THINK_RE deleted",
+        "Added tests/test_model_protocol.py with 15 cases (Qwen/Gemma single/multi/mixed args, malformed, priority, reasoning strip, marker strip); all green"
+    ],
+    "related-files": [],
+    "priority": 2
+}

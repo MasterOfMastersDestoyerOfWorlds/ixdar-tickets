@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-375",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Introduce Boolean Subtraction Primitives",
+    "description": "[tooling] The current similarity plateau suggests difficulty in carving out concave features. Adding explicit 'subtract' or 'hole' operations to the DSL would allow for better definition of eye sockets and the nasal cavity.\n\nSource: voyage review of run=20260419-005624 round=5",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

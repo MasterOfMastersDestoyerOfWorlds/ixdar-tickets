@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-468",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Organic Topology Prompting",
+    "description": "[prompt] Update prompts for 'coons_cage' and similar techniques to emphasize closed-loop surface patches and explicit vertex welding to prevent non-watertight results on concave areas like eye sockets.\n\nSource: voyage review of run=20260421-080023 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "DSL-39",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Per-socket documentation infrastructure + migrate all 80 nodes",
+    "description": "Adds a required MeshNode.socketDocs() map from port name to description. MeshNodeCatalog serializes these into the per-port 'description' key in mesh-node-catalog.json, and Daud's _format_node_summary renders them as indented bullets under each node signature in the agent system prompt. A new test unit.mesh.MeshNodePortDocumentationTest iterates MeshNodeRegistry_MeshNodes.MAP and hard-fails the build if any input or output port lacks a non-empty doc entry. Migrated all 80 registered nodes (353 ports) in one pass. Pairs with VOYAGE-42: cube.size now carries the 'extent = size; vertices at \u00b1s/2' guidance directly on the port.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. MeshNode.socketDocs() added as default-empty method. 2. MeshNodeSchema.socketDocs field + from() propagation. 3. MeshNodeCatalog.serializeInputs/Outputs threads per-port description into JSON. 4. MeshNodePortDocumentationTest goes red before migration and green after. 5. All 80 nodes override socketDocs() with a map covering every input and output port. 6. Daud _format_node_summary renders per-port descriptions.",
+    "testing-plan": "1. Run mvn test -Dtest=MeshNodePortDocumentationTest - green. 2. Regenerate catalog via export-mesh-catalog profile - cube and transform_geometry show per-port description keys. 3. build_mesh_system_prompt() output shows indented bullets under cube with the size socket doc.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

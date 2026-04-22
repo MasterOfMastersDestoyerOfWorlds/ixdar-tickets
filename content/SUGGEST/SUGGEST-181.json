@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-181",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Scope gates to ticket-related files only",
+    "description": "Currently gates fail on unrelated files (main.py type errors) while the ticket work is in mesh_context.py. Modify the gate system to only run type checks on files that are part of the ticket's scope or have been modified by the agent. This prevents infrastructure issues from blocking legitimate ticket work.\n\nSource: auto-review of attempt on VOYAGE-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

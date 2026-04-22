@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-25",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/batch"
+    ],
+    "title": "Add skills_extracted field to live_status.json",
+    "description": "Dashboard reads d.skills_extracted at line 614 of voyage.html but _write_live_status() never writes the field. Always shows '--'. Fix: preserve skills_extracted from existing live_status.json during writes, add _update_skills_count() function, call it from loop.py after condense_round().",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. _write_live_status() preserves skills_extracted from existing JSON. 2. _update_skills_count(reference_obj, count) increments the field. 3. loop.py calls _update_skills_count after condense_round. 4. Dashboard shows actual skill count instead of '--'.",
+    "testing-plan": "1. Run a voyage round with condenser extracting skills. 2. Check live_status.json contains skills_extracted field with correct count. 3. Dashboard shows the number.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

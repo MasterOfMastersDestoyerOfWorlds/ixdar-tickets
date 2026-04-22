@@ -1,0 +1,20 @@
+{
+    "id": "IX-19",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-nodes"
+    ],
+    "title": "Investigate QuadMixer for mesh integration",
+    "description": "Look into https://github.com/stefanonuvoli/quadmixer \u2014 a tool for interactive mixing/blending of quad meshes (Nuvoli et al., SIGGRAPH Asia 2019). Evaluate whether its techniques (quad patch re-topology, boolean-like mixing operations, quad layout preservation) could inform or be integrated into Ixdar's mesh node system, especially for organic shape blending and HalfEdgeMesh operations.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Short writeup captured in ticket or .cursor/docs/ai-learnings summarizing: (1) what QuadMixer does, (2) licensing, (3) whether it's applicable to Ixdar's pipeline, (4) recommended follow-up tickets if any.",
+    "testing-plan": "N/A \u2014 research ticket. Deliverable is the writeup and any follow-up tickets filed.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

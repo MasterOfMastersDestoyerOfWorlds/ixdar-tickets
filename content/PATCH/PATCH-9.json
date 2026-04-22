@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-9",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "dsl-scaffolding"
+    ],
+    "title": "Patch decomposition as DSL scaffold generator",
+    "description": "Reframing the patch decomposer from 'labeling helper' to 'DSL scaffold generator'. Each final patch becomes a Coons-patch DSL node, shared boundaries become shared Bezier curves in the DSL, producing a starter .dsl file that already matches the reference topology.\n\nUser quote: 'one of the things that I was thinking we could do is have the decomposition go into a first pass for the dsl'.\n\nDesign sketch (research ticket \u2014 needs its own dedicated plan):\n\n1. Final patch set post-decomposition must be quad-dominant (each patch ~4 sides). This connects to PATCH-6 stop criterion (flatness + side-count) and PATCH-8 principal curvature lines \u2014 both of which naturally push toward 4-sided patches.\n\n2. For each patch, fit a Coons-compatible boundary: four Bezier curves forming a closed loop. Boundary vertices are sampled along the patch perimeter and fit to a 4-segment closed polyline \u2192 4 Beziers.\n\n3. Boundary sharing: edges shared between two patches \u2192 one Bezier curve referenced by both patches' coons_patch nodes. Requires a global 'curve registry' during scaffold generation.\n\n4. Emit Ixdar DSL:\n    rail_a1 = curve_bezier(start=<..>, p1=<..>, p2=<..>, end=<..>)\n    ...  one per patch boundary segment\n    patch_0 = coons_patch(north=rail_a1.curve, east=rail_b1.curve, south=rail_a2.curve, west=rail_b2.curve)\n    patch_1 = coons_patch(north=rail_a2.curve, ...)  # shares a2 with patch_0\n    ...\n    joined = join_geometry(a=patch_0.geometry, b=patch_1.geometry, merge_distance=0.001)\n\n5. The Voyager agent starts from this scaffold and refines rail control points rather than designing topology from scratch.\n\nNon-goals: fitting the mesh surface exactly in one pass (that's a further refinement). Goal here is *topologically correct scaffold that reproduces the reference's patch structure*.\n\nOpen questions:\n- How many Bezier control points per boundary (2, 3, 4)?\n- How to handle N-sided patches (N != 4) \u2014 split into multiple 4-sided sub-patches, or use a more general node?\n- How does the agent 'take over' the scaffold \u2014 do we emit parameter nodes for each control point so param_sweep can tune?\n- What's the interaction with PATCH-3 (agent-driven recursive subdivision)?\n\nOriginated from PATCH-1+2 follow-up discussion. This is the biggest unlock of the whole epic: not just labeling for feedback, but *generating the DSL the agent is supposed to produce*.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "A plan document exists for this ticket with concrete algorithm + node API decisions. First prototype emits a valid Ixdar DSL scaffold from a reference mesh's patch decomposition, renders to a topologically-similar output (not exact, but connected in the same places).",
+    "testing-plan": "Prototype on a simple tube reference first (1 cylinder = 4 quad patches wrapped). Validate emitted DSL compiles and produces a tube. Then graduate to skull once PATCH-6/8 are in and patch counts are quad-dominant.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

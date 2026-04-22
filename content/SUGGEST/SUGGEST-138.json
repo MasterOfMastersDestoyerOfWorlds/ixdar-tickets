@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-138",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add explicit phase separation in workflow",
+    "description": "Modify the agent workflow to enforce distinct phases: (1) exploration/read-only, (2) implementation/write-only, (3) validation, (4) completion. The agent should be required to explicitly transition between phases, preventing it from getting stuck in exploration mode.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-151",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add code-change requirement gate",
+    "description": "Add a gate that requires at least one file modification for tickets that require implementation. This catches cases where the agent explores but never writes code, like this attempt where 1635s passed with zero diffs.\n\nSource: auto-review of attempt on MESH-39",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

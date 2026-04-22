@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-14",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/loop"
+    ],
+    "title": "Winner carry-forward between rounds",
+    "description": "Each round starts from scratch \u2014 the agent never sees the previous round winning DSL. This causes declining fitness (70.65 to 58.23 percent over 3 rounds). Fix: pass the previous round winner full DSL to the next round agent as a starting point with instruction to improve it. The condenser extracts fragments but loses the complete architecture. Skills alone are not enough context.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "In loop.py, the winner DSL from round N is injected into the user message for round N+1 members using the same technique. The agent is told the previous best similarity and instructed to refine or start fresh. Fitness across rounds should be non-declining on average.",
+    "testing-plan": "Run voyage for 3+ rounds on skull reference. Verify round 2 agent message contains round 1 winner DSL. Verify fitness does not systematically decline across rounds.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

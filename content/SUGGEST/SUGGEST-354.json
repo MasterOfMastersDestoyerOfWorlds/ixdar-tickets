@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-354",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Topology Audit",
+    "description": "[capability] Review the DSL generation for freeroam to determine if the failure is a systemic logic error or a one-time edge case for this specific reference mesh.\n\nSource: voyage review of run=20260418-171533 round=2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

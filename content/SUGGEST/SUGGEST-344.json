@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-344",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Prompting",
+    "description": "[prompt] Update prompts to explicitly define the skull's key landmarks (orbital sockets, nasal aperture) as separate primitive groups to help the model manage complex topology without creating gaps.\n\nSource: voyage review of run=20260418-134413 round=9",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

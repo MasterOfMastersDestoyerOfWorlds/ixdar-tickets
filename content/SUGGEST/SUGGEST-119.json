@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-119",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add code change detection trigger",
+    "description": "When the agent makes file modifications (detected via diff), automatically prompt it to call implementation_done. This prevents the agent from continuing to explore or make unnecessary changes after completing the core task.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

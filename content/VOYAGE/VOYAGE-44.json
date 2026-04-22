@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-44",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "voyage-batch checkpoint callback injects feedback for mesh-probe failures",
+    "description": "During an interactive claude-harness-test session, the DSL validated syntactically but the mesh probe failed ('Non-manifold or duplicate face edge'). The round_callback in voyage/batch.py only injects visual feedback when the render base64 is present, which requires _render_dsl_headless to succeed, which requires the mesh probe to succeed. Net effect: when the agent writes a DSL that parses fine but produces non-manifold topology, the agent sees NOTHING \u2014 no error, no feedback \u2014 and is left waiting for the next round with no clue what went wrong. The agent only discovers the issue by calling validate_dsl explicitly. Fix: when validate_and_export_dsl returns a result with meshProbe.ok=false or no base64, inject a user message containing the mesh-probe error text so the agent can iterate.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. voyage/batch.py _visual_round_callback handles the 'valid DSL but broken mesh' case by appending a user message with the mesh probe error. 2. Agent receives the error on its next round instead of silent success. 3. Claude-harness-test reproduction: write a DSL that triggers non-manifold output; verify the error is surfaced in the next round's request.json messages list.",
+    "testing-plan": "1. Write a minimal DSL that mirrors a cube onto itself (non-manifold trigger). 2. Run via claude-harness-test interactive mode. 3. Confirm the next round's last user message carries the non-manifold error text.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

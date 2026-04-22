@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-2",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Concavity carve-out for sockets and cavities",
+    "description": "Add a pre-Step-2 pass that extracts concave features (eye sockets, nasal cavity, foramen magnum) as first-class patches so they never have to compete with the surrounding cranium for membership.\n\nCurrent behavior: eye-socket vertices get assigned to the same skeleton-branch bucket as the surrounding frontal bone. Even after PATCH-1 (feature-edge region growing) lands, a socket interior is bounded by its rim but the interior itself is topologically connected to the eye-socket floor which is smooth, so the whole socket risks being absorbed into an adjacent face region.\n\nNew behavior:\n1. After skeleton partition, compute per-vertex Gaussian curvature via angle-defect (K = 2\u03c0 - \u03a3 face_angles_at_vertex).\n2. Threshold on strongly negative Gaussian curvature (K < T_CONCAVE, start at -0.25). Mark those vertices as 'concavity seeds'.\n3. Connected-components over concavity-seed vertices using mesh adjacency.\n4. For each connected concavity region of sufficient size, lift the surrounding faces (1-ring expansion) into a dedicated patch before running the Step 2 feature-edge region growing on the remainder.\n5. These 'socket patches' keep their own ids and feed into the palette / labeling like any other patch.\n\nExpected outcome on voyage_skull_ref.obj: left_eye_socket, right_eye_socket, nasal_cavity, and foramen_magnum land as distinct patches ready for semantic labels instead of disappearing into frontal/occipital bone.\n\nOriginated from VOYAGE-51 Phase A follow-ups, lands alongside PATCH-1.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Gaussian-curvature angle-defect computation added to SemanticPatchDecomposer (or a new helper class). Concavity extraction lifts sockets into their own patches prior to the feature-edge pass. Verified on the skull reference that at least eye sockets and nasal cavity come out as separate patches Claude labels correctly.",
+    "testing-plan": "uv run label-patches /tmp/skull.obj --force and confirm the resulting .tags.json has keys matching /(left|right)_?eye_socket/i and /nasal_(cavity|aperture|fossa)/i. Multiview render attached to the ticket visually confirms the socket patches are distinct colors from the surrounding cranium.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

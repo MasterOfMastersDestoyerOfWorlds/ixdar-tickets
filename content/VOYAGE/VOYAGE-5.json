@@ -1,0 +1,26 @@
+{
+    "id": "VOYAGE-5",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Voyage Loop Orchestrator",
+    "description": "Main loop tying batch generation and tournament together. Run batch (N techniques) against reference, evaluate fitness, tournament selection, record winners/lineage/fitness, repeat for M rounds. CLI: uv run voyage --reference skull.obj --rounds 5 --techniques primitives,curve_sweep,radius_closure,bi_rail_loft. Persists state to ~/.ix/voyage/runs/<run-id>/. This is the MVP -- rounds with parallel technique exploration, ranked by Chamfer + VLM. Depends on VOYAGE-2 and VOYAGE-4.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. voyage CLI entry point in pyproject.toml. 2. Runs M rounds of batch generation + tournament. 3. Records winners, lineage, fitness history per round. 4. Persists full run state to ~/.ix/voyage/runs/<run-id>/. 5. Fitness of best-per-round generally improves across rounds.",
+    "testing-plan": "1. Run 3 rounds with 4 techniques each = 12 total attempts. 2. Verify run state persisted correctly. 3. Verify fitness history shows best-per-round. 4. Verify resume from interrupted run.",
+    "todos": [
+        "Create voyage CLI entry point",
+        "Implement multi-round loop",
+        "Add population tracking and lineage",
+        "Persist run state to ~/.ix/voyage/runs/",
+        "Add --resume flag for continuing interrupted runs"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

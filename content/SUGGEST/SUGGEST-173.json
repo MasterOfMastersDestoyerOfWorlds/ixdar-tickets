@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-173",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Reduce directory exploration token budget",
+    "description": "The agent spent excessive time exploring directory structure (15+ list_dir calls) without making progress. Add a tool budget limit that restricts the number of exploration calls before requiring implementation work. Configure the harness to flag when >5 exploration calls occur without file modifications.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

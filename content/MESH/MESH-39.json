@@ -1,0 +1,20 @@
+{
+    "id": "MESH-39",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Multiview screenshot endpoint (/ui/multiview)",
+    "description": "POST /ui/multiview captures mesh from 8 orthogonal+diagonal viewpoints, composites into labeled 4x2 grid PNG. Enables 3D shape diagnosis from automation/AI workflows.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "Endpoint returns composite 4x2 PNG with 8 labeled views. Camera restores to original orbit after capture. Works with inline=true base64 mode.",
+    "testing-plan": "Load hand_v12_posed.dsl, call /ui/multiview, verify 8 distinct views. Check camera restore. Test inline mode.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

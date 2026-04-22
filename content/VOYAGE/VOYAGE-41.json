@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-41",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Interactive client: auto-extract image parts and tool enum docs for ergonomic role-play",
+    "description": "Two usability gaps discovered during the first interactive voyage session:\\n\\n1. Visual-feedback images arrive as data:image/png;base64,... inline in the message content. The real agent (VLM) consumes them directly; a Claude Code role-playing session cannot \u2014 base64 data-URLs don't render via Read. Workaround used: manual python one-liner to decode + save. Fix: InteractiveAgentClient should detect image parts in request.messages, extract them to /images/checkpoint-N.png, and replace the inline data-URL with a file-path hint in the request.json (keeping the original data-URL in transcript.jsonl for real-agent fidelity).\\n\\n2. Tool JSON schemas show 'description: The status parameter.' for enum fields \u2014 no enum values documented. implementation_done requires status='done'|'stuck' but the schema only says 'string'. Had to trial-and-error. Fix: teach the @tool decorator or its schema-emitter to surface docstring enum hints or use Literal types. (Same issue likely affects any enum-typed tool arg.)",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. InteractiveAgentClient strips inline PNG images out of messages into a sibling dir and replaces them with a text hint giving the file path. 2. Tool JSON schemas include valid values for enum-typed params (or the docstring surfaces them into 'description'). 3. Role-play session using the skill requires no manual base64 extraction and no guess-and-check on enum values.",
+    "testing-plan": "1. Run the be-voyage-agent skill end-to-end. 2. Check request.json contains a file-path hint for any image; the image file exists at the reported path. 3. Check any tool with an enum parameter has the enum values visible in the tool schema shown to the session.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

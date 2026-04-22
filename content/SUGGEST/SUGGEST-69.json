@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-69",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add visual confirmation tool for agents",
+    "description": "Provide a tool that renders the DSL file and shows a preview image to the agent, allowing it to self-verify before calling implementation_done(). This prevents the visual_confirm_failed outcome.\n\nSource: auto-review of attempt on DSL-23",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

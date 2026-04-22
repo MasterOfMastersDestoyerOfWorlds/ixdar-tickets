@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-307",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Constraint Injection",
+    "description": "[prompt] Update prompts to explicitly define key landmarks (orbit depth, nasal aperture width) to guide the generation process beyond general shape matching.\n\nSource: voyage review of run=20260417-163757 round=6",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

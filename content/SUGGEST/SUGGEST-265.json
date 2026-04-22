@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-265",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add token budget with early warning",
+    "description": "Implement a token budget system that warns the agent at 70% usage and requires a progress report. The 1478s wall time suggests the agent may have hit token limits without realizing it.\n\nSource: auto-review of attempt on VOYAGE-7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

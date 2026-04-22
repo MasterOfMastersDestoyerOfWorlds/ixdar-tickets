@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-275",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add worktree-aware file discovery tool",
+    "description": "Implement a find_files tool that resolves paths relative to the current worktree context, not the base repo. This prevents the agent from wasting time on file operations that fail due to worktree path mismatches. The tool should return paths that work within the active git worktree.\n\nSource: auto-review of attempt on VOYAGE-7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

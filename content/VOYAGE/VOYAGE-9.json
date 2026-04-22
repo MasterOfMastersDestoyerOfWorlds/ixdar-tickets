@@ -1,0 +1,26 @@
+{
+    "id": "VOYAGE-9",
+    "epic": "VOYAGE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Skill Library File Format and Loader",
+    "description": "Define .skill file format containing DSL function definitions with metadata header (name, description, input/output types, origin generation, fitness score, technique). Stored in ~/.ix/voyage/skills/. SkillLibrary.java loads .skill files and makes functions available to parser/runtime. CLIs accept --skill-dir to load skills. Exportable as text block for Daud system prompt injection. Depends on VOYAGE-8.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. .skill file format defined with metadata header + DSL function body. 2. SkillLibrary.java loads all .skill files from a directory. 3. Loaded skills available as callable functions in DSL. 4. ValidateDsl and RenderDsl accept --skill-dir. 5. Text export of skill catalog for system prompt injection.",
+    "testing-plan": "1. Create a .skill file with a simple function. 2. Load it via SkillLibrary and call from a DSL script. 3. Verify ValidateDsl --skill-dir validates scripts using skills. 4. Verify text export format is LLM-readable.",
+    "todos": [
+        "Define .skill file format with metadata header",
+        "Implement SkillLibrary.java loader",
+        "Integrate with NodeGraphRuntime function system",
+        "Add --skill-dir to ValidateDsl and RenderDsl",
+        "Implement text export for system prompt injection"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

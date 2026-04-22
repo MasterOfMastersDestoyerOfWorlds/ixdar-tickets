@@ -1,0 +1,20 @@
+{
+    "id": "DSL-41",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "select_by_distance: filter option to limit matches to original cage faces only",
+    "description": "After one or more inset/extrude operations on a cage, subsequent select_by_distance calls can catch the side-wall faces and inner faces of prior operations \u2014 this is a common source of 'floating cube' artifacts because inset on a side-wall face produces bad topology. Today's role-play hit this with eye-nose-brow placement on a single front face: brow's radius overlapped eye side-walls, created non-manifold output. Options: (a) add an 'only_cage_faces' boolean input to select_by_distance that filters out faces whose vertices include any vid >= some stored _original_cage_vertex_count slot, (b) add a new 'exclude_generated' input that takes a BoolField mask (the inverse of inset.generated), (c) document the pitfall in socket docs and leave the agent to compose. Ship (c) as a stopgap and tee up (a) as the durable fix.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. select_by_distance.geometry socket doc warns: 'Selection includes faces newly created by prior inset/extrude ops. Use boolean_math to exclude prior generated masks if overlap causes artifacts.' 2. A follow-up ticket tracks adding the 'only_original_faces' filter.",
+    "testing-plan": "1. Socket doc warning appears in catalog. 2. Follow-up ticket exists for the filter feature.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

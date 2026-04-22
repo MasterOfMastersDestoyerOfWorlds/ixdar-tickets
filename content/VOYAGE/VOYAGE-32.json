@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-32",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "coons_cage technique prompt: cage-first workflow",
+    "description": "Rewrite TECHNIQUE_PROMPTS['coons_cage'] in mesh_context.py so required order is cube -> loop_cuts -> assign_bezier_handles -> cage-level carving (extrude/inset/loop_cut/mirror) -> coons_patch -> merge_by_distance. Hard rules: never extrude/inset after coons_patch; chain features via modifier.generated output instead of position re-selection; prefer region=true on extrude_mesh; use mirror_geometry for bilateral symmetry. Extend DSL_PITFALL_WARNINGS with destructiveness note.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. coons_cage prompt rewritten with cage-first order. 2. DSL_PITFALL_WARNINGS includes destructiveness note. 3. Example cage-first skull skeleton in prompt. 4. Documentation for generated output, select_by_distance, select_by_normal, function_field, coons_displace.",
+    "testing-plan": "1. Run voyage batch with new prompt. 2. Verify generated DSL uses cage-first order. 3. Agent uses generated chaining instead of position re-selection.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

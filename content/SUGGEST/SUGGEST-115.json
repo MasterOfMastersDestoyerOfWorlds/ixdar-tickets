@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-115",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation progress checkpoint",
+    "description": "Add a checkpoint gate that triggers after 10 tool calls to verify the agent has made actual progress (file modifications, test runs, etc.). If no progress detected, force the agent to summarize what it has accomplished and what remains.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

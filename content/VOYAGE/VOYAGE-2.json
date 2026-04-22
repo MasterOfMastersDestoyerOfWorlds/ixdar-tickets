@@ -1,0 +1,27 @@
+{
+    "id": "VOYAGE-2",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Batch Generation Runner",
+    "description": "New module daud/voyage/batch.py that runs N independent Daud inference sessions per round. Each session gets the same ticket/reference context, a different technique assignment (VOYAGE-1), its own working directory, a hard time budget (30 min), and injected skills (once they exist). Sequential initially with --parallel N flag for later. Uses existing run_inference_loop() with max_rounds=120. Collects results: DSL path, OBJ export, Chamfer fitness, technique used, round count.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. voyage-batch CLI entry point in pyproject.toml. 2. Runs N inference sessions sequentially with different technique assignments. 3. Each session gets isolated working directory. 4. Hard wall-clock timeout per session. 5. Collects DSL, OBJ, Chamfer score, technique for each session. 6. Outputs ranked JSON results.",
+    "testing-plan": "1. voyage-batch --reference skull.obj --techniques primitives,curve_sweep produces 2 DSL scripts + OBJ exports + Chamfer scores. 2. Verify timeout kills a stuck session. 3. Verify results JSON contains all expected fields.",
+    "todos": [
+        "Create daud/voyage/ package structure",
+        "Implement batch runner with technique rotation",
+        "Add per-session working directory isolation",
+        "Add wall-clock timeout per session",
+        "Collect and rank results by Chamfer fitness",
+        "Add voyage-batch CLI entry to pyproject.toml"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

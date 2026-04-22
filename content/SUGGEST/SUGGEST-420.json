@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-420",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Topology Optimization for Organic Shapes",
+    "description": "[tooling] freeroam used more vertices but achieved lower similarity; investigate if the DSL is producing overlapping faces or non-manifold geometry that penalizes the similarity score.\n\nSource: voyage review of run=20260420-142959 round=1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

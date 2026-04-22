@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-347",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Organic Topology Prompting",
+    "description": "[prompt] Update prompts to emphasize 'closed-loop' surface generation and explicit vertex welding for techniques attempting organic shapes to prevent non-manifold edges.\n\nSource: voyage review of run=20260418-134413 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

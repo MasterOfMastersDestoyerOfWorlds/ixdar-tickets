@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-19",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "tools/reference_scaffold"
+    ],
+    "title": "VLM-labeled skeleton segments for coons cage blanks",
+    "description": "Extend reference_scaffold to generate coons cages with named semantic segments. Extract skeleton from reference, render colored branches from 4 angles, send to VLM for anatomical labeling. Map labels to cage operations: trunk becomes main cage, child branches become extrusions or insets with semantic names like jaw_extrude or orbital_inset. The skeleton branch matching from MeshSkeletonComparator provides the link between reference branch labels and generated mesh branches \u2014 labels are assigned to the reference skeleton which is stable, then transferred via nearest-tip matching.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "reference_scaffold generates DSL with named sections matching skeleton branches. VLM labels are used for node naming. Generated DSL has comments explaining each section. skeleton_compare output uses the same labels.",
+    "testing-plan": "Run reference_scaffold on skull.obj with VLM labeling. Verify generated DSL has named sections like jaw_extrude and cranium_cage. Verify skeleton_compare uses matching labels.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

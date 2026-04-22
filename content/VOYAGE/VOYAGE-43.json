@@ -1,0 +1,25 @@
+{
+    "id": "VOYAGE-43",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Qwen 3.5 multimodal broken in mlx-vlm 0.4.4 (0 image tokens / 256 features)",
+    "description": "When Daud/voyage sends image + text to mlx-community/Qwen3.5-35B-A3B-8bit on mlx-vlm 0.4.4, the server raises:\n\n    ValueError: Image features and image tokens do not match: tokens: 0, features 256\n    at mlx_vlm/models/qwen3_5/qwen3_5.py:91 merge_input_ids_with_image_features\n\nObserved 48 occurrences in a single day's /tmp/mlx-vlm-server.stderr.log. Cause: the request's text content lacks the Qwen3.5-specific image placeholder token, so the vision encoder emits 256 features but the tokenizer produces 0 image tokens to merge them with. Call sites that trip it: voyage/tournament.py VLM grid ranking, tools/visual_quality.py, anywhere passing image_url parts to the Qwen 3.5 server in the multimodal content form.\n\nContext: the VOYAGE-37 Gemma 4 migration (done) has already shifted the primary agent-model to gemma-4-31b-it-8bit (which does NOT hit this bug \u2014 verified with a flower-image smoke test). But the mlx-vlm server still co-serves Qwen 3.5 on demand (both models are in /v1/models), so any residual client or voyage agent pinning Qwen will silently lose its vision path and tournament rankings will be bogus. Low priority since the fix path for the active harness is 'use Gemma, not Qwen'; keeping this ticket as a scoped defect for traceability if Qwen is ever reintroduced.\n\n## Reproduction\n\n    curl -sS http://127.0.0.1:8080/v1/chat/completions \\\n      -H 'Content-Type: application/json' \\\n      -d '{\n        \"model\": \"mlx-community/Qwen3.5-35B-A3B-8bit\",\n        \"messages\": [{\"role\": \"user\", \"content\": [\n          {\"type\": \"text\", \"text\": \"describe this image\"},\n          {\"type\": \"image_url\", \"image_url\": {\"url\": \"data:image/png;base64,...\"}}\n        ]}]\n      }'\n\n## Possible fixes\n\n1. Upstream mlx-vlm bug \u2014 report to github.com/Blaizzy/mlx-vlm if not already known.\n2. Pre-process the text on the Daud side to insert Qwen's image placeholder when the target model is Qwen.\n3. Accept the limitation and ensure nothing in voyage pins Qwen for multimodal calls.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A reproducer script (bash or python) that deterministically triggers the error on a fresh server. 2. Either: an upstream mlx-vlm fix is identified/merged, OR a Daud-side workaround is implemented that injects the Qwen image placeholder into text content when model matches qwen3, OR a decision + comment documenting that voyage will never hit this path because agent-model is pinned to Gemma. 3. /tmp/mlx-vlm-server.stderr.log shows zero 'Image features and image tokens do not match' errors during a typical voyage round with images.",
+    "testing-plan": "1. Run the reproducer against the current mlx-vlm 0.4.4 Qwen model, confirm the error fires. 2. If patching Daud: rerun an identical voyage tournament round that previously produced the error and verify the VLM ranking returns a sane ordering instead of a fallback. 3. Check /tmp/mlx-vlm-server.stderr.log after a full voyage round \u2014 should be quiet.",
+    "todos": [
+        "Write a standalone reproducer (Qwen + inline base64 image) and check it into tests/",
+        "Grep github.com/Blaizzy/mlx-vlm issues for 'Image features and image tokens' to see if known",
+        "Decide: upstream fix, Daud-side shim, or scope-out via agent-model pinning",
+        "Verify log is clean after a voyage round post-fix"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

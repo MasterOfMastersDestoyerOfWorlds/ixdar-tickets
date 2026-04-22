@@ -1,0 +1,20 @@
+{
+    "id": "DSL-30",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve-preserving InsetFacesNode with generated output",
+    "description": "When input has bezier handles, compute inner-boundary vertices on the coons surface at [t,1-t] parameters; inner edges use de Casteljau sub-curve handles; radial bridge edges use Coons cross-section formula (reuse CoonsLoopCutNode.computeCrossHandles). Add 'generated' BOOLEAN output port - true on the inner face. Fallback to current lerp-toward-center behavior when no handles.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Inset with handles produces valid handle arrays. 2. generated output marks inner face. 3. Fallback works. 4. Inner boundary lies on the coons surface of the original face.",
+    "testing-plan": "1. cube->assign_bezier_handles->inset_faces->coons_patch: inner face smoothly depressed, no cheese grater. 2. Chain: inset_faces(selection=first_inset.generated) targets the inner face.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

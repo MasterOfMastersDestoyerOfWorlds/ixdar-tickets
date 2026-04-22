@@ -9,7 +9,7 @@
     "description": "Replicate the 'BroRogan' mesh in Ixdar's DSL node graph system. Source: /Users/acw28/Blends/BroRogan/BroRogan.blend. Original stats: 4,988,091 vertices, 6,858,625 faces, 1 mesh object(s), 478.2MB OBJ. Complexity: ultra-high-poly (likely needs decimation). The goal is to approximate the overall form and silhouette using available DSL nodes (mesh primitives, subdivide, set_position displacement, solidify, curve_sweep, birail_loft, coons_patch, etc). Reference OBJ at /Users/acw28/Blends/exports/BroRogan.obj can be loaded for visual comparison. Focus on structural accuracy over surface detail \u2014 match proportions, major features, and silhouette rather than individual wrinkles or fine texture.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. DSL file at resources/dsl/brorogan.dsl compiles without errors. 2. Mesh probe reports reasonable vertex/face counts for the complexity level. 3. Visual comparison with reference thumbnail shows recognizable silhouette match. 4. Key proportions (aspect ratio, major protrusions) are approximately correct.",
     "testing-plan": "1. validate_dsl passes on brorogan.dsl. 2. Mesh probe shows finite bounds and non-degenerate geometry. 3. Visual screenshot compared to reference thumbnail.",
     "todos": [

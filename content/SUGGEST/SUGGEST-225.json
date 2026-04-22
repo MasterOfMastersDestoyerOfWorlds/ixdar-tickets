@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-225",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation_status tool",
+    "description": "Create a tool that checks if all ticket requirements are met by comparing the ticket definition-of-done against the current codebase state. The agent should call this before calling implementation_done to get a structured validation result rather than guessing completion.\n\nSource: auto-review of attempt on VOYAGE-11",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

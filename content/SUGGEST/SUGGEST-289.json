@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-289",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add skill injection integration test",
+    "description": "The DoD includes 'LLM can call retrieved skills in generated DSL' which requires end-to-end testing. Add a test generation tool that creates integration tests verifying skills are actually injected into system prompts and callable by the DSL executor.\n\nSource: auto-review of attempt on VOYAGE-12",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-416",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Geometry Optimization",
+    "description": "[capability] Implement a vertex budget constraint for 'coons_cage' to prevent it from over-tessellating without gaining similarity.\n\nSource: voyage review of run=20260419-183559 round=9",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-19",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Enhance prompt for empty related files",
+    "description": "Update the system prompt to explicitly handle the case when related files list is empty. The prompt should instruct the agent to either: 1) Create a file discovery plan with specific search patterns, or 2) Begin implementation with educated guesses based on the ticket description, rather than continuing endless exploration.\n\nSource: auto-review of attempt on VIEW-2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

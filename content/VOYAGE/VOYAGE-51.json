@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-51",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage-preprocessing"
+    ],
+    "title": "Semantic patch decomposition of reference meshes",
+    "description": "Pre-segment the Voyager reference mesh into coarse quad/Coons patches so each patch can be semantically tagged (eye socket, teeth, zygomatic arch, etc.) and color-coded. The agent then sees a labeled, low-data structural map of the reference instead of relying solely on chamfer distance + auto-tagged geometry, which is error-prone for anatomical features (e.g. agent's 'eye socket' vs. an observer's don't line up).\n\nCandidate approaches:\n\n1. **Skeleton-driven (Usai et al. ULPTS15)** \u2014 uses the curve skeleton we already have in Ixdar. Decomposes surface into cylinder regions (one per bone) + punctured-sphere regions (one per joint), each with a canonical quad template, stitched at 4-arc cylinder caps. Algorithm inferable from Campen 2017 STAR \u00a77.1 since no public code exists. **Limitation: partitions along bones, not along surface features.** For a skull this gives ~skull-blob + mandible; eye sockets/teeth live inside the skull-blob and aren't separated.\n\n2. **Feature-line / cross-field driven (QuadWild, QuadriFlow, libQEx)** \u2014 arcs naturally follow curvature ridges and valleys, so eye socket rims, tooth boundaries, and cheekbone ridges become patch borders automatically. Public C++ code available (nicopietroni/quadwild, hjwdzh/QuadriFlow, hcebke/libQEx). Better fit for anatomy.\n\n3. **Hybrid** \u2014 Usai for gross articulated partition, then feature-aware subdivision of each region.\n\nRelated tickets: IX-19 (QuadMixer investigation).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Spike writeup covering: (1) which approach best matches anatomical reference meshes we encounter in the ticket backlog; (2) license compatibility with our stack; (3) whether to wrap an existing C++ lib (via JNI/FFI/CLI) or reimplement in Java/Python; (4) patch labeling UI/workflow sketch \u2014 who tags (human, separate agent, Claude), how labels are persisted, how they're surfaced to the voyage agent; (5) prototype on one reference mesh from the backlog. Follow-up implementation tickets filed.",
+    "testing-plan": "Prototype: run chosen method on a skull reference mesh, produce colored patch segmentation, manually label 3-5 patches, feed labeled patches into a voyage replication round, compare chamfer-convergence vs. baseline (no labels). Deliverable is the comparison + a recommendation to proceed or pivot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

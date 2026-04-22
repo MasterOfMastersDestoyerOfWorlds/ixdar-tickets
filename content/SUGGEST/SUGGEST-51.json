@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-51",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add mesh visualization verification tool",
+    "description": "Create a tool that can render the DSL mesh and compare it against the reference OBJ (vertex count, bounding box, silhouette metrics). This provides objective visual confirmation instead of relying on the agent's subjective assessment. Output should include quantitative metrics for gates to evaluate.\n\nSource: auto-review of attempt on DSL-16",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

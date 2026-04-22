@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-26",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "website"
+    ],
+    "title": "DSL code display on voyage dashboard",
+    "description": "User cannot see the current best DSL on the voyage page, making it hard to evaluate what the agent is doing. Add a collapsible details section to voyage.html that fetches and displays the DSL file content, polled alongside other live data.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Collapsible details section added to voyage.html after 3D Preview. 2. Poll function fetches DSL file from /ixdar/dsl/voyage_REF.dsl. 3. DSL code displayed in pre element with monospace font.",
+    "testing-plan": "1. Visit /voyage/skull/ with Hugo dev server. 2. Best DSL Code section visible. 3. Click to expand, code matches voyage_skull.dsl content.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

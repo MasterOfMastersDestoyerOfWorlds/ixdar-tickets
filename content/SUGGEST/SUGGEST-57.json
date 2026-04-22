@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-57",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add DSL scaffolding tool",
+    "description": "Create a create_dsl_template tool that generates a basic DSL file structure with common primitives and comments based on ticket requirements. This reduces the cognitive load of starting from scratch and gives agents a concrete starting point.\n\nSource: auto-review of attempt on DSL-18",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

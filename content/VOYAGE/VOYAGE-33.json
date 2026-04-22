@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-33",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Cage-only screenshot tool for pre-coons_patch debugging",
+    "description": "Agent only sees final rendered mesh. Add mode to screenshot tool that renders cage pre-coons_patch (wireframe + flat-shaded quads). If bundle has _bezier_handles_start, render wireframe-cage and smoothed side-by-side. Reuse existing mesh viewer/automation server; parameter selects render mode. Add prompt blurb to use screenshot_cage for validation.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. screenshot tool supports cage-only mode. 2. Output shows wireframe cage with handles. 3. Agent prompt mentions new capability.",
+    "testing-plan": "1. Call screenshot tool on a handled cage, verify wireframe output. 2. Call on coons_patch output, verify smooth mesh output (existing behavior).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

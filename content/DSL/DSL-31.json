@@ -1,0 +1,20 @@
+{
+    "id": "DSL-31",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MirrorGeometryNode preserves and reflects bezier handle slots",
+    "description": "Current line 115 does GeometryBundle.ofMesh(result) which drops all slots. Fix: preserve input slots; for handle slots, duplicate and reflect handle vectors across mirror plane (mirror-axis component negates); rebuild arrays keyed by output edge IDs using CoonsHandleBuilder directed-map pattern.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Mirror preserves non-handle slots unchanged. 2. Handle vectors reflected correctly on mirror axis. 3. Output handle arrays sized for new edge count. 4. Fallback when no handles present.",
+    "testing-plan": "1. cube->assign_bezier_handles->mirror_geometry(X)->coons_patch produces bilaterally symmetric smooth mesh. 2. Mirrored handles are mirror images of originals.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

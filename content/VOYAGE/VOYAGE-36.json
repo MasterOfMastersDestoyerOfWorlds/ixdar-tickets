@@ -1,0 +1,32 @@
+{
+    "id": "VOYAGE-36",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Centralize MLX_MODEL constant in daud.const",
+    "description": "The MLX model ID 'mlx-community/Qwen3.5-35B-A3B-8bit' is currently hardcoded in 4 places: src/daud/server_setup.py:34 (MLX_MODEL constant used for LaunchAgent plist generation), src/daud/review_attempts.py:23 (QWEN_MODEL for urllib calls), src/daud/voyage/fixer.py:24 (QWEN_MODEL for urllib calls), src/daud/voyage/reviewer.py:26 (QWEN_MODEL for urllib fallback). README.md:55 also mentions a different default. Add MLX_MODEL constant to src/daud/const.py and import it from all four modules. VALUE UNCHANGED in this ticket (still Qwen). This is a pure refactor that unblocks the Gemma 4 migration, which becomes a one-line change in const.py afterward.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. src/daud/const.py exports MLX_MODEL = 'mlx-community/Qwen3.5-35B-A3B-8bit' at module level. 2. server_setup.py, review_attempts.py, voyage/fixer.py, voyage/reviewer.py all import MLX_MODEL from daud.const instead of defining their own string. 3. grep -rn 'Qwen3.5-35B-A3B-8bit' src/ returns exactly one hit (const.py). 4. detect_model() fallback in const.py still resolves correctly when agent-model secret is empty. 5. uv run daud and uv run daud-worker both still work against the current Qwen server.",
+    "testing-plan": "1. grep -rn 'Qwen3.5-35B-A3B-8bit' src/ shows only const.py. 2. uv run daud starts and completes a tool call. 3. uv run server-setup regenerates the LaunchAgent plist using the const (verify by reading ~/Library/LaunchAgents/com.daud.mlx-server.plist). 4. voyage/reviewer and voyage/fixer still reach the Qwen endpoint (smoke test via uv run daud-worker on a queued ticket, or direct invocation).",
+    "todos": [
+        "DONE : Add MLX_MODEL constant to src/daud/const.py",
+        "DONE : Replace local definition in server_setup.py:34 with import from const",
+        "DONE : Replace QWEN_MODEL in review_attempts.py:23 with import from const",
+        "DONE : Replace QWEN_MODEL in voyage/fixer.py:24 with import from const",
+        "DONE : Replace QWEN_MODEL in voyage/reviewer.py:26 with import from const",
+        "DONE : Verify single grep hit and end-to-end still functional on Qwen"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Added MLX_MODEL = 'mlx-community/Qwen3.5-35B-A3B-8bit' constant to src/daud/const.py (value unchanged \u2014 still Qwen)",
+        "Replaced local definitions in server_setup.py, review_attempts.py, voyage/fixer.py, voyage/reviewer.py with 'from daud.const import MLX_MODEL'",
+        "Renamed QWEN_MODEL call sites to MLX_MODEL for clarity (3 usages); removes misleading name before Gemma swap",
+        "grep 'Qwen3.5-35B-A3B-8bit' src/ returns exactly one hit (const.py)"
+    ],
+    "related-files": [],
+    "priority": 2
+}

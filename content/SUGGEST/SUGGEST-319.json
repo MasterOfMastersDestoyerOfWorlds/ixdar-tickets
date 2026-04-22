@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-319",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Constraints",
+    "description": "[tooling] Integrate a watertightness validation check or a 'close holes' post-processing step in the DSL compiler to prevent failures like those seen in freeroam.\n\nSource: voyage review of run=20260418-134413 round=1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

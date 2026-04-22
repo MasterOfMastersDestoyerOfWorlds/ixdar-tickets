@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-187",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation verification step",
+    "description": "Require agents to show the actual modified code sections when claiming completion, not just assertions. Include a tool that extracts and displays the specific changes made to verify they match the ticket requirements.\n\nSource: auto-review of attempt on VOYAGE-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

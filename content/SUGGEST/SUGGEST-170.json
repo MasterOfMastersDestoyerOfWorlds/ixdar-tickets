@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-170",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add previous attempt context",
+    "description": "Include summary of what previous attempts accomplished/failed in the system prompt. Agent should see 'Previous 5 attempts all failed - no code changes made' to avoid repeating same exploration pattern.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

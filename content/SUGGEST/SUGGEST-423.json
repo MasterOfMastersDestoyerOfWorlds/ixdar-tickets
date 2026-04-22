@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-423",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Detail Prompting",
+    "description": "[prompt] For coons_cage, introduce specific prompts focusing on the concave nature of eye sockets and the nasal cavity to push similarity beyond the 65-70% plateau.\n\nSource: voyage review of run=20260420-142959 round=2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

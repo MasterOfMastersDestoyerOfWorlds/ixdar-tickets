@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-67",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Improve grep_search timeout handling",
+    "description": "Reduce grep_search timeout from 15s to 5s and add retry logic with smaller search scopes. The agent wasted 15s+ on a tool that returned no results anyway.\n\nSource: auto-review of attempt on DSL-23",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

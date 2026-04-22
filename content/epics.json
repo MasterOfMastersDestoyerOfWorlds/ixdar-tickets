@@ -103,6 +103,12 @@
             "description": "Mesh viewer UI: per-vertex color rendering, tag-based region visualization, tree panel navigation, camera controls, visual comparison tooling"
         },
         {
+            "prefix": "PATCH",
+            "name": "Semantic Patch Decomposition",
+            "priority": 8,
+            "description": "Reference-mesh preprocessing that decomposes a surface into semantically-labeled patches to give Voyager replication agents a structural map beyond chamfer distance. Covers the decomposition algorithm (skeleton+curvature+feature-edge hybrid), VLM labeling workflow, cached .tags.json sidecars, and per-region feedback integration."
+        },
+        {
             "prefix": "IX",
             "name": "Project Setup",
             "priority": 99,

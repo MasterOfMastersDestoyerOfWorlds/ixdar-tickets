@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-445",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Manifold Constraint Enforcement",
+    "description": "[tooling] Implement a pre-export validation step in the DSL compiler to ensure all generated meshes are watertight, specifically targeting the holes that caused coons_cage to fail.\n\nSource: voyage review of run=20260420-142959 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

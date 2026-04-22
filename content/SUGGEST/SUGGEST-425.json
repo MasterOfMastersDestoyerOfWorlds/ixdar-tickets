@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-425",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Validation",
+    "description": "[tooling] Integrate a pre-export watertightness check into the DSL compiler to catch non-manifold edges before the mesh is finalized, preventing total failure for techniques like freeroam.\n\nSource: voyage review of run=20260420-142959 round=3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

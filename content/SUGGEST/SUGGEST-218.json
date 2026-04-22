@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-218",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Improve agent awareness of existing code",
+    "description": "When files already exist (like skill_index.py), add a gate that requires the agent to explicitly state whether it's modifying existing code or creating new code, with justification for the approach.\n\nSource: auto-review of attempt on VOYAGE-10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

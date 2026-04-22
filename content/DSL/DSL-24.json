@@ -1,0 +1,20 @@
+{
+    "id": "DSL-24",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Validator errors include valid port names and node type suggestions",
+    "description": "GraphValidator now includes valid port names when reporting unknown input/output ports, and suggests similar node types via Levenshtein distance when an unknown node type is encountered. This helps the agent self-correct instead of guessing blindly.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Unknown input port errors list valid inputs. 2. Unknown output port errors list valid outputs. 3. Unknown node type errors suggest closest match within edit distance 3. 4. Existing tests pass.",
+    "testing-plan": "1. DSL with wrong port name shows 'Valid outputs: mesh'. 2. DSL with 'cubic' shows 'Did you mean cube?'. 3. GraphValidatorTest passes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

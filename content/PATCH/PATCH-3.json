@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-3",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Agent-driven recursive patch subdivision",
+    "description": "Allow the voyage agent (or the labeling Claude) to recursively refine coarse patches that it finds too broad, rather than relying on the initial decomposer to hit the right granularity.\n\nMotivation: even with PATCH-1 (feature-edge region growing) and PATCH-2 (concavity carve-out), the algorithm picks one global granularity. Some shapes want finer splits in certain regions and coarser elsewhere \u2014 e.g. a skull where the agent wants per-tooth patches on the mandible but a single patch for the parietal. A one-shot decomposer can't serve both cases; the agent or the labeling pass should be able to say 'subdivide this patch further' at its discretion.\n\nDesign sketch:\n1. Extend the .tags.json format to carry a parent/child relationship: each patch has an optional 'parent' field and a 'children' array. Coarse patches stay in the tag set; refinement adds children without removing parents.\n2. Add a 'subdivide_patch' primitive \u2014 takes a patch id, runs the SemanticPatchDecomposer algorithm restricted to that patch's vertex subset, and writes the resulting sub-patches as children.\n3. Expose 'subdivide_patch' as both a CLI subcommand on PatchDecomposerCLI and a Daud tool so either the labeling Claude (during initial preprocessing) or the voyage agent (mid-replication) can invoke it.\n4. mesh_compare_regions rolls errors up the parent chain so the agent can see 'left_mandible' chamfer even when its children 'left_molar_1..4' are the labeled leaves.\n\nNon-goals: automatic granularity decisions. The agent decides when to subdivide.\n\nOpen questions: how to communicate the existence of subdivide_patch to the labeling Claude in the prompt without biasing it toward over-subdividing; how to handle patch-boundary edges that already mis-split a feature (a subdivision inherits the parent's boundary, so a bad parent boundary can't be fixed by children).\n\nOriginated from VOYAGE-51 Phase A discussion: user's comment 'if we can't get a perfect result from 1/2 it might be best to allow for recursive patch definitions at the behest of the agent doing the partition, but that is something for later'.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Tag-sidecar format documented with parent/children fields. subdivide_patch exposed via CLI and Daud tool. mesh_compare_regions rolls up errors through the parent chain. Verified end-to-end on a reference where the labeling Claude (or the user manually) subdivides a coarse patch and the resulting tags.json round-trips through mesh_compare_regions cleanly.",
+    "testing-plan": "Start from the skull tags.json produced by PATCH-1+PATCH-2. Manually call subdivide_patch on 'mandible' and confirm (a) children appear as 'mandible/tooth_*' or similar, (b) the parent is preserved, (c) mesh_compare_regions produces per-child chamfer plus a rolled-up parent number.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

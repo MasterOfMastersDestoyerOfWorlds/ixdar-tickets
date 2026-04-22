@@ -1,0 +1,20 @@
+{
+    "id": "DSL-36",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "FunctionFieldNode and CoonsDisplaceNode for 2D formula displacement",
+    "description": "Add function_field node: takes expression string (2D formula in u,v), resolution_u, resolution_v; outputs 2D-sampled closure. Add coons_displace node: takes geometry (from coons_patch), field (closure), magnitude, axis (normal default or X/Y/Z); evaluates field per vertex at originating (u,v) and displaces along axis. Requires CoonsPatchNode to emit _coons_uv slot with per-vertex parameters.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. function_field compiles formula and samples over 2D grid. 2. coons_displace reads _coons_uv slot and displaces vertices. 3. CoonsPatchNode emits _coons_uv slot. 4. Integration test produces visibly displaced smooth mesh.",
+    "testing-plan": "1. cube->assign_bezier_handles->coons_patch->coons_displace(sin(u*pi)*sin(v*pi), 0.1) produces bumpy smooth mesh. 2. Zero magnitude is identity.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

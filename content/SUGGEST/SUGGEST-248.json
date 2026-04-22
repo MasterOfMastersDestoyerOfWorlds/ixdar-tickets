@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-248",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add completion checklist to system prompt",
+    "description": "Enhance the system prompt with a clear completion checklist that the agent must verify before calling implementation_done. Include: 1) All TODOs addressed, 2) Tests passing, 3) No type errors, 4) Code reviewed. This gives the agent explicit criteria for when to signal completion.\n\nSource: auto-review of attempt on VOYAGE-11",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

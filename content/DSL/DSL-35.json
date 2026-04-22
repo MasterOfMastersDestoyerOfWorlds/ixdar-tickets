@@ -1,0 +1,20 @@
+{
+    "id": "DSL-35",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MathExpressionEvaluator multi-variable (u,v) support",
+    "description": "Extend the evaluator to recognize u, v (and optionally x, y as aliases) as a two-variable form. Backward compatible - existing 1D expressions with only x still work. Foundation for FunctionFieldNode.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. evaluate(expression, u, v) works. 2. Existing single-variable evaluate() unchanged. 3. All math functions work in 2D context.",
+    "testing-plan": "1. sin(u*pi)*cos(v*pi) evaluates at various (u,v) points. 2. Existing function_curve tests pass.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

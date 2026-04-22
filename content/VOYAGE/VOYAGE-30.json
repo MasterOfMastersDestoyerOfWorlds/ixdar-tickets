@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-30",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "DSL pitfall warnings: chained port access",
+    "description": "Added warning about chained port access (node.port.something) to DSL_PITFALL_WARNINGS in mesh_context.py. The agent was writing invalid chained access under pressure despite it being documented in the syntax reference.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. DSL_PITFALL_WARNINGS includes chained port access warning. 2. Warning text is clear with valid/invalid examples.",
+    "testing-plan": "1. Verify warning appears in mesh-dsl system prompt.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

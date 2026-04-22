@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-117",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add ticket context to system prompt",
+    "description": "Include the actual ticket content (TRADE-20 requirements) in the system prompt context. Currently the agent is searching for ticket files instead of having the requirements directly available, causing wasted exploration time.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

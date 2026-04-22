@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-15",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "mesh_context"
+    ],
+    "title": "Add skeleton tool guidance to technique prompts",
+    "description": "skeleton_compare, skeleton_sensitivity, and reference_scaffold tools are registered but the agent is never told about them. The technique prompts in mesh_context.py should reference these tools at appropriate workflow stages. Tool docstrings already explain HOW to use each tool \u2014 technique prompts only need to say WHEN.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "mesh_context.py technique prompts mention skeleton tools. coons_cage prompt recommends reference_scaffold for initial scaffolding. All technique prompts recommend skeleton_compare after plateauing. No docstring duplication between tool definitions and prompts.",
+    "testing-plan": "Start a mesh-dsl session and verify skeleton tools appear in system prompt. Run a voyage batch and confirm agent calls skeleton tools when similarity plateaus.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

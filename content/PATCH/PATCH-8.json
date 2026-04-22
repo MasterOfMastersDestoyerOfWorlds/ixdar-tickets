@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-8",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Principal curvature lines for tooth-level and smooth-transition boundaries",
+    "description": "Our current boundary detection is first-order (per-edge dihedral). This catches sharp creases (zygomatic lateral edges, tooth gaps at steep angles) but misses two important cases the user flagged:\n\n1. Individual teeth: the gaps between adjacent molars are not always 30\u00b0+ creases \u2014 sometimes a smooth valley with moderate curvature separates them. Teeth boundaries are where the shape tensor's principal curvatures max/min transition, not where dihedrals spike.\n2. Smooth anatomical transitions: the cheekbone (zygomatic process) rises from the cranium gradually \u2014 a curvature gradient, not a crease. Our feature-edge detection sees no ridge there so both regions merge.\n\nImplement principal curvature line extraction following Ohtake, Belyaev & Seidel 2004 ('Ridge-Valley Lines on Meshes via Implicit Surface Fitting'):\n\n1. Per-vertex shape tensor via local quadric fitting over 1-ring or 2-ring neighborhood.\n2. Extract principal curvatures \u03ba\u2081 \u2265 \u03ba\u2082 and their eigenvectors t\u2081, t\u2082.\n3. Compute directional derivatives of \u03ba\u2081 along t\u2081 (ridge test) and \u03ba\u2082 along t\u2082 (valley test).\n4. Trace zero-crossings of these derivatives as ridge/valley line segments.\n5. Rasterize traced lines onto mesh edges: edges crossed by a ridge/valley line become 'feature edges' and join the dihedral-based feature set already driving the region-growing pass.\n\nImplementation size: ~200 LOC. Shape tensor construction is the bulk; the rest is small.\n\nReferences:\n- Ohtake, Belyaev, Seidel 2004, 'Ridge-Valley Lines on Meshes via Implicit Surface Fitting'\n- Kalogerakis et al. for a simpler per-vertex curvature estimator if Ohtake's tensor fitting is too heavy.\n\nOriginated from PATCH-1+2 follow-up user observation: 'still not seeing individual teeth, maybe do some research on the internet for how we could find those minimum and maximum curvature lines'.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Per-vertex principal curvatures + ridge/valley line detection ship. Integrated into the feature-edge set in SemanticPatchDecomposer. Verified on skull: individual molars are distinct patches; cheekbone/cranium has a visible patch boundary along the zygomatic transition.",
+    "testing-plan": "(1) On the skull, confirm at least 6 distinct tooth patches emerge (premolars + molars visible in the Bottom view). (2) On the skull, confirm the zygomatic process has a patch boundary separating it from the temporal bone \u2014 no more smooth merging.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

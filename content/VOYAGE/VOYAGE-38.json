@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-38",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Disable uvicorn reload in MLX VLM server",
+    "description": "The mlx_vlm.server module hardcodes uvicorn.run(..., reload=True) at server.py:1428 with watch path '/'. Any filesystem write on macOS triggers WatchFiles to shut down the worker and reload ~31GB of Gemma 4 weights, killing in-flight inference and producing [Errno 48] Address already in use plus loky semaphore leaks. Fix: ship a Daud-local entry point (daud.mlx_server_entry) that sets the same PRELOAD_MODEL/PREFILL_STEP_SIZE env vars mlx_vlm expects, then calls uvicorn.run(app, ...) with reload=False. Update server_setup.py so the generated com.daud.mlx-server.plist uses the new entry point. Reload the LaunchAgent to pick up the change.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1) Daud/src/daud/mlx_server_entry.py exists and calls uvicorn with reload=False. 2) server_setup.py generates a plist pointing at python -m daud.mlx_server_entry. 3) Installed ~/Library/LaunchAgents/com.daud.mlx-server.plist updated and reloaded. 4) /tmp/mlx-vlm-server.stderr.log shows no 'WatchFiles detected changes' or 'Will watch for changes' lines during normal editing. 5) curl http://127.0.0.1:8080/v1/models still returns mlx-community/gemma-4-31b-it-8bit.",
+    "testing-plan": "1) Read mlx_vlm.server source to confirm env vars consumed at startup (PRELOAD_MODEL, PRELOAD_ADAPTER, PREFILL_STEP_SIZE, KV_BITS, KV_GROUP_SIZE, MAX_KV_SIZE, QUANTIZED_KV_START, MLX_TRUST_REMOTE_CODE). 2) Touch a few files under ~/Code/Daud after reload and tail the stderr log \u2014 no reload lines should appear. 3) curl http://127.0.0.1:8080/v1/models and verify the Gemma model is still served. 4) Run a quick chat completion request while editing files to confirm inference survives.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

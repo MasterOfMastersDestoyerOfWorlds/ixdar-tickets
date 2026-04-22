@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-42",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "coons_cage prompt: clarify cube size vs extent for scaling to reference",
+    "description": "Role-play session got the scale wrong: multiplied by half the reference extent instead of the full extent, producing a mesh at half scale. A cube(size=1.0) has extent 1.0 (vertices at plus/minus 0.5), so the correct scale-to-reference is scale equal to the reference extents, not half. This is not obvious from the catalog. Fix: add a one-liner to coons_cage or DSL_PITFALL_WARNINGS stating that cube(size=1.0) has extent 1.0 and transform_geometry scale should equal the reference bounding-box extent, not half of it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Pitfall line added to DSL_PITFALL_WARNINGS or coons_cage technique prompt. 2. Next interactive session hits the expected scale on first try.",
+    "testing-plan": "1. Re-run be-voyage-agent against the skull reference; confirm the first transform_geometry scale matches the reference bounding-box extents without needing correction.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

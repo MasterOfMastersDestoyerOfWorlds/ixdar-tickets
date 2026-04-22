@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-60",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add progress gate for file modifications",
+    "description": "Implement a gate that checks if any files were modified after 3-5 minutes of agent runtime. If no changes detected, trigger a checkpoint to force the agent to either commit progress or report blockers. This prevents agents from getting stuck in research loops without making actual code changes.\n\nSource: auto-review of attempt on DSL-21",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

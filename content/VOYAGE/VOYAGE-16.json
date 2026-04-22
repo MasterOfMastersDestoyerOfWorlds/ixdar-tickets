@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-16",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/batch"
+    ],
+    "title": "Auto-scaffold DSL from reference skeleton before inference",
+    "description": "In batch.py, before launching each member inference session, automatically call reference_scaffold to generate a starter DSL. Agent refines from 50-60 percent similarity instead of starting from scratch. The reference_scaffold tool already exists. Should be technique-aware: coons_cage scaffold for coons_cage members, curve_sweep scaffold for curve_sweep members.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "batch.py writes a scaffold DSL to the member output.dsl before inference begins. Agent sees the scaffold file and refines it. Initial checkpoint similarity starts at 40+ percent instead of 0.",
+    "testing-plan": "Run a single batch member with auto-scaffold enabled. Verify output.dsl contains scaffold code before first inference round. Verify first checkpoint similarity is higher than without scaffold.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

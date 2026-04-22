@@ -1,0 +1,20 @@
+{
+    "id": "DSL-29",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve-preserving ExtrudeMeshNode with generated output",
+    "description": "When input has bezier handles, produce top face with copied handles (translation preserves tangent shape); side walls have zero handles on vertical edges. Add 'generated' BOOLEAN output port - true on top faces, false on side walls. Fallback to current straight behavior when no handles present.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Extrude with handles produces valid handle arrays on output mesh. 2. generated output port marks top faces. 3. Fallback works for non-coons workflows. 4. region=true mode handles bookkeeping correctly.",
+    "testing-plan": "1. cube->assign_bezier_handles->extrude_mesh(top)->coons_patch produces watertight mesh with smooth extrusion boundary (no cheese grater). 2. Chain: inset_faces with selection=extrude.generated targets top face correctly.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

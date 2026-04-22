@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-5",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "patch-rendering"
+    ],
+    "title": "Flat unshaded render mode with globally-unique RGB per patch",
+    "description": "Add a second render mode to PatchRenderer that produces a multiview where each patch has a globally-unique, Lambert-free RGB value. The VLM labeler can then pixel-sample this render to deterministically map (x,y) \u2192 patch_id, eliminating visual ambiguity where Lambert shading makes two differently-colored patches look similar under grazing light.\n\nCurrent behavior: PatchRenderer applies Lambert shading (\"lambert = 0.5 + 0.5 * |n\u00b7L|\", clamped to [0.35, 1.0]) to a 20-color palette. Two patches with similar base colors at different lighting angles can look identical to a VLM.\n\nNew behavior:\n1. Add PatchRenderer.renderMultiviewFlat(mesh, decomposition) that:\n   - Assigns each patch a UNIQUE 24-bit RGB value from a generator that guarantees distinct, visually discriminable colors (HSL(golden_ratio_hue, 0.65, 0.55) per pid works well up to ~300 patches).\n   - Skips Lambert \u2014 every fragment of a face writes its patch's exact RGB.\n2. New CLI command 'render-flat' and automation endpoint /mesh/patches/render-flat-multiview.\n3. The decomposition JSON already carries per-patch color; the flat-render endpoint emits the same palette mapping so the Python side has (color -> patch_name) lookup.\n4. A helper patch_at_pixel(png, x, y) that loads the flat PNG and returns the patch name whose color matches the sampled pixel (exact match; if interior-only to avoid anti-alias seams, use 1-pixel erode).\n\nUse cases:\n- VLM labeler: 'for patch_7 please name it \u2014 it is the red region visible in Front view near the mandible'. With flat render, the labeler can't confuse adjacent shades.\n- Debugging: know exactly which pixel belongs to which patch.\n- Future voyage agent self-tagging: the agent renders its own output flat and reads back which of its patches cover the reference's patches.\n\nOriginated from PATCH-1+2 follow-up \u2014 Welsh-Powell (PATCH-4) covers human viewing; this is its machine-read counterpart.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "renderMultiviewFlat method ships. CLI 'render-flat' subcommand works on the skull. patch_at_pixel helper lands in label_patches.py; it round-trips through a sampled test (pick a pixel near the centroid of each patch, confirm the color matches that patch's unique color).",
+    "testing-plan": "(1) mvn exec PatchDecomposerCLI render-flat /tmp/skull.obj /tmp/skull.patches-flat.png 128; inspect PNG visually. (2) Python: patch_at_pixel for 5 hand-picked (x,y) points returns the expected patch_id (verify by looking up the face at that pixel via the depth buffer \u2014 or by eyeballing on a high-contrast color scheme).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

@@ -1,0 +1,27 @@
+{
+    "id": "VOYAGE-7",
+    "epic": "VOYAGE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "DAG Seam Detection",
+    "description": "Graph analysis on parsed DSL DAGs to find natural abstraction boundaries. A seam node N is one where all downstream consumers depend only on N's outputs, not on anything upstream of N. Algorithm: build adjacency list from List<ParsedNode>, compute dominator tree (iterative dataflow), identify seam nodes where dominated subgraph >= 3 nodes and produces MESH or GEOMETRY_BUNDLE. CLI: AnalyzeGraph --input script.dsl --output analysis.json.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. GraphAnalyzer.java implements dominator tree computation. 2. Identifies seam nodes in parsed DAGs. 3. Extracts upstream subgraph DSL text at each seam. 4. Reports boundary port types. 5. AnalyzeGraph CLI outputs JSON with seam analysis. 6. Unit tests on hand-crafted graphs with known seams.",
+    "testing-plan": "1. Test on hand-crafted 10-node graph with 2 known seams. 2. Test on existing DSL files (hand.dsl, petal.dsl). 3. Verify extracted subgraphs are self-contained and valid. 4. Test edge case: graph with no seams.",
+    "todos": [
+        "DONE : Build adjacency list from List<ParsedNode>",
+        "DONE : Implement dominator tree computation",
+        "DONE : Identify seam nodes with minimum subgraph size",
+        "DONE : Extract subgraph DSL text at seams",
+        "DONE : Create AnalyzeGraph CLI",
+        "DONE : Write unit tests with known seam points"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

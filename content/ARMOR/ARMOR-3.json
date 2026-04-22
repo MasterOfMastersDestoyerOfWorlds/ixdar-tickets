@@ -9,7 +9,7 @@
     "description": "Replicate the chest armor piece from Blender-Procedural-Human in Ixdar DSL. Source: procedural_human/geo_node_groups/armor/chest.py (~21k lines). Most complex piece. Key techniques: bi_rail_loft, pipes, rivet, gem_in_holder, gold_on_band, gold_decorations, bezier segments, mesh-to-curve, extrude-mesh, separate-geometry. May need new utility DSL patterns for gem_in_holder and gold_on_band.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. chest.dsl compiles without errors. 2. Mesh comparison gate passes. 3. Visual comparison shows recognizable silhouette match.",
     "testing-plan": "1. Export Blender reference OBJ. 2. Run validate-dsl to export generated OBJ. 3. Run mesh_distance() comparison. 4. Visual inspection.",
     "todos": [],

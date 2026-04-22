@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-29",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Validation errors show offending DSL line content",
+    "description": "validate_dsl.py now shows the offending source line under each validation error. _format_validation_report() accepts dsl_path, loads source lines, extracts line numbers from error strings, and appends the source line with an arrow prefix. Also fixes JSON parse failures in _run_java_validator() to return a proper error dict instead of propagating JSONDecodeError.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Validation errors show offending line content with arrow prefix. 2. Parse errors show offending line. 3. Non-JSON validator output returns helpful error dict. 4. All callers thread dsl_path.",
+    "testing-plan": "1. Wrong port name error shows source line. 2. Wrong node type error shows source line. 3. Empty validator output returns helpful error.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

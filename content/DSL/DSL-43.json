@@ -1,0 +1,20 @@
+{
+    "id": "DSL-43",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "coons_extrude_mesh: curve-preserving extrude for bezier cages",
+    "description": "Companion to DSL-42. Extrude_mesh variant that places top-face corners using per-vertex Coons surface normals (\u2202S/\u2202u \u00d7 \u2202S/\u2202v averaged across incident cage faces) rather than the cage face-normal approximation. Top-face edge handles copy from the bottom face edges (translation preserves tangent direction). Side-wall vertical edges get zero handles (straight extrusion). region=true supported. Fail-loud when input lacks handles. Pairs with coons_inset_faces for the cage-first workflow without cheese-grater.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. coons_extrude_mesh node registered. 2. Top-face vertices at coons_surface(corner) + offset * coons_surface_normal(corner). 3. Handles correctly copy between top and bottom parallel edges. 4. Watertight under chained coons_inset + coons_extrude. 5. Visibly cleaner than plain extrude_mesh at high handle weight.",
+    "testing-plan": "1. cube + handles + coons_inset + coons_extrude(selection=inset.generated) + coons_patch + merge - watertight with clean depressions. 2. Same with region=true for multi-face selections.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

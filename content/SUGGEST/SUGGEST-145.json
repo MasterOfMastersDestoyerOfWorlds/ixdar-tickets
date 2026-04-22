@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-145",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add write_file tool with explicit commit",
+    "description": "The agent needs a clear write_file or modify_file tool that requires explicit confirmation before saving. Currently the agent reads files but never appears to write any. Make file modification a first-class action with clear success/failure signals.\n\nSource: auto-review of attempt on MESH-39",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

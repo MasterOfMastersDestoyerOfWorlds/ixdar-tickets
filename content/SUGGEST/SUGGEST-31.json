@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-31",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add DSL validation tool",
+    "description": "Implement a validate_dsl tool that checks syntax and structure before the agent marks work as done. This catches errors early and provides feedback during development.\n\nSource: auto-review of attempt on DSL-9",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

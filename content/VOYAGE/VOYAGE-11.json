@@ -1,0 +1,27 @@
+{
+    "id": "VOYAGE-11",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Condenser Agent",
+    "description": "After tournament selects winners, condenser analyzes winning graphs: 1) Calls AnalyzeGraph CLI (VOYAGE-7) for seam analysis. 2) Extracts candidate subgraphs at seam boundaries. 3) Deduplication check via vector index (VOYAGE-10) -- skip if similarity > 0.92. 4) Sends subgraph DSL + render to LLM for naming and description. 5) LLM produces skill definition in function syntax (VOYAGE-8). 6) Writes .skill file. 7) Indexes in ChromaDB. Depends on VOYAGE-7, VOYAGE-9, VOYAGE-10.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Condenser analyzes winning DSL scripts via AnalyzeGraph. 2. Extracts subgraphs at seam boundaries. 3. Deduplicates against vector index before adding. 4. LLM produces valid skill definitions with function syntax. 5. Skills written to library directory. 6. Skills indexed in ChromaDB. 7. Integration test with a hand-crafted winner.",
+    "testing-plan": "1. Feed condenser a known winning DSL with identifiable subgraphs. 2. Verify it extracts at least 1 skill. 3. Verify skill file is valid and executes in Ixdar. 4. Verify deduplication rejects a near-identical subgraph on second run.",
+    "todos": [
+        "Implement seam analysis call to AnalyzeGraph CLI",
+        "Extract candidate subgraphs from seam analysis",
+        "Add deduplication check via vector index",
+        "Design LLM prompt for skill naming and description",
+        "Generate .skill file from LLM output",
+        "Index new skill in ChromaDB"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-311",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Refine Anatomical Prompts",
+    "description": "[prompt] Update prompts for coons_cage to explicitly prioritize topological features (orbits, maxilla) rather than general shape, potentially using weighted feature constraints.\n\nSource: voyage review of run=20260417-163757 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

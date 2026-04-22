@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-341",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Organic Topology Prompting",
+    "description": "[prompt] Update prompts to emphasize concave feature definition and hole-closing logic to better handle the nasal cavity and eye sockets of the skull reference.\n\nSource: voyage review of run=20260418-134413 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-120",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Consolidate directory exploration tools",
+    "description": "Replace multiple sequential list_dir calls with a single recursive directory listing tool that returns the entire relevant structure at once. This reduces tool call overhead and prevents the agent from getting stuck in exploration loops.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

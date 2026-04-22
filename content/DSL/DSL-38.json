@@ -1,0 +1,20 @@
+{
+    "id": "DSL-38",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Curve-preserving extrude with generated-chained selection produces disconnected geometry",
+    "description": "Interactive role-play session hit this bug: the chain cube\u2192cuts\u2192assign_bezier_handles\u2192inset_faces(sel)\u2192extrude_mesh(selection=inset.generated, offset=-0.12, region=true)\u2192coons_patch\u2192merge_by_distance produces an OPEN mesh with floating disconnected cubes visible in the render (see ~/.ix/daud-interactive-friction-1/checkpoint-1.png). Dropping the extrude_mesh step and using deeper inset only restored watertight topology. Either (a) the ExtrudeMeshNode handle-preservation post-pass corrupts the surface when input handles exist, (b) the .generated BoolField is misaligned against inset.geometry's face indexing, or (c) coons_patch interprets corrupt handles on extruded edges non-manifoldly. Needs investigation with a reduced repro.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Root-cause identified (which of a/b/c). 2. Fix applied; the described DSL chain produces a watertight mesh with indented features. 3. Regression test added that exercises inset.generated\u2192extrude_mesh chain under handles\u2192coons_patch.",
+    "testing-plan": "1. Reduced repro: cube\u2192handles\u2192inset_faces on one face\u2192extrude_mesh(selection=inset.generated, offset=-0.1, region=true)\u2192coons_patch\u2192merge. 2. Verify watertight output. 3. Verify no floating geometry. 4. Run full interactive skull DSL and confirm non-degraded similarity.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

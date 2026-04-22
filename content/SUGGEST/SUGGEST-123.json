@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-123",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add mandatory completion signal gate",
+    "description": "Implement a hard gate that validates the agent called implementation_done before allowing ticket completion. If not called, automatically trigger a retry with a prompt reminder about the completion requirement.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

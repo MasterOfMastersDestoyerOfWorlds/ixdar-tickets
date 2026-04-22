@@ -1,0 +1,33 @@
+{
+    "id": "VOYAGE-35",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add required scopes= to @tool decorator and annotate every tool",
+    "description": "Daud's @tool decorator (src/daud/tools/__init__.py:12) has no way to declare which consumer a tool is meant for. The user wants voyage agents to have curated tool access (skeleton analysis, param sweeps, skill library) without broad codebase exploration, while keeping Daud's interactive agent with the full toolbelt. Solution: add a required scopes: set[str] kwarg to @tool accepting 'daud' and 'voyage'. Fail loudly at decoration time if missing. Add tools_for_scope(scope) helper that filters TOOL_REGISTRY and strips the private scopes key. Annotate every existing tool in src/daud/tools/ per the mapping: both={read_file, read_image, list_dir, obj_summary, validate_dsl, ixdar_screenshot, visual_quality, mesh_compare, search_skills}; voyage-only={skeleton_compare, skeleton_sensitivity, param_sweep, multi_param_sweep, curve_refine, reference_scaffold, reference_sample_points, auto_segment, use_skill}; daud-only={grep_search, run_command, ticket_*, submit_for_review, restart_harness, implementation_done, create_file, edit_file}. main.py switches to tools=tools_for_scope('daud'). Pure infrastructure; actually wiring voyage agents to consume tools_for_scope('voyage') is separate future work. Context: user observed Daud was 'too broad, working on tickets I wasn't personally focused on and did not learn'; voyage is the focused, skill-extracting alternative and needs curated tools.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. @tool decorator requires scopes: set[str] kwarg; raises TypeError at decoration time if omitted. 2. Decorator validates scopes values (only 'daud' and 'voyage' accepted). 3. tools_for_scope(scope) helper returns filtered OpenAI-schema dicts with the private scopes key removed. 4. Every tool under src/daud/tools/ has an explicit scopes= annotation per the mapping above. 5. main.py uses tools_for_scope('daud') instead of the global tool list. 6. A guard test imports the tool registry and asserts every entry has non-empty scopes. 7. uv run daud lists the same tools as before (the daud-scoped subset equals the current full set).",
+    "testing-plan": "1. uv run pytest tests/ -k tool_scopes passes (guard test green). 2. Attempt to define a @tool without scopes= raises TypeError with a helpful message. 3. uv run daud starts, tool-calling works end-to-end (no tools dropped). 4. Python REPL: from daud.tools import tools_for_scope; len(tools_for_scope('voyage')) > 0 and the set matches the mapping.",
+    "todos": [
+        "DONE : Extend @tool decorator with required scopes kwarg (fail loudly if missing)",
+        "DONE : Add tools_for_scope(scope) helper to tools/__init__.py",
+        "DONE : Annotate scopes= on every tool in src/daud/tools/ per the mapping",
+        "DONE : Switch main.py to tools_for_scope('daud')",
+        "DONE : Add guard test asserting every registered tool has non-empty scopes",
+        "DONE : Verify tool-call round-trip against current Qwen server still works"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Extended @tool decorator with required scopes=set[str] kwarg; raises TypeError if missing, ValueError for unknown values (valid: daud, voyage)",
+        "Added tools_for_scope(scope) helper that filters TOOL_REGISTRY and strips private _-prefixed keys",
+        "Annotated all 28 tools: 9 daud-only (write/search/ticket/run_command), 9 daud+voyage (read/analysis/skills), 10 daud+voyage (promoted from original voyage-only to preserve current Daud behavior per DoD #7)",
+        "Updated main.py to use tools_for_scope('daud') instead of get_tools()",
+        "Added tests/test_tool_scopes.py with 5 guards (pytest-discoverable, runnable via uv run python)"
+    ],
+    "related-files": [],
+    "priority": 2
+}

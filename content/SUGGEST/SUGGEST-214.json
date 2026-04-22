@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-214",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Require diff validation before implementation_done",
+    "description": "Add a gate that validates the agent has made actual code changes (non-empty diff) before allowing implementation_done to be called. This prevents agents from claiming completion when no changes were made or when existing code already satisfied requirements.\n\nSource: auto-review of attempt on VOYAGE-10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

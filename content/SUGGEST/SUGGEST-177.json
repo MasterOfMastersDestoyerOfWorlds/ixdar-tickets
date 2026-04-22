@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-177",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add pyright to project dependencies",
+    "description": "Add pyright to pyproject.toml dev dependencies so the quality gate can run without requiring the agent to install it. This prevents infrastructure-related gate failures that agents cannot resolve due to command restrictions.\n\nSource: auto-review of attempt on VOYAGE-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

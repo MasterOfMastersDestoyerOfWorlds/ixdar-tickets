@@ -11,16 +11,16 @@
     "blocks": [
         "ENG-5"
     ],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. Environment variable `IXDAR_ASSET_REPO_ROOT` is the source of truth for local asset repo location. 2. A documented S3 path convention exists for shared assets and versioned folders. 3. Sync workflow from S3 to local repo is documented (manual or scripted). 4. Platform/File loading can load model files from local asset repo. 5. Model test scene successfully loads `Hand.obj` from local asset repo. 6. Clear error messaging when environment variable or file is missing.",
     "testing-plan": "1. Manual Test: Set `IXDAR_ASSET_REPO_ROOT` to local asset repo and verify `Hand.obj` loads in model test scene. 2. Negative Test: Unset env var and verify clear startup/load error. 3. Negative Test: Keep env var set but remove `Hand.obj` and verify missing-file error. 4. Cross-Platform Check: Verify desktop/headless loaders resolve external filesystem paths correctly.",
     "todos": [
-        "Define S3 bucket/prefix layout for model assets and versions",
-        "Document sync process from S3 to local asset repo (PowerShell and/or CLI)",
-        "Implement env-var based path resolution in file management",
-        "Implement platform support for loading external files from filesystem",
-        "Add model loading test scene that reads `Hand.obj` from local asset repo",
-        "Document `IXDAR_ASSET_REPO_ROOT` in README"
+        "DONE : Define S3 bucket/prefix layout for model assets and versions",
+        "DONE : Document sync process from S3 to local asset repo (PowerShell and/or CLI)",
+        "DONE : Implement env-var based path resolution in file management",
+        "DONE : Implement platform support for loading external files from filesystem",
+        "DONE : Add model loading test scene that reads `Hand.obj` from local asset repo",
+        "DONE : Document `IXDAR_ASSET_REPO_ROOT` in README"
     ],
     "unknowns": [
         "Exact S3 URI naming convention for environments (dev/stage/prod)",

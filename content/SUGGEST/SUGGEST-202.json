@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-202",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add pre-flight type check to workflow",
+    "description": "Before the agent starts working, run pyright on the target files and include the error output in the initial context. This gives the agent a clear starting point of what needs to be fixed.\n\nSource: auto-review of attempt on VOYAGE-10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

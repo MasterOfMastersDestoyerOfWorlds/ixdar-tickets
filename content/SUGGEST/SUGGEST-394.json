@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-394",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Add Mesh Validation Step",
+    "description": "[infrastructure] Introduce an automated pre-check for watertightness during the checkpointing process to allow the model to iterate on failed geometries before final submission.\n\nSource: voyage review of run=20260419-183559 round=1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

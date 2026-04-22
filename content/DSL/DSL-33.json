@@ -1,0 +1,20 @@
+{
+    "id": "DSL-33",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "TransformGeometryNode scales handle offset vectors",
+    "description": "When scaling, vertex positions scale but bezier handle offset vectors do not, so curves distort. Fix: apply the linear part of the transform (scale + rotation) to handle vectors in both _bezier_handles_start and _bezier_handles_end. Translation does nothing to offsets (correct as-is).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Handle vectors transformed correctly under scale. 2. Handle vectors transformed correctly under rotation. 3. Translation unaffected. 4. Fallback when no handles.",
+    "testing-plan": "1. cube->assign_bezier_handles->transform_geometry(scale=2,2,2)->coons_patch produces scaled smooth mesh with same curve shape as unscaled version.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

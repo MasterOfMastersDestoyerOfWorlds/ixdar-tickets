@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-194",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add exploration timeout gate",
+    "description": "Implement a gate that triggers after 5-10 minutes of agent activity with no code changes (diff stat = 0). This gate should interrupt the agent and require it to either commit to an implementation plan or request clarification. Prevents agents from getting stuck in endless exploration loops.\n\nSource: auto-review of attempt on VOYAGE-3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

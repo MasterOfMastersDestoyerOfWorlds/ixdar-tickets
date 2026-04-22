@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-17",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/batch"
+    ],
+    "title": "Inject skeleton comparison feedback into agent loop",
+    "description": "After each checkpoint, automatically run skeleton_compare against the reference and inject the per-branch error report as text alongside the visual render. Agent sees actionable structural feedback like jaw branch 40 percent too short direction off 22 degrees instead of just similarity equals 62 percent. Requires automation server running.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "batch.py _maybe_checkpoint runs skeleton_compare after successful checkpoint and injects branch match report into agent messages. Agent receives both visual render and skeleton text feedback.",
+    "testing-plan": "Run a voyage member with skeleton feedback enabled. Verify agent messages contain skeleton comparison data. Verify agent references specific branch errors in its responses.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

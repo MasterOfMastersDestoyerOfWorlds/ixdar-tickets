@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-313",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Optimize coons_cage Convergence",
+    "description": "[tooling] Reduce maximum rounds or implement early stopping criteria for coons_cage to lower vertex/face counts without sacrificing the 72.7% similarity score.\n\nSource: voyage review of run=20260417-163757 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

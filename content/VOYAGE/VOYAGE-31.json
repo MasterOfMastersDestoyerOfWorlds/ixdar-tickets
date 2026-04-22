@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-31",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "grep_search excludes build dirs and reports timeouts",
+    "description": "grep_search now catches subprocess.TimeoutExpired and returns a helpful message instead of crashing. Excludes target/, .git/, node_modules/, __pycache__ via --exclude-dir. Output limited to 50 lines to prevent context overflow.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Timeout returns helpful message. 2. Build/VCS dirs excluded. 3. Output capped at 50 lines with count.",
+    "testing-plan": "1. Broad search path returns timeout message instead of crash. 2. Verify --exclude-dir flags present.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

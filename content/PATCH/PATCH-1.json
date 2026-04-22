@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-1",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Feature-edge-aware region growing replaces curvature k-means",
+    "description": "Swap Step 2 of SemanticPatchDecomposer from position+curvature k-means to feature-edge-aware region growing.\n\nCurrent behavior: within each skeleton-branch bucket, k-means clusters vertices by [curvature, normalized position] with k picked from TARGET_SUBPATCH_SIZE. This clusters by centroid distance, so the cheekbone (zygomatic) ends up split across 3 positional clusters instead of staying unified, and eye-socket rims get absorbed into the surrounding cranium because k-means picks cuts where positional centroids separate, not where geometric features are.\n\nNew behavior:\n1. Compute per-edge dihedral angle (already computed inside computeVertexCurvature \u2014 lift the per-edge map out and cache).\n2. Classify each edge as smooth or 'feature' via threshold T_FEATURE (start at 28\u00b0 / 0.49 rad, make it a tuneable constant).\n3. Within each skeleton-branch bucket, build a face-adjacency graph where feature edges break connectivity.\n4. Run connected-components on that graph. Each component is a candidate patch.\n5. Reuse the existing small-component merge pass (MIN_PATCH_FACES), merging into the largest non-tiny neighbor found via vertex-ring expansion through feature edges when normal adjacency is blocked.\n\nExpected outcome on the voyage_skull_ref.obj:\n- Zygomatic stays as one patch per side instead of 3.\n- Tooth-gap creases separate individual molars if the gap dihedral exceeds T_FEATURE.\n- Smooth regions of cranium remain one patch each.\n\nRelated: PATCH-2 (concavity carve-out for eye sockets) tackles the eye-socket problem specifically and is expected to land in the same PR. Originated from VOYAGE-51 Phase A follow-ups.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "SemanticPatchDecomposer refactored to feature-edge region growing. Verified on voyage_skull_ref.obj: zygomatic unified on each side, tooth gaps respected, no regression on the cranium patches that already look right. Multiview render attached to ticket notes. Threshold tuning written up in commit message.",
+    "testing-plan": "uv run label-patches /tmp/skull.obj --force --description 'human skull' and compare multiview PNG against the pre-change baseline stored in /tmp/skull.patches.png.pre. Manually verify: (a) zygomatic is one color per side; (b) eye-socket rim is on a patch boundary even if the socket interior isn't its own patch yet (that's PATCH-2); (c) at least 3 teeth emerge as distinct regions.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

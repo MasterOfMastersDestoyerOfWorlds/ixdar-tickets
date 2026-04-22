@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-171",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation_done tool requirement to system prompt",
+    "description": "The system prompt must explicitly state that the agent MUST call implementation_done before completing any task. Add a hard requirement in the prompt: 'IMPORTANT: You must call implementation_done() exactly once when you have completed all work. Failure to call this will cause task failure.' Include this in both the initial prompt and as a reminder in the agent's thinking process.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-149",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add file_edit_history tracking",
+    "description": "Track which files the agent has read vs. which it has modified. If an agent reads 10+ files without modifying any, trigger a checkpoint that asks the agent to either start implementing or explain why more reading is needed.\n\nSource: auto-review of attempt on MESH-39",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

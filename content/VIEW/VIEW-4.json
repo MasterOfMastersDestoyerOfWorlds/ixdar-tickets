@@ -9,7 +9,7 @@
     "description": "When a tag is clicked in the tree panel (VIEW-3), compute the bounding box of that tag's vertices, and animate the orbit camera to center on and frame that region at a reasonable zoom level. Highlight the selected region's faces (brighter color or outline).",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. Clicking a tag in the tree smoothly re-centers the camera on that region. 2. Zoom level is appropriate for the region's bounding box size. 3. Selected region is visually highlighted. 4. Clicking the root/parent tag zooms back out to the full mesh.",
     "testing-plan": "1. Load a tagged skull.dsl, click different tags, verify camera moves. 2. Test with small regions (eye sockets) and large regions (cranium). 3. Verify smooth animation, not a hard cut.",
     "todos": [],

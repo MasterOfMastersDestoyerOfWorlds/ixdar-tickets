@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-457",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Topology Audit",
+    "description": "[capability] Analyze the vertex-to-face ratio of freeroam to determine if increasing mesh density would allow for better curvature of the brow ridge.\n\nSource: voyage review of run=20260421-080023 round=4",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-22",
+    "epic": "VOYAGE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "BiRailLoftNode: add thickness parameter for watertight output",
+    "description": "BiRailLoftNode produces an open surface sheet between two rail curves. The agent must manually add solidify_mesh after every bi_rail_loft, which it often forgets, producing non-watertight meshes. Add a thickness float parameter (default 0.001) that internally solidifies the loft surface. When thickness=0, output raw open surface for backward compat.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. BiRailLoftNode has thickness float InputPort (default 0.001). 2. When thickness > 0, node internally solidifies surface (duplicate+offset+connect edges). 3. When thickness=0, outputs raw open surface. 4. Update mesh_context.py bi_rail_loft prompt and common pattern to mention thickness default.",
+    "testing-plan": "1. Write DSL: two rail curves + profile + bi_rail_loft (default thickness). 2. validate_dsl \u2192 mesh probe must show watertight=true. 3. Same DSL with thickness=0 \u2192 must show watertight=false (open surface). 4. Visual check in mesh viewer.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

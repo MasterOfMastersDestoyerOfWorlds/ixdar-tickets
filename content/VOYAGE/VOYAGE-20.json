@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-20",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "mesh_context"
+    ],
+    "title": "Rewrite technique prompts: remove displacement math, elevate topology ops",
+    "description": "The coons_cage and loop_cut technique prompts explicitly tell the agent to use set_position + field math for vertex displacement. The DSL_SYNTAX_REFERENCE Common Patterns also lists displacement as an idiom. This steers the agent toward a low-ceiling approach (float math on a cube cage ~72% similarity ceiling) instead of using topology operations (extrude, inset, loop_cut, coons_loop_cut, mirror). The agent has all these nodes in its catalog but the prompts tell it to use displacement as primary strategy. Also reframe reference_sample_points usage from coordinate positioning to shape understanding.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. coons_cage prompt workflow uses loop_cut/inset_faces/extrude_mesh as primary steps, no mention of set_position + field math. 2. loop_cut prompt workflow uses extrude/inset, no displacement math. 3. Common Patterns line about Field computations removed from DSL_SYNTAX_REFERENCE. 4. reference_sample_points framing changed from coordinate positioning to shape understanding. 5. tag_geometry + mesh_compare_regions integrated as workflow step in coons_cage and loop_cut prompts.",
+    "testing-plan": "1. Run a voyage batch with coons_cage technique. 2. Check output DSL uses topology ops (extrude, inset, loop_cut) not set_position + field math. 3. Verify agent system prompt contains updated workflow steps. 4. Verify Common Patterns section no longer lists displacement idiom.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

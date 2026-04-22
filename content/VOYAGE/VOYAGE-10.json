@@ -1,0 +1,27 @@
+{
+    "id": "VOYAGE-10",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Skill Vector Index",
+    "description": "ChromaDB collection for semantic skill retrieval. Each skill indexed with description embedding (nomic-embed-text via sentence-transformers, 384-dim, CPU), structured metadata (port types, technique, fitness, generation), and rendered thumbnail path. API: add_skill(), query_skills(task_description, top_k), deduplicate(description, threshold=0.92). Index persists at ~/.ix/voyage/skill_index/. Depends on VOYAGE-9.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. ChromaDB collection created and persistent at ~/.ix/voyage/skill_index/. 2. add_skill() embeds description and upserts. 3. query_skills() retrieves top-K by cosine similarity. 4. deduplicate() checks for near-duplicates above threshold. 5. chromadb and sentence-transformers added to pyproject.toml.",
+    "testing-plan": "1. Add 5 skills with distinct descriptions. 2. Query 'organic horn shape' and verify tapered_horn ranks highest. 3. Verify deduplication rejects near-duplicate at 0.92 threshold. 4. Verify index persists across process restarts.",
+    "todos": [
+        "Add chromadb and sentence-transformers to pyproject.toml",
+        "Create skill_index.py with ChromaDB initialization",
+        "Implement add_skill() with embedding",
+        "Implement query_skills() with cosine similarity",
+        "Implement deduplicate() with threshold check",
+        "Add persistence at ~/.ix/voyage/skill_index/"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

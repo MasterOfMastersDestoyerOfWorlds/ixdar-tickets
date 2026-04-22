@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-412",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Refine Organic Curvature Prompts",
+    "description": "[prompt] Since similarity is plateauing around 72%, update prompts to specifically emphasize the concave nature of eye sockets and the nasal cavity to move beyond basic volumetric approximation.\n\nSource: voyage review of run=20260419-183559 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

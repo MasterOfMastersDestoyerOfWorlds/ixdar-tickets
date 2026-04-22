@@ -9,7 +9,7 @@
     "description": "Read __tags slot from GeometryBundle, assign a distinct color from a categorical palette to each tag, and populate per-vertex color arrays. When multiple tags overlap on a vertex, blend or use the most-specific (deepest hierarchy) tag. Integrate with the per-vertex color shader (VIEW-1).",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. Tags from GeometryBundle are read and mapped to colors. 2. Each tag gets a distinct, visually separable color. 3. Overlapping tags use the most-specific tag for coloring. 4. Color-coded skull.dsl renders with distinct regions visible.",
     "testing-plan": "1. Tag a cube with two different tags on different faces. 2. Verify each tag region renders in a distinct color. 3. Test with skull.dsl tagged regions.",
     "todos": [],

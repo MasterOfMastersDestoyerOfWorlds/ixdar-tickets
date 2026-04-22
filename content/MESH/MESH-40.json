@@ -1,0 +1,20 @@
+{
+    "id": "MESH-40",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Mesh skeleton extraction via TEASAR (/mesh/skeleton)",
+    "description": "POST /mesh/skeleton extracts skeletal structure from reference OBJ via voxelized TEASAR: voxelize interior, compute distance-from-boundary field, extract branches via penalized Dijkstra with iterative invalidation. Returns branches, joint positions+radii, branch points, directions, and segment lengths.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "Endpoint returns JSON with branches (joints, radii, directions, lengths), branch points, and tree structure. Hand.obj produces 5-6 branches with correct topology.",
+    "testing-plan": "Run on Hand.obj at resolution=128 \u2014 expect 5-6 branches. Verify root near palm center, branch points at finger junctions, radii thinner at tips.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

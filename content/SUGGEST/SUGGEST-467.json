@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-467",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Validation",
+    "description": "[tooling] Integrate a pre-export watertightness check in the DSL compiler to provide immediate feedback to the modeling technique when holes are detected in the mesh.\n\nSource: voyage review of run=20260421-080023 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

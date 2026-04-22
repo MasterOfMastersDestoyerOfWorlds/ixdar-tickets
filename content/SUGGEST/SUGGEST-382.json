@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-382",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Optimize Iteration Budget",
+    "description": "[infrastructure] freeroam requires 66% more rounds than coons_cage for a marginal 1% gain. Implement a convergence check to stop generation when similarity gains drop below 0.5% per 10 rounds to save infrastructure costs.\n\nSource: voyage review of run=20260419-005624 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

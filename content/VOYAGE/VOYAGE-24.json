@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-24",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage/batch"
+    ],
+    "title": "Condenser structured JSONL logging and thinking token fix",
+    "description": "Skills extraction silently fails. Qwen returns <think>...</think> reasoning blocks before JSON, breaking the regex extraction. No persistent log exists \u2014 all condenser output goes to stderr. Fix: (1) Strip <think> tokens before JSON extraction in _llm_name_skill(), (2) Add structured JSONL logger at ~/.ix/voyage/voyage-condenser.log with entries for analyze_graph, LLM calls, skill writes, and round summaries.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. _llm_name_skill() strips <think>...</think> before JSON regex. 2. JSONL log file at ~/.ix/voyage/voyage-condenser.log. 3. Log entries for: analyze_graph success/failure, LLM response (full text on failure), skill write, round summary. 4. condense_winner logs entry and exit with skill count.",
+    "testing-plan": "1. Run a voyage round with condenser. 2. Check ~/.ix/voyage/voyage-condenser.log for JSONL entries. 3. Verify skills are named and written. 4. Simulate <think> token in LLM response \u2014 verify JSON still extracted.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

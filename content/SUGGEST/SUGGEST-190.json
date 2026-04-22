@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-190",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Require diff verification before implementation_done",
+    "description": "Modify the workflow so the agent must show actual code changes (diff stat > 0) before calling implementation_done. Add a gate that validates the diff contains meaningful implementation changes, not just file reads.\n\nSource: auto-review of attempt on VOYAGE-2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

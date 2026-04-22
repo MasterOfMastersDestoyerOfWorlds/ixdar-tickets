@@ -1,0 +1,20 @@
+{
+    "id": "VOYAGE-23",
+    "epic": "VOYAGE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Add line numbers to DSL parse errors and validation messages",
+    "description": "Parse errors return messages like 'Expected ) to close node arguments. Found .' with no line number. read_file returns raw text without line numbers. The agent cannot locate errors in 100+ line DSL files. Need: (1) Track line numbers in PythonLexer tokens, (2) Include line numbers in PythonParser error messages, (3) Include line numbers in GraphValidator semantic errors, (4) Add line numbers to read_file output for text files.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. PythonLexer Token class has int line field, tracked via newline counting. 2. PythonParser error messages prefixed with 'Line N:'. 3. ParsedNode has line field, GraphValidator errors prefixed with 'Line N:'. 4. read_file tool returns numbered lines for text files.",
+    "testing-plan": "1. Write DSL with deliberate syntax error on line 15. 2. validate_dsl should report 'Line 15: ...'. 3. Write DSL with unknown node type on line 10, validate should report 'Line 10: Unknown node type...'. 4. read_file on a .dsl file shows numbered lines.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

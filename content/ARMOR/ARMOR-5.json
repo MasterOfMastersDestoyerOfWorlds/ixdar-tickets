@@ -9,7 +9,7 @@
     "description": "Replicate the blocker (collision/armor understructure) from Blender-Procedural-Human in Ixdar DSL. Source: procedural_human/geo_node_groups/armor/blocker/ (subdirectory with main.py, chest.py, collar/). Key techniques: ico_sphere, curve_circle, mesh-to-sdf-grid, align-rotation, quilting/stitching patterns. Most technically demanding \u2014 may require new SDF/volume nodes in Ixdar.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "IN_PROGRESS",
     "definition-of-done": "1. blocker.dsl compiles without errors. 2. Mesh comparison gate passes. 3. Visual comparison shows recognizable silhouette match.",
     "testing-plan": "1. Export Blender reference OBJ. 2. Run validate-dsl to export generated OBJ. 3. Run mesh_distance() comparison. 4. Visual inspection.",
     "todos": [],

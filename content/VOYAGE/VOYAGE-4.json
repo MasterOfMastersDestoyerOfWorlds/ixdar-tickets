@@ -1,0 +1,26 @@
+{
+    "id": "VOYAGE-4",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Tournament Selection with VLM",
+    "description": "After a batch completes, tournament ranks outputs via VLM relative ranking. Renders all candidates + reference in a labeled grid (VOYAGE-3), sends to VLM asking relative ranking questions (closest to reference, most interesting, most technically accomplished). Parses VLM JSON response into per-candidate scores, combines with Chamfer fitness as weighted score. Top-K become winners. Depends on VOYAGE-2 and VOYAGE-3.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Tournament accepts N candidate OBJ/DSL paths + reference. 2. Calls RenderGrid to produce labeled grid image. 3. Sends grid to VLM with structured ranking prompt. 4. Parses VLM response into per-candidate scores. 5. Combines VLM + Chamfer into weighted score. 6. Returns ranked candidates with top-K winners. 7. Handles VLM parse failures with retry.",
+    "testing-plan": "1. Run tournament with 4 known OBJs of varying quality against a reference. 2. Verify VLM response parses correctly. 3. Verify ranking correlates with visual quality. 4. Test retry logic with malformed VLM response.",
+    "todos": [
+        "Implement grid rendering call",
+        "Design VLM tournament prompt with forced JSON output",
+        "Parse VLM ranking response",
+        "Combine VLM + Chamfer into weighted score",
+        "Add retry logic for malformed responses"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

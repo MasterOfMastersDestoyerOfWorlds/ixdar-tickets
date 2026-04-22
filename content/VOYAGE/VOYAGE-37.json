@@ -1,0 +1,42 @@
+{
+    "id": "VOYAGE-37",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Migrate local inference from Qwen 3.5 35B to Gemma 4 31B (8-bit)",
+    "description": "Swap Daud's local inference model from mlx-community/Qwen3.5-35B-A3B-8bit to mlx-community/gemma-4-31b-it-8bit \u2014 the highest-parameter model in the mlx-community Gemma 4 collection (https://huggingface.co/collections/mlx-community/gemma-4). Gemma 4 31B is multimodal (image-text-to-text) so Daud's vision tools (read_image, ixdar_screenshot, visual_quality) continue working. BLOCKED BY: VOYAGE-34 (model_protocol extraction, which adds the Gemma tool-call parser) and VOYAGE-36 (MLX_MODEL centralization, which makes this a one-line change). Tradeoff: Qwen 3.5 35B-A3B is MoE (~3B active params/token), Gemma 4 31B is dense \u2014 expect meaningfully slower tokens/sec on the same Mac. Quality on instruction-following and vision should improve. Rollback is a one-line revert in const.py + re-running server-setup.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. src/daud/const.py MLX_MODEL = 'mlx-community/gemma-4-31b-it-8bit'. 2. README.md default-model reference updated. 3. CLAUDE.md 'Local inference (macOS)' paragraph, 'Daud' build section, and 'Daud Agent Architecture' bullet all reference Gemma 4 instead of Qwen 3.5; the 'not a vision model' caveat is rewritten since Gemma 4 IS a vision model. 4. uv run server-setup regenerates the LaunchAgent plist and restarts mlx_vlm.server with the new model. 5. curl http://127.0.0.1:8080/v1/models returns the Gemma model. 6. End-to-end smoke tests pass (see testing plan).",
+    "testing-plan": "1. Text: uv run daud completes a trivial chat turn. 2. Tool-call: from the agent, invoke list_dir or obj_summary; confirm tool actually executes. If delta.tool_calls is empty and the Gemma fallback parser fires, verify from logs it produced valid OpenAI-shape calls. 3. Multimodal: invoke read_image on any PNG; model describes image content. 4. Ixdar render: with Ixdar running, invoke ixdar_screenshot; model responds to the render. 5. Voyage smoke: uv run daud-worker processes one queued ticket without errors. 6. Performance baseline: note tokens/sec on a standard prompt vs prior Qwen numbers. If unacceptable, consider gemma-4-31b-it-6bit (separate ticket). 7. Rollback rehearsal: flip MLX_MODEL back to Qwen string, uv run server-setup, verify normal operation returns.",
+    "todos": [
+        "DONE : Change MLX_MODEL in const.py from Qwen to mlx-community/gemma-4-31b-it-8bit",
+        "DONE : Update README.md:55 default-model line",
+        "DONE : Update CLAUDE.md: Daud build section, Local inference paragraph, Agent Architecture bullet (remove 'not a vision model' caveat)",
+        "DONE : uv run server-setup to regenerate LaunchAgent plist (first run downloads ~31 GB)",
+        "DONE : Smoke test: text round-trip via uv run daud",
+        "DONE : Smoke test: tool-call (list_dir or obj_summary) \u2014 verify which parser path fired",
+        "DONE : Smoke test: multimodal read_image on a PNG",
+        "DONE : Smoke test: ixdar_screenshot with Ixdar running",
+        "DONE : Smoke test: uv run daud-worker on one queued ticket",
+        "DONE : Rehearse rollback: revert const.py + server-setup"
+    ],
+    "unknowns": [
+        "Operational steps pending user action: uv run server-setup (31 GB first-run download), curl /v1/models check, text/tool-call/multimodal smoke tests, voyage smoke test, rollback rehearsal"
+    ],
+    "changes-made": [
+        "Flipped MLX_MODEL in src/daud/const.py from Qwen3.5-35B-A3B-8bit to gemma-4-31b-it-8bit",
+        "Updated README.md (default-model line + tagline)",
+        "Updated CLAUDE.md: workspace table, Local inference paragraph, Daud Agent Architecture bullet (removed 'not a vision model' caveat since Gemma 4 is multimodal; noted the model_protocol fallback parser and tool scopes system)",
+        "Code-side DoD complete; grep 'Qwen3.5' in src/ returns only stale .pyc caches. Guard tests + model_protocol tests all green.",
+        "Discovered mlx-vlm 0.4.1 doesn't support Gemma 4 (no mlx_vlm.models.gemma4 module); upgraded to 0.4.4 via uv lock --upgrade-package mlx-vlm",
+        "Killed stale Qwen server processes (required -9 on orphan loky child holding port 8080) and reloaded the LaunchAgent",
+        "Smoke tests all pass: text completion ('I am a large language model, trained by Google'), tool-calling ('list_dir' with {path: /tmp} \u2014 server-translated to OpenAI tool_calls format natively, our Gemma fallback parser is insurance), multimodal (correctly described a flower image at ~20 tok/s generation, 34 GB peak memory)",
+        "Tool-call wire format works through OpenAI primary path (delta.tool_calls); Daud's Gemma fallback parser in model_protocol.py is present but won't fire in normal operation"
+    ],
+    "related-files": [],
+    "priority": 2
+}

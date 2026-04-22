@@ -1,0 +1,24 @@
+{
+    "id": "VOYAGE-1",
+    "epic": "VOYAGE",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Technique Variation System",
+    "description": "Extend build_mesh_system_prompt() in mesh_context.py to accept an explicit technique assignment. Each batch member gets assigned a specific modeling technique (primitives, curve_sweep, radius_closure, bi_rail_loft, loop_cut, boolean) instead of discovering it through escalation. The system prompt says 'You MUST use [technique]. Do not switch approaches.'",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. build_mesh_system_prompt() accepts optional technique parameter. 2. Six technique prompts defined (primitives, curve_sweep, radius_closure, bi_rail_loft, loop_cut, boolean). 3. When technique is set, preamble forces the agent to use that technique exclusively. 4. Without technique parameter, existing behavior unchanged.",
+    "testing-plan": "1. Call build_mesh_system_prompt(technique='curve_sweep') and verify the preamble contains curve_sweep instructions. 2. Call with no technique and verify output matches current behavior. 3. Verify all six technique keys produce valid prompts.",
+    "todos": [
+        "DONE : Define TECHNIQUE_PROMPTS dict with 6 technique descriptions",
+        "DONE : Add technique parameter to build_mesh_system_prompt()",
+        "DONE : Inject technique-specific preamble into system prompt"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

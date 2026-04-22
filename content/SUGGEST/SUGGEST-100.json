@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-100",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add auto-completion detection",
+    "description": "Implement a post-processing check that detects when an agent has made significant code changes but hasn't called implementation_done, and automatically prompts the agent to confirm completion.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

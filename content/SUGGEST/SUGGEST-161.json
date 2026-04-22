@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-161",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation progress tracking",
+    "description": "Require agent to create a progress marker file after each major step (exploration complete, implementation started, tests passing). This creates checkpoints to detect when agent is stuck in exploration mode.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

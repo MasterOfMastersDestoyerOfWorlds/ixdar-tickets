@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-91",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add implementation_done validation gate",
+    "description": "Add a final gate that checks for implementation_done call before marking ticket complete. If agent runs out of time without calling it, trigger a 'completion check' mode that summarizes what was done and what remains.\n\nSource: auto-review of attempt on TRADE-20",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

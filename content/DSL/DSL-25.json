@@ -1,0 +1,20 @@
+{
+    "id": "DSL-25",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Vector literals support variable references (desugar to combine_xyz)",
+    "description": "PythonParser.parseVectorLiteral() now accepts variable references and inline calls as vector components, not just float literals. When a non-literal component is found, the parser desugars the vector literal into a synthetic combine_xyz node using the existing pendingInlineNodes mechanism. All-literal vectors still produce Vector3Value directly.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. <val.result, 0.0, 1.0> parses and validates successfully. 2. <1.0, 2.0, 3.0> still produces Vector3Value (no regression). 3. Desugared combine_xyz nodes execute correctly at runtime. 4. Existing parser tests pass.",
+    "testing-plan": "1. DSL with <val.result, 0.0, 1.0> validates and executes with correct translation. 2. DSL with all-literal vector validates as before. 3. PythonParserInlineTest passes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

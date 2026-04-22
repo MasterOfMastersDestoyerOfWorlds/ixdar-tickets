@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-356",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Topology-Specific Prompting",
+    "description": "[prompt] Provide the models with specific guidance on handling 'holes' (eye sockets, nasal cavity) to ensure they are treated as integrated surfaces rather than open edges.\n\nSource: voyage review of run=20260418-171533 round=3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

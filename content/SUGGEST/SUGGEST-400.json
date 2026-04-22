@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-400",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "High-Resolution Primitive Set",
+    "description": "[capability] To break the 65% barrier, introduce more complex base primitives or higher-order splines to the DSL to better capture the brow ridge and jaw curvature.\n\nSource: voyage review of run=20260419-183559 round=3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

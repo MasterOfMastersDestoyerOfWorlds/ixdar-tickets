@@ -1,0 +1,20 @@
+{
+    "id": "DSL-40",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MirrorGeometryNode socket docs: warn about symmetric-input non-manifold",
+    "description": "Applying mirror_geometry to input geometry that is ALREADY symmetric across the mirror plane (e.g. a stock cube centered at origin, mirrored on X) produces overlapping faces that merge_by_distance collapses into a non-manifold topology. The mesh validates, probe fails at execution. A role-play session today hit exactly this: cube(size=1) is symmetric, and mirror_geometry(axis=X) on it crashed mesh execution. Fix: update MirrorGeometryNode.socketDocs for the 'geometry' port to warn: 'INPUT MUST NOT ALREADY BE SYMMETRIC across the mirror plane \u2014 mirroring an already-symmetric shape produces overlapping faces that collapse into non-manifold edges. Build a half-shape (e.g. cube shifted to x in [0, 1]) first, then mirror.'",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. MirrorGeometryNode.socketDocs for 'geometry' includes the symmetric-input warning. 2. Catalog regeneration shows the warning. 3. Next interactive session picks a half-shape strategy on first try.",
+    "testing-plan": "1. Regenerate catalog. 2. Grep mesh-node-catalog.json for 'already-symmetric' near mirror_geometry. 3. Render the system prompt and verify the warning appears under mirror_geometry's geometry port.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

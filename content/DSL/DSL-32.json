@@ -1,0 +1,20 @@
+{
+    "id": "DSL-32",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MergeByDistanceNode rebuilds handle arrays after weld",
+    "description": "Current line 44 preserves slots via withMesh but edge IDs change after welding, making handle arrays stale. Fix: after merge, rebuild _bezier_handles_start/_end arrays keyed by output edge IDs. For each output edge, locate corresponding input edge (by original vertex pair before welding) and copy handles.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. After merge_by_distance on a handled mesh, handle arrays have length matching new edge count. 2. Welded seam vertices don't introduce handle artifacts. 3. Fallback when no handles.",
+    "testing-plan": "1. coons_patch->merge_by_distance->second coons_patch doesn't corrupt - handles consistent at seams. 2. Verify array size matches new edge count.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

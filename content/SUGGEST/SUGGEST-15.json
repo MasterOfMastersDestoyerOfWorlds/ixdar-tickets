@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-15",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Optimize grep_search with timeout handling",
+    "description": "The grep_search timed out after 15 seconds. Either increase timeout for large repos, add parallel search capabilities, or replace with a more efficient file indexing/search tool that can search across the entire codebase without timing out.\n\nSource: auto-review of attempt on VIEW-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

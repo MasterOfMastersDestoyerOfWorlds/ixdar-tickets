@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-184",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Add gate pass/fail context to agent",
+    "description": "When a gate fails, provide the agent with clear context about which files are affected and whether they're related to the ticket. Currently the agent must guess if the failure is relevant. Add a 'gate_context' tool that returns: affected_files, ticket_scope_files, and relevance_score.\n\nSource: auto-review of attempt on VOYAGE-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

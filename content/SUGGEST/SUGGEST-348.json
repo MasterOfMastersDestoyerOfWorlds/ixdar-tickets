@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-348",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Increase Vertex Budget",
+    "description": "[capability] With only 1034 vertices, the current best model is likely under-fitting the complex curvature of the skull; encourage higher density in the brow and jaw regions.\n\nSource: voyage review of run=20260418-134413 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-178",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Pre-gate environment validation",
+    "description": "Add a pre-gate check that validates all required tools (pyright, black, pytest, etc.) are installed before running quality gates. If missing, fail fast with a clear infrastructure error message rather than letting the agent waste time trying to install them.\n\nSource: auto-review of attempt on VOYAGE-1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run daud-worker on a relevant ticket and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
