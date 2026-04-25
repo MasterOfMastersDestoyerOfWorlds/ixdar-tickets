@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-15",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Per-vertex scalar attribute + gradient shader (infra)",
+    "description": "Context: patch-diagnostic work needs to visualize continuous per-vertex scalar fields (e.g. Coons reconstruction error, Gaussian curvature, mean dihedral). Today HalfEdgeMeshRuntime only supports per-tag uniform solidColor. A patch rendered with one color per-patch hides intra-patch variation \u2014 critical for Coons error since the whole point is to see WHERE inside a patch reconstruction fails.\n\nThis ticket adds a reusable pipeline. Callers push a float[] vertex-count-long; GPU interpolates across the triangle; fragment shader maps scalar to a dark\u2192bright ramp. The infra ticket produces no user-visible change on its own \u2014 it unblocks the Coons-error metric (see sibling ticket) and any other per-vertex scalar diagnostic.\n\nProposed additions:\n- `ixdar-app/src/main/resources/glsl/mesh_scalar.vs` / `mesh_scalar.fs` \u2014 new shader pair. Vertex declares `layout(location=3) in float aScalar;` (position/normal/texcoord at 0/1/2 stay as-is). Vertex writes `vScalar = aScalar;` varying. Fragment maps v = clamp(vScalar, 0, 1) to color via a cheap ramp \u2014 e.g. `color = vec3(v, v * 0.7, 0.2 + 0.3 * v)` for a dark-red\u2192bright-yellow warm scale, or `vec3(v)` for pure grayscale. Start with grayscale so \"dark = low, bright = high\" matches the user's spec literally.\n- `ShaderProgram.ShaderType` \u2014 add `MeshScalar` entry pointing at the new files.\n- `HalfEdgeMeshRuntime` \u2014 new field `int scalarVbo`, new attribute slot, new method `setPerVertexScalar(float[] values)` that uploads and sets the VBO to active. A new ShaderMode entry `SCALAR` (or folded into whichever diagnostic consumes it).\n- `PatchRenderer.renderSingleView` / `renderSingleViewWithOverlay` \u2014 extend to optionally take a `float[] vertexScalar` and do barycentric-interpolated grayscale per pixel so the CPU PNG diagnostic matches the GL view. Reuse the existing triangle rasterizer's barycentric weights.\n\nThe Coons-error ticket (PATCH-16) will call `setPerVertexScalar(errorArray)` with per-vertex error values and pick this shader via a new ShaderMode.\n\nCritical files to modify / create:\n- ixdar-app/src/main/resources/glsl/mesh_scalar.vs (new)\n- ixdar-app/src/main/resources/glsl/mesh_scalar.fs (new)\n- ixdar-app/src/main/java/ixdar/graphics/render/shaders/ShaderProgram.java\n- ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java (lines 25-80 for new state, 131-206 for render path, 290+ for setters)\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/PatchRenderer.java (renderSingleView)",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A new shader program `MeshScalar` loads at runtime alongside `Mesh` and `MeshUnlit`.\n2. `HalfEdgeMeshRuntime.setPerVertexScalar(float[])` uploads a per-vertex float buffer; the GL path binds it when a scalar-aware ShaderMode is active.\n3. Values are interpolated across triangles and mapped dark\u2192bright in a fragment shader (grayscale baseline).\n4. `PatchRenderer.renderSingleView` has an overload that accepts a `float[] vertexScalar` and produces the same dark\u2192bright shading in CPU PNG output.\n5. A trivial smoke test drives this with a synthetic scalar field (e.g. vertex-index modulo N normalized to [0,1]) and confirms both GL view and CPU PNG show a smooth gradient.",
+    "testing-plan": "1. Live viewer: load a mesh, activate the new SCALAR ShaderMode with a synthetic gradient (vertex y-coordinate normalized to [0,1]). Confirm smooth gradient across faces, no flat-shaded discontinuities at triangle edges.\n2. CPU PNG: call renderSingleView with the same synthetic scalar on voyage_skull_ref.obj. Read the output \u2014 should show smooth gradient.\n3. Regression: LAMBERT, FLAT, STAGES, CREST_VS_BOUNDARY modes still render identically to before.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

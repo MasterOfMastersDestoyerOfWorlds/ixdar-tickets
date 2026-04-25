@@ -1,0 +1,54 @@
+{
+    "id": "PROCGEN-11",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "game-sim"
+    ],
+    "title": "First-person player controller with WASD + jump + capsule collision",
+    "description": "Walkable character control inside the dungeon. Replaces the fly-cam mode in DungeonViewerScene with character physics: gravity, jump, and capsule collision against the dungeon mesh. Standard FPS feel: WASD moves horizontally relative to camera yaw (NOT camera forward \u2014 Y component stays zero so looking up doesn't make you fly), Space jumps when grounded, mouse rotates view. Camera attaches to the capsule top (eye height = capsule.halfHeight - small offset). Per frame: read input -> compute desired horizontal velocity -> add gravity to vertical velocity -> propose delta = velocity * dt -> CapsuleMover.moveAndSlide resolves against world -> update capsule position from result -> camera follows. Grounded check: was the last vertical resolution upward (i.e. we collided with floor)? If so, allow jump and zero downward velocity. Lives in ixdar.procgen.dungeon.player. The fly-cam stays as an alternative mode \u2014 toggle with a key (e.g. F) so the user can flip between walking and flying.",
+    "blocked-by": [
+        "PROCGEN-6",
+        "PROCGEN-10"
+    ],
+    "blocks": [
+        "PROCGEN-12"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. PlayerController class with capsule + velocity + camera reference. 2. update(dt, keys, mouse) integrates one frame: input -> velocity -> delta -> moveAndSlide -> apply. 3. WASD moves horizontally relative to camera yaw (Y component zero). 4. Space jumps when grounded; velocity.y = jumpSpeed. 5. Gravity continuously applied (configurable, default ~9.8). 6. Camera position locked to capsule.top each frame. 7. Toggle key (F) switches between PlayerController mode and existing fly-cam mode. 8. DungeonViewerScene uses PlayerController by default, fly-cam as opt-in.",
+    "testing-plan": "1. Spawn at origin in an empty grid: WASD moves the capsule, position changes per frame. 2. Walk into a room wall: capsule stops flush, perpendicular component slides along wall. 3. Walk off the edge of a room (no floor below): capsule falls under gravity, lands on a HALLWAY cell below if one exists. 4. Jump: vertical velocity goes positive, capsule rises, gravity brings it back. 5. Jump while pressed against a wall: still works, no clipping. 6. Toggle to fly-cam mode: WASD becomes free-fly (no gravity, no collision). Toggle back: gravity + collision resume. 7. Determinism: with input recorded, replaying the same inputs produces the same trajectory.",
+    "todos": [
+        "DONE : Define PlayerController state (capsule, velocity, grounded flag, mode toggle)",
+        "DONE : Implement update(dt, keys, mouse) integration loop",
+        "DONE : WASD relative to camera yaw, NOT camera forward (no flying when looking up)",
+        "DONE : Gravity + jump + grounded detection",
+        "DONE : Camera attachment to capsule top",
+        "DONE : Mode toggle: walk vs fly",
+        "DONE : Wire into DungeonViewerScene as default, fly-cam as opt-in",
+        "DONE : Unit tests for movement + collision response (using a synthetic TileGrid)"
+    ],
+    "unknowns": [
+        "Z-fighting from dual-winding emit causes visual speckling on walls when viewed close-up. Fix candidates: (a) emit single-sided + disable backface cull on the dungeon mesh runtime, (b) tiny epsilon offset between inward/outward verts, (c) two passes with different uniforms. Out of scope for PROCGEN-11",
+        "Player spawn heuristic is naive (closest non-empty cell to camera XZ). PROCGEN-12 will refine using START room roles when available"
+    ],
+    "changes-made": [
+        "PlayerController class in ixdar.procgen.dungeon.player. Stores capsule shape (halfHeight + radius), position, velocity, grounded flag. Single update(dt, pressedKeys, cameraYawDegrees) entry point integrates one frame: WASD horizontal velocity relative to camera yaw (Y component zero), gravity, jump on Space when grounded, then CapsuleMover.moveAndSlide. Grounded detection: actual vertical motion > delta.y + epsilon when delta.y < 0 means the floor pushed us back up",
+        "Diagonal movement is normalized so W+D doesn't outrun a single key. Camera-yaw-relative basis: forward=(cos yaw, 0, sin yaw), right=(sin yaw, 0, -cos yaw). Looking up/down does NOT change horizontal direction (player stays grounded)",
+        "DungeonKeyGuy extends KeyGuy: edge-detects F (no oscillation while held) to toggle modes via callback, and suppresses the parent's WASD-to-camera-move loop when in player mode (PlayerController owns motion instead). Fly-cam mode falls through to base KeyGuy behavior unchanged",
+        "DungeonViewerScene now defaults to player mode for 3D dungeons. Loads the DSL, finds the astar_corridors_3d output (the 3D TileGrid), wires it into a PlayerController. 2D dungeons fall back to fly-cam since there's no 3D collision world. Camera position locked to player's eye level (capsule.center.y + halfHeight) every frame in player mode",
+        "NodeGraphRuntime.getNodeOutput(nodeId, port) added \u2014 public accessor for intermediate node values so the scene can pull the TileGrid without re-running the graph",
+        "Spawn placement: on scene load (and on toggle to player mode), find the non-empty cell nearest to the camera's XZ across all floors, place capsule resting on that cell's floor (centerY = floorY + halfHeight + radius). PROCGEN-12 will replace this with a proper PlayerSpawner that prefers START rooms",
+        "Capsule defaults: halfHeight = cellSize * 0.30, radius = cellSize * 0.20, jumpSpeed = 4 cells/sec, walkSpeed = 3 cells/sec, gravity = 9.8 units/sec\u00b2. Tuned for the unit-scale dungeon (cell_size=0.0667 in dungeon_2d/3d.dsl)",
+        "Tests: PlayerControllerTest (9 tests) covers no-input gravity fall, W moves +X at yaw=0 / -Z at yaw=-90, diagonal not faster than cardinal, falling onto floor sets grounded + zeroes velocity, jump requires grounded, jump produces upward velocity when grounded, determinism over 60 frames, teleport resets state. 9/9 pass",
+        "Visual verification: 3D dungeon spawn places player inside a room, W key visibly translates camera. Z-fighting artifact noted from PROCGEN-7's dual-winding emit (inward+outward quads at the same plane) \u2014 visual nuisance but not blocking. Will need a render-side fix later (e.g. backface-cull off + single-sided emit, or a tiny offset between the two windings)",
+        "Full regression: 123/123 dungeon + scope tests pass. TeaVM BUILD SUCCESS"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/player/PlayerController.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/scene/DungeonKeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/scene/DungeonViewerScene.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/NodeGraphRuntime.java",
+        "ixdar-app/test/unit/procgen/dungeon/player/PlayerControllerTest.java"
+    ],
+    "priority": 3
+}

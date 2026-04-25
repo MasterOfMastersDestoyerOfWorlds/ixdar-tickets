@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-10",
+    "epic": "PATCH",
+    "repo": "Daud",
+    "subsystem": [
+        "semantic-labeling"
+    ],
+    "title": "Chunked Claude-CLI labeling for >50 patches",
+    "description": "After PATCH-8, label-patches produces 98+ anatomical patches on the skull and Claude CLI times out at 600s processing the single-shot prompt plus two images. Decomposer is correct; only the semantic-naming step stalls.\n\nOptions to implement (pick one during the ticket):\n\n1. Chunked labeling (preferred): split patches into batches of 30-40 by decomposition order, call claude -p once per batch, merge mapping results. Total time scales linearly with batch count but each call stays well under timeout.\n\n2. Top-N pre-filter: sort patches by vertex count, keep top 40, rest stay placeholders. Covers anatomically important patches. Simplest but loses small-patch labels.\n\n3. Streaming + resume: use claude -p --output-format stream-json to see progress, allow partial completion. Most robust.\n\nRecommendation: start with (1) batched, fall back to (2) if batching complicates merge logic.\n\nAdditional: the prompt should be reorganized so Claude sees the two renders first and the patch list second, so reasoning about image content precedes the mapping decision.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "uv run label-patches on the current skull produces a tags.json with all patches either semantically labeled or explicitly marked as placeholder, no timeouts, completes in under 10 minutes.",
+    "testing-plan": "Run label-patches on /tmp/skull.obj with the PATCH-8 decomposer output (98 patches). Verify completion, verify labels are anatomically sensible, verify no patch is silently dropped.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

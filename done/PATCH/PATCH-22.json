@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-22",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Morse-Smale decomposition Phase A: diagnostic overlay",
+    "description": "Prior decomposition work (PATCH-11..21) treats feature edges as negative constraints and splits patch interiors with k-means/BFS heuristics. On the skull that produces patches crossing ridges and containing multiple teeth. The fundamental constraint the user pointed out is that a Coons patch is a taut cloth \u2014 wrinkles cannot live in the interior, so every local curvature extremum must be inside exactly one cell and every saddle/ridge must be on a cell boundary. This is the Morse-Smale complex (MSC) by definition.\n\nPhase A is DIAGNOSTIC ONLY: compute the MSC on the skull using signed mean curvature as the Morse function, render its critical points (red=max, blue=min, yellow=saddle) and integral arcs (black lines) as an overlay. No change to SemanticPatchDecomposer behavior; only additive fields on DecompositionDiagnostics.\n\nGoal: visually confirm MSC cells match anatomy (tooth tips \u2192 max, inter-tooth valleys \u2192 saddle, sockets \u2192 min) before building a real decomposer on top.\n\nNew class: MorseSmaleComplex.java with:\n- classifyCriticalPoints via lower-link connectivity (Banchoff)\n- persistence-pair + simplify (start simple: sort pairs by |\u0394H|, cull bottom N%)\n- steepest-ascent/descent arc tracing from saddles (reuse CrestLineDetector.traceOneDirection pattern but swap eigenvector alignment for H-gradient)\n\nDiagnostic overlay uses the PATCH-17 depth-aware overlay infra for free.\n\nPhase B (integration as parallel pipeline) will be PATCH-23 with its own plan file.\n\nReference: kitten-style MSC images (one cell per anatomical feature, cells topologically quadrilateral) and the 2024 Tsiapkolis-B\u00e9nard patch decomposition paper (hal-04620165) for a secondary \"normal cone per patch\" invariant that could refine cells later.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. MorseSmaleComplex.compute(mesh, scalarField, persistenceFrac) runs on the skull.\n2. DecompositionDiagnostics exposes critical points (typed max/min/saddle) and integral arcs.\n3. PatchRenderer renders critical-point dots + arcs as an overlay through the depth-aware PATCH-17 path.\n4. On voyage_skull_ref.obj: red dots at tooth tips, blue dots in sockets, yellow dots at inter-tooth valleys, arcs connect them forming visibly closed anatomical cells at a reasonable persistence threshold.\n5. Does NOT change patch counts or flat-patch rendering (decomposer untouched).",
+    "testing-plan": "1. Headless VerifyMsc runner: decomposeWithDiagnostics on skull, dump critical-point counts and arc count, emit overlay PNG at zoom 2.5.\n2. Visual inspect Right + 3/4 Front-R: confirm dot placement matches anatomy.\n3. Tune persistenceFrac (0.05 \u2192 0.1 \u2192 0.2) and recapture PNGs.\n4. Live viewer: load skull, cycle into new MSC shader mode, orbit 360\u00b0 and verify depth-aware arcs.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

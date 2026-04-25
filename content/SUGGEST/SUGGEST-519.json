@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-519",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Organic Geometry Prompting",
+    "description": "[prompt] Refine prompts for 'freeroam' to focus specifically on the concave regions of the skull (eye sockets and nasal cavity) to push similarity beyond the 76% plateau.\n\nSource: voyage review of run=20260423-153423 round=6",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

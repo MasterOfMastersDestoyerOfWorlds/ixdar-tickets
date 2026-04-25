@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-29",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Formal MSC quad-cells (max-saddle-min-saddle topology)",
+    "description": "PATCH-24 ascending-manifold cells aren't quads \u2014 each cell can have any number of saddles on its boundary. For Coons-fittable patches (the project's end goal), cells need exactly 4 corners and 4 sides forming the canonical MSC 2-cell topology: alternating max \u2192 saddle \u2192 min \u2192 saddle \u2192 max around each cell.\n\nThis is the formal Morse-Smale complex 2-cell construction (Edelsbrunner-Harer). On a 2-manifold with persistence-simplified critical points, every cell of the MSC IS a quad. We just haven't built that representation \u2014 we have ascending manifolds, which are coarser.\n\nAlgorithm:\n1. From PATCH-26's MSC result + arcs, build the arc-graph topology (which arcs share endpoints, which arcs lie on cell boundaries).\n2. For each maximum, walk its incident arcs CCW. Each adjacent pair of arcs (out to one saddle, then over to a min via descending arc, then back via another descending arc, then up to another saddle, then up the next ascending arc) defines one quad cell.\n3. Output: List<Cell> where each Cell has 4 corner critical-point IDs (max, sad1, min, sad2), 4 sides (each a vertex polyline along an arc), and one interior face-set.\n\nReference: Edelsbrunner-Harer \"Computational Topology\" Ch. VII; Gyulassy practical MSC paper.\n\nLikely depends on PATCH-28 (boundary snap) so the arcs we walk are clean.\n\nAcceptance: each MSC cell on the skull has exactly 4 corners; cells are addressable as {maxId, sad1Id, minId, sad2Id}; PatchDecomposition output emits cells with their 4 ordered side polylines, ready for Coons-cage Bezier fitting.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. New MscQuadCells.java assembles formal 2-cells from the MSC arc graph.\n2. Each cell has exactly 4 corners and 4 ordered side polylines.\n3. Patch records carry the corner/side metadata so a downstream Coons-fit consumer can use it directly.\n4. Skull decomposition: every cell is 4-sided; no n-gons except where arc graph has degeneracies that simplify with higher persistence.",
+    "testing-plan": "1. VerifyMsDecomposer headless asserts every cell has 4 corners.\n2. Render flat patches: cells visibly tile as quads on the skull.\n3. Wire to Coons-fit (PATCH-16) and confirm error stats are reasonable for a 4-sided cell layout.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

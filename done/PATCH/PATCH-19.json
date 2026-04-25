@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-19",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Recursive + error-weighted split for Coons-error base case",
+    "description": "PATCH-16 landed the Coons reconstruction-error metric and wired it into splitByQuality as a split trigger, but two limitations leave it partial:\n\n1. **Single-pass split.** `splitByQuality` iterates patches once. When a patch fails the Coons gate, k-means produces k sub-patches; those sub-patches are not re-checked. A big cranium patch that needed 8 sub-patches to each be flat enough gets 4 and stops. Fix: wrap splitByQuality in an outer loop that keeps iterating until no patch fails the gate, with a safety cap (e.g. 6 passes) to prevent infinite split on pathological inputs.\n\n2. **Positional k-means split.** k-means on face centroids cuts the patch in half spatially, ignoring *where* the Coons error is concentrated. A flat-forehead-with-orbital-socket patch gets bisected left/right instead of cleaved at the rim. Fix: when the split is Coons-triggered, seed k-means with the highest-error face centroids instead of the usual positional seeds. Falls back to positional when Coons error isn't what triggered the split.\n\nCritical files:\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/SemanticPatchDecomposer.java \u2014 `splitByQuality` at line ~1246, and the single call site in `decomposeWithDiagnostics`.\n- Per-patch Coons error is already computed inside the gate; for the seed change, also retain `vertexError` from `CoonsReconstructionError.PatchError` to drive seed placement.\n\nAcceptance: on voyage_skull_ref.obj, the orbital-socket regression (PATCH-18) is resolved \u2014 the socket appears as a distinct patch separated from the forehead by a rim boundary. Other working anatomy (cranium, zygomatic) is not regressed.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. splitByQuality is called in an outer loop until either no patches fail the gate or a safety cap is hit. Cap logged on hit.\n2. When a patch's split is triggered by Coons error, k-means seeds are placed at the k highest-error vertices' face centroids (one per seed).\n3. Orbital-socket on skull: distinct patch separated by rim boundary in the flat multiview.\n4. No regression in cranium / zygomatic / teeth compared to current PATCH-16-landed state.",
+    "testing-plan": "1. Run VerifyCoonsError on skull \u2014 max error should drop (currently 0.53 \u2192 target <0.05) and patch count should rise proportionally.\n2. Render flat multiview \u2014 visually confirm orbital sockets are their own patches.\n3. Verify the SCALAR heatmap \u2014 bright regions should be dimmer / smaller post-fix.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

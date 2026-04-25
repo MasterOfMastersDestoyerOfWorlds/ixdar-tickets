@@ -1,0 +1,58 @@
+{
+    "id": "PROCGEN-5",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Dungeon MeshNode wrappers + dungeon_2d.dsl example",
+    "description": "Thin MeshNode wrappers that expose the pure algorithms from PROCGEN-3 and PROCGEN-4 to the DSL runtime. Each wrapper is annotated @MeshNodeAnnotation(scopes = {\"dungeon\"}) \u2014 NOT the default {\"mesh\", \"dungeon\"} \u2014 so they only appear in dungeon-scoped graphs and never leak into Daud's mesh-modeling catalog (verified via PROCGEN-1 filter). Five nodes: RandomRoomsNode (seed, grid_w, grid_h, count, min_size, max_size -> rooms:ROOM_LIST), DelaunayGraphNode (rooms -> edges:EDGE_GRAPH), MinimumSpanningTreeNode (edges, room_centers, extra_edge_prob, seed -> edges:EDGE_GRAPH), AStarCorridorsNode (rooms, edges, grid_w, grid_h, reuse_cost, empty_cost, room_cost -> tiles:TILE_GRID), DungeonGridToMeshNode (tiles, cell_size -> mesh:MESH). Each wrapper delegates to the corresponding algo class \u2014 keep wrappers thin, no algorithm logic here. Create an example graph at ixdar-app/src/main/resources/dsl/dungeon_2d.dsl that chains all five nodes and produces a renderable dungeon mesh.",
+    "blocked-by": [
+        "PROCGEN-1",
+        "PROCGEN-2",
+        "PROCGEN-3",
+        "PROCGEN-4"
+    ],
+    "blocks": [
+        "PROCGEN-6",
+        "PROCGEN-7",
+        "PROCGEN-8",
+        "PROCGEN-9",
+        "PROCGEN-10"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Five MeshNode classes in ixdar.procgen.dungeon.nodes, each with scopes = {\"dungeon\"}. 2. Wrappers delegate to algo classes and contain no algorithm logic. 3. dungeon_2d.dsl parses successfully via NodeGraphRuntime. 4. Running dungeon_2d.dsl end-to-end produces a non-empty ArrayMesh. 5. Daud catalog isolation: call the mesh-DSL catalog tool with scope=\"mesh\" (PROCGEN-1), grep for random_rooms / delaunay_graph / minimum_spanning_tree / astar_corridors / dungeon_grid_to_mesh \u2014 expect zero matches. This is the load-bearing correctness check for the scope system.",
+    "testing-plan": "1. Unit test: each wrapper's execute() produces the expected value type. 2. Integration test: load dungeon_2d.dsl with NodeGraphRuntime, execute, assert mesh has >0 vertices and >0 triangles. 3. Determinism: run dungeon_2d.dsl twice with the same seed, diff the output mesh bytes \u2014 identical. 4. Scope isolation (critical): Daud mesh-DSL catalog tool invoked with scope=\"mesh\" must return zero dungeon nodes; invoked with scope=\"dungeon\" returns all five.",
+    "todos": [
+        "DONE : Implement RandomRoomsNode",
+        "DONE : Implement DelaunayGraphNode",
+        "DONE : Implement MinimumSpanningTreeNode",
+        "DONE : Implement AStarCorridorsNode",
+        "DONE : Implement DungeonGridToMeshNode",
+        "DONE : Author dungeon_2d.dsl example graph",
+        "DONE : Verify Daud catalog isolation (load-bearing correctness check)"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Five MeshNode wrappers in ixdar.procgen.dungeon.nodes, each @MeshNodeAnnotation(scopes={\"dungeon\"}) \u2014 hidden from Daud's mesh-modeling catalog by PROCGEN-1 scope filter",
+        "RandomRoomsNode delegates to RoomPlacer; DelaunayGraphNode to DelaunayTriangulation2D; MinimumSpanningTreeNode to PrimMinimumSpanningTree; AStarCorridorsNode to AStarCorridorPathfinder2D; DungeonGridToMeshNode to GridToMesh2D. Wrappers are thin \u2014 no algorithm logic in them",
+        "dungeon_2d.dsl example at ixdar-app/src/main/resources/dsl/dungeon_2d.dsl chains all five nodes: rooms -> tri -> mst -> tiles -> dungeon.mesh",
+        "Dungeon2dDslTest parses + validates + executes dungeon_2d.dsl end-to-end via NodeGraphRuntime; verifies mesh is non-empty and output is byte-deterministic across repeat runs",
+        "DungeonNodeWrappersTest exercises each wrapper's evaluate() via MapNodeContext, plus the load-bearing scope-isolation assertions: all 5 dungeon ids absent from mesh catalog, all 5 present in dungeon catalog",
+        "Daud catalog isolation verified end-to-end: mesh-scope=83 nodes, dungeon-scope=88 nodes, zero leakage, zero missing. Scope system is load-bearing as designed",
+        "TeaVM rebuild BUILD SUCCESS; catalog export regenerated cleanly",
+        "Full dungeon + scope regression: 71/71 tests pass across 10 test classes",
+        "MeshNodeCatalogScopeTest updated \u2014 mesh-scope catalog is now strictly smaller than unfiltered (expected, since dungeon-only wrappers now exist)"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/RandomRoomsNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/DelaunayGraphNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/MinimumSpanningTreeNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/AStarCorridorsNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/DungeonGridToMeshNode.java",
+        "ixdar-app/src/main/resources/dsl/dungeon_2d.dsl",
+        "ixdar-app/test/unit/procgen/dungeon/DungeonNodeWrappersTest.java",
+        "ixdar-app/test/unit/procgen/dungeon/Dungeon2dDslTest.java"
+    ],
+    "priority": 2
+}

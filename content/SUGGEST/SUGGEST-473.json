@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-473",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Manifold Validation Layer",
+    "description": "[tooling] Implement a pre-export check in the DSL compiler to identify and auto-patch holes in the mesh to prevent 'not watertight' failures.\n\nSource: voyage review of run=20260421-080023 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

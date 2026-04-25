@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-515",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Manifold Validation Step",
+    "description": "[tooling] Implement a pre-validation check in the DSL compiler to detect non-watertight meshes and trigger an automatic regeneration or repair pass before final similarity scoring.\n\nSource: voyage review of run=20260423-153423 round=5",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

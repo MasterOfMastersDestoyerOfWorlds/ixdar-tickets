@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-522",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Refine Organic Topology Prompting",
+    "description": "[prompt] Introduce specific prompts regarding 'concave boolean operations' to help the models better define the hollow areas of the skull.\n\nSource: voyage review of run=20260423-153423 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

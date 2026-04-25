@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-494",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Increase Iteration Ceiling",
+    "description": "[infrastructure] Since both techniques are hitting the 120-round limit without a clear divergence, increase the round limit to 200 to determine if similarity continues to climb or has truly stagnated.\n\nSource: voyage review of run=20260422-161553 round=7",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

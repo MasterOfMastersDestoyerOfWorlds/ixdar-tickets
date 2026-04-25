@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-530",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Primitive Expansion",
+    "description": "[prompt] Update the prompt library to include specific guidance on concave subtraction for eye sockets and nasal cavities to improve similarity scores.\n\nSource: voyage review of run=20260423-153423 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

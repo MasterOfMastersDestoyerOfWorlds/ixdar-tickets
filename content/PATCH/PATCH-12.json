@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-12",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Decomposer performance: profile + parallelize splitByQuality + skip TEASAR on huge meshes",
+    "description": "Observed: breasts.obj (374218 verts) takes 157s to decompose. voyage_skull_ref.obj (22107 verts) takes ~10s. The cubic voxel grid in TEASAR is the main suspect but hasn't been profiled.\\n\\nProfile-first workflow:\\n1. Instrument each stage of SemanticPatchDecomposer.decompose() with System.nanoTime(). Run on skull / hand / breasts. Identify the top two hotspots.\\n2. Likely #1: MeshSkeletonExtractor.extract at resolution=128 on a huge mesh. Voxel grid is cubic in mesh_extent/resolution. On 374k verts spanning, say, 2 units, grid is 128\\u00b3 = 2M voxels, and voxelizeScanline walks faces \\u00d7 YZ bounding box. Fix: auto-drop resolution to 64 when V > 100k, OR skip skeleton entirely for very large meshes and fall back to a bounding-box axis-parallel bucketing.\\n3. Likely #2: four independent mesh walks for vertex curvature, angle defect, mean curvature, and edge dihedrals. Merge into one walk that accumulates all four per-vertex/per-edge quantities in one pass.\\n4. Parallelize splitByQuality per patch \\u2014 each patch's quality scoring + k-means split is independent. User's specific observation.\\n5. Parallelize assignByNearestBranch over V \\u2014 current O(V \\u00d7 J) nested loop, trivially parallel.\\n\\nTarget post-fix: skull <5s, breasts <60s.\\n\\nSeparate from PATCH-11 so the quality fix is not gated on perf.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Instrumented timings checked in. Hotspots identified. Top-two fixes applied. Regression timings attached to the ticket comparing before/after on skull, hand, breasts.",
+    "testing-plan": "(1) Run decomposer on three meshes pre-fix, log stage timings. (2) Apply fixes. (3) Re-run; timings drop by target factor. (4) Patch count + visual result unchanged within tolerance.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

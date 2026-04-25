@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-559",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Prompt Refinement",
+    "description": "[prompt] The low similarity of freeroam suggests the DSL is failing to capture key landmarks (eye sockets, nasal cavity). Update prompts to emphasize depth and negative space for cranial voids.\n\nSource: voyage review of run=20260424-101249 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

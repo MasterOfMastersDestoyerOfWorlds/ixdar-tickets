@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-541",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Refine Organic Topology Prompts",
+    "description": "[prompt] Update prompts to explicitly require closed-loop surface definitions and avoid overlapping faces, specifically for concave areas like eye sockets and nasal cavities.\n\nSource: voyage review of run=20260424-101249 round=4",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

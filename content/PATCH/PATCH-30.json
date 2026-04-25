@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-30",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Live MSC mode: render critical-point dots (max/min/saddle)",
+    "description": "PATCH-26 added MSC ShaderMode but only renders arcs as black lines. Critical-point dots (red=max, blue=min, yellow=saddle) are present in the CPU PNG diagnostic but missing from the live viewer. Quick polish so the live MSC mode matches the offline diagnostic.\n\nImplementation: in HalfEdgeMeshRuntime, allocate a separate VBO per critical-point type, draw via glDrawElements(GL_POINTS) with point-size ~8.0 and a per-call color uniform. Route through PATCH-17 depth-aware shader so dots get correct occlusion.\n\nIn MeshNodeViewerScene.applyMscOverlay, push critical-point vertex IDs grouped by type, alongside the arc edges already sent to setFeatureEdgeOverlay.\n\nCritical files:\n- ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java\n- ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Live MSC mode shows colored dots at every retained critical point.\n2. Dots are PATCH-17 depth-aware (back-of-mesh dots occluded).\n3. Colors match the CPU PNG diagnostic (red max, blue min, yellow saddle).",
+    "testing-plan": "1. Live viewer skull, P + D MORSE_SMALE + Shift+P to MSC. Confirm dots visible at expected anatomical bumps / sockets / saddles.\n2. Orbit to confirm depth occlusion.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

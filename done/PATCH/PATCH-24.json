@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-24",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MSC B2: closed-cell assembly (ascending-manifold segmentation v1)",
+    "description": "PATCH-23 B1 landed: proper PL-Morse classifier + heuristic persistence + 506 arcs reaching extrema reliably on the skull. Live viewer has MSC ShaderMode showing arcs.\n\nB2 = turn the arc graph into closed cells, so every face on the mesh has a cell label and the output is a real PatchDecomposition.\n\nV1 simplest-correct: ASCENDING MANIFOLD SEGMENTATION. For each mesh face, take its centroid scalar (average of 3 vertex H values), walk steepest-ascent vertex-by-vertex to the nearest retained MAXIMUM, label the face with that max's id. Each max becomes one Patch; cell boundaries naturally fall along where ascending manifolds meet \u2014 which on a 2-manifold is exactly the arc graph from B1.\n\nThis is NOT formal MSC 2-cells (a max-saddle-min-saddle-max quadrilateral) but it IS the segmentation TTK ships under `AscendingManifold`. Sufficient for a working `MorseSmaleDecomposer` output and visually equivalent to colored cells in the kitten reference.\n\nV2 (separate ticket if needed): formal quad-cell assembly via max-saddle-min-saddle traversal of the arc graph. Only land if v1 segmentation looks topologically wrong on real anatomy.\n\nImplementation:\n- new MscCellAssembly.java: per-face steepest-ascent walk to a retained max; output int[faceCount] with max-id labels.\n- Wire into PatchDecomposition: each unique max-id becomes a Patch, faces grouped, vertices derived from face indices.\n- Live viewer: when patches are ON and the active decomposer is MORSE_SMALE, the patch tag-coloring uses these labels.\n- CPU PNG: same \u2014 `renderMultiviewFlat` consumes the PatchDecomposition like any other.\n\nAcceptance: skull decomposes into ~67-100 patches (matching MSC critical-point count); flat-patch render shows clean color regions per anatomical bump; cells are closed; cranium gets ONE big patch (which we already know \u2014 handled by B4 Coons-error refinement, not B2).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New MscCellAssembly.java assigns every face to exactly one retained max via steepest-ascent walk.\n2. Output integrates with PatchDecomposition: patch count == retained-max count; every face is in exactly one patch.\n3. Skull's flat-patch render shows clean ascending-manifold regions (one color per max, boundaries on ridge curves).\n4. CPU render is depth-aware via PATCH-17.\n5. Implementation does NOT yet integrate as the live decomposer (that's B4); B2 just exposes the cell assignment as additional diagnostics or a renderable PatchDecomposition for inspection.",
+    "testing-plan": "1. Headless: VerifyMsc-style runner computes ascending manifolds and renders as flat colors via PatchRenderer.renderMultiviewFlat. Compare visually to the B1 arc overlay \u2014 color regions should be bounded by the same arcs.\n2. Verify face count summed across patches equals total mesh faces (no orphans).\n3. Verify each region contains exactly one max (no merged regions).\n4. Live viewer: MSC mode arcs + ascending-manifold colored faces composite cleanly (no duplicate fill).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

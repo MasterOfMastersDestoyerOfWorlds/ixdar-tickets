@@ -1,0 +1,22 @@
+{
+    "id": "PATCH-18",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Regression: orbital sockets lose rim boundary under PATCH-14 agreement filter",
+    "description": "Observed on voyage_skull_ref.obj after PATCH-14 landed. The orbital rims used to have some patch-boundary structure (pre-PATCH-14 the rim was partial-aligned per the PATCH-13 findings section of the retired plan file). With the 2-of-3 agreement filter, several rim edges that were in only ONE source (probably crest-only or dihedral-only) got dropped from the cut-set, and now the region-growing sweeps through the socket rim into the orbital interior, producing one coarse patch where the socket used to force a boundary.\n\nCranium, zygomatic, and other regions are cleaner under PATCH-14 \u2014 this is specifically orbital.\n\nHypothesis: orbital rim curvature is relatively gentle across most of its length (broad concavity vs narrow sharp ridge). The crest detector fires along the rim, but the dihedral and principal detectors only fire at the sharpest part of the rim, so most rim edges fail the 2-of-3 test. Saddle doesn't fire on the rim because it's not a topological saddle \u2014 it's a boundary of a concave region.\n\nExpected route to fix: PATCH-16 (Coons-patch reconstruction error) should naturally catch this \u2014 a single patch straddling \"flat cheek/forehead + concave socket\" cannot be approximated by a 4-sided Coons bicubic within any reasonable error threshold. The socket's bowl will show up as a bright region in the COONS_ERROR heatmap and the decomposer's error-triggered split will cleave the patch along the rim.\n\nIf PATCH-16 doesn't resolve this, follow-ups:\n- A dedicated \"concavity-rim detector\" similar to SaddlePointDetector but focused on vertices where angle-defect Gaussian curvature transitions from strongly negative to near-zero (rim of a bowl).\n- Weighted agreement (crest counted as 1.5 sources when its polyline is continuous for >N edges).\n\nCritical files to remember:\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/SemanticPatchDecomposer.java \u2014 agreement filter at ~line 252.\n- Diagnostic overlay sees the raw crest and dihedral signals \u2014 orbital rim is traced in red, not ignored by the detectors, only by the promotion filter.\n\nDo not revert PATCH-14 to \"fix\" this \u2014 other regions got dramatically better (cranium, zygomatic, teeth no longer horizontally striped). Accept partial regression while PATCH-16 lands.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Orbital sockets on voyage_skull_ref.obj have a patch boundary that follows the rim (not a single patch straddling rim and socket interior).\n2. No regression in cranium / zygomatic / teeth / nose anatomy-alignment under the same decomposition run.\n3. If fix comes via PATCH-16, verify with the COONS_ERROR heatmap mode that the rim is where the split naturally occurs.",
+    "testing-plan": "1. Run PatchRenderer.renderMultiviewFlat on voyage_skull_ref.obj at zoom=2.5, inspect Right and 3/4 Front-R views \u2014 orbital rim should show as a distinct patch boundary (circular or oval edge around the socket).\n2. Check that other anatomy hasn't regressed vs the current PATCH-14 baseline.",
+    "todos": [
+        "Likely resolves automatically when PATCH-16 (Coons-error base case) lands. Re-test then; only open algorithmic work if the orbital rim still fails."
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

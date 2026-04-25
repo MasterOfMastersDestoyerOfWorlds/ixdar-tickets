@@ -1,0 +1,28 @@
+{
+    "id": "CONTROLLER-1",
+    "epic": "CONTROLLER",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "FPS mouse capture / pointer lock for player-mode look",
+    "description": "Replace the current click-and-drag mouse-look in DungeonViewerScene's player mode with FPS-style mouse capture: when player mode is active, hide the OS cursor, lock it to the window center, and feed every cursor delta into camera.mouseMove(). Releasing capture (e.g. when toggling to fly-cam, opening a menu, or pressing Escape) restores the OS cursor at its previous position. \\n\\nGLFW exposes the needed primitives via glfwSetInputMode with GLFW_CURSOR_DISABLED (hides + recenters automatically; raw delta arrives via the cursor-pos callback). The wrapper lives somewhere in ixdar.platform.gl already (see LwjglPlatform / WebPlatform). Audit the platform layer for an existing setCursorMode hook before adding a new one. \\n\\nFlyCamMouseTrap currently gates rotation on left-click drag; PlayerKeyGuy / DungeonViewerScene need a way to swap between 'drag-to-rotate' (fly-cam) and 'always-rotate' (player). Cleanest design: a CursorMode enum (NORMAL, CAPTURED, DISABLED) on the platform, plus a small input-trap subclass for the captured case that no longer requires the LMB-down gate. \\n\\nBackground: came from real testing \u2014 'I have to click to turn, we should figure out how to capture the mouse'.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Platform.setCursorMode(NORMAL | CAPTURED) wired to glfwSetInputMode (LWJGL) and to whatever pointer-lock mechanism the WebPlatform supports (probably document.requestPointerLock). 2. DungeonViewerScene calls setCursorMode(CAPTURED) when entering player mode, NORMAL when toggling to fly-cam or shutting down. 3. In CAPTURED mode, every cursor-delta event from the platform feeds camera.mouseMove without requiring a button press. 4. Escape (or another agreed key) cleanly releases capture so the user can click outside the window. 5. Re-entering capture re-hides the cursor without jumping the camera. 6. Existing FlyCamMouseTrap drag-to-rotate behavior unchanged in fly-cam mode.",
+    "testing-plan": "1. Launch Ixdar Dungeon Player, confirm cursor is hidden and small mouse motions rotate the camera with no click required. 2. Press F to toggle to fly-cam \u2014 cursor reappears at the center of the window. 3. Press F again \u2014 cursor disappears, camera capture resumes without snapping. 4. Press Escape \u2014 capture releases cleanly. 5. Click back into the window \u2014 capture reactivates. 6. On TeaVM/web build, verify pointer-lock works in browser (Chrome / Firefox).",
+    "todos": [
+        "Audit existing platform code for cursor / pointer-lock hooks before adding new ones",
+        "Define CursorMode enum on Platform interface (NORMAL, CAPTURED)",
+        "LwjglPlatform.setCursorMode -> glfwSetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED)",
+        "WebPlatform.setCursorMode -> document.requestPointerLock / exitPointerLock via TeaVM JSO",
+        "Wire DungeonViewerScene mode-toggle (and shutdown) to setCursorMode",
+        "Bypass FlyCamMouseTrap's drag-gate in player/captured mode (rotate on every mouse-pos delta)",
+        "Manual test on desktop and browser per testing-plan"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

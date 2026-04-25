@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-573",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Validation Step",
+    "description": "[tooling] Integrate a pre-export validation tool that checks for open edges and automatically attempts to bridge small gaps in the DSL script before final mesh generation.\n\nSource: voyage review of run=20260425-035632 round=5",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

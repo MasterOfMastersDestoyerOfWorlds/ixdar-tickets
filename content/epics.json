@@ -113,6 +113,18 @@
             "name": "Project Setup",
             "priority": 99,
             "description": "Internal project bootstrapping"
+        },
+        {
+            "prefix": "PROCGEN",
+            "name": "Procedural Dungeon Generation",
+            "priority": 9,
+            "description": "3D procedural dungeon generation foundations in the mesh DSL: vazgriz-style layout (rooms, Delaunay, MST, A* corridors), a scope system so dungeon-only nodes stay out of Daud's mesh-modeling catalog, a fly-cam viewer scene, and (later) 3D stair-aware extension plus secret-primitive library. Backs the Archipelago-inspired multi-world coop design captured in KriegEterna/web/content/essays/archipelago-dungeon-design.md."
+        },
+        {
+            "prefix": "CONTROLLER",
+            "name": "Player Controls & Input System",
+            "priority": 10,
+            "description": "First-person controls polish for the dungeon viewer / future game runtime: FPS mouse capture (no click-to-drag), configurable input bindings, sensitivity tuning, sprint, gamepad support. Sits alongside PROCGEN since the dungeon viewer is its first consumer, but the binding layer is general engine infrastructure."
         }
     ]
 }

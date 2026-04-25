@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-28",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Post-assembly feature-edge boundary snap (Dong 2005 \u00a74)",
+    "description": "PATCH-25 made the ascending walk feature-aware (don't cross a high-confidence edge during ascent), but that's a local greedy heuristic. Cell boundaries still drift off the feature lines because the walk decision is made vertex-by-vertex without seeing the eventual cell outline.\n\nThe original PATCH-23 plan called for the boundary-snap step from Dong 2005 \u00a74: AFTER cells are assigned (as in PATCH-24/26), take each cell-boundary curve and reroute it onto the nearest feature line within a band. Implementation is essentially banded Dijkstra on the mesh's edge graph with negative cost on feature-tagged edges, run once per cell-boundary segment.\n\nUser feedback inspecting the live MORSE_SMALE view: \"the patches don't line up with the yellow lines\" (yellow = principal feature edges, white = multi-source agreement). They want the cell boundaries to LIE ON these feature curves, not just avoid crossing them.\n\nAlgorithm sketch:\n1. From PATCH-26's faceLabels, compute cell-boundary edges (already done).\n2. Group boundary edges into curves between adjacent cells.\n3. For each boundary curve, find its endpoints (saddle-like critical points or boundary intersections).\n4. Run banded Dijkstra: from start endpoint to end endpoint, on the mesh's edge graph, cost = base + small penalty per non-feature edge - bonus for feature edges. Band = vertices within K mesh-edge hops of the original boundary curve, so the new path can shift toward features without going far.\n5. Replace original boundary edges with the new path. Recompute face labels by re-running ascending walks on the new boundary topology (or do a local face-relabeling for faces whose boundary edge moved).\n\nCritical files:\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/MorseSmaleDecomposer.java (orchestrator).\n- New: BoundarySnap.java (banded Dijkstra + path replacement).\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/MscCellAssembly.java (face relabeling helper).\n\nReference: Dong et al. 2005 \"Quadrangulating a mesh using Laplacian eigenvectors\" \u00a74. Persistent ridge/valley arc snapping. https://www.cs.jhu.edu/~misha/Fall07/Papers/Dong05.pdf\n\nAcceptance: live MORSE_SMALE view on the hand mesh and the skull shows cell boundaries visibly aligned with the STAGES yellow/white feature lines. Per-finger separation on the hand. Per-tooth separation on the skull (which already mostly works in raw MSC but should be cleaner).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. New BoundarySnap.java reroutes each cell-boundary curve via banded Dijkstra.\n2. Cell labels are updated post-snap (faces whose boundary edge moved get relabeled).\n3. Live MORSE_SMALE view: cell boundaries visibly snap to STAGES feature lines on the skull AND on the hand mesh.\n4. Decomposition still completes in <5s on the skull; no SIGKILL.\n5. Coons p95 stays the same or improves vs PATCH-26's MORSE_SMALE output.",
+    "testing-plan": "1. VerifyMsDecomposer headless runner on skull and hand. Patch count similar to pre-snap. Inspect flat-patch render \u2014 boundaries land on feature curves.\n2. Live viewer: load skull, P + D for MORSE_SMALE + Shift+P to STAGES, screenshot. Cell boundaries (visible because Welsh-Powell colors the cells) should sit on top of yellow / white STAGES edges.\n3. Same drill on hand model \u2014 fingers should separate cleanly along the joint creases.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

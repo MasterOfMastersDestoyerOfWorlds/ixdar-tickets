@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-542",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Introduce Mesh Healing Post-Process",
+    "description": "[infrastructure] Add an automated mesh-healing or voxelization-reconstruction pass to the pipeline to force watertightness on near-miss geometries.\n\nSource: voyage review of run=20260424-101249 round=4",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

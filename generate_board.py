@@ -4,6 +4,7 @@ Usage:
     python ixdar-tickets/generate_board.py board               # regenerate BOARD.md
     python ixdar-tickets/generate_board.py backlog REPO_NAME   # print tickets for a repo
     python ixdar-tickets/generate_board.py archive             # move DONE tickets to done/
+    python ixdar-tickets/generate_board.py priorities --epic PATCH  # list tickets by priority
     python ixdar-tickets/generate_board.py next-id EPIC        # print next ticket ID for epic
     python ixdar-tickets/generate_board.py create ...          # new ticket JSON + board
     python ixdar-tickets/generate_board.py mark done TICKET_ID # mark a ticket DONE and regenerate BOARD.md
@@ -393,10 +394,23 @@ def _ticket_path(ticket_id: str) -> Path:
     if not prefix or number <= 0:
         raise ValueError(f"Invalid ticket ID '{ticket_id}'. Expected format like IX-3.")
 
-    ticket_path = TICKETS_DIR / prefix / f"{normalized_id}.json"
-    if not ticket_path.exists():
-        raise FileNotFoundError(f"Ticket not found: {normalized_id}")
-    return ticket_path
+    for base in (TICKETS_DIR, DONE_DIR):
+        candidate = base / prefix / f"{normalized_id}.json"
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(f"Ticket not found: {normalized_id}")
+
+
+def _move_ticket_to(ticket_path: Path, target_base: Path) -> Path:
+    """Move a ticket JSON to target_base/<EPIC>/. No-op if already there."""
+    epic_name = ticket_path.parent.name
+    dest_dir = target_base / epic_name
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / ticket_path.name
+    if ticket_path == dest:
+        return ticket_path
+    shutil.move(str(ticket_path), str(dest))
+    return dest
 
 
 def _normalize_done_todos(todos: list[str]) -> list[str]:
@@ -416,7 +430,7 @@ def _normalize_done_todos(todos: list[str]) -> list[str]:
 
 
 def mark_ticket_done(ticket_id: str) -> None:
-    """Mark a ticket DONE, normalize todo prefixes, and regenerate BOARD.md."""
+    """Mark a ticket DONE, normalize todo prefixes, archive into done/, regen board."""
     ticket_path = _ticket_path(ticket_id)
     data = json.loads(ticket_path.read_text(encoding="utf-8"))
     normalized_id = data.get("id", ticket_id.strip().upper())
@@ -426,8 +440,9 @@ def mark_ticket_done(ticket_id: str) -> None:
         data["todos"] = _normalize_done_todos(data["todos"])
 
     ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    ticket_path = _move_ticket_to(ticket_path, DONE_DIR)
     total_ip, total_todo, total_done = _write_board()
-    print(f"Marked {normalized_id} DONE")
+    print(f"Marked {normalized_id} DONE -> {ticket_path.relative_to(ROOT_DIR)}")
     print(
         f"Board updated: {total_ip} in-progress, "
         f"{total_todo} todo, {total_done} done"
@@ -435,7 +450,7 @@ def mark_ticket_done(ticket_id: str) -> None:
 
 
 def mark_ticket_status(ticket_id: str, status: str) -> None:
-    """Set a ticket to an arbitrary normalized status and regenerate BOARD.md."""
+    """Set status, auto-(un)archive based on DONE state, regen board."""
     normalized_status = normalize_status(status)
     ticket_path = _ticket_path(ticket_id)
     data = json.loads(ticket_path.read_text(encoding="utf-8"))
@@ -446,8 +461,12 @@ def mark_ticket_status(ticket_id: str, status: str) -> None:
         data["todos"] = _normalize_done_todos(data["todos"])
 
     ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    if normalized_status == "DONE":
+        ticket_path = _move_ticket_to(ticket_path, DONE_DIR)
+    else:
+        ticket_path = _move_ticket_to(ticket_path, TICKETS_DIR)
     total_ip, total_todo, total_done = _write_board()
-    print(f"Marked {normalized_id} {normalized_status}")
+    print(f"Marked {normalized_id} {normalized_status} -> {ticket_path.relative_to(ROOT_DIR)}")
     print(
         f"Board updated: {total_ip} in-progress, "
         f"{total_todo} todo, {total_done} done"
@@ -544,6 +563,83 @@ def update_ticket(
     return ticket_path
 
 
+def _load_ticket_records(include_done: bool) -> list[dict]:
+    """Return a flat list of {id, status, priority, title, prefix, number, rel_path}."""
+    bases = [TICKETS_DIR]
+    if include_done:
+        bases.append(DONE_DIR)
+    out = []
+    for ticket_file in _scan_ticket_files(*bases):
+        try:
+            data = json.loads(ticket_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        ticket_id = data.get("id", ticket_file.stem)
+        out.append({
+            "id": ticket_id,
+            "status": normalize_status(data.get("status")),
+            "priority": data.get("priority", 50),
+            "title": data.get("title", ticket_id),
+            "prefix": extract_prefix(ticket_id),
+            "number": extract_number(ticket_id),
+            "rel_path": str(ticket_file.relative_to(ROOT_DIR)).replace("\\", "/"),
+        })
+    return out
+
+
+def print_priorities(epic: str | None, status_filter: str | None, include_done: bool) -> None:
+    """Print tickets grouped by priority, sorted by (priority, status, number).
+
+    Defaults: hides DONE tickets and shows all epics. Use --all to include DONE.
+    """
+    tickets = _load_ticket_records(include_done=include_done or status_filter == "DONE")
+    if epic:
+        prefix = epic.strip().upper()
+        tickets = [t for t in tickets if t["prefix"] == prefix]
+    if status_filter:
+        normalized = normalize_status(status_filter)
+        tickets = [t for t in tickets if t["status"] == normalized]
+    elif not include_done:
+        tickets = [t for t in tickets if t["status"] != "DONE"]
+
+    if not tickets:
+        print("(no tickets match)")
+        return
+
+    by_epic: dict[str, list[dict]] = {}
+    for t in tickets:
+        by_epic.setdefault(t["prefix"], []).append(t)
+
+    for prefix in sorted(by_epic.keys()):
+        bucket = by_epic[prefix]
+        ip = sum(1 for t in bucket if t["status"] == "IN_PROGRESS")
+        todo = sum(1 for t in bucket if t["status"] == "TODO")
+        done = sum(1 for t in bucket if t["status"] == "DONE")
+        header = f"{prefix} ({len(bucket)} total"
+        parts = []
+        if ip:
+            parts.append(f"{ip} in-progress")
+        if todo:
+            parts.append(f"{todo} todo")
+        if done:
+            parts.append(f"{done} done")
+        if parts:
+            header += ": " + ", ".join(parts)
+        header += ")"
+        print(header)
+        bucket.sort(key=lambda t: (t["priority"], STATUS_ORDER.get(t["status"], 99), t["number"]))
+        last_prio = None
+        for t in bucket:
+            if t["priority"] != last_prio:
+                print(f"  P{t['priority']}")
+                last_prio = t["priority"]
+            title = t["title"]
+            if len(title) > 80:
+                title = title[:77] + "..."
+            print(f"    {t['id']:<10} {t['status']:<12} {title}")
+        print()
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="generate_board",
@@ -563,6 +659,27 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     sub.add_parser("archive", help="Move all DONE tickets from content/ to done/.")
+
+    priorities_parser = sub.add_parser(
+        "priorities",
+        help="List tickets grouped by epic+priority. Hides DONE by default.",
+    )
+    priorities_parser.add_argument(
+        "--epic",
+        default=None,
+        help="Restrict to a single epic prefix (e.g. PATCH).",
+    )
+    priorities_parser.add_argument(
+        "--status",
+        default=None,
+        help="Filter by status (TODO, IN_PROGRESS, DONE).",
+    )
+    priorities_parser.add_argument(
+        "--all",
+        action="store_true",
+        dest="include_done",
+        help="Include DONE tickets.",
+    )
 
     next_id_parser = sub.add_parser(
         "next-id",
@@ -740,6 +857,12 @@ if __name__ == "__main__":
         regenerate_board()
     elif args.command == "archive":
         archive_done()
+    elif args.command == "priorities":
+        print_priorities(
+            epic=args.epic,
+            status_filter=args.status,
+            include_done=args.include_done,
+        )
     elif args.command == "next-id":
         print_next_id(args.epic)
     elif args.command == "mark" and args.mark_command == "done":

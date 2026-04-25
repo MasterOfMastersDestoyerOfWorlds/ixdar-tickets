@@ -1,0 +1,43 @@
+{
+    "id": "PROCGEN-3",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "2D dungeon layout algorithms: room placement, Delaunay, MST",
+    "description": "Pure-Java algorithm classes for the first three stages of the vazgriz dungeon pipeline (https://vazgriz.com/119/procedurally-generated-dungeons/). These live in ixdar.procgen.dungeon.algo and have no MeshNode dependency so they can be unit-tested in isolation. RoomPlacer: deterministic seeded random AABB placement in an integer grid with a 1-unit buffer between rooms to prevent adjacency. Retries placement on collision up to a configurable attempt cap. Mirror RandomValueNode's seed handling pattern. DelaunayTriangulation2D: Bowyer-Watson algorithm over room centers. Returns an EdgeGraphValue whose nodes are room indices. PrimMinimumSpanningTree: Prim's algorithm over the Delaunay edges (weighted by Euclidean distance between room centers), plus a pass that adds each non-MST Delaunay edge with probability extraEdgeProb (default 0.125 per vazgriz) using a separate seeded RNG stream so the extra-edge pass is reproducible independently of placement. All three must be fully deterministic: same seed + same inputs -> same outputs, byte-for-byte.",
+    "blocked-by": [
+        "PROCGEN-2"
+    ],
+    "blocks": [
+        "PROCGEN-4",
+        "PROCGEN-5"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. RoomPlacer.place(seed, gridW, gridH, roomCount, minSize, maxSize, maxAttempts) returns RoomListValue. 2. DelaunayTriangulation2D.triangulate(rooms) returns EdgeGraphValue covering the convex hull of room centers. 3. PrimMinimumSpanningTree.build(edges, roomCenters, extraEdgeProb, seed) returns EdgeGraphValue that (a) spans all rooms, (b) is a subset of the input edges plus probabilistic extras. 4. No use of System.currentTimeMillis or Math.random \u2014 all randomness comes from the seed input. 5. Public API is narrow (one static method per class); internal helpers are package-private.",
+    "testing-plan": "1. Determinism: same seed -> identical RoomListValue (byte-compare serialized form). 2. Room non-overlap: no two placed rooms' AABBs intersect, 1-unit buffer respected. 3. Delaunay correctness: every triangle's circumscribed circle contains no other room center (the empty-circle property). 4. MST spans: output graph is connected, has exactly N-1 edges if extraEdgeProb=0. 5. MST optimality: total edge weight equals known-good MST for a hand-constructed 5-room test case. 6. Extra-edge determinism: same seed + same MST -> same set of extra edges across runs.",
+    "todos": [
+        "DONE : Implement RoomPlacer with collision retry and seeded PRNG",
+        "DONE : Implement Bowyer-Watson DelaunayTriangulation2D",
+        "DONE : Implement PrimMinimumSpanningTree with extra-edge probability pass",
+        "DONE : Write unit tests for determinism, non-overlap, empty-circle property, MST connectivity"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "RoomPlacer: seeded Random, 1-unit buffer via 0.5 inflated-AABB intersect; validates size range and grid fit; maxAttempts caps the loop for infeasible configs",
+        "DelaunayTriangulation2D: Bowyer-Watson incremental insertion with super-triangle. In-circle test uses 3x3 determinant on doubles (floats lose precision near circumcircles when rooms sit on integer grids). CCW triangle ordering enforced by signed-area check. Output edges sorted (min,max) for byte-determinism",
+        "PrimMinimumSpanningTree: classic Prim's over Delaunay edges weighted by Euclidean distance between room centers, PriorityQueue ties broken by edge index for determinism. Extra-edge pass on separate RNG stream (seed XOR 0x9E3779B97F4A7C15 golden-ratio constant) so extras reproduce independently of upstream RNG consumers. Default extraEdgeProb = 0.125 per vazgriz",
+        "Determinism verified by unit test: identical inputs -> byte-identical outputs across runs for all three algorithms",
+        "Unit tests: RoomPlacerTest (8), DelaunayTriangulation2DTest (7), PrimMinimumSpanningTreeTest (7). All 22 pass. Empty-circumcircle property verified across random 12-room placements. MST optimality verified on hand-constructed 5-room case with known-good weight=20"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/RoomPlacer.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/DelaunayTriangulation2D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/PrimMinimumSpanningTree.java",
+        "ixdar-app/test/unit/procgen/dungeon/RoomPlacerTest.java",
+        "ixdar-app/test/unit/procgen/dungeon/DelaunayTriangulation2DTest.java",
+        "ixdar-app/test/unit/procgen/dungeon/PrimMinimumSpanningTreeTest.java"
+    ],
+    "priority": 2
+}

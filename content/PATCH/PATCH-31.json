@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-31",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Per-agent automation port allocation (avoid 47832 conflicts)",
+    "description": "AutomationRuntime hard-codes port 47832 (Ixdar/ixdar-app/.../AutomationRuntime.java + Daud/src/daud/mesh_context.py + ixdar_automation_cli/automation_client.py). When two Ixdar processes run side-by-side (user's interactive viewer + a Daud-spawned viewer, or two parallel Daud agents), only the first binds the port; the second logs 'Automation server failed to start: Address already in use' and runs without automation. Hit during PATCH-28 verification: an existing dungeon-viewer held 47832, so the freshly-launched mesh-viewer couldn't be driven by automation despite running fine.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "AutomationRuntime accepts -Dixdar.automation.port=N OR auto-picks free port in [47832, 47900) and writes ~/.ix/ixdar-automation-<pid>.json. automation_client.py supports --pid/--port targeting and falls back to 'only one running' when exactly one is alive. Daud spawn paths (mesh_context, ixdar_screenshot, ixdar_multiview, validate_dsl) thread a per-agent port through to viewer + client. Health endpoint returns its pid + lockfile path. Stale lockfiles get GC'd on health check (PID gone \u2192 unlink).",
+    "testing-plan": "1) Launch two viewers, --port 47832 and --port 47833; both serve health. 2) Two Daud agents in parallel; each ixdar_screenshot only hits its own viewer. 3) Single-viewer flow with no --port flag stays one-line. 4) Kill viewer A; viewer B's automation still responds. 5) Stale lockfile from a previously-killed viewer doesn't block a new one binding.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

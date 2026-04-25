@@ -1,0 +1,49 @@
+{
+    "id": "PROCGEN-2",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Dungeon package skeleton + value types (RoomList, EdgeGraph, TileGrid)",
+    "description": "Create the ixdar.procgen.dungeon package structure and the three port value types consumed by the dungeon node pipeline. Package layout: ixdar.procgen.dungeon.algo (pure-Java algorithms, unit-testable without MeshNode), ixdar.procgen.dungeon.values (port value types), ixdar.procgen.dungeon.nodes (MeshNode wrappers, added in later tickets), ixdar.procgen.dungeon.scene (viewer scene, added in PROCGEN-6). The values package intentionally does NOT live in ixdar.annotations.meshnode \u2014 these are dungeon-only types and should not pollute the general mesh schema. RoomListValue: ordered list of AABBs (center + half-extents + integer id). EdgeGraphValue: node array + edges (pair of indices). TileGridValue: 2D array of CellType enum (EMPTY, ROOM, HALLWAY) \u2014 STAIR cell types added in 3D extension (PROCGEN-7). Register new PortType enum entries (or equivalent) if the existing PortType doesn't accept new types without registry changes.",
+    "blocked-by": [
+        "PROCGEN-1"
+    ],
+    "blocks": [
+        "PROCGEN-3",
+        "PROCGEN-4",
+        "PROCGEN-5"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Package ixdar.procgen.dungeon exists with subpackages algo/, values/, nodes/, scene/. 2. RoomListValue.java: record holding List<Room> where Room is (id, centerX, centerY, halfExtentX, halfExtentY). 3. EdgeGraphValue.java: record holding node-count and int[][] edges array (each edge is [fromIdx, toIdx]). 4. TileGridValue.java: record holding width, height, and CellType[] cells (row-major), plus a CellType enum with EMPTY, ROOM, HALLWAY. 5. New PortType enum values registered for ROOM_LIST, EDGE_GRAPH, TILE_GRID (or the equivalent registration mechanism if PortType uses something other than an enum). 6. Package-info.java at ixdar.procgen.dungeon documenting the scoping philosophy.",
+    "testing-plan": "1. mvn compile -pl ixdar-app passes. 2. Unit test: construct each value type, verify immutability and defensive copies of arrays. 3. Unit test: PortType new entries are addressable from a MeshNode's InputPort/OutputPort declarations. 4. Manually inspect package layout matches plan.",
+    "todos": [
+        "DONE : Create package dirs: algo/, values/, nodes/, scene/, plus package-info.java",
+        "DONE : Define CellType enum (EMPTY, ROOM, HALLWAY \u2014 STAIR variants deferred to PROCGEN-7)",
+        "DONE : Implement RoomListValue, EdgeGraphValue, TileGridValue as immutable records",
+        "DONE : Register new PortType entries (ROOM_LIST, EDGE_GRAPH, TILE_GRID)",
+        "DONE : Write unit tests for immutability / defensive copy behavior"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Package ixdar.procgen.dungeon created in ixdar-app with subpackages algo/, values/, nodes/, scene/ and package-info.java in each",
+        "PortType gained ROOM_LIST, EDGE_GRAPH, TILE_GRID enum constants (Object.class value type, matching CLOSURE's pattern). Actual value classes live in ixdar.procgen.dungeon.values to keep dungeon concepts out of the general mesh schema",
+        "CellType enum with EMPTY, ROOM, HALLWAY (STAIR_UP/DOWN deferred to PROCGEN-7)",
+        "RoomListValue: immutable record wrapping List<Room>; Room has id + center + half-extents + AABB intersection helper that treats edge-touching as non-intersecting (matches vazgriz's 1-unit buffer)",
+        "EdgeGraphValue: immutable record with defensive int[][] copy, validates nodeCount and edge index range at construction; edge(i) returns fresh copy",
+        "TileGridValue: immutable record with defensive CellType[] clone, row-major at(x,y) accessor, bounds enforcement",
+        "Unit test DungeonValueTypesTest (11 tests, all pass) covers defensive copy, validation, intersection, bounds",
+        "TeaVM rebuild clean (BUILD SUCCESS); Daud mesh-scope catalog unchanged (83 nodes, zero dungeon-id leakage)"
+    ],
+    "related-files": [
+        "annotations/src/main/java/ixdar/annotations/meshnode/PortType.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/package-info.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/CellType.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/RoomListValue.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/EdgeGraphValue.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/TileGridValue.java",
+        "ixdar-app/test/unit/procgen/dungeon/DungeonValueTypesTest.java"
+    ],
+    "priority": 2
+}

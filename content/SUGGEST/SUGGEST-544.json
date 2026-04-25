@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-544",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Refine Organic Geometry Prompts",
+    "description": "[prompt] The low similarity for freeroam suggests the DSL is failing to capture the concave features of the skull (eye sockets, nasal cavity). Update prompts to emphasize depth and negative space.\n\nSource: voyage review of run=20260424-101249 round=5",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

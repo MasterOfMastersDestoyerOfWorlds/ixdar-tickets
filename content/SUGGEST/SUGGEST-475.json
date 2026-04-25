@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-475",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Freeroam Debugging",
+    "description": "[infrastructure] Investigate the 'freeroam' pipeline to determine if the failure to produce a DSL is due to a timeout, crash, or empty output.\n\nSource: voyage review of run=20260421-080023 round=10",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

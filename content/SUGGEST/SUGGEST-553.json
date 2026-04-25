@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-553",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Prompting",
+    "description": "[prompt] Refine prompts to explicitly define the relationship between the eye sockets and nasal cavity to help freeroam improve its low similarity score.\n\nSource: voyage review of run=20260424-101249 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-17",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Feature-edge overlay should respect depth buffer",
+    "description": "The STAGES and CREST_VS_BOUNDARY shader modes draw their overlay edges with depth-test disabled, so edges on the far side of the mesh bleed through to the front. Makes the view look transparent/confusing when rotating \u2014 you can't tell which edges are actually on the surface you're looking at.\n\nRoot cause: HalfEdgeMeshRuntime.renderFeatureEdgeOverlay currently does:\n```java\ngl.disable(gl.DEPTH_TEST());\n...\ngl.enable(gl.DEPTH_TEST());\n```\nThis was copied from renderEdges (wireframe mode) which also draws through. For the diagnostic overlays the user explicitly wants back-face-correct rendering.\n\nFix: leave depth test on, but apply a tiny camera-ward bias so lines don't z-fight with the faces they sit on. Options:\n- glPolygonOffset with GL_POLYGON_OFFSET_LINE (if supported across our GL backends \u2014 check LWJGL desktop, WebGL via TeaVM).\n- Vertex shader pushes line vertices slightly toward the camera in view-space before projection. Works universally. About 4 lines of GLSL in a new mesh_edge.vs or we extend mesh_unlit.vs with a uniform `depthBias`.\n- GL_DEPTH_FUNC=LEQUAL plus per-frame glDepthRange tweak \u2014 hacky, skip.\n\nPreferred: vertex-shader bias. Keeps all backends happy and doesn't touch the cross-platform abstraction.\n\nCritical files:\n- ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java (renderFeatureEdgeOverlay, currently disables depth test).\n- ixdar-app/src/main/resources/glsl/mesh_unlit.vs or a new mesh_edge.vs (if extending existing).\n\nNot affected: renderEdges (wireframe mode) \u2014 it can stay depth-off since that's the user's explicit convention for wireframe.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. In STAGES and CREST_VS_BOUNDARY, overlay edges on the BACK side of the mesh are occluded by the front faces \u2014 only edges on the front-facing surface are visible.\n2. No z-fighting between lines and faces (lines draw cleanly on top of the faces they sit on).\n3. Wireframe mode (Shift-something, separate feature) still draws through as today \u2014 no regression there.",
+    "testing-plan": "1. Load skull in live viewer, Shift+P to STAGES. Orbit to a side view \u2014 back-of-skull edges should not be visible through the cranium.\n2. Switch to CREST_VS_BOUNDARY \u2014 same check.\n3. Compare against current (depth-test-off) behavior to confirm the change only affects overlay modes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

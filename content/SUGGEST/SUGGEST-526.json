@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-526",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Anatomical Primitive Library",
+    "description": "[tooling] Introduce specialized DSL primitives for concave organic shapes (e.g., spherical subtractions or ellipsoidal voids) to better handle eye sockets and nasal cavities.\n\nSource: voyage review of run=20260423-153423 round=9",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

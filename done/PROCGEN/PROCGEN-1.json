@@ -1,0 +1,42 @@
+{
+    "id": "PROCGEN-1",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Scope system for MeshNode annotation + Daud catalog filter",
+    "description": "Prerequisite plumbing for the procedural dungeon node pipeline. Add a scopes() field to @MeshNodeAnnotation with default {\"mesh\", \"dungeon\"} so general primitives are usable from both mesh-modeling graphs and dungeon graphs. Dungeon-specific nodes added in later tickets will override scopes = {\"dungeon\"} only. Filter lives in MeshNodeCatalog (NOT RegistryProcessor \u2014 that's a shared abstract base for 4 registries and must not gain domain knowledge). Add toJsonFromAnnotationRegistry(String scope) and toJson(map, scope) overloads that include only nodes whose annotation scopes contain the requested scope. Also expose each node's scopes in the output JSON for transparency. On the Daud side, the mesh-DSL catalog tool must pass scope=\"mesh\" so future dungeon nodes never enter the agent's prompt. Background context: KriegEterna/web/content/essays/archipelago-dungeon-design.md and the plan at .claude/plans/users-acw28-code-kriegeterna-web-conten-typed-gray.md.",
+    "blocked-by": [],
+    "blocks": [
+        "PROCGEN-2",
+        "PROCGEN-5"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. MeshNodeAnnotation.java has String[] scopes() default {\"mesh\", \"dungeon\"}. 2. MeshNodeCatalog.toJsonFromAnnotationRegistry(String scope) filters by scope membership. 3. MeshNodeCatalog.toJson(map, scope) overload added. 4. Each node entry in the catalog JSON includes its scopes array. 5. Daud's mesh-DSL catalog tool passes scope=\"mesh\" when fetching the catalog. 6. Existing callers continue to work unchanged (no-arg methods return all nodes, same behavior as today). 7. TeaVM rebuild completed via ./tools/teavm-build.sh since annotation schema changed \u2014 voyage 3D viewer must still work.",
+    "testing-plan": "1. Unit test: MeshNodeCatalog.toJsonFromAnnotationRegistry(\"mesh\") returns all existing nodes (since default includes mesh). 2. Unit test: add a throwaway @MeshNodeAnnotation(id=\"test_dungeon_only\", scopes={\"dungeon\"}) node, verify it appears in toJson(...,\"dungeon\") but NOT in toJson(...,\"mesh\"). 3. Desktop run: mvn compile -pl annotations,ixdar-app passes. 4. Run ./tools/teavm-build.sh, confirm no errors. 5. Daud catalog isolation check: call Daud's mesh-DSL catalog tool and grep the JSON for any scope other than containing \"mesh\" \u2014 expect zero. 6. Open the voyage 3D viewer in a browser, confirm it still renders meshes (regression check per user memory about TeaVM rebuilds).",
+    "todos": [
+        "DONE : Add scopes() field to MeshNodeAnnotation with default {\"mesh\", \"dungeon\"}",
+        "DONE : Add scope-filtered overloads to MeshNodeCatalog (filter reads annotation at runtime from node class)",
+        "DONE : Include scopes array in per-node catalog JSON output",
+        "DONE : Locate and update Daud's mesh-DSL catalog tool to pass scope=\"mesh\"",
+        "DONE : Run TeaVM rebuild and verify voyage 3D viewer still works"
+    ],
+    "unknowns": [
+        "Once PROCGEN-5 lands, MeshNodeCatalogScopeTest.meshScopeFilter* tests will assert equality that no longer holds (real dungeon-only nodes exist); update expected counts then"
+    ],
+    "changes-made": [
+        "MeshNodeAnnotation.scopes() added with default {mesh, dungeon}; retention changed CLASS -> RUNTIME so the catalog filter can read scopes reflectively",
+        "MeshNodeCatalog: new toJson(map, scope) and toJsonFromAnnotationRegistry(scope) overloads filter by annotation scopes; every node's scopes array now appears in the JSON output",
+        "Daud mesh_context.load_catalog() gained a scope parameter (default 'mesh'); dungeon-only nodes never enter the agent's prompt",
+        "Unit test: ixdar-app/test/unit/mesh/MeshNodeCatalogScopeTest.java (6 tests, all pass) verifies scope filter, JSON shape, and annotation default",
+        "TeaVM rebuilt successfully via ./tools/teavm-build.sh (required due to annotation retention change)"
+    ],
+    "related-files": [
+        "annotations/src/main/java/ixdar/annotations/meshnode/MeshNodeAnnotation.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/documentation/MeshNodeCatalog.java",
+        "ixdar-app/test/unit/mesh/MeshNodeCatalogScopeTest.java",
+        "/Users/acw28/Code/Daud/src/daud/mesh_context.py"
+    ],
+    "priority": 1
+}

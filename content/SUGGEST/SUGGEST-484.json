@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-484",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Diversify Technique Pool",
+    "description": "[capability] Replace coons_cage with a technique better suited for organic, hollowed structures if the next round continues to produce non-watertight meshes.\n\nSource: voyage review of run=20260422-161553 round=3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

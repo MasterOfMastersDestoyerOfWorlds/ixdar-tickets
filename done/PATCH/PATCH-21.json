@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-21",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Feature-aware region-growing for Coons-triggered split",
+    "description": "PATCH-19 gave us recursive + error-weighted split, and it converges the Coons error, but the split MECHANISM is still positional k-means. k-means has no knowledge of the saddle / crest / multi-source feature edges we carefully curated in PATCH-13 / PATCH-14 / PATCH-16. Result: sub-splits land mid-ridge on anatomy (visible on skull in SCALAR mode \u2014 patches cross the orbital rim, nose bridge, temple lines, tooth gaps).\n\nPATCH-21 replaces k-means with feature-aware BFS region-growing when the split trigger is Coons error:\n\n1. Keep the existing k-seed selection (highest-error face centroids with spatial stride, from PATCH-19).\n2. Build a queue-based BFS from each seed face. At each step, expand to face-adjacency neighbors via `adjCrestOnly` \u2014 the adjacency that cuts saddle + crest edges. This is the same mechanism the decomposer's Step-4 region-growing uses; we're just reusing it for sub-splits.\n3. Assign each reachable face to the nearest seed by edge-hop distance (ties broken by seed index).\n4. For orphans (faces that no seed can reach without crossing a saddle/crest), either:\n   (a) assign to the seed whose region is closest in Euclidean distance \u2014 fallback.\n   (b) declare them their own sub-patch \u2014 simpler but may fragment.\n   Start with (a).\n\nThis should close PATCH-18 fully: orbital rim = crest boundary \u2192 region-grow stops at rim \u2192 sub-patches split cleanly along the rim. Teeth surrounded by saddle separators from PATCH-13 should split per-tooth. Nose holes bounded by crests on the aperture \u2192 interior becomes its own patch.\n\nCritical files:\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/SemanticPatchDecomposer.java \u2014 `splitByQuality` at ~line 1246. The k-means-vs-seeded-kmeans branch added in PATCH-19 is where the new BFS replaces kmeansXyzWithSeeds.\n- `adjCrestOnly` is already built in `decomposeWithDiagnostics` ~line 280 and passed through via parameters (or re-derive per pass since we're inside an outer loop now).\n\nAcceptance: on voyage_skull_ref.obj, SCALAR heatmap shows patches respecting anatomy. Specifically:\n- Orbital rim = clear patch boundary (closes PATCH-18).\n- Nose aperture bounded by own-patch interior.\n- Teeth row shows per-tooth patches (closes the long-running teeth separation issue from PATCH-13 context).\n- No regressions on cranium, zygomatic.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. When splitByQuality's Coons gate fires, the k sub-patches are grown by BFS on adjCrestOnly-style adjacency, not k-means.\n2. Orbital rim, nose aperture, and teeth gaps on the skull become patch boundaries in the flat multiview.\n3. PATCH-18 can close.\n4. Total patch count is anatomy-driven (skull target: 100-400 patches) rather than fragmentation-driven.",
+    "testing-plan": "1. VerifyCoonsError on skull \u2014 expect max error to stay similar or drop, patch count to stabilize near 100-400 (not 500+).\n2. Flat multiview \u2014 visual inspection: orbital rim, nose, teeth, zygomatic all have patch boundaries along their anatomy.\n3. SCALAR heatmap \u2014 patches align with error gradient (bright regions sit inside patches that know they need to shrink or end at a feature edge).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

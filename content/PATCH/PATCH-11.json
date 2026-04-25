@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-11",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "semantic-patch-decomposition"
+    ],
+    "title": "Crest-line feature detection (Yoshizawa-style ridge/valley tracing)",
+    "description": "Replace/augment the current magnitude-threshold principal-curvature features with traced crest lines. Current feature detection misses three failure modes observed on voyage_skull_ref.obj:\\n\\n- Nose-hole (piriform aperture) rim: patches wrap across the \\u226590\\u00b0 crease because individual edge dihedrals along the rim dip below T_FEATURE_RAD and the per-vertex magnitude threshold does not capture locally-prominent ridges.\\n- Orbital rim and zygomatic arch: smooth mesh but perceptually sharp ridge lines; current code has no notion of ridge continuity, so a single sub-threshold vertex breaks the feature set and region growing walks through.\\n- Inter-tooth gaps: detected but then swallowed by the small-component merge because tooth patches fall below MIN_PATCH_FACES.\\n\\nResearch anchor: Ohtake 2004 / Yoshizawa 2005 'Fast and Robust Detection of Crest Lines on Meshes'. CGAL's Ridges_3 package is the reference production implementation.\\n\\nApproach: pure Java Yoshizawa-lite.\\n\\n1. PrincipalDirectionField (new class) \\u2014 per-vertex shape-operator eigendecomposition in the tangent plane. Output: (\\u03ba_max, dir_max, \\u03ba_min, dir_min) per vertex. Reuses face-normal averaging and Meyer-style estimators already in SemanticPatchDecomposer.\\n\\n2. CrestLineDetector (new class) \\u2014 takes ArrayMesh + PrincipalDirectionField, emits Set<Long> of mesh edges that crest polylines cross.\\n   a. Candidate selection: |\\u03ba_max(v)| > T_RIDGE_SCALE \\u00b7 median(|\\u03ba_max|) \\u2014 adaptive threshold.\\n   b. Non-maximum suppression along dir_max: keep v as ridge point only if |\\u03ba_max(v)| is max among 1-ring neighbours along the eigenvector direction.\\n   c. MVS threshold (Moreton-Sequin): reject near-umbilical points where (\\u03ba_max \\u2212 \\u03ba_min)\\u00b2 is small.\\n   d. Polyline tracing: walk along dir_max, snap to nearest ridge-point neighbour at each step.\\n   e. Edge intersection: each polyline segment marks the two face edges it crosses.\\n\\n3. Adaptive T_FEATURE_RAD \\u2014 p85 of per-mesh dihedral distribution, not hard-coded 0.20 rad.\\n\\n4. Union crest edges + principal-magnitude edges + adaptive dihedral edges into the feature-edge set consumed by featureCutAdjacency; region growing / merge / quality split are unchanged.\\n\\n5. Debug CLI: PatchDecomposerCLI crest-lines <obj> <out_obj> emits the detected polylines as an OBJ with line primitives for Blender visual inspection.\\n\\nDepends on: nothing. Builds on existing PATCH-6/7/8 scaffolding.\\nBlocks: PATCH-3 (recursive subdivision), PATCH-9 (DSL scaffold generator) \\u2014 both depend on correct patch boundaries.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "CrestLineDetector + PrincipalDirectionField classes ship. Adaptive dihedral threshold in place. PatchDecomposerCLI crest-lines subcommand emits an OBJ that visually matches the salient ridges of a skull (nose rim, orbital rim, zygomatic, tooth gaps). Viewer patch overlay on voyage_skull_ref.obj shows individual teeth as distinct patches and patch boundaries that hug socket/aperture rims. breasts.obj patch count stays within a factor of 2 of the pre-PATCH-11 baseline (~1351).",
+    "testing-plan": "(1) Build and run crest-lines CLI on voyage_skull_ref.obj \\u2192 /tmp/crest.obj; open alongside skull in Blender; verify rims + teeth coverage. (2) Launch mesh-viewer, load skull OBJ, P then Shift+P, zoom dentition to confirm individual teeth. (3) uv run label-patches on the skull, confirm anatomical labels reflect proper boundaries. (4) Regression on breasts.obj: patch count order-of-magnitude match, cleaner visible boundaries.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

@@ -1,0 +1,44 @@
+{
+    "id": "PROCGEN-12",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "game-sim"
+    ],
+    "title": "Player spawner \u2014 pick a sensible starting position from the dungeon layout",
+    "description": "Decides where the player capsule starts when a dungeon loads. Initial heuristic (this ticket): spawn at the center of the first room in RoomList, capsule resting on the room floor (capsule.center.y = floor + halfHeight). Yaw so the camera looks toward the second room (or the dungeon centroid if there's only one room) \u2014 gives the player something to walk toward immediately rather than facing a blank wall. PROCGEN-8 will add a START room role; this spawner should pick that role's center when available, falling back to room[0] otherwise. Pure function on (RoomList, TileGrid, cellSize, optional roleAssignments) \u2014 returns SpawnPoint(position, yawDegrees, pitchDegrees=0). DungeonViewerScene calls this at scene load and feeds the result to PlayerController.",
+    "blocked-by": [
+        "PROCGEN-11"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. SpawnPoint record (position Vector3f, yawDegrees float, pitchDegrees float). 2. PlayerSpawner.pick(rooms, grid, cellSize) returns a SpawnPoint. 3. Position is at the chosen room's center, Y placed so the capsule rests on the floor (capsule.halfHeight above floor). 4. Yaw points toward the next-nearest room (or dungeon centroid if N=1). 5. When PROCGEN-8's roles are available, an overload pick(rooms, grid, cellSize, roles) prefers the START room. Otherwise room[0]. 6. DungeonViewerScene wires PlayerSpawner output into PlayerController.setPosition + camera.setOrientation.",
+    "testing-plan": "1. Single-room dungeon: spawn at room center, yaw arbitrary but valid. 2. Multi-room: spawn at room[0], yaw points roughly at room[1]. 3. With explicit START role: spawn at the START room regardless of room[0]. 4. Position Y is exactly floor + capsule.halfHeight (no clipping into the floor, no floating). 5. Determinism: same inputs -> same SpawnPoint. 6. Integration: launch DungeonViewerScene, confirm the player starts inside a room facing toward another room rather than facing a wall.",
+    "todos": [
+        "DONE : Define SpawnPoint record",
+        "DONE : Implement PlayerSpawner.pick fallback heuristic (room[0], yaw toward nearest neighbor)",
+        "DONE : Add roles-aware overload (used after PROCGEN-8 lands; falls back today)",
+        "DONE : Wire into DungeonViewerScene init",
+        "DONE : Unit tests + visual confirmation in viewer"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Player's idea: 'spawn at 0,0,0 and generate the path around that.' Implemented by guaranteeing room[0] in RoomPlacer3D.place is a fixed-size start room at the grid center on the middle floor. After GridToMesh3D centers the mesh at world origin, room[0] straddles (0, 0, 0) precisely. The MST + A* corridor passes naturally connect this room to the rest of the dungeon",
+        "SpawnPoint record (Vec3f position, float yawDegrees, float pitchDegrees=0)",
+        "PlayerSpawner.pick(rooms, cellSize, gridW, gridH, gridD, halfHeight, radius) returns the SpawnPoint at room[0]'s center, with capsule resting on the room floor (centerY = floorY + halfHeight + radius). Yaw points toward room[1] via atan2(dz, dx) so the player has something to walk toward; falls back to yaw=0 (+X) for single-room dungeons",
+        "DungeonViewerScene now captures both the TileGrid (from astar_corridors_3d) AND the RoomList (from random_rooms_3d) at scene init, then uses PlayerSpawner.pick for the spawn. The previous heuristic (closest non-empty cell to camera XZ) is gone \u2014 the spawn is now fully determined by the dungeon layout, no camera dependency. Mode toggle (F) re-spawns at room[0]",
+        "Roles-aware overload deferred to PROCGEN-8 (no role types yet). Today's pick() always uses room[0]; once PROCGEN-8 introduces a START role, an overload pick(rooms, ..., roles) can prefer it",
+        "Tests: PlayerSpawnerTest (7) covers empty list rejection, single-room spawn at exact world origin, multi-room yaw toward +X / +Z, capsule rests on floor, determinism, spawn XZ inside room footprint across cellSize values. RoomPlacer3DTest gains roomZeroIsStartRoomAtGridCenter + startRoomDoesNotOverlapRandomRooms. 9/9 RoomPlacer3D + 7/7 PlayerSpawner all pass",
+        "Visual: 3D dungeon spawn drops you inside a clean room looking down a corridor \u2014 no wall-in-face spawns, no random-cell heuristic. Z-fighting from PROCGEN-7's dual-winding is much less visible in the corridor view (still present at certain angles)",
+        "Full regression: 132/132 tests pass. TeaVM BUILD SUCCESS"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/RoomPlacer3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/player/SpawnPoint.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/player/PlayerSpawner.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/scene/DungeonViewerScene.java",
+        "ixdar-app/test/unit/procgen/dungeon/player/PlayerSpawnerTest.java",
+        "ixdar-app/test/unit/procgen/dungeon/RoomPlacer3DTest.java"
+    ],
+    "priority": 3
+}

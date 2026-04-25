@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-537",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Constraints",
+    "description": "[tooling] Integrate a watertightness validation step or a 'close holes' post-processing tool into the DSL generator to prevent failures like those seen in coons_cage.\n\nSource: voyage review of run=20260424-101249 round=3",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

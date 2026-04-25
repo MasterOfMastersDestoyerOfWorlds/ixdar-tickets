@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-570",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Repair Tooling",
+    "description": "[tooling] Integrate a post-processing step (e.g., PyMesh or Trimesh) to automatically close small gaps or holes in the DSL-generated meshes before the watertight check.\n\nSource: voyage review of run=20260425-035632 round=4",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

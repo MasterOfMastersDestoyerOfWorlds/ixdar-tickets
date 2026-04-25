@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-32",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Per-tooth MSC cells: rescue tooth-tip maxima from over-smoothing",
+    "description": "After PATCH-28 boundary snap, the SCALAR overlay still shows high Coons error across the teeth (yellow/orange band on both upper and lower jaws), and FLAT view shows all upper teeth in one cell + all lower teeth in another. The MSC ascending-manifold can only produce one cell per retained MAX critical point. With 50 iterations of Laplacian smoothing on the scalar field plus persistence-pairing culling (MorseSmaleComplex.java), each row of teeth fuses into a single max \u2014 the per-tooth tips disappear. PATCH-28 can route boundaries onto interdental crest lines but it can't conjure a cell where there's no max. Without per-tooth cells, no Coons-fit will ever be tight on the teeth area no matter how good the boundary snap is.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Each tooth on the skull becomes its own MSC cell (or at least each pair of incisors / each molar becomes its own cell). Concretely: after running on voyage_skull_ref.obj, lower jaw should have \u22656 distinct cells along the dental arch instead of one. Approaches to evaluate: (a) reduce smoothing iterations on the input scalar from 50 \u2192 10-20 and re-tune saddle threshold; (b) use a different scalar (curvature-driven rather than the current height/displacement field); (c) lower the persistence-pairing threshold so low-but-real tooth-tip maxima are retained; (d) run a local re-detection pass restricted to high-Coons-error cells to find sub-maxima. Pick whichever gives clean per-tooth cells without exploding cell count elsewhere.",
+    "testing-plan": "1) Run VerifyMsDecomposer on skull; expected \u22656 cells along the lower dental arch. 2) Coons p95 error in the teeth region drops below T_COONS_ERROR_FRAC * meshExtent (0.025 \u00d7 extent). 3) Other anatomical regions (cranium, orbit, nasal) keep cell counts within 20% of the post-PATCH-28 baseline (66 cells) \u2014 i.e. fix shouldn't cause a fragmentation explosion elsewhere. 4) Visual check in viewer: each tooth has its own color in FLAT mode.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

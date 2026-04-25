@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-25",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MSC B3: feature-aware ascending walk (cell boundaries snap to feature edges)",
+    "description": "PATCH-23 plan \u00a7B3 calls for snapping MSC arcs onto our high-confidence feature-edge set (crest + saddle separators + multi-source from PATCH-14 agreement filter). The PATCH-23 plan's literal description used arc-rerouting via Dijkstra; for our PATCH-24 ascending-manifold cell assignment the equivalent (and simpler) lever is the ascent walk itself.\n\nImplementation: modify MscCellAssembly.walkUphill \u2014 when picking the next vertex to ascend to, if the best uphill candidate is across a high-confidence feature edge, prefer the second-best uphill non-crossing candidate. Concretely:\n\n1. Build the high-confidence edge set: crestEdges + saddleSeparatorEdges + multi-source agreement edges from the existing diagnostics.\n2. In walkUphill: among neighbors with scalar > current, score = scalar - feature_penalty if (current, neighbor) is in the high-confidence set else just scalar. Pick the highest-scoring next.\n3. Penalty large enough that crossing a feature edge is preferred only when there's no alternative uphill path, but small enough that ascending walks still terminate.\n\nEffect: cells now bounded by feature edges (orbital rim becomes a real cell boundary, not a fuzzy gradient meeting line). Each tooth's ascending walk is contained by the inter-tooth saddle separators we already detect.\n\nPlan reference: ~/.claude/plans/plan-written-targets-crest-line-swirling-garden.md \u00a7B3.\n\nAcceptance: side-by-side composite of PATCH-22 STAGES overlay (red/yellow/white feature edges) + PATCH-24 cell colors with PATCH-25 enabled \u2014 cell boundaries should sit on top of the high-confidence feature edges in STAGES.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. MscCellAssembly.walkUphill consults a feature-edge set and penalizes crossings.\n2. Skull cells visibly snap to crest / saddle ridges in the flat-patch render.\n3. Patch count stays similar to PATCH-24 (~67 cells); composition does not regress.\n4. Ascending walks still terminate at retained maxima 100% of the time (no infinite avoidance loops).",
+    "testing-plan": "1. Run VerifyB2-style runner with feature-aware ascent enabled. Confirm same patch count, no orphan faces.\n2. Render flat-patch multiview at zoom 2.5. Compare Right + 3/4 Front-R views side-by-side with PATCH-24 output: PATCH-25 boundaries should be tighter and align with crest curves visible in STAGES mode.\n3. Tune feature_penalty until visual matches anatomy without ascent walks failing to terminate.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

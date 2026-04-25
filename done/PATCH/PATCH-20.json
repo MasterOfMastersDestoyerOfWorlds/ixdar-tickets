@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-20",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Multi-ring / hole-aware patch boundary walker",
+    "description": "`PatchBoundaryWalker.extract` currently bails (returns null) when a patch's boundary isn't a single simply-connected ring \u2014 e.g. patches with internal holes (concavity carve-outs sit inside them) or patches whose boundary pinches into two separated rings. On voyage_skull_ref.obj with PATCH-16's settings, ~34 of 71 patches hit this path, including the big cranium patch. These patches skip Coons evaluation entirely and fall back to shape-proxy-only behavior.\n\nFix: when the neighbour map has a vertex with 3+ boundary neighbours or disconnected subgraphs, identify the **outermost boundary ring** (largest by vertex count or enclosed area) and use that for the 4-corner extraction. Inner holes get ignored for Coons purposes \u2014 those interior voids are already separate concavity patches, so the outer ring is what the Coons fit is actually trying to approximate.\n\nAlternative if that's too fragile: split hole-ful patches preemptively at the concavity boundary so every final patch is simply-connected.\n\nCritical files:\n- ixdar-app/src/main/java/ixdar/geometry/mesh/data/PatchBoundaryWalker.java \u2014 `extract` method, line ~55.\n- Test case: voyage_skull_ref.obj's cranium patch (currently ~13k vertices, sides=247 per boundarySideCount, fourSided=false in my walker).\n\nAcceptance: Coons-fit-succeeded count in /tmp/DebugCoons.java rises from 34 to near 67 (all non-trivial patches get a Coons error).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. `PatchBoundaryWalker.extract` handles multi-ring boundaries by walking the outer ring.\n2. Non-manifold junctions (3+ boundary neighbours at a vertex) are resolved by picking the two neighbours that continue the outer ring.\n3. Skull: 90%+ of patches successfully get a Coons error computed (up from ~48% today).\n4. No regression in the already-working 4-corner walker path.",
+    "testing-plan": "1. Run /tmp/DebugCoons.java on skull \u2014 expect nullWalks to drop from 33 to near 0.\n2. Run VerifyCoonsError \u2014 expect nonzero-error vertex count to rise from 4504 to closer to 20k (most of the mesh now getting measured).\n3. Regression: small/simple patches with clean rings still produce the same 4 corners they do today.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

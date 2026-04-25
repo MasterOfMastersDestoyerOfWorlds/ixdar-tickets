@@ -1,0 +1,20 @@
+{
+    "id": "IX-20",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "macOS Metal command-encoder crash on viewer resize",
+    "description": "Similar to IX-10 (which was about SIGSEGV in AppleMetalOpenGLRenderer on aggressive resize), but a different Metal assertion surface:\n\n  -[AGXG15XFamilyCommandBuffer renderCommandEncoderWithDescriptor:]:963:\n    failed assertion 'A command encoder is already encoding to this command buffer'\n\nExit 134 (SIGABRT). Repros by launching the mesh-viewer profile and resizing the window. The crash happens deep inside Apple's LWJGL OpenGL-on-Metal shim; the mesh renders fine before resize (verified on 22107-vert skull DSL).\n\nNot caused by VIEW-5 tagged-rendering changes \u2014 the render() code path taken before any patch overlay is toggled is functionally identical to the pre-VIEW-5 code (one meshShader.use() + one glDrawElements for the untagged case). Resize crash is independent of the new conditional logic.\n\nPossible remediation options:\n1. Disable window resize entirely (set glfwWindowHint to fixed size).\n2. Queue an explicit glFinish() / context flush on the resize callback before any rendering resumes.\n3. Recreate the GL context on resize (heavy but clean).\n4. Document as Apple limitation and pin initial window size via -Dixdar.window.width/height.\n\nWorkaround today: don't resize the mesh viewer window while it's running. Close and relaunch if you need different dimensions.\n\nRelated: IX-10 (prior SIGSEGV flavor, documented as Apple limitation).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Either: (a) resize works cleanly on macOS arm64, or (b) documented limitation with a CLAUDE.md note + initial-size flags.",
+    "testing-plan": "(1) Launch via Desktop/Ixdar Mesh Viewer.command. (2) Try resizing: slow drag, then fast drag, then diagonal-corner drag. (3) Verify no Metal assertion.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

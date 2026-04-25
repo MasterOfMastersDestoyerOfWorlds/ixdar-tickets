@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-27",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MorseSmaleDecomposer Coons-error refinement (B4c deferred)",
+    "description": "PATCH-26 shipped MorseSmaleDecomposer + D-key viewer toggle but the Coons-error refinement loop got SIGKILL'd (exit 137) during the live D toggle on the skull. The recursive refinement re-runs CoonsReconstructionError.compute on each cell each iteration; depth-4 recursion across 67 cells (one cranium-sized) plus the SCALAR-overlay recompute pushes the JVM past the heap allotted by mvn exec.\n\nThe cranium currently shows as 2-3 oversized cells in MORSE_SMALE that aren't Coons-fittable. This ticket re-enables refinement with proper memory accounting:\n\n1. Compute Coons error per cell ONCE per refinement iteration, not on every recurse.\n2. Reuse buffers \u2014 don't clone label arrays every depth level.\n3. Skip cells smaller than some min-faces threshold (already partly there).\n4. Possibly: refine in a background thread with a progress log, so UI doesn't block.\n5. Ensure the BFS region-grow inside a cell uses a face-id \u2192 list-index map per cell instead of scanning all faces every time.\n\nAcceptance: D-toggle to MORSE_SMALE on skull does NOT crash, completes in <10s, cranium subdivides into 4-8 sub-cells, Coons p95 drops near threshold.\n\nTest mesh: voyage_skull_ref.obj (24998 verts).\n\nPlan reference for context: ~/.claude/plans/plan-written-targets-crest-line-swirling-garden.md (PATCH-26 \u00a7B4c).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. MorseSmaleDecomposer with refinement runs to completion on the skull without SIGKILL.\n2. Decomposition completes in <10s including refinement.\n3. Cranium subdivides to 4-8 sub-cells in the live MORSE_SMALE view.\n4. Coons p95 drops below 1.5x threshold.",
+    "testing-plan": "1. Live viewer D-toggle on skull, time the recompose, ensure no crash.\n2. VerifyCoonsError on MorseSmaleDecomposer output, compare against pre-refinement and against SemanticPatchDecomposer.\n3. Visual: cranium has multiple sub-cells, no single cell larger than ~10% of mesh area.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

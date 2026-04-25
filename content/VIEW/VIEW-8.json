@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-8",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-viewer-ui"
+    ],
+    "title": "Sidebar HUD panel with click-to-load model list",
+    "description": "Follow-up to VIEW-7 which shipped keyboard-driven interaction (P, Shift+P, [/]) and terminal logging for model state. This ticket adds the visual sidebar the user asked for.\n\nRequirements:\n- Right-edge HUD panel, always visible (non-modal).\n- Header rows: current model name, patch overlay state, shader mode.\n- Scrollable model list from ModelCatalog with current entry highlighted.\n- Click row to loadModel(entry).\n- Uses Camera2D + HyperString + Drawing.getDrawing().font pattern from MainScene/TradeScene.\n\nImplementation notes:\n- MeshNodeViewerScene doesn't currently have a Camera2D; add one like MainScene does.\n- Set up mouse-region click handling similar to MenuBox's subscribe pattern.\n- Reuse colour constants from ixdar.graphics.render.color.Color.\n\nDepends on: VIEW-5 and VIEW-7 (both landed).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Visual sidebar panel appears on viewer right. Click a model \u2192 loads. Highlight + scroll behave correctly. Patch-overlay + shader-mode toggles are visible in the panel.",
+    "testing-plan": "Launch viewer, panel visible. Click each entry, model loads and highlight moves. Scroll the list. Toggle overlay + mode via both keyboard and panel buttons.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

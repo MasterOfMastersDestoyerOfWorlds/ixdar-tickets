@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-535",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Enhance Organic Feature Prompting",
+    "description": "[prompt] Update prompts to explicitly define 'negative space' and 'cavities' to help techniques like 'freeroam' better approximate the skull's internal voids.\n\nSource: voyage review of run=20260424-101249 round=2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

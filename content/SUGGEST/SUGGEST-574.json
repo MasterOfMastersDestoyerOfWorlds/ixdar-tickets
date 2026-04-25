@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-574",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Refine Organic Topology Prompts",
+    "description": "[prompt] Update prompts to explicitly instruct techniques to prioritize closed-loop boundary definitions when generating complex cavities like the nasal passage and orbits.\n\nSource: voyage review of run=20260425-035632 round=5",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

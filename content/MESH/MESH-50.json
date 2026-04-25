@@ -1,0 +1,20 @@
+{
+    "id": "MESH-50",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "mesh_boolean output has unwelded duplicate vertices",
+    "description": "skull.dsl produces a mesh with 22107 vertices and only 7369 faces after three mesh_boolean operations. Welded triangle meshes satisfy V \\u2248 F/2 + 2, so for 7369 faces expected vertex count is ~3687. We're at 22107 \\u2014 6x more. Each boolean split adds new cut-line vertices without welding against existing coincident vertices, and the result cascades.\\n\\nImpact observed in VIEW-7: SemanticPatchDecomposer running on the ArrayMesh-converted boolean output produces ONE patch per face (7369 patches for 7369 faces) because the duplicate vertices make every face topologically isolated \\u2014 shared edges between adjacent faces use different vertex ids on each side, so face-face adjacency lookup finds no neighbour.\\n\\nCurrent workaround: users append merge_by_distance(0.0001) after the last boolean in their DSL. We can see this happening in coons-cage DSLs. mesh_boolean should do this weld itself, or at minimum offer a 'weld_output: bool' parameter defaulting to true.\\n\\nThis is surfaced by MESH-49 (node canonicalization) but is a distinct correctness issue: even if we canonicalize to ArrayMesh, mesh_boolean's output is topologically wrong.\\n\\nRelated: MESH-49 canonicalization plan. PATCH epic's ability to decompose DSL-generated meshes is blocked until this is fixed.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "mesh_boolean welds coincident vertices before returning (threshold configurable, default 1e-4). Verified on skull.dsl: vertex count drops to roughly F/2 + 2, and SemanticPatchDecomposer produces a reasonable patch count (~100\\u2013300 not 7369).",
+    "testing-plan": "1. Load skull.dsl in mesh viewer. Check log: verts should be ~3700 not 22107. 2. Press P: decomposition should produce \\u2264 500 patches. 3. Render visually to confirm no gaps or flipped normals from the weld.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

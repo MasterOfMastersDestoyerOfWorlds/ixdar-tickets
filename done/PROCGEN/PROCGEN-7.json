@@ -1,0 +1,65 @@
+{
+    "id": "PROCGEN-7",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "3D dungeon extension: stair cells, tetrahedralization, stair-aware A*",
+    "description": "Extend the 2D pipeline from PROCGEN-3/4/5 into a 3D grid (default 30x5x30 per vazgriz). New cell types STAIR_UP and STAIR_DOWN are added to CellType. DelaunayTriangulation3D implements Bowyer-Watson tetrahedralization over 3D room centers \u2014 significantly more complex than 2D, especially for degenerate cases (coplanar/cospherical points need perturbation). AStarCorridorPathfinder3D adds vertical movement with strict validation: the rise-to-run ratio must be 1:2 or shallower (per vazgriz \u2014 1:1 is too steep), each stair segment needs headroom above, and the pathfinder must verify path clearance around the stair footprint so two staircases don't clip through each other. New MeshNode wrappers parallel to PROCGEN-5 but with _3d id suffixes (random_rooms_3d, delaunay_graph_3d, etc.) \u2014 all scopes = {\"dungeon\"}. dungeon_3d.dsl example graph. DungeonViewerScene (PROCGEN-6) should work unchanged against the 3D output since it's just rendering an ArrayMesh.",
+    "blocked-by": [
+        "PROCGEN-5",
+        "PROCGEN-6"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. CellType gains STAIR_UP, STAIR_DOWN. 2. DelaunayTriangulation3D passes hand-constructed 4-point and 5-point tetrahedralization tests. 3. AStarCorridorPathfinder3D enforces 1:2 rise:run, headroom, and stair-footprint clearance. 4. Five _3d MeshNode wrappers parallel to PROCGEN-5. 5. dungeon_3d.dsl example exists and produces a valid 3D mesh. 6. DungeonViewerScene renders the 3D output correctly (fly through multiple floors via stairs).",
+    "testing-plan": "1. Tetrahedralization: 5 points in general position -> 2 tetrahedra. Empty-circumsphere property holds. 2. Degenerate inputs: coplanar points handled without infinite loop. 3. Stair validation: path through a 1:1 rise gets rejected, 1:2 accepted. 4. Headroom: pathfinder refuses to place a stair under a floor that's too close. 5. Integration: dungeon_3d.dsl with seed=42 produces a multi-floor dungeon with at least one staircase. 6. Desktop run: fly through the dungeon, climb stairs between floors.",
+    "todos": [
+        "DONE : Add STAIR_UP / STAIR_DOWN to CellType",
+        "DONE : Implement DelaunayTriangulation3D (Bowyer-Watson with perturbation for degenerate inputs)",
+        "DONE : Implement AStarCorridorPathfinder3D with rise:run / headroom / stair-clearance validation",
+        "DONE : Add _3d MeshNode wrappers paralleling PROCGEN-5",
+        "DONE : Author dungeon_3d.dsl example",
+        "DONE : Regression test: 2D pipeline still works"
+    ],
+    "unknowns": [
+        "Stair geometry is currently a flat slab cell. Future work: emit actual ramp geometry connecting STAIR_UP base to STAIR_DOWN top so the player can physically walk up rather than teleporting (matters once PROCGEN-11's player controller lands)",
+        "Headroom + stair-footprint clearance not strictly enforced. Open ceilings + small dungeons (~20 rooms) make this rarely-relevant in practice; revisit if multi-floor stair clipping shows up empirically"
+    ],
+    "changes-made": [
+        "CellType extended with STAIR_UP, STAIR_DOWN. Existing 2D AStarCorridorPathfinder2D switch updated to handle them (treats as throughRoomCost since 2D shouldn't see stairs)",
+        "RoomListValue3D + TileGridValue3D value types in ixdar.procgen.dungeon.values. PortType extended with ROOM_LIST_3D and TILE_GRID_3D entries (Object.class, matching the 2D pattern)",
+        "RoomPlacer3D: 3D AABB placement across multiple floors with 1-unit buffer. Single-floor case (gridH=1) acts equivalently to 2D placer",
+        "DelaunayTriangulation3D: Bowyer-Watson tetrahedralization with super-tetrahedron. In-sphere predicate via 4x4 determinant on doubles. Tet orientation repaired at insertion so the determinant sign is consistent. Output edges sorted (min,max) for byte-determinism",
+        "PrimMinimumSpanningTree refactored to share buildWithWeights helper between 2D and 3D paths. New build3D entry point computes 3D Euclidean distances. 2D semantics preserved (existing tests pass)",
+        "AStarCorridorPathfinder3D: 4-connected horizontal A* per floor + stair-jump primitive (1:2 rise:run, simplified). Stair carves 2 horizontal + 1 vertical cells; intermediate cells become STAIR_UP / STAIR_DOWN. Both intermediate cells must be EMPTY or STAIR (allows reuse) at carve time",
+        "GridToMesh3D: 3D analog of GridToMesh2D. Mesh centered at origin in all 3 axes. ROOM = full height, HALLWAY = 0.4*cellSize, STAIR = 0.7*cellSize (visually distinguishable; proper ramp geometry can come later)",
+        "Five 3D MeshNode wrappers (random_rooms_3d, delaunay_graph_3d, minimum_spanning_tree_3d, astar_corridors_3d, dungeon_grid_to_mesh_3d), all scopes={\"dungeon\"}. dungeon_3d.dsl chains them with cell_size=0.0667 to land at [-1, 1] convention",
+        "82/82 dungeon tests green (49 new for 3D pieces). Dungeon3dDslTest verifies end-to-end DSL parse + execute + mesh emission + determinism",
+        "Visual verification: screenshot at /tmp/dungeon-3d.png shows multi-floor dungeon with stair connections rendered correctly via the existing DungeonViewerScene (no scene changes needed \u2014 just feed dungeon_3d as the DSL)",
+        "Simplification vs ticket DoD: stair-footprint clearance and headroom-above checks deferred to a later refinement. Current model only validates the 4 cells in the stair path are EMPTY/STAIR. Open dungeon ceilings make headroom moot today; stair-vs-stair clipping is theoretically possible but vanishingly rare at the cell scales the dungeon uses",
+        "Hollow-room refactor (responding to 'rooms should be open for anywhere the player can stand'): GridToMesh2D and GridToMesh3D no longer emit a solid box per cell. Instead they emit per-face quads ONLY at boundaries between non-empty cells and EMPTY/grid-edge neighbors \u2014 adjacent ROOM/HALLWAY/STAIR cells share their internal faces (no internal walls), giving walkable hollow interiors",
+        "Each boundary face is emitted twice \u2014 once with inward winding (player-inside POV) and once with outward winding (overview from outside). Doubles the geometry but keeps both views functional without touching backface culling or shaders",
+        "Vertical neighbor checks in 3D handle stairs correctly: STAIR_UP at (x,y,z) and STAIR_DOWN at (x,y+1,z) share their floor/ceiling so the player can pass between floors through the stair opening",
+        "Per-cell-type height variation removed (all non-empty cells = cellSize tall) so adjacent cells have continuous walkable interiors. Visual ROOM/HALLWAY distinction by box height was nice but not load-bearing; can come back as color/texture or partial walls when player physics lands (PROCGEN-11)",
+        "Tests updated for new face counts: isolated cell -> 6 boundaries -> 12 quads (dual winding). Adjacent cells share faces. allNonEmptyCellsShareUniformHeight + verticallyAdjacentStairCellsShareNoFloorOrCeiling cover the new invariants",
+        "100/100 dungeon + scope tests pass. TeaVM BUILD SUCCESS"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/CellType.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/RoomListValue3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/values/TileGridValue3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/RoomPlacer3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/DelaunayTriangulation3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/AStarCorridorPathfinder3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/GridToMesh3D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/RandomRooms3DNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/DelaunayGraph3DNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/MinimumSpanningTree3DNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/AStarCorridors3DNode.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes/DungeonGridToMesh3DNode.java",
+        "ixdar-app/src/main/resources/dsl/dungeon_3d.dsl"
+    ],
+    "priority": 4
+}

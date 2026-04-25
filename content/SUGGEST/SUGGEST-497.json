@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-497",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Increase Vertex Budget for coons_cage",
+    "description": "[tooling] freeroam's higher fidelity is correlated with a higher vertex count. Adjust the constraints for coons_cage to allow for more geometric complexity to see if it can close the similarity gap.\n\nSource: voyage review of run=20260422-161553 round=8",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

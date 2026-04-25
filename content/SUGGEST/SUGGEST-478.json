@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-478",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "DSL Output Verification",
+    "description": "[infrastructure] Introduce a retry loop for techniques like 'coons_cage' that fail to produce a file, ensuring the infrastructure captures the raw output for debugging.\n\nSource: voyage review of run=20260422-161553 round=1",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

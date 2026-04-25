@@ -1,0 +1,40 @@
+{
+    "id": "PROCGEN-4",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "2D A* corridor pathfinder + GridToMesh2D",
+    "description": "Final two stages of the 2D vazgriz dungeon pipeline. AStarCorridorPathfinder2D: grid A* that carves HALLWAY cells between room pairs specified by the MST+extras edge graph from PROCGEN-3. Cost function favors reusing existing HALLWAY cells (cheap) over empty (moderate) over passing through ROOM interiors (expensive) so the pathfinder prefers to go around rooms and consolidate corridors. Input is the grid size, RoomListValue, and EdgeGraphValue from the MST pass; output is a fully-populated TileGridValue. Handles multiple edges to the same grid correctly (earlier paths influence later-path cost via the prefer-reuse weight). GridToMesh2D: converts the TileGrid into an ArrayMesh for rendering. Option A (v1): axis-aligned boxed geometry \u2014 one small box per HALLWAY cell, larger boxes for ROOM cells, merged into a single ArrayMesh. Option B (later): instance via InstanceOnPointsNode for GPU-side batching. Start with Option A, note Option B as unknown. All emissions go through HalfEdgeMesh so downstream subdivide/extrude can refine the output later.",
+    "blocked-by": [
+        "PROCGEN-2",
+        "PROCGEN-3"
+    ],
+    "blocks": [
+        "PROCGEN-5"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. AStarCorridorPathfinder2D.carve(grid, rooms, edges, costWeights) returns a populated TileGridValue. 2. Cost weights are explicit parameters (hallway-reuse, empty-cell, through-room) with sensible defaults. 3. Every edge in the input MST graph corresponds to a contiguous HALLWAY path between its two rooms in the output grid. 4. No corridor tile overlaps a ROOM interior cell (pathfinder chooses to go around when cost-justified). 5. GridToMesh2D.emit(grid, cellSize) returns a valid ArrayMesh. 6. Output mesh is well-formed (no degenerate faces, no duplicate vertices after merge-by-distance).",
+    "testing-plan": "1. Trivial two-room grid: one edge between rooms -> confirm a HALLWAY path exists connecting them. 2. Cost weighting: with through-room cost very high, confirm no corridor tile lands inside a room. 3. Reuse weighting: run three edges sharing a corridor segment, confirm shared cells are marked HALLWAY only once and the paths converge on them. 4. Determinism: same inputs -> same output grid. 5. Mesh emission: emit an ArrayMesh, verify triangle count matches expected (cells * 2 per face * 6 faces per box).",
+    "todos": [
+        "DONE : Implement AStarCorridorPathfinder2D with configurable cost weights",
+        "DONE : Implement GridToMesh2D (axis-aligned boxed geometry)",
+        "DONE : Write unit tests for pathfinding correctness, cost-weight behavior, mesh validity"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "AStarCorridorPathfinder2D: 4-connected grid A* with configurable CostWeights record (hallway-reuse, empty, through-room). Paints ROOM cells first from rooms' AABBs, then carves MST edges in order. Manhattan heuristic scaled by the minimum per-cell cost (admissible even when paths cut through rooms). PriorityQueue ties broken by g then idx for determinism. Preserves existing ROOM cells (corridors do not overwrite rooms even if A* passes through them)",
+        "GridToMesh2D: emits one axis-aligned box per non-empty cell, 8 vertices + 6 quad faces, winding matches CubeMeshNode so downstream normals-from-quads passes produce outward faces. HALLWAY cells use HALLWAY_HEIGHT_FRACTION=0.4 (visually flatter than ROOM cells) so the fly-cam viewer can distinguish them at a glance. Grid Y axis maps to world Z; wall height is world Y",
+        "ArrayMesh emission goes through ArrayMesh.fromQuads + computeNormals (matches CubeMeshNode pattern). HalfEdgeMesh conversion deferred \u2014 ArrayMesh feeds VBO upload directly",
+        "Tests: AStarCorridorPathfinder2DTest (6, all pass) verifies connectivity, room-avoidance with high throughRoomCost, corridor consolidation with cheap reuse cost, determinism. GridToMesh2DTest (6, all pass) verifies vertex/face counts scale with non-empty cells (6 quads/box, 8 verts/box), bbox under cellSize scaling, hallway flatter than room, determinism",
+        "Full dungeon + scope regression: 62 tests pass across 8 test classes"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/AStarCorridorPathfinder2D.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/algo/GridToMesh2D.java",
+        "ixdar-app/test/unit/procgen/dungeon/AStarCorridorPathfinder2DTest.java",
+        "ixdar-app/test/unit/procgen/dungeon/GridToMesh2DTest.java"
+    ],
+    "priority": 2
+}

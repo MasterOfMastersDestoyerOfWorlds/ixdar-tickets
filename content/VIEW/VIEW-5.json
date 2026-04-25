@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-5",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-viewer-rendering"
+    ],
+    "title": "Tagged rendering pipeline in HalfEdgeMeshRuntime",
+    "description": "Extend HalfEdgeMeshRuntime to render per-tag with per-tag color, consuming the existing __tags slot populated by TagGeometryNode. Patches, DSL tag_geometry annotations, and any other per-vertex labeling gets visualized uniformly without shader forks or per-face color VBO hacks.\n\nImplementation:\n1. Tag-color registry on HalfEdgeMeshRuntime:\n   - Explicit: setTagColor(String tag, Vector4f rgba)\n   - Derived: stable hash of tag name when no explicit color (random tags still render distinctly)\n2. At upload time (or on setTags call): partition the EBO into per-tag index ranges. Sort triangles by the tag that wins for their vertices (priority: most recently added / lowest-id wins on multi-tag vertices). Record (tagName, indexStart, indexCount) ranges. Untagged triangles form a trailing range rendered with the existing solidColor.\n3. render() walks tag ranges: set solidColor from registry, glDrawElements for that range. Existing Lambert lighting applies as-is.\n4. Flat unshaded mode reuses the existing meshUnlitShader program. setShaderMode(Lambert|Flat) flips which program draws.\n5. New HalfEdgeCompiledMeshData field: per-tag index ranges list.\n\nNot a shader change \u2014 no new uniforms, no new vertex attributes. Just partitioning the draw and varying solidColor per partition.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "setTags(Map<String, boolean[]>), setTagColor(String, Vector4f), clearTags(), setShaderMode() all work. Test: load a DSL, install two test tags (top/bottom spatial split), confirm mesh renders half-one-color half-other under Lambert; swap to Flat shader, confirm flat no-lighting. Untagged meshes still render solid-color as today.",
+    "testing-plan": "(1) mvn compile passes. (2) Temporary debug hook in MeshNodeViewerScene installs 'top'/'bottom' tags after DSL load. Visually verify per-tag coloring. (3) Shift+P swaps shader mode; verify flat vs Lambert. (4) Remove debug hook and confirm no regression on plain DSL meshes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

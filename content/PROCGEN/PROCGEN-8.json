@@ -1,0 +1,28 @@
+{
+    "id": "PROCGEN-8",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Room role annotations + plausible-forward-path graph for hint system",
+    "description": "Gameplay-hook layer that closes the loop from the Archipelago-dungeon GDD (KriegEterna/web/content/essays/archipelago-dungeon-design.md). The layout pipeline currently produces rooms without semantic meaning; the GDD's design (items that point to the next key, always a plausible path forward a la Dark Souls 3) requires rooms tagged with roles and a traversable graph from the entrance to each key-bearing room. Two pieces: (1) Annotate rooms with a RoomRole enum (START, BOSS, TREASURE, KEY, HINT, NORMAL) assigned in a post-layout pass \u2014 START and BOSS are required exactly once per dungeon, others are distributed by rules. (2) Derive a PlausibleForwardPath graph: a DAG from START where each node's reachability depends on having collected the keys in ancestor KEY rooms. The hint system (not implemented in this ticket) will read this graph to generate directional hints without revealing specific items. Key design constraint from the GDD: the failure mode of keys-gating-non-optional-content is the weakest point, so the graph must support items-that-point-to-next-key semantics \u2014 every KEY room should have at least one HINT room upstream that advertises its rough location.",
+    "blocked-by": [
+        "PROCGEN-5"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. RoomRole enum (START, BOSS, TREASURE, KEY, HINT, NORMAL). 2. RoomList gains a per-room role field (or a parallel RoleList). 3. RoleAssigner post-layout pass assigns roles using room centrality + distance metrics (START near dungeon entrance cell, BOSS at farthest, KEY and HINT distributed such that every KEY has >=1 HINT upstream). 4. PlausibleForwardPathBuilder produces a DAG where each edge is traversable given the keys collected along any ancestor path. 5. A MeshNode wrapper (assign_dungeon_roles, scopes={\"dungeon\"}) exposes this to DSL graphs. 6. Role assignment is deterministic given the same input and seed.",
+    "testing-plan": "1. Every generated dungeon has exactly one START and one BOSS. 2. Every KEY room is reachable from START via at least one forward path. 3. Every KEY room has at least one HINT room as an ancestor in the DAG. 4. Determinism: same input + seed -> identical role assignments. 5. Integration: extend dungeon_2d.dsl to use assign_dungeon_roles, visually verify roles in DungeonViewerScene (e.g., color-code rooms by role).",
+    "todos": [
+        "Define RoomRole enum and extend RoomList with a role field",
+        "Implement RoleAssigner using centrality and distance metrics",
+        "Implement PlausibleForwardPathBuilder producing a reachability DAG",
+        "Add assign_dungeon_roles MeshNode wrapper (scopes={\"dungeon\"})",
+        "Extend DungeonViewerScene to color-code rooms by role for visual debugging"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 5
+}

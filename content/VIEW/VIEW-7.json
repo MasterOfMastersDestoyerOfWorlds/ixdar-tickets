@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-7",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-viewer-ui"
+    ],
+    "title": "Sidebar UI: patch overlay toggle + shader mode + model switcher",
+    "description": "Right-side HUD sidebar in MeshNodeViewerScene for interactive patch-decomposition inspection and model switching. Depends on VIEW-5 (tagged rendering) and VIEW-6 (staging dir + catalog).\n\nComponents:\n1. ModelCatalog (new class): scans ~/.ix/ixdar-models/ (or IXDAR_MODEL_DIR), returns list of ModelEntry(displayName, type, absolutePath). Display names prefix DSL/OBJ and show subdirectory structure.\n\n2. SidebarPanel (new class): non-modal HUD on the right edge. Borrows hover/click/scroll mechanics from MenuBox but positioned on the right and always visible. Sections:\n   - Header: Patches ON/OFF button, Mode Lambert/Flat button (dim when Patches off)\n   - Model list: row per ModelEntry, current highlighted, scroll wheel scrolls, click loads\n   - Uses HyperString + Drawing.getDrawing().font.drawHyperString()\n\n3. MeshNodeViewerScene wiring:\n   - initGL() instantiates ModelCatalog, SidebarPanel\n   - draw() renders 3D view then sidebar HUD\n   - loadModel(ModelEntry): DSL \u2192 loadSourceAsync(DSL_FOLDER,...), OBJ \u2192 loadSourceAsync('obj',...); preserve orbit\n   - togglePatchOverlay(): enable \u2192 SemanticPatchDecomposer.decompose(current mesh, 128); convert each Patch to a tag (name patch_N, color from Patch.color() for Welsh-Powell mode or PatchRenderer.uniquePatchColor(pid) for flat); setTags(); disable \u2192 clearTags()\n   - toggleShaderMode(): flip Lambert\u2194Flat, rebuild tag-color registry, HalfEdgeMeshRuntime.setShaderMode()\n   - decomposition cache keyed by mesh source path / vertex-array hash\n\n4. Input in MeshViewerKeyGuy:\n   - P \u2192 togglePatchOverlay\n   - Shift+P \u2192 toggleShaderMode\n   - [/] \u2192 loadModel(catalog.prev()/next())\n   - Mouse routed to sidebar.setHover()/click() before 3D view\n\nAcceptance goal: orbit skull, press P, zoom into dentition, flip to flat shader \u2014 can we see individual teeth as distinct colors? The core diagnostic question that motivated the entire PATCH epic from VOYAGE-51 onwards.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Viewer launches with sidebar on right. Model list shows DSLs + voyage OBJs + Blends OBJs from the staging dir. Click switches models, orbit preserved. P toggles overlay, Shift+P toggles shader mode. Zooming into skull dentition under flat mode reveals whether teeth are separate patches or visually merged \u2014 answers the PATCH-8 open question.",
+    "testing-plan": "(1) mvn -P game, skull visible. (2) Click voyage_skull_ref.obj in sidebar, press P. Cranium visibly subdivided under Welsh-Powell. (3) Shift+P for flat. (4) Zoom into teeth. (5) [/] cycles models; Click to load Blends OBJ; orbit preserved. (6) Z-key wireframe still works; no regression on DSL load without patches.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

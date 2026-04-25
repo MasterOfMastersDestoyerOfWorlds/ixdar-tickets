@@ -1,0 +1,29 @@
+{
+    "id": "PROCGEN-9",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Secret primitive library (Gauntlet Dark Legacy style)",
+    "description": "Sibling system to the layout algorithm. The GDD argument (KriegEterna/web/content/essays/archipelago-dungeon-design.md, section 'Secret vocabulary'): layout complexity is NOT what makes a dungeon memorable; a rich secret-placement vocabulary is. Gauntlet Dark Legacy has layout-simple dungeons but still surprises players after dozens of runs because of the combinatorial richness of levers + breakable walls + trapdoors + explosive chests. This ticket introduces that vocabulary as composable primitives. Primitive catalog (initial set): BreakableWall (destroyed by melee/explosion, reveals hidden corridor or chest), PressurePlate (triggers a distant effect \u2014 door, trap, reveal), Trapdoor (drops player to the floor below or a connected room), Lever (bound to a distant door or trapdoor), Chest (Regular / Explosive / Fake \u2014 Explosive damages nearby loot piles if triggered poorly), HiddenPassage (revealed by breakable wall or lever). Each primitive is an entity marker placed into a SecretSlot on a room. Rooms advertise available slots during layout (wall-adjacent for BreakableWall, floor-center for PressurePlate, etc.), and a SecretComposer post-layout pass fills slots from a weighted pool with constraints (every BOSS room has at least one trap-reveal secret; no explosive chest adjacent to a fake chest; etc.). The engine-side rendering/gameplay behavior of each primitive is out of scope for this ticket \u2014 this ticket produces the authoring-layer annotations that downstream systems consume.",
+    "blocked-by": [
+        "PROCGEN-5"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. SecretPrimitive sealed interface / enum covering the six initial types above. 2. SecretSlot type (position, orientation, accepted primitives). 3. Room gains a List<SecretSlot> derived from its cell geometry. 4. SecretComposer post-layout pass fills slots deterministically given a seed, respecting per-primitive constraints. 5. MeshNode wrapper compose_dungeon_secrets (scopes={\"dungeon\"}) exposes this to DSL graphs. 6. Visual debugging: DungeonViewerScene can optionally render primitive markers (wireframe boxes color-coded by type) for placement sanity checks.",
+    "testing-plan": "1. Slot generation: every rectangular room has >=1 wall slot and >=1 floor slot. 2. Constraint satisfaction: every BOSS room contains at least one trap-reveal secret across 50 random seeds. 3. Constraint satisfaction: zero explosive-chest + fake-chest adjacency across 50 seeds. 4. Determinism: same seed + layout -> identical secret placement. 5. Integration: dungeon_2d.dsl extended to include compose_dungeon_secrets, visual inspection in DungeonViewerScene shows primitives placed reasonably.",
+    "todos": [
+        "Define SecretPrimitive sealed interface and six initial types",
+        "Define SecretSlot type with position/orientation/accepted-primitive constraints",
+        "Derive SecretSlots from room geometry (wall, floor, ceiling, corner)",
+        "Implement SecretComposer with per-primitive placement constraints",
+        "Add compose_dungeon_secrets MeshNode wrapper",
+        "Optional debug rendering of primitives in DungeonViewerScene"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 5
+}

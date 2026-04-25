@@ -1,0 +1,20 @@
+{
+    "id": "SUGGEST-534",
+    "epic": "SUGGEST",
+    "repo": "Daud",
+    "subsystem": [
+        "voyage"
+    ],
+    "title": "Implement Manifold Validation",
+    "description": "[tooling] Integrate a pre-export watertight check in the DSL compiler to provide immediate feedback to the 'coons_cage' technique, allowing it to iterate on hole-filling logic.\n\nSource: voyage review of run=20260424-101249 round=2",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Improvement implemented and tested",
+    "testing-plan": "1. Run voyage batch and verify improvement",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

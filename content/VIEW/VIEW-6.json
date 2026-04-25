@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-6",
+    "epic": "VIEW",
+    "repo": "Daud",
+    "subsystem": [
+        "model-resources"
+    ],
+    "title": "Model staging directory + sync-models tool",
+    "description": "Create a single directory the mesh viewer reads from, populated by a new 'uv run sync-models' CLI from multiple source locations. Keeps the viewer decoupled from where the authoritative files live (resources, KriegEterna web static, ~/Blends), and gives a clean swap point when the future S3-backed resources ticket lands.\n\nTarget: ~/.ix/ixdar-models/ (override via IXDAR_MODEL_DIR env var)\nSubfolders: dsl/, obj/voyage/, obj/blends/\n\nBehaviour:\n1. Resolve target dir.\n2. Ensure subfolders exist.\n3. Walk sources:\n   - Ixdar/ixdar-app/src/main/resources/dsl/*.dsl \u2192 symlink into dsl/\n   - KriegEterna/web/static/ixdar/obj/*.obj \u2192 symlink into obj/voyage/\n   - ~/Blends/**/*.obj recursively \u2192 symlink into obj/blends/<subdir>/... preserving structure\n4. Clean stale symlinks (pointing to deleted files) before re-linking.\n5. Print summary: N DSL, M voyage OBJ, K Blends OBJ.\n\nSymlinks not copies \u2014 no OBJ duplication, source edits reflect immediately. Idempotent: a no-op re-run completes fast and changes nothing.\n\nNew file: Daud/src/daud/tools/sync_models.py\nEntry point: sync-models in Daud/pyproject.toml [project.scripts].\n\nFuture S3 ticket replaces the source resolution with S3 downloads; the viewer's ModelCatalog (VIEW-7) stays identical.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "uv run sync-models in an empty ~/.ix state creates the target, populates symlinks from all three sources, prints a summary. Running again is idempotent. Deleting a source DSL and re-running cleans the stale symlink.",
+    "testing-plan": "(1) rm -rf ~/.ix/ixdar-models (if exists). (2) uv run sync-models. (3) Verify target structure. (4) Re-run \u2014 no errors, same counts. (5) Delete one symlink manually, re-run \u2014 it reappears. (6) Delete a source file, re-run \u2014 stale symlink removed.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

@@ -1,0 +1,51 @@
+{
+    "id": "PROCGEN-10",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Capsule collider with AABB / mesh tests for player movement",
+    "description": "Pure-Java capsule shape + collision tests so a player controller can move through the dungeon without phasing through walls. Capsule = two sphere endcaps + cylinder body, oriented along world Y by convention (player upright). Two collision queries needed: (1) capsule-vs-AABB intersection \u2014 closest-point-on-AABB to capsule axis, then sphere-radius distance check \u2014 used to test against room/hallway cell boxes from the GridToMesh2D output. (2) capsule sweep / move-and-slide \u2014 given a current position, a desired delta, and a static world (set of cell AABBs), return the actual reachable position with collisions resolved. Algorithm: step the delta in small substeps, at each substep check all overlapping cells, project out of penetration along the contact normal. This is the workhorse the player controller calls every frame. Broad-phase: query the dungeon TileGrid directly \u2014 capsule-bounding-AABB picks a 3x3-cell window around the current position, narrow-phase only against those non-empty cells. Lives in ixdar.procgen.dungeon.physics \u2014 separate package since it's not algorithm-of-the-procgen-pipeline. No MeshNode wrapper needed for now (the player controller in PROCGEN-11 uses it directly).",
+    "blocked-by": [
+        "PROCGEN-5"
+    ],
+    "blocks": [
+        "PROCGEN-11"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. CapsuleShape record (centerX, centerY, centerZ, halfHeight, radius). 2. CapsuleAabbTest.intersects(capsule, aabb) returns boolean. 3. CapsuleAabbTest.penetration(capsule, aabb) returns the minimum-translation vector to push capsule out of aabb (zero vector if not penetrating). 4. CapsuleMover.moveAndSlide(start, delta, grid, cellSize) returns the resolved end position, accounting for collisions with non-empty cells in the grid. 5. All algorithms are pure functions on inputs \u2014 no global state, no MeshNode dependency. 6. Package ixdar.procgen.dungeon.physics with package-info.java.",
+    "testing-plan": "1. Capsule clearly outside AABB: intersects returns false, penetration returns zero. 2. Capsule centered on AABB: intersects returns true, penetration vector is non-zero in the shortest-axis direction. 3. Capsule grazing AABB face: intersects true, penetration small along that face's normal. 4. moveAndSlide with no obstacles: end position = start + delta. 5. moveAndSlide into a wall: end position is flush against the wall, no overlap; perpendicular component of delta survives (slide). 6. Determinism: same inputs -> same output to float epsilon. 7. Performance: 1000 moveAndSlide calls per second on a 30x30 grid stays under 16ms (one frame budget).",
+    "todos": [
+        "DONE : Define CapsuleShape record",
+        "DONE : Implement capsule-vs-AABB intersection (closest-point + radius check)",
+        "DONE : Implement capsule-vs-AABB penetration (MTV)",
+        "DONE : Implement moveAndSlide with substep iteration + cell-grid broad-phase",
+        "DONE : Unit tests for each scenario in testing-plan"
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Package ixdar.procgen.dungeon.physics created with package-info.java",
+        "Vec3f immutable record (x, y, z) used as the interchange type \u2014 chose this over joml's mutable Vector3f to keep the physics functions obviously pure",
+        "CapsuleShape record (centerX, centerY, centerZ, halfHeight, radius). Y-axis-aligned vertical capsule. Validates halfHeight >= 0 and radius > 0 at construction. Includes atCenter(Vec3f) helper for the moveAndSlide loop",
+        "AabbBox record. Validates max >= min on every axis at construction",
+        "CapsuleAabbTest.intersects(c, a) and .penetration(c, a). Algorithm: closest point P on capsule's vertical segment to AABB, then closest Q on AABB to P; if dist(P,Q) < radius they overlap. Penetration = (P-Q) normalized * (radius - dist). Edge case when P is INSIDE the AABB (capsule axis passes through): pick the nearest face and push out by (faceDistance + radius)",
+        "Important obstacle convention shift from the original ticket: with PROCGEN-7's hollow-room geometry, EMPTY cells (and out-of-grid space) are obstacles, not non-empty cells. Players walk INSIDE non-empty cells (ROOM/HALLWAY/STAIR). CapsuleMover.isObstacle returns true for EMPTY in-grid cells AND any out-of-grid index \u2014 so the dungeon's outer wall is solid even if geometry abuts the grid boundary",
+        "CapsuleMover.moveAndSlide(capsuleAtStart, delta, grid, cellSize) substeps the desired motion (each piece <= radius * 0.5 to avoid tunneling), then iteratively accumulates MTVs from CapsuleAabbTest.penetration on every overlapping obstacle cell up to MAX_RESOLVE_ITERATIONS=4. Pure function \u2014 returns the new center position",
+        "Broad phase: capsule's bounding sphere defines a tight cell-index range (xLo..xHi, yLo..yHi, zLo..zHi). Narrow phase only on those obstacle cells. For a 30x5x30 grid the typical broad phase is ~8 cells per substep",
+        "Tests: CapsuleAabbTestTest (7), CapsuleMoverTest (7). 14/14 pass. Coverage: clearly outside, flush at radius, grazing, centered (axis-through-AABB special case), corner collision, deterministic, performance (1000 moveAndSlide on a 30x5x30 grid < 80ms)",
+        "Edge-of-grid sealing: confirmed by the cannotEscapeGridThroughBoundary test \u2014 capsule near grid edge cannot move past the boundary because out-of-grid cells are treated as obstacles",
+        "Full regression: 114/114 green. TeaVM BUILD SUCCESS. PROCGEN-11 (player controller) is now unblocked"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/physics/package-info.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/physics/Vec3f.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/physics/CapsuleShape.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/physics/AabbBox.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/physics/CapsuleAabbTest.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/physics/CapsuleMover.java",
+        "ixdar-app/test/unit/procgen/dungeon/physics/CapsuleAabbTestTest.java",
+        "ixdar-app/test/unit/procgen/dungeon/physics/CapsuleMoverTest.java"
+    ],
+    "priority": 3
+}

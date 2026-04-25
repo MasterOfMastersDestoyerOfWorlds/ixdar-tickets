@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-26",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MSC B4: parallel decomposer + viewer selector + Coons-error refinement",
+    "description": "PATCH-22..25 produced a working Morse-Smale pipeline. PATCH-26 lands the integration so MSC output is selectable from the live viewer (D key) and refined to handle large smooth regions like the cranium that MSC alone gives one cell.\n\nThree sub-stages:\n\nB4a. New MorseSmaleDecomposer.java with decomposeWithDiagnostics(ArrayMesh, int) \u2192 DecompositionDiagnostics. Borrows feature-edge sets and MSC result from SemanticPatchDecomposer; replaces patches via MscCellAssembly. No refinement yet.\n\nB4b. DecomposerKind enum on MeshNodeViewerScene; D key in MeshViewerKeyGuy toggles between SEMANTIC and MORSE_SMALE; cache invalidates and recomputes via active decomposer. All existing shader modes (LAMBERT/FLAT/STAGES/CREST_VS_BOUNDARY/SCALAR/MSC) work transparently with either output.\n\nB4c. Coons-error refinement: each MSC cell with p95 error > T_COONS_ERROR_FRAC \u00d7 meshExtent is BFS-subdivided using adjCrestOnly. Recursion cap 4. Recompute coonsError + patchBoundaryEdges after refinement. Cranium splits into multiple cells.\n\nFull plan: ~/.claude/plans/plan-written-targets-crest-line-swirling-garden.md.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. MorseSmaleDecomposer.decomposeWithDiagnostics returns a usable DecompositionDiagnostics.\n2. D key cycles SEMANTIC \u2194 MORSE_SMALE in the live viewer; status log reflects it.\n3. After B4c, cranium is subdivided into multiple cells in the MORSE_SMALE flat-patch render.\n4. SemanticPatchDecomposer pipeline untouched (no regression to PATCH-14..21 work).\n5. Side-by-side screenshot comparison shows MORSE_SMALE either matching or exceeding SEMANTIC anatomy alignment on the skull.",
+    "testing-plan": "1. B4a: VerifyMorseSmaleDecomposer headless runner produces ~67 patches matching PATCH-25.\n2. B4b: shut down + relaunch live viewer, drive via automation, confirm D-toggle screenshots differ in expected ways.\n3. B4c: VerifyCoonsError on MorseSmaleDecomposer; expect patch count to rise (cranium split) and Coons p95 to drop near the threshold.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

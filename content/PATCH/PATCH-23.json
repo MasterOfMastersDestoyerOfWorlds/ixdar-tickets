@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-23",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Morse-Smale parallel decomposer + live overlay (Phase B)",
+    "description": "PATCH-22 Phase A shipped a Morse-Smale diagnostic on the skull and validated the approach. PATCH-23 builds a parallel decomposer (MorseSmaleDecomposer) alongside SemanticPatchDecomposer, with a runtime selector. Both pipelines coexist; we A/B compare on the skull and other meshes.\n\nPhase B has 4 sub-stages, each visually verified:\n\nB1. Proper PL-Morse classifier (ordered 1-ring + lower-link components \u2192 correct multi-saddle handling) + filtered union-find persistence pairing + cancellation. Replaces Phase A's prominence approximation and 2-ring NMS.\n\nB2. Closed-cell assembly: walk arc graph CCW around each max \u2192 2-cells. Output looks like the kitten reference.\n\nB3. Feature-edge snapping (Dong 2005 \u00a74): banded shortest-path that pulls MSC arcs onto crest/saddle/multi-source feature edges. Combines MSC topology with our existing curated feature-edge set.\n\nB4. Coons-error refinement (handles cranium-style smooth regions) + integration as MorseSmaleDecomposer producing the same DecompositionDiagnostics record. Live viewer gets a `D` key to cycle SEMANTIC \u2194 MORSE_SMALE decomposers.\n\nLive-viewer ShaderMode.MSC mode also added (user's explicit ask) \u2014 routes through PATCH-17 depth-aware overlay infrastructure.\n\nPlan file: ~/.claude/plans/plan-written-targets-crest-line-swirling-garden.md (reused per session). Research basis: Robins-Wood-Sheppard discrete gradient, Edelsbrunner persistence, Dong 2005 spectral quadrangulation arc-snapping, Bommes 2009 MIQ for cell refinement.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. New MorseSmaleDecomposer.java produces a working PatchDecomposition compatible with all existing rendering / Coons-error / automation infrastructure.\n2. Decomposer selector (`D` key) cycles between SEMANTIC and MORSE_SMALE in the live viewer; cachedDiagnostics invalidates and rebuilds on switch.\n3. ShaderMode.MSC overlay in the live viewer renders critical points (red/blue/yellow dots) and integral arcs (black lines) with PATCH-17 depth occlusion.\n4. On skull: MSC cells visually match the kitten reference (closed quad-like cells, each with one extremum). Cranium splits into multiple cells via Coons-error refinement.\n5. Coons p95 from MorseSmaleDecomposer is comparable to or better than SemanticPatchDecomposer on the skull.\n6. SemanticPatchDecomposer pipeline is untouched (no regressions to PATCH-14..21 work).",
+    "testing-plan": "Each sub-stage is its own checkpoint:\n\nB1: rerun MSC overlay on skull, expect 100% arc-connection rate vs Phase A's 72%, fewer face-region false positives.\nB2: overlay shows closed cells; visually compare to kitten reference.\nB3: STAGES + MSC side-by-side composite shows cell boundaries snap onto feature edges.\nB4: VerifyCoonsError runner on the new decomposer; live viewer cycles between decomposers via `D`; flat-patch render compares directly.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

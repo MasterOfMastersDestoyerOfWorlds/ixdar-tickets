@@ -1,0 +1,28 @@
+{
+    "id": "CONTROLLER-2",
+    "epic": "CONTROLLER",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Configurable input bindings + mouse sensitivity + sprint key",
+    "description": "Right now everything is hardcoded \u2014 WASD/Space/F live as Keys.* lookups inside PlayerController, FlyCamMouseTrap, and DungeonKeyGuy. Mouse-look sensitivity is hardcoded at 0.1f deep inside Camera3D.mouseMove. We need a small binding/configuration layer so different scenes (and eventually the user) can map actions without editing engine internals. \\n\\nProposed structure: an InputBinding map keyed by a stable Action enum (MOVE_FORWARD, MOVE_BACK, STRAFE_LEFT, STRAFE_RIGHT, JUMP, SPRINT, TOGGLE_FLY, ...) returning a list of GLFW key codes. PlayerController, KeyGuy subclasses, and Camera3D's mouseMove sensitivity all consume from this map. Default map matches today's hardcoded behavior so nothing regresses. \\n\\nOn top of that, add: \\n- SPRINT action (Shift) doubles walk speed when held \\n- Configurable mouse-look sensitivity (currently fixed at 0.1\u00b0/pixel in Camera3D.mouseMove) \u2014 float on the input config, default unchanged \\n- Future: gamepad input via GLFW joystick API, but start with keyboard/mouse",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Action enum in ixdar.platform.input covering current actions (movement, jump, fly-toggle, sprint). 2. InputBindings record/class mapping Action -> int[] keyCodes, with a static DEFAULTS instance matching today's behavior. 3. PlayerController takes an InputBindings reference and reads pressedKeys via bindings.isPressed(action, set). 4. DungeonKeyGuy's F-toggle reads from bindings (TOGGLE_FLY action). 5. SPRINT action implemented in PlayerController \u2014 multiplies horizontal velocity by ~2 while held. 6. Mouse-look sensitivity exposed on Camera3D (replace the hardcoded 0.1f) with a setter. 7. Existing tests pass without modification using the DEFAULTS bindings.",
+    "testing-plan": "1. Unit test: PlayerController with default bindings behaves identically to current pre-config tests. 2. Unit test: PlayerController with a custom binding (e.g. swap W and S) moves opposite to default. 3. Unit test: SPRINT held doubles horizontal motion per frame. 4. Manual test: launch Ixdar Dungeon Player, hold Shift while walking \u2014 speed visibly increases. 5. Manual test: change Camera3D mouse sensitivity via setter, confirm rotation rate scales accordingly.",
+    "todos": [
+        "Define Action enum + InputBindings type in ixdar.platform.input",
+        "Refactor PlayerController to read pressedKeys via InputBindings",
+        "Refactor DungeonKeyGuy to read TOGGLE_FLY via InputBindings",
+        "Add SPRINT action wired to LEFT_SHIFT, multiplies walk speed in PlayerController",
+        "Replace Camera3D.mouseMove's hardcoded 0.1f with a configurable mouseSensitivity field + setter",
+        "Migrate existing tests to use DEFAULTS bindings; add binding-override tests",
+        "Manual sprint + sensitivity verification"
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
