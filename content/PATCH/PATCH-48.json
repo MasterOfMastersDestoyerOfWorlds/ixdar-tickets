@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-48",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "IGM iterative rounding + injectivity barrier (Bommes 2013)",
+    "description": "**Depends on PATCH-40 v2 (aligned-parametrization linear solve).** Implements the iterative-rounding loop + injectivity barrier on top of the v1 single-solve aligned parametrization.\\n\\n**Algorithm (Bommes 2013):**\\n1. Start from PATCH-40's aligned parametrization (real-valued).\\n2. Iterative rounding loop:\\n   a. Find the most-confident non-singularity corner whose floating UV is closest to integer.\\n   b. Test injectivity: would rounding cause a triangle flip? (orientation check on (u,v))\\n   c. If yes: reject, try next candidate.\\n   d. If no: pin as hard constraint, re-solve linear system.\\n   e. Repeat until all singularities sit at integer UV AND all triangles positively oriented.\\n3. Log-barrier penalty on triangle orientation flip \u2014 keeps all triangles positive-oriented through the loop.\\n\\nReference: Campen 2014 thesis Stage 3c + Bommes-Campen-Ebke-Alliez-Kobbelt 2013. Per-stage diagnostic baseline at Ixdar/ixdar-app/test/resources/qgp/baseline-hand/stage2_uv_corners.tsv (metriko's IGM output on Hand-tri-30k.obj).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Output: integer UV at all singularities, every triangle positive-oriented in (u,v). 2. Cube + subdivided sphere produce valid integer-grid maps. 3. On Hand-tri-30k.obj, output matches metriko's stage2_uv_corners.tsv at non-singularity corners within 1e-3 (modulo seam shifts).",
+    "testing-plan": "1. Cube: singularities pinned to integers, all triangles oriented. 2. Sphere: same. 3. Stress: synthetic injectivity-violating round, verify barrier rejects. 4. Hand-tri-30k.obj: match metriko UV stats (depends on PATCH-46 scaling fix).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

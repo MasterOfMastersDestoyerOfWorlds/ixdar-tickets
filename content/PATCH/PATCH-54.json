@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-54",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "qgp"
+    ],
+    "title": "Per-vertex IGM reformulation: N=2V+2Es instead of N=6F",
+    "description": "Surfaced during PATCH-53 perf investigation. The current PATCH-40v2 / PATCH-48 IGM uses a PER-CORNER variable layout (3 corners per face \u00d7 2 axes = 6F unknowns). On Hand-30k that is N=180,662; on rocker-arm-20k (the Lyon 2021 reference mesh) N=120,528. Both are well past ojAlgo's 32-bit flat-index overflow at stride 46340, forcing us onto MTJ iterative solvers.\n\nBench results on Hand-30k (one relaxed solve):\n- CG + Jacobi:  1000 iters / 1.5s \u2014 DID NOT CONVERGE\n- CG + ICC:     1000 iters / 25s  \u2014 DID NOT CONVERGE\n- CG + SSOR:    diverged (||x||=1.4e14)\n- CG + AMG:     1000 iters / 108s \u2014 DID NOT CONVERGE\n- ojAlgo SparseLu: did not complete in 20+ minutes\n\nRoot cause is NOT the preconditioner \u2014 it is the formulation. The per-corner layout introduces 6\u00d7 redundant unknowns per vertex (one per incident face corner) and equalises them only via SOFT seam-weight rows. The matrix has a near-null space whose dimension scales with mesh-vertex count, and CG plateaus there.\n\nBommes 2013 / Campen 2014 standard formulation:\n- Variables are PER VERTEX: (u_v, v_v) for each mesh vertex (2V).\n- Vertices on a seam edge are SPLIT into one chart corner per side of every seam crossing through them.\n- Per-edge integer translation (j, k) lives only on seam edges (already done in PATCH-52).\n- Cross-edge constraint becomes a row directly on the duplicated vertex pair, no soft equality between sibling corners.\n\nVariable count after rewrite:\n- Hand-30k:        ~33k unknowns\n- Rocker-arm-20k:  ~23k unknowns\n\nBoth fit ojAlgo SparseStore (under 46k) \u2192 direct sparse LU/Cholesky in pure Java. Expected solve: <1 s per resolve.\n\nReference mesh: rocker-arm.obj (Lyon 2021 paper), copied to ixdar-app/test/resources/qgp/rocker-arm/. 20,088 faces / 10,044 vertices.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "IgmHessian rewritten with chart-vertex variable layout. AlignedParameterization, SeamlessParameterization, IterativeRounding, LogBarrier updated. All 53 existing qgp tests still green. Rocker-arm-20k bootstrap solve under 5 s wall clock for relaxed solve, under 30 s for full iterative-rounding pipeline.",
+    "testing-plan": "1. New unit test BenchmarkIgmSolveTest runs one relaxed solve on rocker-arm-20k, asserts time < 5s and residual < 1e-4. 2. MetrikoBootstrapTest re-enables injectivity check on Hand-30k. 3. AlignedParameterizationTest, SeamlessParameterizationTest, IgmHessianSeamTest still pass on cube/icosphere baselines. 4. Visual: render rocker-arm UV chart via VerifyIgm CLI; expect connected sheets with seam cuts visible, no flipped triangles.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

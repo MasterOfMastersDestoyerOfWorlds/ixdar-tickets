@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-89",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon \u00a74.4 feature lines + boundary alignment in motorcycle graph",
+    "description": "Lyon \u00a74.4: feature edges (sharp creases) and boundary edges should be represented as arcs in the layout. Implementation: trace motorcycles ALONG feature/boundary curves at \u03b1=0 (no deviation allowed). These traces become layout arcs by construction.\\n\\nWithout this, our rocker-arm output doesn't follow the bolt-hole rims cleanly \u2014 the bolt holes are mesh boundaries that should be layout arcs but currently aren't traced as such.\\n\\nImplementation:\\n1. Detect feature edges via dihedral angle threshold + boundary edges (already done in SemanticPatchDecomposer).\\n2. In MotorcycleGraph.trace, BEFORE singularity-launched motorcycles, launch boundary-following motorcycles along each boundary loop and feature curve.\\n3. Use \u03b1=0 for these, ensuring they don't deviate.\\n4. Other motorcycles treat them as walls (Eppstein behavior \u2014 they always stop at boundary traces).\\n\\nMatters for: meshes with bolt holes, sharp creases, open boundaries (rocker-arm, brackets, mechanical parts).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Rocker-arm: bolt-hole rims are explicitly layout arcs (visible in the overlay as patch boundaries hugging the holes). Hand-30k mesh has no boundaries so no behavior change there.",
+    "testing-plan": "Toy: cube with one face removed (so 4 boundary edges) \u2192 boundary loop emerges as 4 connected layout arcs. Rocker-arm: visually inspect overlay around bolt holes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

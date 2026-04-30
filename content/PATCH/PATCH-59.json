@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-59",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Metriko stage regression harness: per-stage diff against TSV ground truth",
+    "description": "Pipeline currently feature-complete (PATCH-50/54/41/42/43/58) but only validated on toy meshes. End-to-end Hand-30k produces 0 motorcycle traces / 0 patches / 0 quads because of upstream IGM convergence limits \u2014 we can't tell which downstream stages are right.\n\nWe have metriko's intermediate outputs as TSV fixtures (PATCH-51 carryover). Use them as input AND ground truth for stage-by-stage validation:\n\n- stage2_uv_corners.tsv  \u2192 per-corner UVs (input to motorcycle / QEx)\n- stage3_tedges.tsv      \u2192 T-mesh arcs (ground truth for our motorcycle output)\n- stage3_tedge_R.tsv     \u2192 per-arc rotation indices  \n- stage4_tedge_X.tsv     \u2192 integer arc-length vector (ground truth for our quantization)\n- hand-quad.obj          \u2192 metriko's final quad mesh (ground truth for our QEx)\n\nStages to validate:\n1. Motorcycle + T-mesh: load stage2 UVs, run our MotorcycleGraph.trace + TMesh.build, compare arc count + topology to stage3.\n2. Quantization: load stage3 T-mesh + parametric lengths, run our Quantization.solve, compare arc-length vector to stage4.\n3. QEx: load stage2 UVs, run our QuadMeshExtractor.extract, compare quad/vertex counts to hand-quad.obj.\n\nPer-stage diff isolates exactly where our impl diverges from the reference. Output: pass/fail per stage + numeric diff metrics. Future regression suite.\n\nThis is the foundational unblocker for PATCH-44 (Lyon enhancements), PATCH-56 (scene viz), PATCH-57 (DSL emit) \u2014 all of which assume our motorcycle/quantization/QEx are correct on real input.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "PrecomputedFieldImporter extended with loadStage2Param, loadStage3TMesh, loadStage4Quantization. New MetrikoStageRegressionTest class with at least 3 tests (motorcycle, quantization, QEx). Each test prints a numeric diff against the metriko ground truth and asserts a tolerance. CLI VerifyMetrikoStageDiff prints the same diff metrics for manual inspection.",
+    "testing-plan": "1. Stage 2 \u2192 motorcycle: assert |our_arc_count - metriko_arc_count| < 10% of metriko_arc_count. 2. Stage 3 \u2192 quantization: assert per-arc q vector matches metriko's stage4 vector exactly (same ILP problem should produce same optimum). 3. Stage 2 \u2192 QEx: assert |our_quad_count - metriko_quad_count| < 5% of metriko_quad_count. Tolerances loosen if needed once we see the actual diffs.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

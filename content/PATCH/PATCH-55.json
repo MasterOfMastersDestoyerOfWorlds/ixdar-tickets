@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-55",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "qgp"
+    ],
+    "title": "BZK12 cross-field scales O(C * direct-solve) - bottleneck at 20k+ faces",
+    "description": "Surfaced during PATCH-54 rocker-arm-20k IGM benchmark. The IGM solve itself is now <1s on Hand-30k (per-vertex + MTJ CG/ICC). But the BenchmarkRockerArmIgm CLI hung on the cross-field stage \u2014 never reached IGM. Diagnosis: PATCH-50's MiGreedyRounding (BZK12 round-and-resolve) does C iterative rounding steps, each with a full ojAlgo SparseLu factorisation. C scales with mesh size (chord count), and at rocker-arm-20k that's ~5000 chord pins \u00d7 O(N^1.5) LU per pin.\n\nHand-30k baseline does NOT hit this because we load metriko's stage1_extrinsic_field.tsv directly \u2014 cross-field is precomputed.\n\nFixes ranked by effort:\n1. Reuse the LU factor across pins. ojAlgo SparseLu doesn't expose pattern-preserving refactor, but we can keep the symbolic factorisation and only redo the numeric phase by adding the pin penalty as a low-rank update. Sherman-Morrison or Woodbury, since each pin is a single diagonal modification.\n2. Switch MiGreedyRounding's per-pin re-solve from ojAlgo SparseLu to MTJ CG/ICC \u2014 same trick that fixed PATCH-54. The cross-field LSQ is SPD (Tikhonov-regularised), CG should converge fast.\n3. Batch round-and-resolve: pin K chords at once, re-solve once, accept whichever K maintain orientation. Drops the C re-solve count to C/K.\n\nReference: PATCH-50 ticket history (BZK12 algorithm + chord enumeration).\n\nVerification target: BenchmarkRockerArmIgm.java end-to-end completes in <30s on 20,088 faces, dominated by IGM (not cross-field).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "BenchmarkRockerArmIgm CLI completes in <30s on rocker-arm-20k. Cross-field stage prints <10s. All FaceRosyFieldTest + SingularityFinderTest tests still green. Singularity count on rocker-arm matches metriko's reference (use stage1_singular.txt analog if obtainable).",
+    "testing-plan": "1. Add unit test that runs cross-field on a 5k-face mesh and asserts wall-clock under 5s. 2. Re-run BenchmarkRockerArmIgm and confirm cross-field stage time is logged separately. 3. Verify FaceRosyFieldTest's subdivided-sphere convergence still produces 12 singularities.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

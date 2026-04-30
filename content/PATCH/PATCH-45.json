@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-45",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Boundary support for QGP pipeline (skull has openings)",
+    "description": "**Can run in parallel with PATCH-39 through PATCH-44.** metriko's README says 'Meshes with boundaries are currently not supported (planned).' Skull.obj has 5+ openings (foramen magnum, eye sockets, nasal cavity, mandible, ear canals). Hand.obj also has the wrist boundary. Both are blocked unless we handle boundaries.\\n\\n**Two approaches** \u2014 start with (a), fall back to (b) only if (a) compromises quality:\\n\\n**(a) Cap-and-recut pre-pass.** Before sending to QGP: detect boundary loops, fill with a fan triangulation centered at each loop's centroid (capping the holes). Run the closed-mesh QGP pipeline. After QEx: identify which output faces sit on the cap; remove them, restoring the original boundary.\\n\\n*Pros:* simple. metriko works on closed manifolds today; we don't have to extend it.\\n*Cons:* the parametrization near the cap will be biased by the artificial cap geometry. Quad cells near the boundary may be sub-optimal.\\n\\n**(b) Free-boundary quantization (Lyon 2019).** Implements Lyon-Campen-Bommes-Kobbelt 2019 'Parametrization quantization with free boundaries for trimmed quad meshing'. Adds boundary-aware constraints to the IGM and quantization stages. Substantial extra work \u2014 full paper, ~500-800 LOC Java.\\n\\nFor v1 we recommend (a). Re-evaluate once PATCH-43 produces output and we can see boundary-cell quality.\\n\\nReferences:\\n- Lyon-Campen-Bommes-Kobbelt 2019. Parametrization quantization with free boundaries for trimmed quad meshing. ACM ToG 38(4). DOI: 10.1145/3306346.3323019\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md (Stage 2 boundary section, Stage 3 boundary cycles)",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. BoundaryCapper detects all boundary loops on a mesh and emits a cap mesh per loop. 2. BoundaryUncapper inverts the operation post-extraction, restoring the boundary. 3. Skull.obj capped + decomposed + uncapped produces a quad mesh whose boundary follows the original skull holes. 4. Hand.obj wrist opening preserved post-pipeline.",
+    "testing-plan": "1. Synthetic disk (1 boundary loop): cap \u2192 triangulate \u2192 uncap; expect original mesh restored. 2. Skull.obj: count boundary loops before, after capping (=0), after uncapping (=original count). 3. Hand.obj: visual inspection of wrist boundary in final quad mesh.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

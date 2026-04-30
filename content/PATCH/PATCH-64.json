@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-64",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 split-arc mesh extractor (replaces QEx as actual final-output path)",
+    "description": "Critical finding from PATCH-62 investigation. metriko's reference hand-quad.obj is NOT produced by their QEx (qex/) \u2014 it's produced by their visualizer/tmesh/ split-arc extractor. QEx is shipped as an alternative but unused for final output. This is THE Lyon 2021 approach: take quantized T-mesh, split each T-edge into q_i sub-arcs, assemble quads from those splits.\n\nSource files in metriko (~784 LOC):\n- gen_qgp_vert.h    (79 LOC) \u2014 split T-edge vertices\n- gen_qgp_edge.h    (143 LOC) \u2014 split arcs\n- gen_qgp_table.h   (69 LOC) \u2014 per-Tquad split table\n- gen_qgp_mesh.h    (91 LOC) \u2014 mesh assembly\n- visualize_qgp_vert.h, visualize_qgp_edge.h, visualize_qgp_mesh.h, visualize_tedge.h \u2014 orchestrators\n\nInputs: T-mesh + quantization vector X + per-corner UVs + matching.\nOutput: quad mesh (V_quad, F_quad).\n\nThis is the algorithm that closes the loop on Lyon 2021 reproducibility. PATCH-43/58/61/62 (QEx) is a parallel/lateral approach worth keeping but not on the critical path.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "New package quadlayout/lyon2021/ implements the split-arc mesh extractor. MetrikoStageRegressionTest gains a stage 2+3+4 -> mesh extractor test that compares quad count vs hand-quad.obj's 2339. Existing 78 quadlayout tests still pass.",
+    "testing-plan": "1. Port gen_qgp_vert/edge/table/mesh.h to Java. 2. Run on metriko's stage2/3/4 inputs, compare quad count + topology to hand-quad.obj. 3. Match within 5% on Hand-30k.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-51",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Metriko-stage1 bootstrap adapter for QGP downstream validation",
+    "description": "**Parallel sanity check for PATCH-50's full BZK12 greedy.** While PATCH-50 fixes the cross-field, this adapter feeds metriko's known-good stage1 output (cross field + matching + seam) AS IF it were PATCH-39's output, allowing PATCH-40/41/42/43 to be validated independently of PATCH-39's correctness. Even after PATCH-50 lands this adapter is useful for regression tests against the metriko reference.\\n\\nMetriko per-stage diagnostic baseline at Ixdar/ixdar-app/test/resources/qgp/baseline-hand/:\\n- stage1_extrinsic_field.tsv \u2014 per-face direction-field 3D vectors\\n- stage1_matching.txt \u2014 per-edge index 0..3\\n- stage1_seam.txt \u2014 seam edges (one per line)\\n- stage1_singular.txt \u2014 singularity vertex IDs + indices\\n- Hand-tri-30k.obj \u2014 input mesh\\n\\nThe adapter:\\n1. Loads  and the four diagnostic files.\\n2. Constructs FaceRosyField (a synthetic implementation that returns metriko-loaded \u03b8 via CombedField API) + CombedField (matching + seam from metriko).\\n3. Returns a FaceRosyField + CombedField + List<Singularity> tuple usable by PATCH-40 (SeamlessParameterization) and PATCH-41 (MotorcycleGraph).\\n\\nWhen PATCH-50 lands, both bootstrap and PATCH-50's output should produce equivalent downstream T-meshes \u2014 that's the regression check.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. MetrikoBootstrap class loads stage1 files. 2. VerifyMetrikoBootstrap CLI runs end-to-end Hand-tri-30k.obj from bootstrap \u2192 IGM \u2192 motorcycle \u2192 T-mesh. 3. PATCH-41 motorcycle graph produces > 0 valid 4-cycle patches on the bootstrapped Hand input (validates downstream is correct given good upstream). 4. Singularity count from bootstrap matches stage1_singular.txt line count.",
+    "testing-plan": "1. Unit test: load stage1 files, verify counts match. 2. Integration test: bootstrap \u2192 SeamlessParameterization \u2192 MotorcycleGraph; expect injectivity score > current cube baseline. 3. Once PATCH-50 ships: cross-check PATCH-50 vs bootstrap singularity counts on Hand (should agree within tolerance per thesis fidelity).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

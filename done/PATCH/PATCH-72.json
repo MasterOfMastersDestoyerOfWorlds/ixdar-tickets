@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-72",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 \u00a75.2 strip-based variable reduction",
+    "description": "Lyon 2021 \u00a75.2: Reduce ILP variable count from per-arc to per-strip. A 'strip' = consecutive patches bounded by two traces; arcs along the strip share one variable (consistency Eq.(2) is trivially satisfied within a strip). Section 5.2 bounds total vars by (3/2)\u00b7n_traces \u2014 paper's ROCKERARM has #Arcs=2742 but #Vars=192, vs our current per-arc formulation that would hand all 2742 to ojAlgo. Without this, IntegerSolver hangs on any real mesh (>~200 arcs). Implementation: build strip equivalence classes from the T-mesh via union-find on opposite-arc pairs in 4-cycle patches, emit one ILP var per class, rewrite consistency constraints (trivial within-class, only cross-class for T-junctions), validity Eq.(3) and layout Eq.(4) constraints rewritten to use class IDs.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "On Hand-30k T-mesh #vars drops from 332 to roughly equal-or-less than (3/2)\u00b7n_traces; full Quantization.solve completes in <2s; existing 77/77 quadlayout unit tests still pass.",
+    "testing-plan": "Add ReducedVarsTest fixture: input a synthetic 4x4 T-mesh patch grid, verify strip count + variable count = (3/2)*n_traces. Hand-30k regression: assert ILP completes in finite time. Use -Dixdar.lyon.measureILPVars to print var count to stdout.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

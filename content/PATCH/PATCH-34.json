@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-34",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Density-invariant decomposition: same skull at different resolutions should produce comparable cells",
+    "description": "Currently MSC smoothing iterations are hardcoded mesh-hops (MSC_SCALAR_SMOOTH_ITERS, MSC_GAUSS_SMOOTH_ITERS in MorseSmaleDecomposer.java). On a 25k-vert mesh each iter covers a big world-space radius; on a 500k-vert mesh the same iter count covers ~1/sqrt(20) of that radius. Same skull at different subdivision levels produces totally different decompositions \u2014 voyage_skull_ref.obj (25k) gave 97 cells at 35/25, Skull.obj (497k) gave 704 cells at 50/30. Algorithm should be density-invariant: same shape \u2192 comparable cells regardless of tessellation.\\n\\nUser nuance: world-space radius isn't necessarily the right global metric either \u2014 high-error patches should get more local detail, low-error patches stay coarse. So the global pass should be density-invariant (same broad cells everywhere) and PATCH-27 refinement layers density on top per-cell where Coons error demands it. The two ideas compose; this ticket addresses the first half.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "MorseSmaleDecomposer produces comparable decompositions when fed the same skull at different mesh resolutions. Concretely: run on voyage_skull_ref.obj (25k) and Skull.obj (497k), project labels via nearest-vertex, report face-label agreement. Pass criterion: cell count delta < 50%, face-label agreement > 60% after projection. Smoothing must be expressed in something topological (mean edge length, target world-space radius, or surface-area-normalized iterations) \u2014 exact mechanism TBD by experiment but the constant 'iter count in mesh hops' has to go.",
+    "testing-plan": "1) Add CompareDensities CLI that loads both meshes, decomposes each, projects voyage_skull_ref labels onto Skull's vertices via KDTree, and prints (a) cell-count delta, (b) face-label agreement %, (c) per-region (eye socket, mandible, etc) cell-count comparison using existing vertex groups. 2) Tune the new smoothing parameter to maximise agreement. 3) Confirm Coons p95 stays bounded on both meshes after the change.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-58",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "QEx Phase B/C: cross-triangle iso-line tracing + EDGE/VERT port wedges",
+    "description": "Follow-up to PATCH-43 Phase A. The Phase A QEx implementation handles quads that fall strictly inside one triangle of the input mesh. Real meshes have integer (u,v) at vertices and on mesh edges, and quad cells routinely span multiple triangles via shared edges. This ticket promotes the three Phase-A stubs to the full algorithm.\n\nThree coupled pieces:\n\n**1. EDGE-source port wedges (Phase B).** When an integer (u,v) lies on a mesh edge, it borders two faces with potentially different UV frames (separated by the matching r in {0,1,2,3}). Generate exactly 4 ports across both faces such that 2 point into each wedge. Mirrors metriko/qex/gen_q_port.h:generate_eqvert_qport.\n\n**2. VERT-source port wedges (Phase B).** Walk the vertex one-ring; for each incident face determine which of the 4 cardinal directions points INTO that face's parametric wedge. Regular vertex emits 4 ports total; cone singularities emit more or fewer. Mirrors generate_vqvert_qport.\n\n**3. Cross-triangle iso-line tracing (Phase C).** When a port's iso-line exits its source face without finding a same-face mate, hop to the neighbour face via the half-edge's matching rotation R and translation T (heR, heT in metriko, computed once via compute_trs_matrix). Update the running (uv, dir) at each crossing and continue until the iso-line lands on the target integer point or terminates.\n\nAPI change: QuadMeshExtractor.extract() must take a CombedField (or matching+seam arrays directly) so the rotation per half-edge is available.\n\nReference: /tmp/metriko/include/metriko/core/qex/ ~430 LOC of the C++ that does pieces 1-3 (gen_q_port.h, gen_q_edge.h, common.h:compute_trs_matrix).\n\nVerification target: end-to-end test on a 2-triangle mesh (square split diagonally) with corners at integer UVs producing exactly 1 quad face spanning both triangles.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "QuadMeshExtractor produces correct output on a multi-triangle mesh whose quad cells span mesh edges. Specifically: (a) two-triangle square with corners at integer UVs produces 1 quad face. (b) cube test mesh with synthetic injective UV map produces a closed quad mesh. Existing 5 PATCH-43 Phase A tests still pass; Phase A FACE-only path still works on single-triangle inputs.",
+    "testing-plan": "1. New unit test: 2-triangle square mesh, corners at integer UVs, expect exactly 1 quad. 2. New unit test: 4-triangle cross mesh with shared center vertex, expect quads spanning both diagonals. 3. (deferred to follow-up) Real cube/sphere mesh with cross-field-derived UVs. 4. Integration: PrecomputedFieldImporter test pipeline reaches QEx and produces non-zero quads on metriko's stage2 UVs (currently produces 0 because Phase A can't span triangles).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

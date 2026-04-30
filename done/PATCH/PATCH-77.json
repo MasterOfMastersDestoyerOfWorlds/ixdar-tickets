@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-77",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 \u00a76 \u00b61 iterative T-junction extension (full)",
+    "description": "PATCH-73 v1 only handled the no-T-junction fast path: T-mesh patches with single-arc sides map directly to conforming layout patches. On Hand-30k that covers 24/39 patches; the remaining 15 have multi-arc sides (T-junctions) and are skipped. This ticket implements the full \u00a76 \u00b61 iterative procedure: while any patch has a multi-arc side, pick a T-junction T at parametric position d on side s of patch P, walk across P to side (s+2)%4 at mirrored distance d, then either (a) connect T to the existing node at that position if q matches, splitting P into two sub-patches, or (b) split the opposing arc to introduce such a node. Loop until every patch has 4 single-arc sides. Verification: on Hand-30k, all 15 skipped patches must resolve and r.skippedPatchIds() must be empty after the iteration.\n\nNote added 2026-04-29: this ticket is BLOCKED on a data-model decision. Layout arcs that traverse the patch interior (created by T-junction extension) are NOT T-mesh arcs \u2014 they're new objects. Current QuadLayoutPatch.arcsBySide stores T-mesh arc IDs only. Resolve by either (a) introducing a separate LayoutArc class with both T-mesh-arc-derived and T-junction-extension-derived variants, or (b) extending the TMesh in-place with new TArcs/TNodes for each extension. Recommend (a) \u2014 keeps TMesh immutable. Once settled, algorithm: walk T-junction across patch, find/match opposite node, split patch in two. Arc-splitting case (where match falls mid-arc) deferred to PATCH-79.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Extend QuadLayoutExtractor with a private resolveTJunctions(TMesh, q) loop. Run on Hand-30k: 39/39 conforming patches, 0 skipped. New T-junction-extension test on a 1-T-junction synthetic patch must split it into 2 conforming layout patches.",
+    "testing-plan": "Toy: 1 T-junction patch with q=[1,1,2,2,2] \u2192 2 conforming layout patches. Hand-30k: assert skippedPatchIds().isEmpty(). Print #P + tJunctionsResolved diagnostic.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

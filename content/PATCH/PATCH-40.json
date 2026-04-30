@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-40",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Integer-Grid Maps with iterative rounding (Bommes 2013)",
+    "description": "**Depends on PATCH-38, PATCH-39.** Stage 2 of the QGP pipeline: produce a seamless surface parametrization aligned to the cross field, with integer (u,v) at singularities. Implements Bommes-Campen-Ebke-Alliez-Kobbelt 2013 'Integer-Grid Maps for Reliable Quad Meshing'.\\n\\n**Algorithm:**\\n1. Initial seamless parametrization via Campen 2014 Eq. 6.1 (the aligned-parametrization solve from Stage 3, but used here as initialization): single linear solve, real-valued (j,k) translations across edges.\\n2. Iterative rounding loop:\\n   a. Solve linear system with current rounded constraints.\\n   b. Round the most-confident floating UV at a singularity to its nearest integer.\\n   c. Add that as a hard constraint.\\n   d. Re-solve. Repeat until all singularities pinned.\\n3. Injectivity barrier: log-barrier penalty on triangle orientation flip \u2014 keep all triangles positive-oriented under the parametrization.\\n\\n**Output:** per-corner (u,v) coordinates per face, integer transitions at seams.\\n\\nReferences:\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md (Stage 3c section)\\n- metriko reference: /tmp/metriko/include/metriko/core/igm/ (~860 LOC C++)\\n- Bommes-Campen-Ebke-Alliez-Kobbelt 2013. Integer-Grid Maps for Reliable Quad Meshing. SIGGRAPH 2013.\\n- Campen 2014 thesis Eq. 6.1, 6.2 for the aligned parametrization formulation.\n\n**Scope reduction (2026-04-27):** First implementation attempt timed out without committing code. Splitting into two:\\n\\n- PATCH-40 v2 (this ticket): only the **aligned-parametrization linear solve** from Campen 2014 Eq. 6.1, 6.2 \u2014 single sparse linear solve, real-valued (j,k) translations, NO iterative rounding, NO injectivity barrier. Output: per-corner (u,v) on a cross-field-aligned mesh. Test target: cube + a single subdivided cube; exercise on Hand-tri-30k.obj as a stretch goal.\\n- PATCH-48 (new follow-up): iterative rounding + injectivity barrier on top of v2's output. Implements the actual Bommes 2013 IGM convergence loop.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. SeamlessParameterization class produces (u,v) per corner with valid integer transitions across seam edges. 2. All triangles have positive orientation in (u,v) space (no flips). 3. Singularities sit at integer (u,v) coordinates. 4. Hand.obj matches metriko's IGM output within 1e-3 in UV norm at non-singularity vertices.",
+    "testing-plan": "1. Cube + sphere: synthetic cases with closed-form expected UVs. 2. Hand.obj: compare UV histogram (modulo integer shifts at seams) to metriko baseline. 3. Inject a known singularity, confirm it lands on integer UV after rounding. 4. Run injectivity barrier on a stress-test mesh; confirm no triangle flips even at high anisotropy.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

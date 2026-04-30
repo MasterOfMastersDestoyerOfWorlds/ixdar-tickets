@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-69",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Quantization solver perf: 332-arc ILP hangs on Hand-30k",
+    "description": "Surfaced during PATCH-67 testing. Our PATCH-42 ILP (ojAlgo branch-and-bound + Gomory cuts) was tested on toy meshes (\u22645 arcs / <100ms). At 332 arcs (Hand-30k T-mesh after PATCH-60+68), the solve appears to hang \u2014 mvn output stayed empty for 30+ minutes. PATCH-67's end-to-end test currently bypasses with synthetic X[i]=1, getting 39 quads (= 1 quad per Tpatch since X=1 means no subdivision).\\n\\nMetriko uses a greedy basis-loop heuristic (gen_quantization_basisloop.h ~150 LOC) instead of pure ILP. Their algorithm: compute basis-loop generators of the consistency-constraint kernel, then iteratively shift X by best-scoring generator vector. Faster + scales much better than ILP.\\n\\nOptions:\\n1. Profile our ILP. Add iteration cap, partial-solution acceptance, or warm start.\\n2. Port metriko's basis-loop heuristic.\\n3. Use a hybrid: warm-start ILP with greedy basis-loop solution.\\n\\nWith proper X values (avg \u22483-5 per arc on Hand-30k), each patch subdivides into ~10-25 sub-quads, getting us closer to metriko's 2339 reference.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Quantization.solve completes in <30s on Hand-30k T-mesh (332 arcs, ~80 4-cycle constraints). PATCH-67 regression with real quantization produces > 500 quads.",
+    "testing-plan": "1. Profile current Quantization on T-meshes of size 10/50/100/200/300 to characterize scaling. 2. If ILP doesn't scale, port metriko's basis-loop generator + greedy iterative algorithm. 3. End-to-end run on Hand-30k stage1+2 \u2192 quad count comparison vs metriko's 2339.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

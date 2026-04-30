@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-87",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon \u00a74.3 Eq.(4) layout constraints (separatrix-deviation guarantee)",
+    "description": "Lyon \u00a74.3: For every pair of intersecting traces t_i and t_j forming a triangle with angles larger than \u03b1 (i.e. |\u03b1_ij| > \u03b1), enforce the additional separation of offending singularities in orthogonal direction:\\n\\n    \u03a3 q_a \u2265 1   for arcs a in S_ji,   when |\u03b1_ij| > \u03b1 (Eq. 4)\\n\\nThis is THE quality-control mechanism. Without it, the layout has no guaranteed angular bound. Our layout currently reports dmean/dmax that don't match the paper because we don't enforce Eq.(4); the layout's separatrices can deviate arbitrarily.\\n\\nImplementation: in MotorcycleGraph, track which intersection nodes have |\u03b1_ij| > \u03b1 (we already compute \u03b1_ij for the stopping rule). For each such node n_ij, in Quantization.solve, add an Eq.(4) constraint: sum of q over arcs in S_ji \u2265 1.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Rocker-arm at \u03b1=15\u00b0: dmean and dmax actually match the paper (3.7\u00b0, 14.7\u00b0 within \u00b12\u00b0). Layout visually shows clean \u2264\u03b1 separatrix angles. Hand-30k similar.",
+    "testing-plan": "Toy 4-singularity fixture with one bad-angle pair \u2192 assert Eq.(4) constraint forces a 1-arc separation. Rocker-arm: assert dmax \u2264 \u03b1 + 2\u00b0.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

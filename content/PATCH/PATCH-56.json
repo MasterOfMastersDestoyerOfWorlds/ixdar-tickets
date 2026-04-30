@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-56",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Render quad-layout patches in MeshNodeViewerScene with per-patch colors",
+    "description": "Surfaced during PATCH-42 housekeeping audit. The PATCH-37 quad-layout pipeline (cross-field -> seamless parametrization -> motorcycle graph -> T-mesh -> quantization) produces TPatch objects that the live MeshNodeViewerScene cannot currently render. This ticket wires the existing pipeline output into the existing renderer.\n\nPieces in place:\n- MeshNodeViewerScene already renders procedural meshes\n- PatchRenderer already supports per-face label -> color (used by the older MSC pipeline)\n- TMesh.patches() returns 4-cycle TPatch objects with arc/corner ids\n- Quantization.solve() returns integer arc lengths per patch\n\nPieces missing:\n- QuadLayoutDecomposeNode: a MeshNode that wraps cross-field + IGM + tmesh + quantization and exposes per-face patch labels as a ScalarField\n- Wiring from MeshNodeViewerScene to invoke that node and feed its output to PatchRenderer\n- A test mesh that produces non-zero patches (cube produces 0 because every vertex is a singularity; Hand-30k currently produces 0 because IGM convergence isn't strong enough yet -- will need a torus or moderate-curvature mesh)\n\nBlocker: T-mesh patch enumeration on real meshes. Currently only 4-cycles with no T-junctions are recognised. PATCH-44 (Lyon 2021 enhancements) will help with the proper arc-graph walk that produces meaningful patches at scale.\n\nOut of scope:\n- T-junction handling in patch enumeration (that's a separate ticket on TMesh.build)\n- Coons-cage DSL emission (separate ticket)\n- Upstream IGM convergence work",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "On a moderate-curvature test mesh (sphere with non-trivial cross field, or torus) MeshNodeViewerScene displays the surface with each TPatch coloured by a unique RGB drawn from the existing golden-ratio-hue palette. Refresh time under 5s on a 1k-face mesh. Per-patch corners drawn as visible markers.",
+    "testing-plan": "1. Add a MeshNodeViewerSceneTest that loads a torus-2k mesh, runs the QuadLayoutDecomposeNode, and asserts patch_count > 0. 2. Visual: capture screenshot via ixdar-automation-cli, confirm distinct colours per patch. 3. Click on a patch -> overlay shows arc ids + quantization.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

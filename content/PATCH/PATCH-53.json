@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-53",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Sparse-matrix infrastructure: replace ojAlgo SparseStore with 64-bit-aware storage",
+    "description": "Infrastructure fix surfaced by PATCH-51 hitting overflow. ojAlgo SparseStore internally encodes 2D matrix indices as a single long flat index (idx = row * stride + col), then nonzeros() iterator casts back to int row and int col. For stride > sqrt(Integer.MAX_VALUE) approx 46340, this produces NEGATIVE row/col on the iterator output regardless of the actual #nonzeros.\\n\\nThis blocks all sparse stages of QGP at any non-trivial mesh size. PATCH-50 saw it on Hand cross field; PATCH-51 confirmed it on IGM at N=269,640.\\n\\nThree options:\\n  1. Custom Java CSR (rowPtr, colIdx, values) with own factor+solve. Pure Java. ~600-1000 LOC.\\n  2. MTJ CompRowMatrix + iterative solver (BiCGstab for general, CG for SPD from normal equations). MTJ is already a Maven dep. ~150-300 LOC. Add Jacobi or ILU(0) preconditioning if convergence is slow.\\n  3. JNI to SuiteSparse (CHOLMOD+UMFPACK). Native dep, blocks TeaVM. Fastest. ~500 LOC + build setup.\\n\\nRecommendation: (2). MTJ already in deps; iterative tolerates the larger Bommes 2013 systems; IGM normal-equation matrices are SPD by construction.\\n\\nImplementation: replace SparseMatrix internal storage from SparseStore to CompRowMatrix, OR add SparseMatrixMtj parallel class for QGP use. Wire MTJ CG/BiCGstab into new IterativeSolver alongside SparseLu/SparseQDLDL.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Hand-30k IGM solve completes without overflow. 2. Convergence within 1000 iterations + tolerance residual < 1e-6. 3. Existing PATCH-38 unit tests still pass. 4. VerifyMetrikoBootstrap completes on Hand-30k end-to-end and reports T-mesh patches > 0.",
+    "testing-plan": "1. Existing SparseMatrix tests pass via new path. 2. Synthetic 50k x 50k SPD system: solve in under 30s. 3. VerifyMetrikoBootstrap end-to-end on Hand-30k: report patch count, runtime per stage.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

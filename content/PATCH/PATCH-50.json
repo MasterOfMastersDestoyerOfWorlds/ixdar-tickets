@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-50",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Full BZK12 greedy round-and-resolve in cross-field MI (replace PATCH-39 simplified solver)",
+    "description": "**Replaces PATCH-39's simplified 3-stage solver** which produces too many spurious singularities (5788 on a 24k-face Procedural.obj; 27 on a subdivided cube vs expected 6-8). Every downstream stage (PATCH-40 IGM, PATCH-41 motorcycle T-mesh) compensates for the spurious singularities and can't recover; cube produces 0 patches end-to-end.\\n\\nPATCH-39 simplified pipeline:\\n  1. Solve theta-only LSQ with m=0\\n  2. Round per-edge residuals to integer m_e\\n  3. Refine theta with m fixed\\n\\nFull BZK12 greedy (Bommes-Zimmer-Kobbelt 2012, Practical Mixed-Integer Optimization):\\n  1. Relax all m_ij to real \u2192 solve LSQ over (theta, m) reals.\\n  2. Find the m_ij whose relaxed value is closest to an integer (most-confident).\\n  3. Hard-pin it to the nearest integer; add as constraint.\\n  4. Re-solve. Repeat until all cycle-basis m_ij are integers.\\n\\nSame iterative-rounding pattern that PATCH-48 implements for the IGM stage; the difference is the variable space (cycle-basis integer rotations vs. corner UV).\\n\\nThe pipeline-pattern is identical so this can largely reuse PATCH-48's IterativeRounding.java structure adapted for the cross-field formulation.\\n\\nAlso fix the m_ij encoding: angle-based MI (Campen Eq. 4.6) needs ONE integer per spanning-tree edge of the FACE-CYCLE basis (not per interior edge). PATCH-39 currently rounds per interior edge which over-constrains the system and produces spurious singularities by per-edge rounding error accumulation.\\n\\nSee Campen 2014 thesis Sec 4.2 + Bommes 2009 + Bommes 2012 for the cycle-basis formulation.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Cube: \u2264 8 singularities (instead of 6-27); ideally 8 (Poincar\u00e9-Hopf minimum on a topological sphere). 2. Subdivided cube (n=4): same range, NOT 27. 3. Sphere icosphere: 8 singularities of index +1/4 (sum = 4\u03c7 = 8). 4. Procedural.obj: \u2264 200 singularities, sum still respects Poincar\u00e9-Hopf. 5. PATCH-41 motorcycle graph produces \u2265 1 valid 4-cycle patch on the cube. 6. All existing unit.qgp.vectorfield.* tests still pass.",
+    "testing-plan": "1. Existing FaceRosyFieldTest + SingularityFinderTest must keep passing (cube/sphere/torus/flat-plane Poincar\u00e9-Hopf checks). 2. Add singular-count tightening: cube \u2264 8, subdivided cube \u2264 12 (allowing some over-detection but not 27). 3. VerifyMotorcycleGraph on cube reports \u2265 1 patch. 4. Document algorithmic flow in FaceRosyField class JavaDoc with reference to BZK12 Sec 3.\\n\\nReferences:\\n- Bommes-Zimmer-Kobbelt 2009. Mixed-integer Quadrangulation. SIGGRAPH 2009.\\n- Bommes-Zimmer-Kobbelt 2012. Practical Mixed-Integer Optimization for Geometry Processing. Curves and Surfaces 2012.\\n- Campen 2014 thesis Sec 4.2.\\n- Reference implementation: see PATCH-48's IterativeRounding.java for the pattern (different variable space).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

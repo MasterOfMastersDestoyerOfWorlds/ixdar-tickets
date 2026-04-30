@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-39",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Cross field via angle-based MI formulation (Campen Ch. 4)",
+    "description": "**Depends on PATCH-38.** Stage 1 of the QGP pipeline: produce a smooth 4-RoSy cross field on the input triangulated mesh. Implements Campen 2014 Chapter 4 \u2014 the angle-based mixed-integer formulation, NOT the vector-based KCPS form (vector forms restrict valences and admit zero-vector degeneracies).\\n\\n**Energy (Eq. 4.6):** min \u03a3_{e_ij \u2208 E} ( \u03b8_i \u2212 \u03b8_j + \u03ba_ij + m_ij \u00b7 \u03c0/2 )^2\\n  - \u03b8_i \u2208 \u211d per face: tangent angle in local reference frame.\\n  - \u03ba_ij angular offset aligning frames of face i,j.\\n  - m_ij \u2208 \u2124 on a face-cycle basis (one per spanning-tree edge per [BZK09]).\\n  - Solver: greedy MI of [BZK12] \u2014 calls SparseLU + IlpSolver from PATCH-38.\\n\\n**Outputs:**\\n- \u03b8 per face \u2192 4-RoSy cross field.\\n- Singularities = vertices where face-cycle holonomy is non-zero. Index_C(s) = K(s)/(2\u03c0) \u2208 multiples of 1/4. Valence relation: 1 \u2212 val(n)/4 = index_C(s).\\n- Combed field for downstream (single-valued direction with seam + matching).\\n\\n**Principal-direction alignment (4.2.2):** detect anisotropic regions, hard-fix \u03b8 to the principal direction in those triangles. Regions identified per [BZK09].\\n\\n**Failure modes:**\\n- Index \u2265 1 from concentrated curvature \u2192 split per [BZK09, PZKW11].\\n- (val-3, val-5, genus-1) edge case \u2192 merge per [JT73, MPZ14].\\n\\nReferences:\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md (Stage 1 section)\\n- metriko reference: /tmp/metriko/include/metriko/core/vectorfield/ (~389 LOC C++) \u2014 uses KCPS vector form; **deviate from metriko per the thesis**: implement the angle-based [BZK12] MI form.\\n- Bommes-Zimmer-Kobbelt 2009. Mixed-integer Quadrangulation. SIGGRAPH 2009.\\n- Bommes-Zimmer-Kobbelt 2012. Practical Mixed-Integer Optimization for Geometry Processing. Curves and Surfaces 2012.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. CrossField class produces \u03b8 + singularity list + combed field for any input mesh. 2. Singularities sum to \u03c7(M) (Poincar\u00e9-Hopf), validated on torus (sum=0), sphere (sum=2). 3. Smoothness energy below threshold on a flat plane (singularity-free). 4. Skull.obj produces ~50-200 singularities (typical for organic shapes); hand.obj similar. 5. Matches metriko's KCPS output to topological structure (singularity count + indices) on Hand.obj baseline.",
+    "testing-plan": "1. Sphere: 8 singularities of index +1/4 (or equivalent valid distribution). 2. Torus: zero net singularity index. 3. Flat plane: zero singularities. 4. Hand.obj: compare singularity count + per-singularity index against metriko's Hand baseline (PATCH-37). Expect topological agreement (counts match), geometric drift OK (positions can vary up to one face).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

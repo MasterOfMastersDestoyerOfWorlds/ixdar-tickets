@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-35",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Robins-Wood-Sheppard discrete gradient field for MSC arc geometry",
+    "description": "PATCH-29 v2 produces topologically correct MSC quad-cells but the arcs are traced by steepest-walk on the smoothed scalar, which gives 'non-convergent geometric embedding of separatrices' (Edelsbrunner) \u2014 arcs are short, zigzag, and don't actually cover the cell's face extent. Visual: large gaps between Coons reconstructions even though all faces are assigned.\\n\\nThe canonical fix is the Robins-Wood-Sheppard discrete gradient field (Theory and Algorithms for Constructing Discrete Morse Complexes from Grayscale Digital Images, IEEE TPAMI 2011). Pair simplices in lower stars via homotopy expansion; unpaired cells become critical points; V-paths through the gradient field replace steepest-walks. Result: arcs are combinatorially defined, topologically clean, and follow the surface properly.\\n\\nReference implementation: TTK (Topology ToolKit, https://github.com/topology-tool-kit/ttk) \u2014 its DiscreteGradient component is ~5000 LOC. We don't need full TTK; just the 2-manifold version with our existing critical-point set as input.\\n\\nUnblocks: PATCH-29 v3 quality (arc-driven Coons reconstruction would actually cover cells); PATCH-27 refinement (cell-internal sub-MSC needs proper gradients); PATCH-32 per-tooth detection (better discrete gradient might separate adjacent tooth tips that smoothing-based extrema can't).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. New DiscreteGradient.java implements lower-star pairing per RWS 2011. 2. MorseSmaleComplex.compute optionally consumes the discrete gradient instead of running its own classifier. 3. MSC arcs traced via V-paths through the gradient \u2014 verified by inspecting arc lengths (currently ~5 mesh hops per arc, expect 50+ on Skull.obj). 4. Coons reconstruction renders coverage \u226580% of mesh face area (currently ~30% by visual estimate).",
+    "testing-plan": "1. Unit test: a synthetic 8\u00d78 grid with one Gaussian bump produces 1 max + 4 mins + 4 saddles, gradient field has no spurious critical points. 2. Run on Skull.obj; arc-length p50 increases from current ~5 to >25. 3. Visual: ms-coons-composite.png shows minimal gaps between cells. 4. p95 Coons error drops below the current 0.277 threshold approach.\\n\\nReferences:\\n- Robins-Wood-Sheppard, IEEE TPAMI 2011: https://people.physics.anu.edu.au/~vbr110/papers/RWS_TPAMI.pdf\\n- Wikipedia Discrete Morse Theory: https://en.wikipedia.org/wiki/Discrete_Morse_theory\\n- TTK reference impl: https://github.com/topology-tool-kit/ttk",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

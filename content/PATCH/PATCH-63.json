@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-63",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "QEx EDGE-source QVert detection on numerical stage2 UVs (1 found vs metriko's ~3000)",
+    "description": "Surfaced during PATCH-62. Our QuadVertexGenerator EDGE pass finds 1 EDGE QVert on Hand-30k stage2 UVs vs metriko's ~3000 EDGE-on-edge integer points. Tighter COLLINEAR_EPS (1e-4) excludes most candidates; looser EPS (1e-2) finds 221 but they're noisy false positives that DECREASE final quad count.\n\nThe fundamental issue: stage2's UVs come from a numerical IGM solve. Mesh edges that should pass through integer (u, v) points typically pass within ~1e-3 of them, NOT exactly through. metriko's reference still emits ~3000 EDGE QVerts somehow \u2014 either:\n\n1. metriko uses a different EPS scaled to mesh-edge length.\n2. metriko emits a candidate at EVERY integer crossing of an iso-line through the surface, computed differently from our 'iterate integer points in segment bbox + collinearity test' approach.\n3. metriko's QEx generates EDGE QVerts via a different mechanism (maybe lifted from per-corner UV interpolation along the edge rather than testing each integer point).\n\nTo debug:\n- Print metriko's actual EPS_collinearity used in is_collinear() in /tmp/metriko/include/metriko/core/common/utilities.h.\n- Compare metriko's EDGE QVert count distribution to ours at matching EPS.\n- Try emitting EDGE QVerts via 'find integer u-isoline crossings of the edge segment' (parametric, not enumerate-integer-bbox).\n\nOnce EDGE QVert generation is fixed, the empirical QEdge/quad count should track with QVert count, and the >50% bar from PATCH-61 should be reachable.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "MetrikoStageRegressionTest.stage2UvsThroughQexProducesQuads reports our_quad_count > 1170 (>50% of metriko's 2339). Existing 78 quadlayout tests still pass.",
+    "testing-plan": "1. Read metriko's EPS constant. 2. Reimplement EDGE pass with parametric isoline-crossing instead of integer-bbox enumeration. 3. Verify EDGE QVert count is order-of-magnitude similar to metriko's (estimate from quad count: ~3000).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

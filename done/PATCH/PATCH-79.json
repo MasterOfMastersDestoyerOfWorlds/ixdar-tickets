@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-79",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Triangle-patch support in QuadLayout (3-valent singularity wedges)",
+    "description": "Audit of TPatchEnumerator's PATCH-70 dump on Hand-30k shows the side-count histogram is [0,0,4,18,39,3,4,1,0,1,3,1,1,0,1,0]. We emit 39 quad patches (4 corners). The 18 triangle (3-corner) faces are 3-valent singularity wedges \u2014 Lyon paper Figure 5/6 shows these as legitimate small patches in the final layout. Currently we drop them. Implementation: (a) add Variant.TRIANGLE to QuadLayoutPatch (or a separate TrianglePatch record), (b) update QuadLayoutExtractor to emit 3-corner faces as triangle patches, (c) audit downstream consumers (LyonMetrics, Coons evaluator, DSL emitter PATCH-57) to handle them. Adding 18 triangles to Hand-30k jumps #P from 39 to 57 (still vs metriko's 96 \u2014 the remaining 39 are big multi-corner faces that may be DCEL boundary-walk artifacts, separate diagnostic ticket).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "QuadLayout exposes triangle patches; LyonMetrics counts them in #P; Hand-30k #P jumps from 39 to ~57 in the benchmark output.",
+    "testing-plan": "Toy: synthetic 3-valent singularity fixture with 3 wedges \u2192 #P = 3 triangles. Hand-30k regression: #P >= 50.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

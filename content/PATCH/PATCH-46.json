@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-46",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Sparse-solver scaling for QGP cross field + IGM (ojAlgo hits int overflow at ~100k unknowns)",
+    "description": "**Surfaced during PATCH-39.** ojAlgo's pure-Java sparse LU/LDL doesn't scale to the 133k-vertex Hand.obj \u2014 multi-minute solve, eventually triggers ojAlgo internal int overflow. PATCH-39 currently caps at ~10k faces; metriko's Eigen+SuiteSparse handles 30k tris in 1s.\\n\\nThe whole QGP pipeline (PATCH-39 cross field + PATCH-40 IGM at minimum) hits this. We can develop and test on cube/sphere/torus but cannot validate against the metriko Hand baseline until this is fixed.\\n\\nOptions to investigate:\\n1. Verify ojAlgo is being driven correctly. Maybe the agent built dense-ish storage instead of true sparse. ojAlgo's SparseStore may have separate fast paths we missed.\\n2. Try matrix-toolkits-java (MTJ)  + / iterative solvers \u2014 slower per-iter but handle bigger matrices.\\n3. JNI to SuiteSparse (CHOLMOD + UMFPACK) via jni-suitesparse or bridj \u2014 gives metriko-class performance, adds a native dep we previously ruled out. Reconsider: native dep on the desktop build is acceptable; TeaVM browser build can fall back to ojAlgo's smaller-mesh path.\\n4. Algorithmic fix: reduce matrix size via a coarser face-cycle basis (Campen 4.6 only needs one int per spanning-tree edge of the face-cycle basis, not all interior edges).\\n\\nPATCH-39 agent's note for reference: 'ojAlgo's sparse LU/LDL doesn't scale to that size (matrix 133k\u00d7133k \u2014 multi-minute solve, eventually triggers ojAlgo internal int overflow).'",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. PATCH-39 FaceRosyField solves on Hand.obj (133k faces) in under 10s. 2. PATCH-40 IGM solve scales similarly. 3. Memory under 4 GB on Hand.obj. 4. No int overflow.",
+    "testing-plan": "1. Run VerifyCrossField on Hand.obj \u2014 should complete with reasonable singularity count. 2. Compare singularity count + indices to metriko baseline (test/resources/qgp/baseline-hand/stage1_singular.txt). 3. Profile dominant operations and document the chosen scaling strategy.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

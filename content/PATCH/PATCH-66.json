@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-66",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 Stages D-E: intersection table + quad face emission",
+    "description": "PATCH-64 split into per-stage tickets. Stages D+E port metriko's gen_intersection_table + visualize_split_mesh (gen_qgp_mesh.h + visualize_qgp_mesh.h, ~180 LOC).\\n\\nStage D: given arcs1 (split arcs from side 0 to 2) and arcs2 (side 1 to 3), build (arcs1.size()+2) x (arcs2.size()+2) intersection table where (i,j) is the 3D position at the intersection of arc1[i] and arc2[j].\\n\\nStage E: emit (rows-1) x (cols-1) quad faces from the table, accumulate into per-patch ArrayMesh.\\n\\nDepends on: PATCH-65 (Stage C).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "lyon2021/IntersectionTable.java + lyon2021/QuadAssembler.java together produce ArrayMesh from per-Tpatch arcs1/arcs2 lists. Unit test on synthetic patch passes.",
+    "testing-plan": "1. Synthetic 4-cycle patch with 2 split arcs each direction (3x3 table = 4 quads). 2. Verify quad count = (arcs1+1)*(arcs2+1).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

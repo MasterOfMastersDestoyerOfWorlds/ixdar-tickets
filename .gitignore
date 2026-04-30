@@ -1,0 +1,4 @@
+# SUGGEST tickets are agent-harness output (logs of suggested improvements),
+# not real work. Keep them out of git in both old and new locations.
+content/SUGGEST/
+suggestions/

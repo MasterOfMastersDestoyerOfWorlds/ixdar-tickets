@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-36",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Mesh-boundary-chain side polylines for MSC quad cells (covers PATCH-29 v3)",
+    "description": "PATCH-29 v2 ships 4-sided cells but Coons surface is fit to MSC arcs (~5 mesh hops each). Arcs don't cover the cell's actual face extent \u2014 the bilinear-blend Coons surface bounded by 4 short arcs is a tiny region near max-min midpoint. Visual: big gaps in reconstruction.\\n\\nFix: use the cell's MESH BOUNDARY (edges between this cell and any adjacent cell) as the 4 side polylines, with the 4 critical-point corners (max, sad1, min, sad2) acting as topological anchors. Walk the boundary ring; split it at vertices closest to the 4 corners (deterministic, shared between adjacent cells via canonical pair-key); fit Bezier per chain.\\n\\nThis is mostly already-built infrastructure \u2014 SharedBoundaryRegistry walks rings + splits at corners. The fix is two-part:\\n  (a) Pass MscQuadCells's authoritative 4 corners into the registry as the corner mask.\\n  (b) When the boundary ring's vertex set doesn't include all 4 critical-point corners (because critical points aren't always on cell boundaries), substitute proxy vertices = the boundary vertex closest in 3-D to each missing critical point.\\n\\nProxy substitution must be GLOBAL so adjacent cells agree on the same proxy. Build proxy registry first (one entry per (cellA, cellB, criticalPointVertex) triple), then both cells walk-and-split using the proxy mask.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. SharedBoundaryRegistry produces 4 chains per cell on >90% of MscQuadCells output. 2. Reconstruction Coons surfaces visibly cover the mesh (no big gaps). 3. p95 Coons error drops below v2's 0.277 (target \u22640.180, the previous best).",
+    "testing-plan": "1. VerifyMsDecomposer reports SharedBoundary fourSided count \u2265 540/601. 2. Visual: ms-coons-composite.png covers \u226570% of mesh area (eyeball estimate). 3. p95 in [CE] block \u2264 0.180.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

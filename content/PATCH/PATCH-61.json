@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-61",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "QEx cross-triangle tracing produces 0 QEdges on Hand-30k despite 621 FACE QVerts",
+    "description": "Surfaced by PATCH-59 stage 2 QEx regression test. On metriko's Hand-30k stage2 UVs, our QuadVertexGenerator finds 621 FACE QVerts (consistent with metriko's quad density). All 4 cardinal ports per QVert get emitted (2484 ports total). But QuadEdgeGenerator connects ZERO of them. metriko's QEx produces 2339 quads on the same input.\n\nThe same-face mate lookup fails because integer points within one mesh triangle are usually solo (one integer point per triangle \u2248 no in-face neighbour). Cross-triangle tracing must hop via TransitionMatrix to find mates in adjacent faces. Currently 0 hops succeed.\n\nLikely culprits:\n1. raySegmentIntersect's EPS = 1e-7 is too tight for the small mesh-edge segments at Hand-30k scale (similar issue to QuadVertexGenerator's collinearity bug fixed in PATCH-59 \u2014 perpendicular distance check needs absolute tolerance, not length-relative).\n2. TRS construction expects the matching to be carried in CombedField; with combed=null (the default in the regression test), heR/heT defaults treat every edge as identity. metriko's stage1 matching SHOULD be threaded in to match metriko's behaviour.\n3. MAX_HOPS = 64 may be too low if iso-lines wander through many small triangles.\n\nDiagnostic: regression test prints connected port count (currently 0) \u2014 provides immediate signal on whether tracing improves with each fix attempt.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "MetrikoStageRegressionTest.stage2UvsThroughQexProducesQuads reports our_quad_count > 50% of metriko's 2339 (= >1170) when CombedField is wired through to QuadMeshExtractor. Existing PATCH-43/58 toy-mesh tests still pass.",
+    "testing-plan": "1. Re-run regression test after fix; confirm QEdges > 1000 + quads > 1000. 2. Spot-check: pick 3 random metriko quads from hand-quad.obj and verify our quad mesh has analogous quads (same approximate position).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-78",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Apply TRS rotation to per-step UV deltas in LyonMetrics",
+    "description": "On Hand-30k synthetic q=1 the LyonMetrics dmax reports 90.0\u00b0 \u2014 suspicious. Cause: TArc.stepUvs stores per-step (uIn, vIn, uOut, vOut) in each step's local face frame, but consecutive steps cross face boundaries and need a TRS (transition rotation+translation) applied so adjacent UVs are in a common frame before computing tangent direction. Without TRS application, a step that's actually +u in its local frame can appear orthogonal once it crosses a seam edge. Fix: thread CombedField/TransitionMatrix into LyonMetrics.compute, apply TRS to each step's exit point before computing direction. Also relevant if we ever do 3D arc tangents.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Hand-30k dmax drops below 90\u00b0 on synthetic q=1; ideally < 10\u00b0 matching Lyon's TEST1/SCULPT entries (dmax=3-17\u00b0).",
+    "testing-plan": "Add a 1-arc fixture that crosses a synthetic seam edge with a known rotation; verify deviation reads 0\u00b0 not 90\u00b0.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

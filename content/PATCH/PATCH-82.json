@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-82",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "TPatchEnumerator: emit or filter 5+ corner DCEL faces",
+    "description": "Gap B from the 2026-04-29 audit. On Hand-30k the side-count histogram is [0,0,4,18,39,3,4,1,0,1,3,1,1,0,1,0]. We emit 39 quads + 18 triangles (PATCH-79). The 21 multi-corner faces (sizes 5-15) are dropped silently. Audit each:\\n\\n- 5,6,7-corner cells: likely real higher-valence singularity wedges or T-junction cells. Emit as n-sided polygon patches OR split into quads. Lyon's paper allows non-rectangular cells in general; only the \u00a76 \u00b61 procedure forces 4-sided in the conforming output.\\n- 9-15-corner cells: probably DCEL boundary-walk artifacts (the outer face of the planar dual graph cycling around mesh holes / handles). Should be FILTERED (not emitted as patches) by detecting that the cycle traverses every node \u2265 once or has total parametric perimeter > some threshold.\\n\\nLikely subsumed by PATCH-44 IF Lyon's \u03b1-stopping rule produces a denser graph where most multi-corner anomalies are 4-corner cells in a regular grid. Re-evaluate after PATCH-44.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Hand-30k side-count histogram: 5-15 corner counts collapse to either (a) emitted as legitimate patches with same characteristic position as 3-valent triangles, or (b) explicitly filtered as boundary-walk with a counter incremented in the histogram dump. No silent drops.",
+    "testing-plan": "1. Diagnostic dump in TPatchEnumerator labeling each non-quad/non-triangle face as either OUTER_BOUNDARY or POLYGON. 2. Hand-30k regression: total patch count = quads + triangles + emitted polygons (or = quads + triangles after explicit filter).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-68",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "T-mesh Tquad enumeration with multi-arc sides (port metriko Tmesh.cpp)",
+    "description": "Surfaced by PATCH-67 Lyon end-to-end test. On Hand-30k stage1+2, our pipeline produces 332 T-mesh arcs (94% of metriko's 352) and runs the full Lyon extractor in 247ms \u2014 but emits 0 quads because TMesh.build's 4-cycle enumeration finds 0 patches.\\n\\nMetriko's Tmesh class (core/tmesh/tmesh.h, ~308 LOC) builds Tquad objects with proper multi-T-half-edge sides via:\\n1. Walk the motorcycle/Mvert graph (M-vert nodes + M-segment edges).\\n2. Group into T-edges (chains of M-segments between M-vert intersections/endpoints).\\n3. For each face of the resulting planar graph, identify it as a Tquad with 4 sides; each side may contain MULTIPLE T-half-edges due to T-junctions.\\n4. Tquad exposes thids_by_side(i) returning the list of T-half-arc ids on side i.\\n\\nWithout this, the Lyon extractor (PATCH-64-66) has nothing to extract.\\n\\nAlternative: write a simpler 'best-effort' enumerator that handles the regular 4-corners-with-singularities case but skips T-junction patches. Likely gets us 50-70% of metriko's 2339 quads as a checkpoint.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "TMesh.build emits >= 50 Tpatches on Hand-30k stage2 input. PATCH-67's end-to-end test reports our_quads > 1000 (~50% of metriko's 2339).",
+    "testing-plan": "1. Rerun MetrikoStageRegressionTest.stage2UvsThroughLyonEndToEnd; expect non-zero patches and quads. 2. Investigate any patches that fail Lyon assembly (skipped count) \u2014 likely T-junction sides where svs0.size != svs2.size.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

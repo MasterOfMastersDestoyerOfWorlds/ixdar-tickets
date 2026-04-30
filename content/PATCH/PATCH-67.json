@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-67",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 integration: Hand-30k end-to-end vs hand-quad.obj",
+    "description": "PATCH-64 split into per-stage tickets. Wire PATCH-64 (Stage A+B), PATCH-65 (Stage C), PATCH-66 (Stages D-E) into MetrikoStageRegressionTest. Compare output ArrayMesh quad count to metriko's hand-quad.obj (2339 quads / 3641 verts).\\n\\nPrerequisite: motorcycle (PATCH-60 done = 332 arcs, 94% of metriko's 352), quantization on full T-mesh (may require PATCH-66 perf work or use synthetic X[i]=1 fallback).\\n\\nDepends on: PATCH-66.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "MetrikoStageRegressionTest reports our_quad_count > 50% of metriko's 2339 (= >1170). Existing 78+ quadlayout tests still pass.",
+    "testing-plan": "1. End-to-end on Hand-30k stage1+2 inputs. 2. Profile per-stage time; flag any > 30s for separate perf ticket.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-80",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 \u00a76 T-junction extension: arc-splitting case (no matching node)",
+    "description": "PATCH-77 v1 handles the case where the T-junction's mirror parametric distance hits an existing node on the opposite side. When it falls mid-arc, the arc must be split: introduce a new TNode at that distance, slice the existing TArc into two DERIVED LayoutArcs (covering [0,t] and [t,1]), then fall through to the matching-node case. The DERIVED LayoutArc variant is already defined; what's missing is (a) the arc-split logic in QuadLayoutExtractor, (b) the per-arc sub-quantization split (q[a] = q_left + q_right), and (c) inserting the new layout node into the layout's node list. On rocker-arm with real ILP q from PATCH-76, this is the gating fix to bring #P from 13 toward metriko's 96 / Lyon's 159.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "QuadLayoutExtractor handles the arc-splitting case; rocker-arm benchmark shows skipped count drops from 10 toward 0; Hand-30k drops from 15 toward 0. Tests: extend LayoutArcTest with an arc-splitting fixture (q values that force a mid-arc match).",
+    "testing-plan": "Toy: 1-T-junction patch with q causing mid-arc match \u2192 patch splits via DERIVED arcs into 2 conforming patches. Hand-30k & rocker-arm regressions: report tJunctionsResolved + skipped.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

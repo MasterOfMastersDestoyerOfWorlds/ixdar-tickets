@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-52",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "IGM correctness: (j,k) translation variables on cut/seam edges only (Bommes 2013)",
+    "description": "Correctness fix surfaced by re-reading Lyon 2021 + comparing PATCH-40v2 to Bommes 2013. PATCH-40v2 puts per-edge integer translation variables (j_st, k_st) on EVERY interior edge (~44940 on Hand-30k), with Tikhonov pulling non-seam values toward zero. The Bommes 2013 formulation puts (j, k) ONLY on cut/seam edges. On Hand-30k that is 451 seam edges instead of 44940 -- drops the matrix size from 269,640 to 180,662 unknowns AND removes the Tikhonov-bias on corner UVs.\\n\\nWhy this matters: Tikhonov 1e-8 on (j,k) is not exactly zero on non-seam edges; small bias propagates into corner UVs and may explain some cube flips PATCH-49 could not recover from. Excess unknowns make ojAlgo overflow even faster (fixed by PATCH-53). The semantics is fundamental: non-cut edges sit in the same chart so transition is identity (j=0, k=0); cut edges legitimately have non-trivial integer transition.\\n\\nImplementation: seam set is in CombedField.isSeamEdge(idx) from PATCH-39/50. IgmHessian currently builds variables for every interior edge; restrict to seam edges only. For non-seam edges, the constraint becomes a hard linear constraint with j=k=0 (eliminated as before, but no extra variable).\\n\\nReferences: Bommes 2013 Sec 3, Campen 2014 thesis Sec 6.4.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. IgmHessian builds (j, k) variables only for seam edges. 2. Non-seam edges use identity transition. 3. Existing IGM tests pass with no regression. 4. Cube positive-triangle count meets or exceeds PATCH-49 9/12 baseline.",
+    "testing-plan": "1. Unit test asserting non-seam edges have no associated (j, k) variables in the Hessian. 2. SeamlessParameterizationTest cube + subdivided cube still pass. 3. Run VerifyMetrikoBootstrap on Hand-30k once PATCH-53 lands: matrix size should drop from ~270k to ~180k unknowns.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

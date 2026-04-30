@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-90",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Replace ILP with metriko-style greedy basis-loop quantization",
+    "description": "Critical insight from /tmp/metriko/include/metriko/core/quantization/quantization.h: metriko (Lyon's reference impl) does NOT use a generic ILP solver. Their algorithm:\\n\\n1. Construct basis-loop matrix G via sparse-QR rank reduction (rank = paper's #Vars \u2248 1.5\u00b7n_traces).\\n2. Initialize X = 0.\\n3. Greedy first-step: while validity not satisfied, pick the arc with lowest weight, find a basis loop g with g[arc] != 0, add g to X.\\n4. Greedy second-step: iterate sorting arcs by weight, try X\u00b1g for each basis-loop g, accept the swap that reduces \u03a3|X/R - 1|.\\n5. (Optional) Repeat with a different basis ordering (length-only sort).\\n\\nThis avoids ojAlgo's branch-and-bound entirely. Variable count never enters \u2014 the greedy walks the basis loops directly.\\n\\nImplementation:\\n- Port construct_generating_vectors (basis loop construction via gen_basis_loop)\\n- Port reduce_to_linearly_independent (sparse QR rank reduction \u2014 Apache Commons Math has SparseQR? else Eigen-style via MTJ)\\n- Port the greedy two-step loop\\n- Use it in place of Quantization.solve when K > some threshold (or always)\\n\\nReference files:\\n- /tmp/metriko/include/metriko/core/quantization/quantization.h\\n- /tmp/metriko/include/metriko/core/quantization/quantization_basisloop.h\\n- /tmp/metriko/include/metriko/core/quantization/quantization_evaluation.h (basis loop construction)\\n- /tmp/metriko/include/metriko/core/solver/matrix_ops.h:reduce_to_linearly_independent",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Rocker-arm at \u03b1=15\u00b0: greedy quantization completes in <2s, produces feasible q (validates against Eq.(2)/(3)/(4)), and dmean/dmax match paper Table 1 (3.7\u00b0/14.7\u00b0 within \u00b12\u00b0).",
+    "testing-plan": "1. Toy 4-patch fixture: greedy produces same q as direct ILP. 2. Rocker-arm at \u03b1=15\u00b0: full pipeline including Eq.(4) constraints. 3. Hand-30k: similar.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

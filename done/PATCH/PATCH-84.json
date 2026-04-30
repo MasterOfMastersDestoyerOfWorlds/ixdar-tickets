@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-84",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon \u00a75.2 strip equivalence: handle multi-arc opposing sides",
+    "description": "Post-PATCH-44 the rocker-arm graph is dense (2753 arcs) and most 4-corner patches have multi-arc sides on both opposing pairs. Current StripEquivalence.compute only unifies arcs when BOTH opposing sides are single-arc \u2014 that fires rarely now. Result: classCount \u2248 arcCount (no reduction), making ILP intractable.\\n\\nLyon \u00a75.2: \"Such a strip [of consecutive patches] ends at T-junctions leading to wider patches or narrower patches. Running across the strip are individual arcs which need to be quantized to the same length. By representing these arcs with the same variable, the consistency constraint is trivially fulfilled.\"\\n\\nThe rule should consider STRIPS \u2014 chains of patches walked along one cardinal axis. Each strip's across-arcs all unify regardless of whether the trace-parallel sides are multi-arc. Implementation:\\n\\n1. For each patch p, identify which axis-pair (0,2) or (1,3) is the 'across' pair (perpendicular to the dominant trace direction). Heuristic: pick whichever pair has fewer arcs, or pick by trace direction.\\n2. Union-find unify the across-arcs of p (still requires single-arc on those sides).\\n3. Walk patch adjacency along the strip direction \u2014 patches share the across arc, automatically unifying through the chain.\\n\\nAlternatively port the exact metriko implementation: include/metriko/core/quantization/edge_class_table.h or similar.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "On rocker-arm at \u03b1=15\u00b0: classCount drops from 2529 toward paper's 192. ILP becomes feasible. Hand-30k same property: classCount \u2264 1.5\u00b7n_traces (Lyon bound).",
+    "testing-plan": "Re-enable StripReductionTest's strict bound assertion; rocker-arm benchmark output reports paper-comparable #Vars.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

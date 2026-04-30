@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-38",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Linear-algebra foundation for QGP Java port (ojAlgo + MTJ ArpackSym)",
+    "description": "**Blocker for PATCH-39 through PATCH-45.** Build the sparse-matrix + ILP plumbing the rest of the QGP pipeline runs on, using ojAlgo + MTJ ArpackSym (both pure Java, no native deps).\\n\\nResponsibilities:\\n1. Add Maven deps: org.ojalgo:ojalgo (latest), com.googlecode.matrix-toolkits-java:mtj.\\n2. Wrappers under ixdar.geometry.mesh.qgp.solver/:\\n   - SparseMatrix (CSR + COO), with real and complex variants (complex via 2\u00d72 real block lifting).\\n   - SparseLu \u2014 wraps ojAlgo SparseLU; refactor-and-resolve API for Bommes IGM.\\n   - SparseQDLDL wrapper (regularized Laplacian SPD-ish) \u2014 for KCPS via shift-invert.\\n   - GeneralizedEigen \u2014 ARPACK shift-invert Lanczos via MTJ's ArpackSym, calling SparseQDLDL as the inner solver.\\n   - IlpSolver \u2014 facade over ojAlgo ExpressionsBasedModel + IntegerSolver.\\n   - Predicates \u2014 robust geometry predicates (orient2d/3d).\\n3. STVD prerequisites (Campen Ch. 9): meta-graph builder for k-edge chains, plain Dijkstra on the meta-graph. Used by the cross-field stage and connectivity stage.\\n\\nReferences:\\n- File plan: Ixdar/ixdar-tickets/PATCH-37-FILE-PLAN.md\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md (STVD section)\\n- ojAlgo survey result on PATCH-37 description\\n- metriko reference: /tmp/metriko/include/metriko/core/solver/ (~691 LOC C++)",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. SparseMatrix + SparseLU + SparseQDLDL pass tests on synthetic SPD/general systems (residual <1e-9). 2. GeneralizedEigen recovers known eigenvalues of a 1k-vertex Laplacian matching a Numpy reference. 3. IlpSolver solves a 100-variable mixed-integer program in under 1s. 4. STVD k=4 produces correct distances on the cube (vs. ground-truth analytic), within 5% of intrinsic distances. 5. All deps Maven-managed, no native libs added to ixdar-app.",
+    "testing-plan": "1. Unit tests in ixdar-app/src/test/java/ixdar/geometry/mesh/qgp/solver/ for each component. 2. SparseLU + SparseQDLDL: random SPD matrices, compare to dense LU/Cholesky residual. 3. GeneralizedEigen: known torus Laplacian, compare smallest eigenpair to closed form. 4. IlpSolver: textbook MIP test cases. 5. STVD: cube + flat plane synthetic tests against analytic geodesic distances.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

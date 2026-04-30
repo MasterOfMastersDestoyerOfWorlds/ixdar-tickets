@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-60",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Motorcycle stage produces 19 arcs vs metriko's 352 on Hand-30k (18x undercount)",
+    "description": "Surfaced by PATCH-59 stage 2 motorcycle regression test. Given metriko's known-good stage2 UVs as input + 46 singularities from stage1, our MotorcycleGraph.trace + TMesh.build produce 19 arcs. metriko's stage3_tedges.tsv has 352. We're emitting roughly 1 trace per 2-3 singularities; metriko emits ~7-8.\n\nHypotheses to check:\n1. Each singularity in our impl emits one motorcycle (= one arc) instead of 4 (one per cardinal direction). Metriko emits up to 4 per singularity by default.\n2. Our trace terminates early when it loses an injective UV gradient \u2014 many singularity wedges may not be injective in the input.\n3. Our TMesh.build merges arcs at intersection nodes instead of splitting them \u2014 metriko splits each trace into multiple arcs at crash sites.\n\nPer-singularity expected: ~352/46 \u2248 7.6 arcs/singularity. If each singularity has 4 motorcycles each splitting into 2 arcs at intersections, that's 8/singularity. Tracking down exactly which step is dropping arcs is the work.\n\nDiagnostic CLI from PATCH-59: VerifyMetrikoStageDiff (or the regression test) prints arc count diff.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "MotorcycleStageRegressionTest reports our_arc_count within 30% of metriko's 352 on Hand-30k. Existing motorcycle/T-mesh unit tests still pass.",
+    "testing-plan": "1. Re-run MetrikoStageRegressionTest.stage2UvsThroughMotorcycleProducesArcs and verify arc count is within bound. 2. Add per-singularity arc count assertion (avg arcs/singularity in [3, 12]).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,23 @@
+{
+    "id": "PATCH-57",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Emit Coons-patch DSL from quad-layout T-mesh patches",
+    "description": "Surfaced during PATCH-42 housekeeping audit. End goal of the PATCH-37 quad-layout pipeline is to produce procedural-mesh DSL (.dsl files in src/main/resources/dsl/) that the existing CoonsPatchNode + node graph runtime can ingest. This is the artifact that closes the 'mesh decomposition -> procedural reconstruction' loop.\n\nWhat we have:\n- CoonsPatchNode + supporting Coons primitives in geometry/mesh/nodes/patch/\n- DSL parser + node graph runtime that consumes coons_patch(...) calls\n- TMesh patches with 4-arc cyclic ordering and per-arc parametric length\n- Quantization gives integer dimensions per arc\n\nWhat's missing:\n- QuadLayoutDslEmitter: walks each TPatch, fits a curve representation to each of the 4 arcs (Bezier or polyline), emits coons_patch DSL\n- Per-arc curve fitting from face-crossings + parametric length\n- Whole-mesh DSL assembly with shared boundary curves between adjacent patches (so reconstruction is watertight)\n\nBlockers:\n- 0 TPatches on Hand-30k currently (IGM convergence + T-junction enumeration -- see PATCH-Q8 ticket about scene integration for the same blocker)\n- Need a way to express the per-arc curve compactly enough that the DSL stays human-readable\n\nOut of scope:\n- Upstream IGM convergence work\n- Multi-patch quad meshes from QEx (PATCH-43 produces those; this ticket emits LAYOUT-level DSL)\n- Animation / parametric variation of the emitted DSL (that's a future enhancement)",
+    "blocked-by": [
+        "PATCH-44",
+        "PATCH-83"
+    ],
+    "blocks": [],
+    "status": "PINNED",
+    "definition-of-done": "On a moderate-curvature test mesh that produces N >= 4 TPatches, QuadLayoutDslEmitter writes a .dsl file. Loading that .dsl through the existing parser and rendering it via MeshNodeViewerScene reproduces the original mesh's quad layout (visually similar, watertight at shared arcs).",
+    "testing-plan": "1. Synthetic 4-patch hand-built TMesh (per QuantizationTest fixtures) -> emit DSL -> parse + run -> verify 4 coons_patch invocations, each with the right corner count. 2. Round-trip on a torus-2k: pipeline output -> DSL emit -> DSL parse -> render -> screenshot diff against direct pipeline render.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

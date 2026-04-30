@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-47",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Noise robustness for cross-field singularity detection (PATCH-39 follow-up)",
+    "description": "**Surfaced during PATCH-39.** Per-edge rounding in the simplified BZK12 solver produces spurious singularities on triangulation-noisy meshes. Procedural.obj (24k faces, \u03c7=8) produced 5788 singularities; expected ~hundreds. Clean meshes (cube, sphere, torus) work correctly.\\n\\nFixes per Campen 2014 thesis Sec 4.4:\\n- Use scale-aware field energy [RVAL09, ECBK14] to suppress small-scale curvature noise.\\n- Or apply Laplacian smoothing to the angle-defect input before the LSQ.\\n- Or add a persistence threshold \u2014 discard singularity pairs whose index sum is small and whose physical separation is below \u03b5.\\n- Or implement the FULL BZK12 greedy round-and-resolve loop (PATCH-39 used a 3-stage simplified pipeline). Greedy rounding orders integer commits by confidence and re-solves, dramatically reducing spurious singularities on noisy inputs.\\n\\nThe simplified pipeline is provably equivalent on smooth closed manifolds. The full BZK12 should fix noisy meshes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Procedural.obj produces &le;200 singularities (down from 5788). 2. Sum(index4) still equals 4\u03c7. 3. Clean meshes (cube/sphere/torus) unchanged. 4. Document which fix was implemented (greedy BZK12, persistence filter, or scale-aware energy).",
+    "testing-plan": "1. Procedural.obj count + sum check. 2. Clean-mesh regression: cube/sphere/torus tests still pass. 3. Hand.obj baseline comparison: count within 20% of metriko's stage1_singular.txt.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

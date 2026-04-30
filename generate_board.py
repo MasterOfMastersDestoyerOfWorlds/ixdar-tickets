@@ -22,10 +22,15 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 TICKETS_DIR = ROOT_DIR / "content"
 DONE_DIR = ROOT_DIR / "done"
+SUGGESTIONS_DIR = ROOT_DIR / "suggestions"
 BOARD_PATH = ROOT_DIR / "BOARD.md"
 EPICS_PATH = TICKETS_DIR / "epics.json"
 
-STATUS_ORDER = {"IN_PROGRESS": 0, "TODO": 1, "DONE": 2}
+# Epics whose tickets live outside content/ (i.e. excluded from BOARD.md and
+# all summary counts). These are agent-generated logs, not work to be done.
+EXTERNAL_EPICS = {"SUGGEST"}
+
+STATUS_ORDER = {"PINNED": 0, "IN_PROGRESS": 1, "TODO": 2, "DONE": 3}
 DESC_TRUNCATE = 100
 
 
@@ -51,6 +56,8 @@ def normalize_status(raw: str | None) -> str:
         return "DONE"
     if upper in ("IN_PROGRESS", "IN-PROGRESS", "WIP"):
         return "IN_PROGRESS"
+    if upper in ("PINNED", "PIN", "GOAL"):
+        return "PINNED"
     if upper in ("TODO", "OPEN", "BACKLOG"):
         return "TODO"
     return upper
@@ -146,6 +153,23 @@ def render_board(
         "",
     ]
 
+    # Pinned goal tickets render at the very top, across all epics, so every
+    # session sees the destination set first thing. Pinned status is for
+    # end-goal/maximally-blocked tickets that don't churn — not for "next
+    # thing to work on".
+    pinned: list[dict] = []
+    for status_groups in grouped.values():
+        pinned.extend(status_groups.get("PINNED", []))
+    if pinned:
+        pinned.sort(key=lambda t: (t["priority"], t["prefix"], t["number"]))
+        lines.append(f"## 📌 Goals ({len(pinned)} pinned)")
+        lines.append("")
+        for t in pinned:
+            lines.append(render_ticket_line(t))
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+
     sorted_prefixes = sorted(
         grouped.keys(),
         key=lambda p: epic_priorities.get(p, 50),
@@ -154,9 +178,14 @@ def render_board(
     for prefix in sorted_prefixes:
         status_groups = grouped[prefix]
         epic_name = epic_names.get(prefix, prefix)
-        total = sum(len(v) for v in status_groups.values())
+        # Skip the pinned bucket — already rendered at top.
+        non_pinned_total = sum(
+            len(v) for k, v in status_groups.items() if k != "PINNED"
+        )
+        if non_pinned_total == 0:
+            continue
         epic_prio = epic_priorities.get(prefix, 50)
-        lines.append(f"## {epic_name} ({total} tickets, priority {epic_prio})")
+        lines.append(f"## {epic_name} ({non_pinned_total} tickets, priority {epic_prio})")
         lines.append("")
 
         # IN_PROGRESS
@@ -296,12 +325,12 @@ def archive_done() -> None:
 
 
 def _next_ticket_id(epic: str) -> str:
-    """Return the next ticket id (e.g. IX-10) for an epic across content/ and done/."""
+    """Return the next ticket id (e.g. IX-10) for an epic across all stores."""
     prefix = epic.upper()
     pattern = re.compile(rf"^{re.escape(prefix)}-(\d+)\.json$")
 
     max_num = 0
-    for ticket_file in _scan_ticket_files(TICKETS_DIR, DONE_DIR):
+    for ticket_file in _scan_ticket_files(TICKETS_DIR, DONE_DIR, SUGGESTIONS_DIR):
         match = pattern.match(ticket_file.name)
         if match:
             max_num = max(max_num, int(match.group(1)))
@@ -325,10 +354,15 @@ def create_ticket(
     testing_plan: str,
     todos: list[str],
 ) -> Path:
-    """Write a new ticket JSON under content/<EPIC>/ and regenerate BOARD.md."""
+    """Write a new ticket JSON under content/<EPIC>/ and regenerate BOARD.md.
+
+    External epics (e.g. SUGGEST — agent harness output) are written under
+    suggestions/<EPIC>/ instead and excluded from BOARD.md totals.
+    """
     ticket_id = _next_ticket_id(epic)
     prefix = extract_prefix(ticket_id)
-    epic_dir = TICKETS_DIR / prefix
+    epic_root = SUGGESTIONS_DIR if prefix in EXTERNAL_EPICS else TICKETS_DIR
+    epic_dir = epic_root / prefix
     epic_dir.mkdir(parents=True, exist_ok=True)
     ticket_path = epic_dir / f"{ticket_id}.json"
     if ticket_path.exists():
@@ -357,34 +391,32 @@ def create_ticket(
     return ticket_path
 
 
-def _write_board() -> tuple[int, int, int]:
+def _write_board() -> tuple[int, int, int, int]:
     epic_names, epic_priorities = load_epics()
     tickets = load_tickets()
     grouped = group_by_epic(tickets)
     board = render_board(grouped, epic_names, epic_priorities)
     BOARD_PATH.write_text(board, encoding="utf-8")
 
-    total_ip = sum(
-        len(g.get("IN_PROGRESS", []))
-        for g in grouped.values()
-    )
-    total_todo = sum(
-        len(g.get("TODO", []))
-        for g in grouped.values()
-    )
-    total_done = sum(
-        len(g.get("DONE", []))
-        for g in grouped.values()
-    )
-    return total_ip, total_todo, total_done
+    total_pinned = sum(len(g.get("PINNED", [])) for g in grouped.values())
+    total_ip = sum(len(g.get("IN_PROGRESS", [])) for g in grouped.values())
+    total_todo = sum(len(g.get("TODO", [])) for g in grouped.values())
+    total_done = sum(len(g.get("DONE", [])) for g in grouped.values())
+    return total_pinned, total_ip, total_todo, total_done
+
+
+def _board_summary_line(totals: tuple[int, int, int, int]) -> str:
+    pinned, ip, todo, done = totals
+    parts = []
+    if pinned:
+        parts.append(f"{pinned} pinned")
+    parts.extend([f"{ip} in-progress", f"{todo} todo", f"{done} done"])
+    return "Board updated: " + ", ".join(parts)
 
 
 def regenerate_board() -> None:
-    total_ip, total_todo, total_done = _write_board()
-    print(
-        f"Board updated: {total_ip} in-progress, "
-        f"{total_todo} todo, {total_done} done"
-    )
+    totals = _write_board()
+    print(_board_summary_line(totals))
 
 
 def _ticket_path(ticket_id: str) -> Path:
@@ -394,7 +426,7 @@ def _ticket_path(ticket_id: str) -> Path:
     if not prefix or number <= 0:
         raise ValueError(f"Invalid ticket ID '{ticket_id}'. Expected format like IX-3.")
 
-    for base in (TICKETS_DIR, DONE_DIR):
+    for base in (TICKETS_DIR, DONE_DIR, SUGGESTIONS_DIR):
         candidate = base / prefix / f"{normalized_id}.json"
         if candidate.exists():
             return candidate
@@ -441,12 +473,9 @@ def mark_ticket_done(ticket_id: str) -> None:
 
     ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
     ticket_path = _move_ticket_to(ticket_path, DONE_DIR)
-    total_ip, total_todo, total_done = _write_board()
+    totals = _write_board()
     print(f"Marked {normalized_id} DONE -> {ticket_path.relative_to(ROOT_DIR)}")
-    print(
-        f"Board updated: {total_ip} in-progress, "
-        f"{total_todo} todo, {total_done} done"
-    )
+    print(_board_summary_line(totals))
 
 
 def mark_ticket_status(ticket_id: str, status: str) -> None:
@@ -464,13 +493,11 @@ def mark_ticket_status(ticket_id: str, status: str) -> None:
     if normalized_status == "DONE":
         ticket_path = _move_ticket_to(ticket_path, DONE_DIR)
     else:
+        # PINNED, IN_PROGRESS, TODO all live under content/.
         ticket_path = _move_ticket_to(ticket_path, TICKETS_DIR)
-    total_ip, total_todo, total_done = _write_board()
+    totals = _write_board()
     print(f"Marked {normalized_id} {normalized_status} -> {ticket_path.relative_to(ROOT_DIR)}")
-    print(
-        f"Board updated: {total_ip} in-progress, "
-        f"{total_todo} todo, {total_done} done"
-    )
+    print(_board_summary_line(totals))
 
 
 def show_ticket(ticket_id: str) -> None:
@@ -554,12 +581,9 @@ def update_ticket(
             data["todos"] = _normalize_done_todos(data["todos"])
 
     ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
-    total_ip, total_todo, total_done = _write_board()
+    totals = _write_board()
     print(f"Updated {normalized_id}")
-    print(
-        f"Board updated: {total_ip} in-progress, "
-        f"{total_todo} todo, {total_done} done"
-    )
+    print(_board_summary_line(totals))
     return ticket_path
 
 
@@ -723,6 +747,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Ticket ID to mark todo (e.g. IX-3).",
     )
 
+    mark_pinned_parser = mark_sub.add_parser(
+        "pinned",
+        help="Mark a ticket PINNED (end-goal/destination) and regenerate BOARD.md.",
+    )
+    mark_pinned_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to mark pinned (e.g. PATCH-37).",
+    )
+
     show_parser = sub.add_parser(
         "show",
         help="Print full ticket JSON.",
@@ -871,6 +904,8 @@ if __name__ == "__main__":
         mark_ticket_status(args.ticket_id, "IN_PROGRESS")
     elif args.command == "mark" and args.mark_command == "todo":
         mark_ticket_status(args.ticket_id, "TODO")
+    elif args.command == "mark" and args.mark_command == "pinned":
+        mark_ticket_status(args.ticket_id, "PINNED")
     elif args.command == "show":
         show_ticket(args.ticket_id)
     elif args.command == "create":

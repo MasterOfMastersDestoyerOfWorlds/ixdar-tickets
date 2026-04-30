@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-62",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "QEx EDGE/VERT QPort prev/next ordering must be 3D-CCW, not insertion order",
+    "description": "Surfaced during PATCH-61. Fixed three QEdge tracing bugs and Hand-30k went 0 \u2192 482 quads. metriko produces 2339 on the same input \u2014 we still have a structural gap.\n\nEmpirical sweep of COLLINEAR_EPS:\n  EPS=1e-4: edge QVerts=1   QEdges=1119 quads=482  (best)\n  EPS=1e-3: edge QVerts=29  QEdges=1122 quads=465\n  EPS=3e-3: edge QVerts=68  QEdges=1126 quads=420\n  EPS=1e-2: edge QVerts=221 QEdges=1227 quads=314\n  EPS=2e-2: edge QVerts=442 QEdges=1447 quads=210\n\nAdding EDGE QVerts INCREASES QEdge count but DECREASES quad count. The 4-cycle walk in QuadFaceGenerator follows port.prev each hop. For face-source QVerts the prev/next ring is the natural cardinal-CCW order (+u, +v, -u, -v), which is correct. For EDGE-source and VERT-source QVerts we use insertion order from the (face, dir-cardinal) enumeration, which isn't guaranteed to be CCW around the QVert in 3D space. That breaks 4-cycle walks: prev hops to the wrong port and the cycle never closes.\n\nFix: when emitting EDGE/VERT ports, sort them by polar angle in 3D space around the QVert position before the cyclicLink call. Reference: metriko's gen_q_port.h emits ports in the natural one-ring/edge walk order, which IS CCW because the half-edge data structure walks CCW.\n\nAlso worth checking: the EDGE QVert COUNT on Hand-30k is far below metriko's count of integer-on-edge points. If our EDGE pass missed many at EPS=1e-4 (only 1 found), but found 442 at EPS=2e-2, the right threshold is somewhere in between AND the cycle ordering must be fixed first.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "MetrikoStageRegressionTest.stage2UvsThroughQexProducesQuads reports our_quad_count > 1170 (>50% of metriko's 2339). Existing PATCH-43/58/61 toy tests still pass. Final COLLINEAR_EPS picked for accuracy + lowest false-positive rate.",
+    "testing-plan": "1. Order EDGE-source ports CCW in 3D. Re-run regression at EPS=1e-2; expect quad count to increase (not decrease). 2. Same for VERT-source. 3. Tune COLLINEAR_EPS for max quad output.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-86",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Convert triangle patches into degenerate quads (re-enable strip equivalence chain)",
+    "description": "Filed during PATCH-83 diagnostic deep-dive. Lyon paper's T-mesh has only rectangular patches; ours has 153/272 triangles on rocker-arm at alpha=15 deg, blocking strip-equivalence chain propagation (PATCH-84 v1 unifies 232 of an expected 2561 arc pairs because chains break at every triangle).\\n\\nFix: in TPatchEnumerator, when a face cycle has 3 corners, emit it as a 4-sided patch with one side being a degenerate single-arc that has parametric length 0 (or equivalently, the singularity at the apex is duplicated as two corners on the degenerate side). This matches Lyon's framework where 3-valent singularities are still 4-corner cells in the layout, just with one side that quantizes to 0.\\n\\nImpact: rocker-arm strip-equivalence should drop #Vars from 2521 toward 192. Hand-30k similar reduction.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Rocker-arm at alpha=15 deg: #Vars drops from current 2521 to under 500 (closer to paper 192). All emitted patches are 4-sided. Hand-30k same property.",
+    "testing-plan": "Toy 3-valent singularity fixture: verify the wedge emerges as a 4-corner patch with one degenerate side. Rocker-arm regression: assert nVars/nArcs ratio improves.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

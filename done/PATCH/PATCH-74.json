@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-74",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 layout-metrics harness (#P, dmean, dmax, MSJavg)",
+    "description": "Once PATCH-73 emits the conforming QuadLayout, instrument the verification harness with the four metrics from Lyon Table 1: (1) #P = patch count, (2) dmean = area-weighted mean angular deviation between layout arcs and the seamless param's iso-lines (degrees), (3) dmax = max deviation, (4) MSJavg = average minimum scaled Jacobian over the visualization quads. Implementation: each layout arc is a polyline of param-space points; per arc compute its tangent direction and compare against the seamless cardinal direction (atan2 difference, mod \u03c0/2). Aggregate area-weighted by the param-arclength of each arc segment. MSJavg requires the LCBK19 dense-quad pass (deferred to PATCH-75); for now skip MSJavg or report N/A.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Add LyonMetrics utility + unit test on a known-good toy fixture (square patch, separatrices aligned with axes \u2192 dmean=0). Add a 'paper-comparison' optional test that loads ROCKERARM (when available) and prints Table-1-style row to stdout.",
+    "testing-plan": "Toy: axis-aligned 2x2 layout \u2192 dmean=0\u00b0, dmax=0\u00b0. Hand-30k: report dmean/dmax in regression test stdout. Long-term gate: dmean < \u03b1 + 1\u00b0.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-43",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "QEx quad mesh extraction (Ebke 2013)",
+    "description": "**Depends on PATCH-40, PATCH-42.** Stage 5 of the QGP pipeline: extract the explicit quad mesh from a locally-injective UV map + quantization. Implements Ebke-Bommes-Campen-Kobbelt 2013 'QEx: Robust Quad Mesh Extraction'.\\n\\n**Algorithm:**\\n1. **Quad-vertex generation:** for each integer (u,v) in the parametric domain that has a pre-image on the surface, emit a quad vertex. Pre-image found by walking the parametrization (each integer-grid intersection corresponds to a point on the original mesh).\\n2. **Quad-edge generation:** for each integer-grid line (horizontal or vertical strip), trace the corresponding edge across the surface. Edges connect consecutive quad-vertices along the strip.\\n3. **Quad-face generation:** each unit cell (1x1) in the parametric grid maps to a quadrilateral on the surface. Vertices are the 4 quad-vertices at the cell's corners.\\n4. **Sanitization:** robust handling of edge cases \u2014 non-injective regions, degenerate cells, vertices at parametric grid points. Use simulation-of-simplicity for tie-breaking on integer boundaries.\\n\\n**Output:** ArrayMesh-like quad mesh (vertices, faces with 4 indices each).\\n\\nReferences:\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md\\n- metriko reference: /tmp/metriko/include/metriko/core/qex/ (~550 LOC C++)\\n- Ebke-Bommes-Campen-Kobbelt 2013. QEx: Robust Quad Mesh Extraction. ACM ToG 32(6) Article 168.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. QuadMeshExtractor produces an ArrayMesh of quads from PATCH-40 + PATCH-42 outputs. 2. Each output face has exactly 4 vertices. 3. Cube extraction: 6 quads matching the cube's faces. 4. Sphere with 24-side IGM grid: ~24 quads with valid topology. 5. Hand.obj quad mesh has count within 10% of metriko's QEx output for the same \u03b1.",
+    "testing-plan": "1. Cube: 6 quads, watertight, all unit squares. 2. Sphere with prescribed singularities: count + topology check. 3. Hand.obj at \u03b1=10\u00b0/15\u00b0/30\u00b0: compare quad count, vertex count, edge count to metriko baseline. 4. Watertightness: every interior edge shared by exactly 2 quads.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

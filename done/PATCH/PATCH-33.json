@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-33",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Live viewer COONS_RECONSTRUCTION + COONS_DELTA shader modes",
+    "description": "PATCH-33 shipped headless Coons reconstruction multiview PNGs but the live viewer modes weren't wired. Adding them requires either (a) keeping two runtimes alive (original mesh + reconstruction mesh) and switching draw call by ShaderMode, or (b) reuploading mesh data to the existing runtime when toggling, accepting that tag/overlay state resets. Either way ~150 LOC of viewer-side plumbing in MeshNodeViewerScene + HalfEdgeMeshRuntime. COONS_DELTA additionally needs a per-vertex displacement attribute fed to a new shader, which is more invasive.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Shift+P cycles include COONS_RECONSTRUCTION (renders the sampled Coons surface from CoonsPatchSampler instead of the original mesh) and COONS_DELTA (renders the original mesh with vertices displaced along normal by coonsError \u00d7 scale). Both modes work on the live skull viewer with no NPE / freeze / black screen. Patch-id colours carry through. Non-4-sided cells render desaturated grey in COONS_RECONSTRUCTION.",
+    "testing-plan": "1) Launch mesh-viewer, load skull, P to decompose, Shift+P cycle through new modes. 2) Inspect at least 3 worst-error cells; reconstruction surface should look spiky there (matching the headless render). 3) Toggle back to LAMBERT; original mesh should re-render correctly with no leaked state. 4) Cycle 5+ times to confirm stability.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

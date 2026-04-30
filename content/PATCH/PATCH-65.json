@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-65",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 Stage C: split-arc iso-line tracing across the surface",
+    "description": "PATCH-64 split into per-stage tickets. Stage C ports metriko's gen_split_arc (visualizer/tmesh/gen_qgp_edge.h, ~140 LOC). Given a SplitElem on side s of a Tpatch and the mirrored SplitElem on side (s+2)%4, trace an iso-line across the patch interior: walk through mesh faces using TRS rotation, emit SplitEdge segments. The direction is computed from the relative parametric distances: arg = -atan((diff_end - diff_bgn) / diff_mid) where diff_* are accumulated from the patch's R values per side.\\n\\nDepends on: PATCH-64 (Stage A + B done), TransitionMatrix (PATCH-58).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "lyon2021/SplitArcTracer.java traces a SplitArc from a side-s split-elem to the mirrored side-(s+2) split-elem, returning a list of SplitEdges (per-face uv1, uv2). Unit test on synthetic patch passes.",
+    "testing-plan": "1. Synthetic 1-face patch: trace from one corner to the opposite. Verify single SplitEdge in same face. 2. 4-face cross patch: trace through 2 faces. Verify TRS rotation handled.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

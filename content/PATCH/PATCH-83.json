@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-83",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Checkpoint: rocker-arm Lyon Table 1 parity gate",
+    "description": "Once PATCH-44 + PATCH-81 + PATCH-82 land, run BenchmarkRockerArmLyon at \u03b1=15\u00b0 and produce a checkpoint comparison table against Lyon 2021 Table 1 ROCKERARM row:\\n\\n| metric | paper | acceptable range |\\n|---|---|---|\\n| #Faces | 20088 | exact |\\n| #Sing | 36 | \u00b110% |\\n| #Traces | 144 | \u00b110% |\\n| #Arcs | 2742 | \u00b115% |\\n| #Vars | 192 | \u00b15% |\\n| #P | 159 | \u00b110% |\\n| dmean | 3.7\u00b0 | \u00b12\u00b0 |\\n| dmax | 14.7\u00b0 | \u2264 \u03b1 + 2\u00b0 |\\n| MSJavg | 0.989 | n/a until PATCH-75 |\\n| tMCG | 92ms | \u2264 500ms |\\n| tILP | 30ms | \u2264 2s |\\n\\nAlso save the rendered overlay PNG side-by-side with paper Figure 7 (or whichever rocker-arm figure exists) for visual comparison.\n\n**2026-04-29 first run with PATCH-44 + PATCH-84 v1:**\\n- \u2713 #Arcs 2753 vs paper 2742 (within 10%, headline)\\n- ~ #Sing 32 vs 36, #Traces 128 vs 144 (within 20% \u2014 cross-field diff)\\n- \u2717 #Vars 2521 vs 192 (needs PATCH-84 v2 deeper strip walking)\\n- \u2717 #P 265 vs 159 (needs \u00a76 arc-collapse merging)\\n- dmean/dmax NaN-equivalent because dmax keyed on raw stepUv (PATCH-78 issue persists for INTERIOR arcs)\\n- ILP falls back to per-arc rounding when K>1000 (avoid OOM on the ojAlgo solver)\\n\\nCheckpoint open: needs followup work on #Vars and #P before PATCH-57 DSL emission can use a 'paper-quality' layout.\n\nDiagnostic deep-dive 2026-04-29: 96% of opposing-side pairs in our T-mesh are SYMMETRIC (counts match) so strip-eq precondition holds. Strip-walking via union-find IS correct (chain propagation through shared arcs). Limiting factor: 153 of 272 emitted patches are TRIANGLES (3-valent singularity wedges from PATCH-79). Triangles break strip chains. Lyon paper assumes ALL patches rectangular; the alpha-bound is meant to ensure no triangles emerge. Our triangles emerge from 3-valent sings (irregular vertex valence != 4). Hypothesis: Lyon's S6 T-junction extension transforms triangle cells into degenerate quads. PATCH-77 v1 doesnt yet do this.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "Comparison table prints from the benchmark; an automated test in MetrikoStageRegressionTest asserts each metric is within its acceptable range. PASS = we can claim Lyon 2021 algorithmically replicated. Save side-by-side PNG to test-output/lyon-paper-comparison/.",
+    "testing-plan": "1. mvn exec:java -Dexec.mainClass=ixdar.entrypoint.BenchmarkRockerArmLyon at \u03b1=15\u00b0. 2. Compare each metric to range. 3. Visual diff against paper rocker-arm image (if visible in Figure 5/7/9).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

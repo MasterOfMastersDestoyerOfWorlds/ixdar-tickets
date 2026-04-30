@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-44",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Lyon 2021 reparameterization for coarse quad layouts",
+    "description": "**Depends on PATCH-42.** Refinement (NOT a blocker for end-to-end pipeline). Implements Lyon-Campen-Kobbelt 2021 'Quad Layouts via Constrained T-Mesh Quantization' Sec 6 \u2014 the reparameterization scheme that converts the integer-quantized T-mesh into a coarse high-quality quad layout where every separatrix obeys a user-specified angular bound \u03b1.\\n\\nWithout this stage, the metriko README says 'the meshing technique is not yet optimized for coarse quads' \u2014 PATCH-43's QEx output is a valid quad mesh but with denser-than-necessary connectivity. PATCH-44 produces the COARSE quad layout (the 'mesh of meshes').\\n\\n**Algorithm (Lyon 2021 Sec 6):** given a quantized T-mesh, construct a re-parametrization in which every singularity sits exactly at an integer grid point and every arc has the assigned integer length. The re-parametrization ensures the layout's coarse-cell boundaries (separatrices) deviate from the input parametrization's iso-lines by at most \u03b1.\\n\\nMetriko has a WIP file at include/metriko/core/quantization/wip/quantization_relinearization.h (361 LOC, marked 'back up') that's the start of this implementation but not yet wired in. We can use it as a reference but should follow the paper for any divergence.\\n\\n**Optional contribution:** if our Java implementation is solid, port back to upstream metriko as a contribution. The user has flagged interest.\\n\\nReferences:\\n- Lyon-Campen-Kobbelt 2021. Quad Layouts via Constrained T-Mesh Quantization. CGF 40(2). Sec 6 'Layout Extraction'. DOI: 10.1111/cgf.142634\\n- metriko WIP file: /tmp/metriko/include/metriko/core/quantization/wip/quantization_relinearization.h\\n- PATCH-37-FILE-PLAN.md and PATCH-37-CAMPEN-SPEC.md\n\n**2026-04-29 update:** This ticket is what the codebase comment at MotorcycleGraph.java:25-26 references when it says 'The Lyon 2021 angular-bound modification (motorcycles surviving crashes) is deferred to PATCH-44.' That is the dominant gap blocking #P parity with the paper (rocker-arm: ours 36 vs paper 159). Implementation = Lyon 2021 \u00a73 stopping rule:\\n\\n1. Motorcycles SURVIVE crashes (currently MotorcycleGraph.java:272 has a hard 'break;' on first crash).\\n2. At each crash, compute \u03b1_ij = signed CCW angle of the right-triangle (i, n_ij, j) at the start of trace t_i, where n_ij is the crash node, t_i is the live motorcycle, and t_j is the crashed-into prior trace. \u03b1_ij \u2208 (-\u03c0/2, \u03c0/2).\\n3. Track per-motorcycle 'left-bound-hit' (saw a crash with \u03b1_ij \u2208 [-\u03b1, 0]) and 'right-bound-hit' (saw \u03b1_ij \u2208 [0, \u03b1]) flags.\\n4. Stop when both flags set, at the most recent crash that satisfied the second flag.\\n5. Each survived crash creates a regular valence-4 node at the intersection (already wired via Crash record + TMesh.build splits).\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. ReparameterizationBuilder produces a coarse quad layout from PATCH-42's quantized T-mesh. 2. Output layout has fewer faces than the dense QEx output (PATCH-43) for the same input \u2014 'coarse mesh of meshes'. 3. Separatrix angular deviation \u2264 \u03b1 (user-given, default 15\u00b0) on all arcs. 4. Hand.obj coarse layout face count comparable to metriko's planned output (once their WIP lands).",
+    "testing-plan": "1. Hand-30k regression: arc count jumps from current 332 to >2000 at \u03b1=15\u00b0 (Lyon paper has 2742 on rocker-arm at \u03b1=15\u00b0). 2. Rocker-arm regression: #P approaches paper's 159 within \u00b110%. 3. Toy fixture: 4 singularities arranged in a square, motorcycles cross transparently and stop only when bracketed by traces in both \u00b1\u03b1 sectors.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

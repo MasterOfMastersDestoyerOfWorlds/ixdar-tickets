@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-73",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon 2021 \u00a76 T-junction extension into conforming quad layout",
+    "description": "Lyon 2021 \u00a76 first paragraph: from a quantized T-mesh, iteratively extend each T-junction across its incident patch to the opposite side. If the quantization on the opposite side has a node at the matching parametric distance, connect to it; otherwise split the opposing arc to create one. Loop until no T-junctions remain. Output is the conforming quad layout: every patch is a 4-sided quad bounded by separatrices that align (within \u03b1) with the seamless parametrization's iso-lines. THIS IS THE PAPER'S DELIVERABLE \u2014 every entry in Lyon Table 1 (#P column) is a count of these conforming patches. Note: this is independent of whether dense interior quads are emitted; the layout is the algorithm output, the dense quads are 'for visualization purposes' (\u00a76 \u00b62) using LCBK19 harmonic quad grids (separate ticket PATCH-75).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "New QuadLayout class: List<QuadLayoutPatch> patches, each with 4 ordered side polylines (sequences of layout-arc IDs) and 4 corner node IDs. Built by extending T-junctions per \u00a76. Verification: on Hand-30k with synthetic q\u22611, output should have all 4-sided patches (no T-junctions). On any real-mesh quantization, every patch must be 4-sided (assertion). Patch count #P recorded for Table 1 comparison.",
+    "testing-plan": "Toy: 2x2 T-mesh with one explicit T-junction, verify it gets resolved to a conforming 4-quad layout. Hand-30k: assert all output patches 4-sided, count matches T-mesh patch count + (#T-junctions - resolved). ROCKERARM-style fixture (deferred until cross-field stage runs on it): expect #P in 100-200 range.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

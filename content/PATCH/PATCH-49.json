@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-49",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "IGM global-scale + log-barrier for injective parametrization on small meshes",
+    "description": "**Surfaced during PATCH-48.** Even on the cube, the IGM iterative-rounding loop ends with only 8/12 triangles positively oriented, plus 2 degenerate triangles where the relaxed-solve already collapsed (face 4 has all 3 verts as singularities; verts 0 and 5 land at the same UV in that face). PATCH-48 documented this as a PATCH-46 dependency, but it's actually a separate concern \u2014 fixing it doesn't require sparse-solver scaling.\\n\\nTwo fixes needed:\\n\\n1. **Global-scale solve** (Bommes-Zimmer-Kobbelt 2009): the relaxed solve currently uses a median-edge-length heuristic for the target UV scale  (see SeamlessParameterization.computeUvRescale). The proper Bommes formulation includes  as part of the optimisation:  lives on an integer lattice with grid spacing . Without proper , trivial all-zero-UV solutions are near-optimal, leading to collapsed triangles.\\n\\n2. **Log-barrier on triangle orientation** (Bommes 2013, Sec 4): augment the energy with  so the optimiser cannot push a triangle to \u2264 0 area. PATCH-48's reject-and-retry only kicks in at the rounding step \u2014 by then the relaxed real-valued solve has already produced flipped triangles that no rounding can recover.\\n\\nOnce both land, the cube should produce 12/12 positively-oriented triangles + a clean T-mesh with valid 4-cycle patches.\\n\\n**Technically separate from PATCH-46** (sparse-solver scaling). Both feed PATCH-42/43 readiness but for different reasons: PATCH-49 fixes correctness on small meshes; PATCH-46 fixes scaling on Hand.obj.\\n\\nReferences:\\n- PATCH-48 implementation report (in transcript) flagging the issue.\\n- Campen 2014 thesis Sec 6.7 (quad-mesh integers + global scale).\\n- Bommes-Zimmer-Kobbelt 2009. Mixed-integer Quadrangulation. SIGGRAPH 2009.\\n- Bommes-Campen-Ebke-Alliez-Kobbelt 2013. Integer-Grid Maps for Reliable Quad Meshing. Sec 4 (log-barrier formulation).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Cube ends with 12/12 positively-oriented UV triangles. 2. PATCH-41 motorcycle T-mesh produces \u22651 valid 4-cycle patch on the cube (current = 0). 3. SeamlessParameterizationTest.cubeIsInjective passes (currently asserts \u22650; tighten to ==12). 4. Subdivided cube also fully injective.",
+    "testing-plan": "1. Run VerifyMotorcycleGraph on cube; expect 6 patches once everything is injective + Lyon 2021 motorcycle survival gets PATCH-44'd in. For PATCH-49 alone, expect \u22651 patch. 2. Re-run unit.qgp.igm.* tests with tightened cube assertions. 3. Re-run unit.qgp.tmesh.* tests; expect MotorcycleGraph to produce arcs without  aborts.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

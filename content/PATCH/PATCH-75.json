@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-75",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "LCBK19 harmonic quad grid for layout-figure rendering (deferred)",
+    "description": "Lyon 2021 \u00a76 \u00b62 explicitly states that the dense quad mesh inside each layout patch is 'for visualization purposes' only, computed using [LCBK19, \u00a76.2] (Lyon-Campen-Bommes-Kobbelt 2019, 'Parametrization quantization with free boundaries for trimmed quad meshing') \u2014 an optimized harmonic parametrization per patch with the 4 boundary side-edge counts as Dirichlet constraints. NOT the metriko visualizer (gen_qgp_*) approach we previously prototyped under PATCH-65/66/67/71. This ticket replaces or supersedes that work once PATCH-73 (conforming layout) lands. Algorithm sketch from LCBK19 \u00a76.2: for each layout patch with side counts (n0, n1, n2, n3), build a target unit rectangle of size (n0, n1) (must equal (n2, n3) by consistency), solve a discrete harmonic map from the patch-region triangles to that rectangle with corner Dirichlet conditions, then extract a regular n0\u00d7n1 grid in (u,v) and lift back to 3D via barycentric inversion.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "On the conforming layout from PATCH-73, emit a watertight ArrayMesh with quads per patch matching Table-1 dense counts. Replaces metriko-visualizer SplitArcs/SplitArcTracer/IntersectionTable/QuadAssembler (those become deprecated/deletable).",
+    "testing-plan": "Toy: 2x2 patch with edge counts (3,3,3,3) \u2192 9 quads. Visual: render Hand-30k vs metriko hand-quad.obj, compare PNGs.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

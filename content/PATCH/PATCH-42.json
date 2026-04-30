@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-42",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "T-mesh quantization ILP (Campen 2015 + Lyon 2021)",
+    "description": "**Depends on PATCH-38, PATCH-41.** Stage 4 of the QGP pipeline: assign integer lengths to T-mesh arcs via integer linear programming. Implements Campen-Bommes-Kobbelt 2015 'Quantized Global Parametrization' base ILP with the Lyon 2021 'Constrained T-Mesh Quantization' enhancements (singularity-separation lemma + bounded-deviation layout constraints).\\n\\n**Variables:** non-negative integer q_i \u2208 \u2124_{\u22650} per T-mesh arc a_i \u2208 A.\\n\\n**Constraints:**\\n1. **Consistency** (Campen 2015): for each T-mesh patch, opposite-side quantization sums are equal. \u03a3 q_i (left) = \u03a3 q_i (right); same for top/bottom.\\n2. **Validity / Singularity-separation** (Lyon 2021 Lemma 1): for every trace t_i, \u03a3 q_k \u2265 1 over the arcs in S_{i*} (the set of arcs between t_i's start and the first intersection n_{i*}). One linear constraint per trace.\\n3. **Layout constraints** (Lyon 2021 Sec 4.3, Eq. 4): for every node n_{ij} where l_{ij} > l_{ji} / tan(\u03b1), require \u03a3 q_k \u2265 1 over S_{ji} \u2014 bounds separatrix angular deviation by user-given \u03b1.\\n4. **Boundary / feature alignment** (Lyon 2021 Sec 4.4): treat feature curves as \u03b1=0 traces.\\n\\n**Objective (Lyon 2021 Eq. 5):** E = \u03a3 l_i^\u22a5 \u00b7 q_i \u2014 minimize total quad-strip length, where l_i^\u22a5 is half the parametric distance between the two arcs opposite of a_i.\\n\\n**Solver:** ojAlgo IntegerSolver via PATCH-38's IlpSolver. Typical scale: hundreds to a few thousand integer variables, well within ojAlgo branch-and-bound + Gomory cuts.\\n\\nReferences:\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md\\n- metriko reference: /tmp/metriko/include/metriko/core/quantization/ (~777 LOC C++) \u2014 implements Campen 2015 form; **PATCH-44 will add the Lyon 2021 enhancements**, but this ticket lays the foundation.\\n- Campen-Bommes-Kobbelt 2015. Quantized Global Parametrization. SIGGRAPH Asia.\\n- Lyon-Campen-Kobbelt 2021. Quad Layouts via Constrained T-Mesh Quantization. CGF 40(2). DOI: 10.1111/cgf.142634",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Quantization class produces feasible integer q per T-mesh arc. 2. ILP feasibility guaranteed (every-arc-1 baseline always satisfies). 3. Cube T-mesh quantization gives all-1s as the minimum. 4. Hand.obj produces a quantization in <30s for \u03b1=15\u00b0. 5. Validity check (no zero-length arc paths between singularities) passes by construction.",
+    "testing-plan": "1. Cube T-mesh: expect q_i = 1 for all 12 arcs. 2. Synthetic torus: solve and confirm consistency around homology cycles. 3. Hand.obj at multiple \u03b1 values: confirm that smaller \u03b1 produces denser layouts (more arcs forced \u22651). 4. ILP solver timing on Hand.obj: under 30s budget.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

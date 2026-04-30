@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-41",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "mesh-decomposition"
+    ],
+    "title": "Motorcycle-graph T-mesh (Eppstein 2008 / Campen 2015 / Lyon 2021)",
+    "description": "**Depends on PATCH-40.** Stage 3 of the QGP pipeline: build a T-mesh on the surface by tracing iso-lines of the seamless parametrization. Implements the motorcycle graph from Eppstein-Goodrich-Kim-Tamstorf 2008, with the Lyon 2021 modification where motorcycles can survive crashes (regular valence-4 nodes form at intersections).\\n\\n**Algorithm (Lyon 2021 modified motorcycle graph):**\\n1. Each singularity emits motorcycle traces along all 4 cardinal directions of its parametrization (\u00b1u, \u00b1v).\\n2. Each trace follows iso-lines of the parametrization through the mesh.\\n3. When traces intersect: in the original motorcycle graph trace stops; in Lyon's modification it can continue (regular valence-4 node forms).\\n4. Stopping criterion (Lyon 2021 Sec 3): a trace stops once it has intersected two traces tk and tl such that \u03b1ik \u2208 [0, \u03b1] and \u03b1il \u2208 [-\u03b1, 0] \u2014 i.e., on both sides of trace ti a trace is found such that the formed triangle is contained in the sector of half-angle \u03b1 around ti. \u03b1 is the user-given angular bound (default 5\u00b0 to 35\u00b0).\\n5. Build T-mesh structure: nodes (singularities + intersections), arcs (trace segments between consecutive nodes), patches (rectangular regions bounded by 4 arcs in the parametric domain).\\n\\n**Output:** T-mesh data structure (nodes N, arcs A, patches P) ready for quantization.\\n\\nReferences:\\n- Algorithm spec: Ixdar/ixdar-tickets/PATCH-37-CAMPEN-SPEC.md (Stage 2 section, plus Lyon 2021 modification noted in PATCH-37 description)\\n- metriko reference: /tmp/metriko/include/metriko/core/tmesh/ (~604 LOC C++)\\n- Eppstein-Goodrich-Kim-Tamstorf 2008. Motorcycle Graphs: Canonical Quad Mesh Partitioning. CGF 27(5).\\n- Campen-Bommes-Kobbelt 2015. Quantized Global Parametrization. SIGGRAPH Asia.\\n- Lyon-Campen-Kobbelt 2021. Quad Layouts via Constrained T-Mesh Quantization. CGF 40(2). Sec 3.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. MotorcycleGraph + TMesh classes produce nodes, arcs, patches from a seamless parametrization. 2. Cube parametrization yields 6 patches (one per face), 8 nodes (corners). 3. Sphere with 8 \u00b11/4 singularities yields the topologically-expected T-mesh. 4. Hand.obj matches metriko's T-mesh node/arc/patch counts at \u03b1=10\u00b0 and \u03b1=30\u00b0.",
+    "testing-plan": "1. Cube parametrization (analytic): expect exactly 6 patches, 12 arcs, 8 nodes. 2. Torus seamless parametrization (analytic): expect 1 patch, 2 arcs, 1 node. 3. Hand.obj at \u03b1=10\u00b0/15\u00b0/30\u00b0: counts within 5% of metriko.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

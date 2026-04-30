@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-91",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Investigate why motorcycle traces produce non-rectangular T-mesh cells",
+    "description": "Diagnostic findings 2026-04-29 (PATCH-91 work):\\n\\n- Lyon \u00a73 says T-mesh patches are 'rectangular regions bounded by arcs' \u2014 by construction under the \u03b1-bound stopping rule.\\n- Paper's ROCKERARM at \u03b1=15\u00b0: 144 traces, 2742 arcs, 159 patches (all rectangular).\\n- Our pipeline at same input + \u03b1=15\u00b0: 128 traces, 2753 arcs (matches paper!), but our planar-dual face walk produces 119 quads + 153 non-quad cells (3-corner triangles + 5-15 corner cells + handful of 30-233 corner outer-boundary walks).\\n\\nHypotheses for why our topology diverges:\\n1. **Sign error in \u03b1_ij**: PATCH-44's classification uses cross-product of arc directions. Wrong sign convention could misclassify which sector a singularity falls in, allowing motorcycles to survive crashes they should stop at.\\n2. **Missing self-crash splits**: the surviving motorcycle records a self-Crash (PATCH-44 line ~287). Maybe additional bookkeeping is needed when subsequent motorcycles cross at the same valence-4 node.\\n3. **Per-step direction tracking**: per-step direction in TArc.stepUvs might drift across face transitions, causing incorrect crash-angle computation.\\n4. **First-step direction inference**: PATCH-78 inferDirectionFromFirstStep was added because arc.direction() didn't always match step deltas. Maybe motorcycle's actual launch direction (not the inferred one) is feeding into PATCH-44's classification incorrectly.\\n\\nDiagnostic data:\\n- Face-length histogram: many length-63 cycles (11 of them) \u2014 likely DCEL outer-face walks\\n- Arc-incidence: 1444 of 2753 arcs (52%) appear in zero emitted patches (orphans even after F2/F3 filters)\\n- Strip equivalence: 2521 classes max size 9 (vs paper bound 192)\\n\\nTo investigate:\\n1. Compare our TArc list vs metriko's stage3_tedges.tsv arc list for rocker-arm \u2014 same arcs?\\n2. For a sample of crashed motorcycles, manually verify \u03b1_ij computation in PATCH-44\\n3. Check if surviving motorcycles' subsequent crashes are recorded with correct \u03b1 values\\n4. Compare TPatchEnumerator's planar walk output to metriko's tquads output",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Identify the topology divergence's root cause and either fix it or document it. Goal: emit \u226595% rectangular cells, orphan arcs \u2264 5%.",
+    "testing-plan": "1. Rocker-arm at \u03b1=15\u00b0: assert orphan arcs \u2264 5%. 2. Compare TArc count + node count to metriko stage3 output (within 10%). 3. Lyon paper rocker-arm checkpoint #P closer to 159.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

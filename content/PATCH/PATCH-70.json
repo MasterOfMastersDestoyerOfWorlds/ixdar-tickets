@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-70",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "TPatch enumeration: 41 non-quad faces (18 triangles, 6+ pentagons) on Hand-30k",
+    "description": "Surfaced during PATCH-68 testing. After planar-graph face enumeration on Hand-30k T-mesh (332 arcs):\\n- 80 face cycles walked.\\n- side-count histogram: [-, -, 2-side: 4, 3-side: 18, 4-side: 39, 5-side: 3, 6-side: 4, 7-side: 1, 9-side: 1, 10-side: 3, 11-side: 1, 12-side: 1, 14-side: 1].\\n- 39 emitted as TPatches (4-corner quads).\\n- 41 skipped (non-quad).\\n\\nMetriko presumably has more 4-corner Tquads. The 18 triangles are likely faces around singularities where the cardinal-direction transition rule miscounts corners (singularity vertices don't have a clean 4-quadrant tiling).\\n\\nFix candidates:\\n1. Better corner detection: use surface-tangent angle change > threshold instead of strict cardinal-mismatch.\\n2. T-junction recognition: side continuations across multi-arc with same cardinal should fold the 'extra' corners away.\\n3. Singularity-aware enumeration: at cone singularities, expect K corners where K matches the cone valence.\\n\\nDownstream: extra correct patches scale linearly with output quad count.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "TPatchEnumerator emits >= 80% of face cycles as 4-corner TPatches on Hand-30k (= >64 of 80). Existing toy tests still pass.",
+    "testing-plan": "1. Inspect specific triangle faces \u2014 are they around singularities (3-valent vertices)? 2. Inspect pentagon faces \u2014 are they T-junctions? 3. Adjust corner detection accordingly.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-85",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon \u00a75.2 sparse-QR rank reduction (paper #Vars=192 form)",
+    "description": "metriko (Lyon's reference impl) reduces the consistency-constraint matrix M (2\u00b7#TQ \u00d7 #TArc, \u00b11 entries) to its linearly-independent rows via sparse QR (see /tmp/metriko/include/metriko/core/solver/matrix_ops.h:reduce_to_linearly_independent). The rank of M IS the paper's #Vars (e.g. 192 for ROCKERARM) \u2014 variables that are fully determined by other vars get eliminated.\\n\\nOur PATCH-72/84 union-find approach gets a fraction of this reduction by spotting same-count opposing-side patches. metriko's approach is more general: it works for any constraint structure including asymmetric T-junctions.\\n\\nImplementation: build the constraint matrix as Eigen-style sparse, run sparse QR via ojAlgo's QR (or Apache Commons Math, or netlib BLAS via MTJ), get rank + permutation, project the var space onto the basis. Add to Quantization.solve before passing to ojAlgo's IntegerSolver.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "rocker-arm at \u03b1=15\u00b0: #Vars drops from current 2521 to ~192 (paper). Hand-30k similar 14\u00d7 reduction. ILP solves in seconds (no more OOM fallback).",
+    "testing-plan": "Toy 4-patch grid: rank reduction gives the analytically-known basis count. Rocker-arm: assert #Vars within 25% of paper's 192.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

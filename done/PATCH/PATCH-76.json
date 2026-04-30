@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-76",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Quantization ILP solver hangs on 271-class Hand-30k model (post-strip-reduction)",
+    "description": "After PATCH-72 \u00a75.2 strip reduction lands (332 arcs \u2192 271 classes on Hand-30k), the ojAlgo IntegerSolver still does not converge in <2s on the resulting 271-q + 271-t = 542-var ILP. Suspects in priority order: (1) Variable upper bound 'ceil(2*r_c) + 5' is too generous, exploding the branch-and-bound search space \u2014 replace with a tighter bound derived from the patch's parametric extent (Lyon \u00a74.1: r_c is half the parametric distance between opposite arcs). (2) The objective \u03a3|q-r| via t-slack vars is L1; ojAlgo may benefit from explicit Gomory cuts or warm-start with the rounded LP relaxation (q_c = round(r_c) is already nearly optimal). (3) Layout constraint Eq.(4) is missing \u2014 when present, it adds tighter \u22651 inequalities that prune the polytope. (4) Patch enumeration only finds 39/anticipated patches; the remaining unenumerated faces around 3-valent singularities (PATCH-70) might leave free variables unconstrained, leading to a flat objective surface. Triage: instrument IlpSolver with a node-count + LP-relaxation-objective trace, run on Hand-30k, identify which suspect dominates.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "On Hand-30k: full Quantization.solve completes in <30s and produces consistent q. As a stretch: <2s matching Lyon paper timings (their 158ms on HEPTOROID with 1131 vars is a comparable scale).",
+    "testing-plan": "Re-enable the disabled StripReductionTest.stripReductionCollapsesHandArcsAndIlpCompletesQuickly (was downgraded to bound-only assertion). Add IlpSolverTimingTest with a 100-class synthetic fixture to gate regression.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

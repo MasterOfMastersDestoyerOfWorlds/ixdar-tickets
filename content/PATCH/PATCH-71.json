@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-71",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Lyon split-arc tracer fails for X > 1 (intersection table mostly null)",
+    "description": "Surfaced during PATCH-68 verification with synthetic X[i] sweep on Hand-30k:\\n\\n  X=1: 39 quads (1 per Tpatch)\\n  X=2: 8 quads (expected 156 = 39 patches * 4 quads)\\n  X=3: 18 quads (expected 624)\\n  X=5: 45 quads (expected 1404)\\n  X=8: 73 quads (expected 3159)\\n\\nQuads are dropped when ANY corner of a quad cell is null, and IntersectionTable.intersection3D returns null when no edge of arc1 shares a mesh face with any edge of arc2. With X=1, no interior arcs are needed (table corners are populated from Tpatch corner-nodes), so 39 patches \u2192 39 quads. With X >= 2, interior split arcs must be traced via SplitArcTracer; their intersections must occur in shared mesh faces.\\n\\nMetriko's reference X distribution on the same Hand mesh:\\n  total arcs: 352\\n  avg X: 3.32, max: 26\\n  histogram: X=1\u2192164, X=2\u219267, X=3\u219239, X=4\u219214, X=5\u21927, X=6\u219210, X=7\u21927, X=8\u219212, X=9\u21928, X=10\u21925, X=11\u21926, X=15\u21922, X=17\u21921, X=19\u21922, X=20\u21921, X=21\u21921, X=22\u21921, X=24\u21923, X=25\u21921, X=26\u21921\\n\\nWith proper quantization + working tracer, expect ~2339 quads (matching metriko).\\n\\nLikely fixes:\\n1. SplitArcTracer's direction calculation (atan / TRS rotation) is wrong, sending traced arcs into the wrong faces.\\n2. The same-face shortcut may be incorrect when arcs traverse multiple faces.\\n3. Numerical robustness in segment-segment intersect (EPS tuning).\\n\\nDiagnostic to add: count successful vs null intersections per patch, dump the mesh faces traversed by sample arc1/arc2 pairs that fail to intersect.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "MetrikoStageRegressionTest.stage2UvsThroughLyonEndToEnd with synthetic X=3 produces > 300 quads (= ~75% of expected 39*16=624). X=8 produces > 1500 quads.",
+    "testing-plan": "1. Add per-patch null-intersection counter. 2. Dump face traversal of ~5 failing arc pairs to identify the bug. 3. Fix tracer direction calculation. 4. Re-run sweep.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
