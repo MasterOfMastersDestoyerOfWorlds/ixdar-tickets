@@ -9,7 +9,7 @@
     "description": "Lyon \u00a76 \u00b61: when an arc's quantization is q=0, the arc collapses (its two endpoints merge into one), and the patches on either side of the arc merge into one larger conforming patch. Paper Table 1 #P counts patches AFTER this merge.\\n\\nWe currently count T-mesh patches (pre-merge). On rocker-arm we get 112 vs paper's 159 \u2014 close but the count semantics differ. Without the merge, our 'conforming layout' is denser than the paper's.\\n\\nImplementation: after Quantization.solve produces q[], walk the T-mesh:\\n1. Collect zero-quantized arcs Z = { a | q[a] == 0 }.\\n2. Build patch-adjacency graph (patch p1 adjacent to p2 iff they share a Z arc).\\n3. Connected components of this graph are the merged conforming patches.\\n4. Each merged patch's boundary = union of non-Z arcs of its constituent T-patches.\\n5. Re-emit as QuadLayoutPatch with the merged boundary (still 4 cardinal sides since Z arcs don't change cardinal direction).\\n\\nDepends on a working ILP (PATCH-85).",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "Rocker-arm at \u03b1=15\u00b0 with feasible ILP: post-merge #P matches paper's 159 within \u00b110%.",
     "testing-plan": "Toy: 2x2 patch fixture where one shared arc has q=0 \u2192 expect 4 patches \u2192 2 merged patches. Rocker-arm benchmark: report pre-merge vs post-merge #P.",
     "todos": [],

@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-102",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry/quadlayout/vectorfield"
+    ],
+    "title": "PATCH-102: Stronger preconditioner / sparse-residual warm start for MiGreedyRounding CG",
+    "description": "PATCH-101 shipped Jacobi-preconditioned CG in MiGreedyRounding.tryCG(). Empirical scaling on subdivided spheres:\n\n- level=3 F=512   chord-pins=257   avg-iters/pin=234   time=0.4s\n- level=4 F=2048  chord-pins=1025  avg-iters/pin=458   time=9.4s\n- level=5 F=8192  chord-pins=4097  avg-iters/pin=660   time=283s\n\nPCG converges across all levels (vanilla CG timed out at level 5). Iters grow ~sqrt(F) as expected for SPD with Jacobi. But for the 20088-face rocker-arm, projected runtime is too slow for iteration (~30+ min full tol).\n\nTwo complementary directions:\n\n1. INCOMPLETE CHOLESKY (IC0/ICT) preconditioner: stronger than Jacobi; expected 5-10x fewer iterations on Laplacian-like matrices.\n\n2. SPARSE-RESIDUAL WARM START: after committing a chord pin, residual is nonzero only at faces adjacent to the pinned chord. Currently PCG starts global CG from a near-zero residual everywhere. Exploit locality to cut iters/pin to O(diameter ~ sqrt(F)).\n\nEither should make rocker-arm run in seconds.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "rocker-arm full bench with -Dixdar.lyon.recomputeField=true completes in <60s; 92/92 quadlayout tests stay green; level-5 sphere drops from 283s -> <30s.",
+    "testing-plan": "Re-run perf scan (transient), confirm avg-iters/pin lower; run BenchmarkRockerArmLyon -Dixdar.lyon.recomputeField=true and confirm singularity count moves from 32 toward 36.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

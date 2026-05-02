@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-93",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / motorcycle"
+    ],
+    "title": "Motorcycle raycast aborts on 65% of rocker-arm traces (no-exit-edge)",
+    "description": "PATCH-92 investigation revealed the actual upstream cause of the giant 1844-half-arc DCEL cycle and 70 lost T-junctions on rocker-arm: 83 of 128 motorcycle traces abort prematurely at the raycast step in MotorcycleGraph.launch (line ~516 if exitEdgeIdx<0). The raycast fails to find ANY exit edge from the current face, even though the motorcycle is in a non-degenerate face with a valid direction. Each abort creates a BOUNDARY-kind dead-end TNode that prevents the planar dual from closing into proper rectangles. proper-Lyon-stop = 45/128 (35%); abort-no-exit-edge = 83/128 (65%). Suspect failure modes: (i) seam-crossing barycentric interpolation places entry point slightly outside destination triangle, (ii) TRS rotation produces a direction that exits via the same edge it entered, (iii) numerical drift accumulates over many face transitions. Earlier hypothesis (angular sort at multi-frame singularity nodes per PATCH-92) implemented and tested empirically but did not move the metrics \u2014 that hypothesis is ruled out as the dominant cause.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "abort-no-exit-edge fires on under 5% of motorcycle launches on rocker-arm at alpha=15. T-junction census visible/lost ratio improves toward Lyon paper's expected ~all-visible. Either (a) the raycast/transition is fixed to handle the precision/TRS edge cases that currently fail, or (b) we recover gracefully (snap to nearest edge, continue) so no trace dead-ends.",
+    "testing-plan": "1) Dump first N abort-no-exit-edge events with face id, entry uv, direction, neighbor face uv corners. 2) Classify failure modes: numerical drift on seam barycentric, wrong TRS rotation, near-degenerate triangle, etc. 3) Hypothesize per-mode fix. 4) Re-run rocker-arm: expect proper-Lyon-stop > 100/128, abort-no-exit-edge < 10. 5) Downstream effects: lost T-junctions drops, giant cycle shrinks.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

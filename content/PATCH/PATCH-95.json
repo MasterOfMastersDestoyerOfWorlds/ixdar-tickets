@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-95",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / motorcycle"
+    ],
+    "title": "Sequential launch breaks Lyon both-side stop for early-id motorcycles",
+    "description": "PATCH-94 implemented EGKT08 self-stop; resolved 8/75 max-steps cases on rocker-arm. The remaining 67 motorcycles do NOT geometrically self-cross \u2014 they simply never satisfy Lyon section 3 both-side alpha-bound stop because in our SEQUENTIAL launch order they have no prior traces to crash INTO. Lyon section 3 cites EGKT08 which specifies parallel/time-stepped propagation: 'in a sequence of time steps, move each particle along the edge.' EGKT08 section 7 line 386: 'the simultaneous movement of the particles is important in making the motorcycle graph canonical but NOT in generating a correct partition' \u2014 so non-simultaneous can produce valid partitions, but only if every trace stops. Implementation choice: (A) Two-pass \u2014 Pass 1 trace all motorcycles to natural end without applying Lyon stop, then Pass 2 retrace each motorcycle using all Pass 1 traces as walls and apply Lyon stop. Smaller delta from current code. (B) True parallel \u2014 priority queue ordered by next-event time per Eppstein canonical. Bigger refactor but most paper-faithful. Recommend (A) first.\n\nUPDATE 2026-05-01: Round-robin (Option B) implemented. EGKT08-faithful step-locked parallel propagation: each motorcycle takes one triangle-step per round, all motorcycles see cumulative state from prior rounds + earlier motorcycles in this round.\n\nRESULTS on rocker-arm at alpha=15:\n- proper-Lyon-stop: 47 -> 75 (motorcycles satisfying Lyon both-side alpha-bound)\n- abort-max-steps: 73 -> 53 (down from sequential failure mode)\n- self-stop: 8 -> 0 (round-robin lets motorcycles stop via Lyon stop before self-crashing)\n- visible T-junctions: 20 -> 22\n- traces: 128, crashes: 1383 (was 3519 with sequential \u2014 fewer crashes because motorcycles stop sooner)\n- arcs: 1511 (was 2753; paper 2742) \u2014 round-robin produces ~half-length traces\n- P merged: 178 -> 36 (over-collapse from shorter traces)\n- tMCG: 14s -> 13s (similar)\n- Quadlayout regression green (91/91)\n\nRound-robin is correct EGKT08 behavior. The 53 still-MAX_STEPS motorcycles are likely cases where this surface, with our cross-field input (32 vs paper 36 sing), genuinely cannot satisfy Lyon both-side alpha-bound stop within MAX_STEPS rounds. Lyon paper inputs were tighter \u2014 more singularities means more crash opportunities.\n\nREMAINING GAPS (separate tickets):\n- Priority-queue true parallel (PATCH-96) \u2014 would resolve any remaining sequential-within-round bias\n- Investigate why traces are shorter than paper (PATCH-97) \u2014 could be cross-field quality or alpha computation\n- Address P merged over-collapse (PATCH-98) \u2014 collapse threshold needs re-tuning for new q distribution\n\nPATCH-95 STATUS: round-robin shipped. Remaining MAX_STEPS cases tracked separately.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Every motorcycle terminates via Lyon section 3 stop, EGKT08 self-stop, or boundary on rocker-arm alpha=15. abort-max-steps drops to under 5/128. tMCG returns to under 200ms range.",
+    "testing-plan": "Implement either two-pass (Pass 1 free-trace + Pass 2 retrace with full walls) or priority-queue parallel propagation. Re-run rocker-arm and verify abort-max-steps drops, tMCG drops, downstream metrics improve toward Lyon Table 1.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

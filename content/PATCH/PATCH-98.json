@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-98",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / entrypoint"
+    ],
+    "title": "Wire FaceRosyField \u00a73 recompute into rocker-arm bench (replace metriko-baseline cross-field)",
+    "description": "Once PATCH-97 makes our solver fast enough on 20K faces, we can replace the metriko-baseline precomputed cross-field with our own FaceRosyField (with PATCH-96 directional constraints enabled). This lets us empirically verify the cross-field gap analysis: singularity count should move from 32 toward Lyon paper's 36, downstream metrics should improve (more crashes qualifying for Lyon stop, fewer MAX_STEPS aborts, more layout patches).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "BenchmarkRockerArmLyon optionally (default off) runs our FaceRosyField with principalThreshold=0.8 instead of using metriko-baseline precomputed cross-field. With it enabled, singularity count moves toward Lyon paper's 36 (currently 32 with metriko-precomputed). Quadlayout regression green.",
+    "testing-plan": "1) Add a flag (-Dixdar.lyon.recomputeField=true) to BenchmarkRockerArmLyon. 2) When set, skip the precomputed stage1 import and run FaceRosyField(mesh, 0.8) directly. 3) Print sing count comparison: precomputed=32, our-recompute=N. 4) Run downstream pipeline against new cross-field; report all Lyon Table 1 metrics.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

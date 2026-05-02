@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-99",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / vectorfield"
+    ],
+    "title": "CIE*16 scale-invariant directional alignment for cross-field constraints",
+    "description": "Lyon section 7 line 477 explicitly uses BZK09 + CIE16 for the cross-field. PATCH-96 implemented BZK09 \u00a73 anisotropy-based directional constraints. CIE16 is a refinement that makes the alignment scale-invariant \u2014 important for meshes with varying detail scales. Without CIE16, our cross-field will still differ from Lyon's even with \u00a73 enabled. Lower priority than PATCH-97 + PATCH-98 since the latter close most of the gap.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "FaceRosyField directional constraints additionally apply CIE16 scale-invariant alignment energy on top of BZK09 \u00a73 anisotropy threshold. Verified on rocker-arm: cross-field singularity layout matches Lyon paper figures more closely than BZK09 \u00a73 alone.",
+    "testing-plan": "1) Fetch CIE16 paper (Campen-Ibing-Ebke-Zorin-Kobbelt 2016 Scale-Invariant Directional Alignment of Surface Parametrizations). 2) Implement scale-invariant alignment energy term. 3) Add as additional energy in MiGreedyRounding alongside smoothness energy. 4) Verify singularity count and positions on rocker-arm vs Lyon paper figures.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

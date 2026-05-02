@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-101",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / vectorfield"
+    ],
+    "title": "Preconditioned CG for cross-field solver to scale beyond 8K faces",
+    "description": "PATCH-97 CG fallback shipped 24x speedup on small meshes (512 faces) but stalls on 8K+ face meshes because CG iterations per pin scale with sqrt(condition_number). Cross-field LSE matrix becomes ill-conditioned for large meshes. Standard remedy: preconditioned CG. Diagonal Jacobi preconditioner is cheap and often gets 3-10x iteration reduction. Block-diagonal or incomplete Cholesky preconditioners are more expensive but better. This unblocks PATCH-98 (cross-field recompute on rocker-arm).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "FaceRosyField + PATCH-97 CG completes on rocker-arm 20K faces in under 30 seconds. Singularity count converges to a stable value (currently times out before completing).",
+    "testing-plan": "1) Add Jacobi (diagonal) preconditioner to tryCG. 2) Run on subdividedSphere(5) (8192 faces) and rocker-arm. 3) If Jacobi insufficient, try block-diagonal or AMG. 4) Compare iteration counts and total time across mesh sizes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

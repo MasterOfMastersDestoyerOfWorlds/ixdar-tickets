@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-92",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / tmesh"
+    ],
+    "title": "Investigate planar-walk angular sort at seam-crossing nodes",
+    "description": "PATCH-92 follow-up: 70/128 T-junctions on rocker-arm at alpha=15 land in dropped DCEL cycles, not in any emitted T-mesh patch. The 1844-half-arc giant cycle alone holds about half of these. PATCH-91 fixed corner DETECTION via TArc.directionAtStart/End (face-frame-correct cardinal classification at the node) but did NOT fix the angular SORT in TPatchEnumerator.outgoingByNode, which uses raw forwardStartAngle/reverseStartAngle computed in each arc's own start-face frame. At nodes where outgoing half-arcs come from different face frames (any seam crossing where motorcycles transition), this sort can mis-order them, sending the planar-dual face walk into a wrong neighbor. A single bad sort cascades into a giant DCEL cycle that swallows hundreds of T-junctions. Investigation: (a) audit TPatchEnumerator.outgoingByNode angular sort, (b) hypothesize: rotate angles into a common frame at each node using TRS rotations, (c) measure rocker-arm before/after via T-junction census (currently visible=12 hidden=46 lost=70 extended=3 of 128 expected).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "T-junction-lost-in-no-patch metric drops below 10%; giant DCEL cycle on rocker-arm shrinks below 100 half-arcs; planar walk produces a planar dual whose largest face has bounded corner count for genus-0 closed inputs.",
+    "testing-plan": "1) Add diagnostic that prints angular ordering at every seam-crossing node with at least 3 incident arcs. 2) Identify whether multi-face-frame outgoing arcs are sorted incorrectly. 3) Hypothesize fix: rotate every arc's angle into the node's home face frame via TRS lookup. 4) Compare T-junction census on rocker-arm before/after. Pass: 70-> below 13 lost T-junctions.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

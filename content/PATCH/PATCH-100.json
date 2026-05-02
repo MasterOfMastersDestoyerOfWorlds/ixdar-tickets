@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-100",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / vectorfield"
+    ],
+    "title": "Multi-radius shape operator per BZK09 \u00a73 \u00b64-5",
+    "description": "PATCH-96 implemented a SIMPLIFIED BZK09 \u00a73: per-vertex shape operator from 1-ring (Meyer-style), single radius. BZK09 \u00a73 \u00b64-5 specifies multi-radius computation with windowed validity to avoid noise sensitivity: r0 = avg edge length, r1 = h target edge length, w = h/4 window; \u03c4_min = 0.8 anisotropy threshold; K = 0.1/b_s mean-curvature threshold; pick valid S with smallest angle deviation in interval. Without this, our per-vertex shape operator may pick spurious anisotropy from noisy local geometry, leading to bad directional constraints.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "PrincipalDirectionField supports BZK09 \u00a73 multi-radius shape operator: per point compute S_r at multiple geodesic radii r \u2208 [r0, r1] with windowed validity check. Mean-curvature threshold K = 0.1/b_s applied alongside anisotropy \u03c4_min.",
+    "testing-plan": "1) Add multi-radius shape operator computation to PrincipalDirectionField (or new class). 2) Implement windowed validity: a S_r is valid if all S in [r-w, r+w] have anisotropy and mean curvature above thresholds. 3) Pick most stable S among valid candidates (smallest angle deviation). 4) Verify constraint set on rocker-arm differs from PATCH-96 simplified version.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

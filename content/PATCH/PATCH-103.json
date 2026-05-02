@@ -1,0 +1,20 @@
+{
+    "id": "PATCH-103",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry/quadlayout/vectorfield"
+    ],
+    "title": "PATCH-103: BzkAdaptiveSolver runtime on 20K-face mesh \u2014 PCG iters per pin grow with mesh scale",
+    "description": "Phase A rewrite (BzkSystem + BzkAdaptiveSolver + GreedyRounding) is structurally correct: rocker-arm without PATCH-96 constraints gives 34 singularities (metriko=32, paper=36). But runtime is 2.7 hours due to 10.9M total CG iterations across 10046 chord pins.\n\nBreakdown:\n- bootstrap (cold start from x=0): 500-1000+ PCG iters\n- per-pin re-solves (warm start): avg 1085 iters/pin\n\nBoth worse than expected because Jacobi preconditioning still leaves a poorly conditioned matrix on a real (non-spherical) 20K-face mesh.\n\nTwo fixes to investigate:\n\n1. INCOMPLETE CHOLESKY (IC0/ICT) preconditioner: replaces M=diag(A) with sparse approximate Cholesky factor. 5-10x fewer iters expected.\n\n2. SPARSE-RESIDUAL WARM START: after committing pin c, residual is nonzero only at neighbors of c. Currently PCG ignores this and does full global iteration. Track local residual support to short-circuit when the change is contained.\n\nCombined target: rocker-arm full recompute < 60s.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "rocker-arm full bench with -Dixdar.lyon.recomputeField=true completes in < 60s; 92/92 quadlayout regression green.",
+    "testing-plan": "Re-run BenchmarkRockerArmLyon with -Dixdar.lyon.principalTau=Infinity, confirm < 60s; verify singularity count stays in [30, 40] range.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

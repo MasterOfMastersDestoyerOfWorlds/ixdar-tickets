@@ -9,7 +9,7 @@
     "description": "Gap C from the 2026-04-29 audit. LyonLayoutDecomposer.decompose() uses a nearest-centroid heuristic for mesh faces that aren't on a layout-arc boundary. This produces visible 'magenta blob' artifacts in the rendered overlays (one or two patches engulf large unbounded regions, regardless of whether the actual layout topology routes them there). The underlying QuadLayout is correct; the rendering is wrong.\\n\\nFix: replace phase-2 with a flood-fill from each marked boundary face, using mesh-edge adjacency, blocked by edges crossed by any layout arc. Each face inherits the patch label of the boundary cell it floods from. Faces reachable by no flood-fill (e.g. holes) stay unlabeled and render as light grey.\\n\\nLikely subsumed by PATCH-44 IF Lyon's \u03b1-stopping fills the surface with so many traces that nearly every face is on some boundary anyway. Re-evaluate after PATCH-44 lands. If PATCH-44 already produces \u226595% boundary coverage on rocker-arm, drop this.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "Re-rendered /tmp/lyon-rocker-arm-overlay.png shows distinct rectangle-ish regions per patch with no large blob spanning multiple cells. Hand-30k same property.",
     "testing-plan": "1. Re-run BenchmarkRockerArmLyon and BenchmarkHand30kLyon. 2. Visually inspect for blob streaking. 3. Gate: max-faces-per-patch on Hand-30k drops from current ~5000 to under ~500.",
     "todos": [],
