@@ -1,0 +1,41 @@
+{
+    "id": "CRAW-13",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Mesh boolean face provenance from Manifold (REFACTOR-PLAN-2 C1)",
+    "description": "ManifoldMeshBooleanBackend (Java FFM bindings to Manifold3D) returns MeshBooleanResult.faceOrigin empty because the bindings do not expose Manifold's runIndex/runOriginalID/faceID tables from MeshGL64. Everything downstream that must survive a boolean (labels, tags, bone weights, UVs, dirty-patch marking, provenance tinting) needs to know which input mesh and which input triangle each output face came from. Extend the FFM bindings to read runIndex + runOriginalID (per-run origin manifold) and faceID (original triangle id when Manifold preserves it), populate faceOrigin (A / B / NEW) and a per-face sourceFaceId array, re-enable the @Disabled provenance half of MeshBooleanProvenanceTest, and restore provenance tinting in MeshBooleanScene (from_a/from_b/intersection tags). Also answer the C1 side question: why the old backend reported faces new=0/36 without flagging an intersection face. Related: MESH-50 (mesh_boolean output has unwelded duplicate vertices) -- provenance must survive whatever weld fixes that.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-14",
+        "CRAW-15",
+        "CRAW-16"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. MeshBooleanResult carries faceOrigin for every output face and sourceFaceId where Manifold provides it. 2. MeshBooleanProvenanceTest fully enabled and green (two-cube union: faces from A, from B, and NEW intersection faces all present). 3. mesh-boolean scene tints by origin again (screenshot). 4. mesh_boolean node writes provenance into its existing provenance slots. 5. Build checkstyle-green; ManifoldNativesTest green.",
+    "testing-plan": "1. Unit: two-cube union -> counts of A/B/NEW faces match expectations and sourceFaceId indexes into the right input. 2. Unit: difference and intersection ops report consistent origins. 3. run-scene mesh-boolean screenshot shows three colours.",
+    "todos": [
+        "Extend ManifoldBindings to read MeshGL64 runIndex/runOriginalID/faceID",
+        "Map runs to input operands (setOriginalID before the op) and fill faceOrigin/sourceFaceId",
+        "Re-enable and extend MeshBooleanProvenanceTest",
+        "Restore MeshBooleanScene tinting",
+        "Document the new=0/36 finding in changes-made"
+    ],
+    "unknowns": [
+        "Whether the vendored FFM binding version exposes faceID or only runOriginalID (may need a binding regeneration)",
+        "Whether Manifold's own triangulation of coplanar overlaps loses faceID (then NEW faces need a nearest-source fallback)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldMeshBooleanBackend.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/MeshBooleanResult.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/MeshBooleanNode.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshBooleanScene.java",
+        "ixdar-app/test/unit/mesh/MeshBooleanProvenanceTest.java",
+        "REFACTOR-PLAN-2.md",
+        "ixdar-tickets:MESH-50"
+    ],
+    "priority": 1
+}

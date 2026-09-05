@@ -1,0 +1,42 @@
+{
+    "id": "CRAW-9",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Automation endpoints and CLI for patch inspection and labeling",
+    "description": "Machine access to what CRAW-7 does by hand, and the substrate for the VLM harness. New routes under ixdar/platform/automation/endpoints/mesh (class per route, @AutomationRouteAnnotation, RouteDoc): GET /mesh/patches/list (id, centroid, normal, area, neighbour ids, labels), POST /mesh/patches/highlight (ids, colour, exclusive flag), POST /mesh/patches/focus (orbit the camera so the patch fills the view, using the existing orbit routes), POST /mesh/patches/label and /mesh/patches/unlabel, GET/PUT /mesh/labels (the hierarchy). Every render-touching handler runs through AutomationRuntime.runOnMainThread. Matching ixdar-cli commands (patches-list, patch-highlight, patch-focus, patch-label, labels-get/labels-set) in cli_commands/, then `ixdar-cli gen-docs` to regenerate automation_routes.json, the CLI README and the CLAUDE.md command list.",
+    "blocked-by": [
+        "CRAW-7"
+    ],
+    "blocks": [
+        "CRAW-10"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Six routes registered and present in automation_routes.json with RouteDoc descriptions. 2. CLI commands round-trip against a running patch-label scene (list -> highlight -> focus -> label -> list shows the label). 3. patches/focus produces a screenshot where the target patch covers at least 25% of the frame on the plane fixture. 4. gen-docs output committed; CLAUDE.md generated block updated. 5. test_cli.py gains tests for argument parsing of the new commands. 6. Build checkstyle-green.",
+    "testing-plan": "1. run-scene patch-label --keep-alive on the saved plane layout; run each CLI command; assert JSON shapes. 2. After patch-label, `save-layout` via `ixdar-cli type` and reload; patches-list shows the persisted label. 3. `uv run pytest ixdar_automation_cli/test_cli.py`.",
+    "todos": [
+        "Implement PatchesList, PatchesHighlight, PatchesFocus, PatchesLabel, PatchesUnlabel, Labels routes",
+        "Patch centroid/area/neighbour computation helper on the layout (reuse ArcNetwork adjacency)",
+        "CLI commands in cli_commands/ and registry entries",
+        "gen-docs regeneration and README update",
+        "test_cli.py additions"
+    ],
+    "unknowns": [
+        "Whether focus should frame by patch bounding sphere or by area-weighted centroid + normal",
+        "Whether label mutations via API should auto-save or require an explicit save route"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/automation/AutomationEndpoint.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/ui/Screenshot.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh",
+        "ixdar_automation_cli/cli_commands",
+        "ixdar_automation_cli/cli_registry.py",
+        "ixdar_automation_cli/automation_routes.json",
+        "ixdar_automation_cli/test_cli.py"
+    ],
+    "priority": 3
+}

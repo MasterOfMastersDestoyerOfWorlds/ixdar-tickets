@@ -1,0 +1,48 @@
+{
+    "id": "CRAW-2",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Quad-layout pipeline at scan scale: full-resolution crawfish GLB without OOM",
+    "description": "Run the `quad_layout` node end to end on one unmodified crawfish scan (~623k vertices / ~936k triangles) and make it finish. The pipeline is tuned around ~15k-vertex inputs (fertility) and the ARCHITECTURE.md constraint is no OOM at 100k-500k vertices. This ticket is explicitly NOT decimation: the user ruled that the quad layout is the compression step and degrading the input is not acceptable, so any stage that cannot scale is improved. Method: profile with `uv run ixdar-cli run-scene --scene quad-layout --profile --property ixdar.model=<scan.glb>` (async-profiler flame graph, read with `python3 -m ixdar_automation_cli.async_profile profile.html --top 30`), attack the top self-time methods and the allocation hot spots (boxing faceIdToActive/edgeIdToActive maps, per-element object allocation in seamless/embedding, Cholesky fill on the seamless system, motorcycle trace storage), and re-verify fertility reproduces the REFACTOR-PLAN-2 baseline unchanged (13853 quads, 284 patches, singularities 44). Record per-stage timings and peak heap as a benchmark. Related solver/decomposer scaling tickets in the PATCH epic: PATCH-12, PATCH-46, PATCH-55, PATCH-103; do not duplicate their fixes, link them.",
+    "blocked-by": [
+        "CRAW-1"
+    ],
+    "blocks": [
+        "CRAW-18",
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. `quad_layout` on IMG_4109.glb reaches a quantized, embedded layout in the quad-layout scene under -Xmx8g without OOM. 2. Per-stage timings (cross field, seamless, motorcycle, quantization, embedding, newton, extraction) and peak heap are recorded in a benchmark test under ixdar-app/test/benchmark/ and in this ticket's changes-made. 3. Fertility baseline from REFACTOR-PLAN-2 reproduces exactly (13853 quads, 284 patches, singularities 44, euler -6). 4. Any stage rewritten keeps its unit tests green and adds none that load meshes into the unit suite. 5. No new System.getProperty knobs; behaviour switches are public fields. 6. Build is checkstyle-green.",
+    "testing-plan": "1. Run the profiled scene on the scan before changes; save the hot-method table to the ticket. 2. After each fix, re-run and confirm the targeted method's self-time dropped; keep a before/after table. 3. `mvn clean test -pl annotations,ixdar-app` -- the three known-failing quad-layout classes stay the only failures. 4. run-scene screenshot of the crawfish layout with patch fill (P) on for the ticket record.",
+    "todos": [
+        "Capture baseline profile and heap on IMG_4109.glb; identify OOM/timeout stage",
+        "Replace boxing id->active maps in the hot stage with primitive arrays",
+        "Audit per-element allocations in seamless and embedding for reuse fields",
+        "Check the Cholesky ladder (PARDISO/Accelerate/EJML) handles the system size; fall back deliberately if not",
+        "Add the crawfish pipeline benchmark with per-stage timing and peak heap",
+        "Re-run the fertility baseline and confirm unchanged"
+    ],
+    "unknowns": [
+        "Whether the Trellis2 scans are 2-manifold and watertight as exported; non-manifold input may need a repair node before cross field (out of scope here -- report it)",
+        "Whether the 60s grid-map optimizer budget needs to scale with patch count",
+        "Whether alpha_degrees / target_edge_length defaults produce a usable patch count on a 900k-triangle input"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/QuadLayoutEngine.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/solver",
+        "ixdar_automation_cli/async_profile.py",
+        "REFACTOR-PLAN-2.md",
+        "ARCHITECTURE.md",
+        "ixdar-tickets:PATCH-12",
+        "ixdar-tickets:PATCH-46",
+        "ixdar-tickets:PATCH-55",
+        "ixdar-tickets:PATCH-103"
+    ],
+    "priority": 2
+}

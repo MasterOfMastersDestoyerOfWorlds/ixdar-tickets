@@ -1,0 +1,47 @@
+{
+    "id": "CRAW-4",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Save and reload a quad layout without recomputation",
+    "description": "Persist a finished layout so scenes can load it instantly (Quad Layouts note: 'need to solve for loading arb quad layout so we can have quick iteration' and 'store all of the quad layout information ... into files for caching'). There is no serializer today: QuadLayoutEngine produces an ArcNetwork (nodes/arcs/patches, id == index, retired via alive flags) and PatchSurfaceGeometry bundles with the per-face patch_id IntField. Per the standing one-language ruling, the saved form is a .dsl graph: `load_mesh` of the source file followed by network_node / network_arc / network_patch / arc_network statements with geometric anchors (node = nearest_vertex position, arc = shortest edge path with via-waypoints, patch = four corner nodes + side counts), exactly the form of src/main/resources/dsl/fixtures/*.dsl, emitted by a new QuadLayoutDslWriter (sorted, byte-stable). Add a `save-layout <path>` terminal command and a `--property quadLayout.save=<path>` for headless runs; ModelCatalog lists saved layouts as ModelChoice.Kind.DSL so the model menu and -Dixdar.model can pick them. Loading is the existing graph path (registerGraph/GraphChoice), so no new reader is needed if the writer's output re-traces exactly. Related: PATCH-57 (emit Coons-patch DSL from T-mesh patches, pinned) covers the Coons-surface half of a saved layout; this ticket covers the arc network itself.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-6",
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. `save-layout` on the plane and torus fixtures writes a .dsl that, re-executed, yields an ArcNetwork element-equal to the original (same node positions, arc paths, patch corners). 2. `save-layout` on fertility (284 patches) writes a .dsl that reloads in EmbeddedTMeshScene with identical patch count and boundaries. 3. Saved layouts appear in the model menu and can be launched with -Dixdar.model=<saved.dsl>. 4. Writer output is byte-stable across two runs (TreeMap/sorted emission). 5. Round-trip unit test lives in test/unit/mesh using the plane/torus fixtures only. 6. Build checkstyle-green.",
+    "testing-plan": "1. QuadLayoutDslWriterTest: save torus_layout fixture -> execute -> compare ArcNetwork element-exact. 2. Benchmark (test/benchmark) saving/reloading fertility; assert patch count 284 and boundary arc count. 3. run-scene embedded-tmesh with the saved fertility .dsl, screenshot, compare with a live-computed run. 4. Diff two consecutive saves of the same layout to prove byte stability.",
+    "todos": [
+        "Implement QuadLayoutDslWriter emitting network_* statements with geometric anchors",
+        "Add save-layout terminal command and quadLayout.save property handling in QuadLayoutScene/EmbeddedTMeshScene",
+        "List saved layouts in ModelCatalog as Kind.DSL",
+        "Round-trip unit test on plane/torus fixtures",
+        "Fertility save/reload benchmark",
+        "Document the format in a short section of the CRAW context.md"
+    ],
+    "unknowns": [
+        "Whether shortest-edge-path re-tracing reproduces every arc exactly on dense meshes with near-tie paths; if not, the fallback is a sidecar in the CrossFieldWriter pattern -- requires a user ruling because of the one-language rule",
+        "Whether the saved graph should also carry the quantized arc lengths (network_arc length=) so quantization is skipped on reload",
+        "How to reference the source mesh path portably (relative to IXDAR_MODEL_DIR?)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/ArcNetwork.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/extraction/PatchSurfaceGeometry.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/network/ArcNetworkNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/network/NetworkArc.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/network/NetworkPatch.java",
+        "ixdar-app/src/main/resources/dsl/fixtures/torus_layout.dsl",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/CrossFieldWriter.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelCatalog.java",
+        "ixdar-app/src/main/java/ixdar/scenes/EmbeddedTMeshScene.java",
+        "/home/acw/obsidian/Notes/Quad Layouts.md",
+        "/home/acw/obsidian/Notes/Coons Patch Representation.md",
+        "ixdar-tickets:PATCH-57"
+    ],
+    "priority": 1
+}

@@ -125,6 +125,12 @@
             "name": "Player Controls & Input System",
             "priority": 10,
             "description": "First-person controls polish for the dungeon viewer / future game runtime: FPS mouse capture (no click-to-drag), configurable input bindings, sensitivity tuning, sprint, gamepad support. Sits alongside PROCGEN since the dungeon viewer is its first consumer, but the binding layer is general engine infrastructure."
+        },
+        {
+            "prefix": "CRAW",
+            "name": "Crawfish Model Pipeline",
+            "priority": 7,
+            "description": "GLB scans -> quad layout -> labeled, textured, symmetric, rigged single model via the DSL"
         }
     ]
 }

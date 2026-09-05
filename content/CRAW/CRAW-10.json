@@ -1,0 +1,46 @@
+{
+    "id": "CRAW-10",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "VLM auto-labeling harness for quad-layout patches",
+    "description": "'Endpoint to drive auto labeling of patches via vlm.' Python-side harness in ixdar_automation_cli (new module vlm_labeling.py + `ixdar-cli label-patches --ontology ontology.json [--patches ...] [--views 4]`) that, for each patch: calls /mesh/patches/focus and /mesh/patches/highlight (exclusive, high-contrast), captures `multiview` (or N single screenshots), sends the images plus the seeded label ontology and the neighbours' current labels to a vision-capable Claude model through the official anthropic Python SDK (model claude-opus-5, adaptive thinking, base64 image blocks, structured output for {labels:[...], new_categories:[...], confidence}), votes across views, and writes the result via /mesh/patches/label. Follows the SAMPart3D / Set-of-Mark pattern from the Labeling Mesh Patches note: highlighted region + multi-view + neighbour context for tiny patches; new categories are proposed, not silently created, and are written to a review file. Batch mode uses the Message Batches API for cost. Emit an agreement report against any hand-labelled patches present. Prior art to reuse: PATCH-10 (chunked Claude-CLI labeling for >50 patches on the semantic-patch decomposer) and the Daud voyage harness (VOYAGE-4 tournament selection with VLM, VOYAGE-19 VLM-labeled skeleton segments, VOYAGE-51 semantic patch decomposition of reference meshes; /home/acw/Code/Daud). Reuse their prompt/harness code where it fits; the target here is quad-layout patches, not curvature patches.",
+    "blocked-by": [
+        "CRAW-9"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. `ixdar-cli label-patches` labels every unlabelled patch of a saved layout in one run and persists via the API. 2. Ontology file format documented; proposed new categories land in a review JSON, not in the label store. 3. Multi-view voting implemented with a confidence threshold; low-confidence patches listed in the report. 4. Agreement report (per-label precision/recall) printed when hand labels exist. 5. API key comes from the environment (ANTHROPIC_API_KEY or `ant auth login`); never from a flag or file in the repo. 6. Dry-run mode renders and saves the prompts/images without calling the API.",
+    "testing-plan": "1. Dry-run on the saved plane layout: 4 patches, verify 4 image sets and prompt JSON are produced. 2. Live run on a hand-labelled fixture (a saved layout of hand.dsl with ~20 patches labelled by hand): agreement >= 80% on top-level labels. 3. Batch mode run on the same fixture completes and produces identical labels to the sync path. 4. pytest for voting and report functions with canned model outputs.",
+    "todos": [
+        "Add anthropic dependency to pyproject; client construction from env",
+        "Prompt builder: ontology + neighbour labels + highlighted multiview images",
+        "Structured-output schema for label proposals; parse with the SDK's parse helper",
+        "Voting across views; confidence threshold; review file for new categories",
+        "Batch API path for whole-model runs",
+        "Agreement report; dry-run mode; pytest coverage"
+    ],
+    "unknowns": [
+        "Whether single-patch granularity is too fine for the model on 284+ patch layouts; may need label propagation to patch groups first",
+        "Image budget per patch (views x resolution) vs cost; multiview 4x2 grid vs separate images",
+        "Which model tier is enough: start with claude-opus-5 per project default, measure agreement, only then consider cheaper models"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar_automation_cli/ixdar_cli.py",
+        "ixdar_automation_cli/automation_client.py",
+        "ixdar_automation_cli/cli_commands",
+        "pyproject.toml",
+        "/home/acw/obsidian/Notes/Labeling Mesh Patches.md",
+        "ixdar-app/src/main/resources/dsl/hand.dsl",
+        "ixdar-tickets:PATCH-10",
+        "ixdar-tickets:VOYAGE-4",
+        "ixdar-tickets:VOYAGE-19",
+        "ixdar-tickets:VOYAGE-51",
+        "/home/acw/Code/Daud/src/daud/main.py",
+        "/home/acw/Code/Daud/src/daud/tools/read_image.py"
+    ],
+    "priority": 4
+}

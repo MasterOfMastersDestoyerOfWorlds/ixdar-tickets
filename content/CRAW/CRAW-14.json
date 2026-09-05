@@ -1,0 +1,37 @@
+{
+    "id": "CRAW-14",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Textures preserved across boolean operations",
+    "description": "'Textures should be maintained across boolean ops.' Pass the CRAW-3 UV coordinates (and a material index) into Manifold as vertex properties (MeshGL64 numProp channels) so Manifold interpolates them at intersection vertices, then rebuild the UV slot on the result and use CRAW-13 provenance to assign each output face its origin's MaterialData. The result bundle keeps one material per origin (a multi-material slot) so the merged crawfish renders both scans' photographic textures. Seam vertices shared by faces of different origins keep per-face material; if a per-corner UV representation is required for that, introduce it here (see CRAW-3 unknown).",
+    "blocked-by": [
+        "CRAW-3",
+        "CRAW-13"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. mesh_boolean on two textured cubes yields a bundle whose every face has UVs and a material index; the checker pattern is continuous across the intersection seam in a screenshot. 2. Union of two crawfish scans renders each region with its own scan texture. 3. UV interpolation error at intersection vertices is below 1e-4 in a unit test with analytically known UVs (planar quads). 4. Slots absent on inputs -> result has no slots, no exception. 5. Build checkstyle-green.",
+    "testing-plan": "1. Unit: two planar-UV cubes, union; verify UV at a known intersection point equals the analytic value. 2. Unit: mixed inputs (one textured, one not) produce a result with material index -1 for untextured faces. 3. run-scene mesh-boolean with a textured cube_boolean variant; screenshot.",
+    "todos": [
+        "Extend ManifoldBindings to pass and read vertex properties (numProp)",
+        "Encode UV (+ material index) as properties before the op; decode after",
+        "Multi-material slot (list of MaterialData + per-face index) and HalfEdgeMeshRuntime binding by index",
+        "Unit tests; textured cube_boolean.dsl variant; screenshot"
+    ],
+    "unknowns": [
+        "Whether Manifold merges vertices across property discontinuities (it keys on position + properties, so seams should survive -- verify)",
+        "Whether to bake both scan textures into one atlas later for export (CRAW-20) or keep multi-material"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldMeshBooleanBackend.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/QuadTriangulation.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/MeshBooleanNode.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/resources/dsl/cube_boolean.dsl"
+    ],
+    "priority": 3
+}

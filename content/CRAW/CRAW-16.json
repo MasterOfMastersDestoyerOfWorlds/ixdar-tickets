@@ -1,0 +1,42 @@
+{
+    "id": "CRAW-16",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Assemble kept collection members by boolean union",
+    "description": "Merge the kept members of a collection (CRAW-12) into one mesh. Add a `merge_collection.dsl` pattern (or a small node if the graph gets unwieldy) that aligns each kept member to the first (rigid registration: PCA pre-alignment + ICP over sampled points, as an `align_to_mesh` node; manual override via transform_geometry literals), then chains mesh_boolean UNION in order, tagging every face with its source member via CRAW-13 provenance so the result can be tinted per scan and the user can see which generation each region came from. This is REFACTOR-PLAN-2 D7 (loaded models as boolean operands) done on real data. Handle non-watertight members by reporting, not repairing (repair is a separate ticket if needed). Related: MESH-50 (unwelded duplicates after mesh_boolean) will compound over a ten-member union chain.",
+    "blocked-by": [
+        "CRAW-12",
+        "CRAW-13"
+    ],
+    "blocks": [
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Two crawfish scans: `merge_collection` produces one closed mesh in mesh-boolean scene, tinted by source member (screenshot). 2. align_to_mesh reduces mean nearest-point distance between two scans by at least 5x versus unaligned. 3. All ten members (kept) union in under 5 minutes on the dev machine or the ticket documents which stage dominates. 4. Non-manifold input is reported with member name and defect counts instead of a crash. 5. Build checkstyle-green.",
+    "testing-plan": "1. Unit: align_to_mesh on a torus and a rotated/translated copy recovers the transform within 1e-3. 2. Unit: union of three tagged cubes carries three member tags. 3. run-scene mesh-boolean with merge_collection on ~/crawfish (two members, then all kept).",
+    "todos": [
+        "align_to_mesh node (PCA + ICP) with reusable buffers",
+        "merge_collection.dsl pattern reading collection.dsl keep flags",
+        "Per-member provenance tags through the union chain",
+        "Manifold/watertight check with a readable report",
+        "Timing record for the full ten-member union"
+    ],
+    "unknowns": [
+        "Whether union is the right operator at all when scans overlap almost completely (may want per-label part selection from members instead -- see CRAW-17)",
+        "Whether Manifold handles ~10M-triangle unions in memory"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/MeshBooleanNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/transform",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshBooleanScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelCatalog.java",
+        "REFACTOR-PLAN-2.md",
+        "/home/acw/obsidian/Notes/Mesh Booleans.md",
+        "ixdar-tickets:MESH-50"
+    ],
+    "priority": 3
+}

@@ -348,16 +348,21 @@ def create_ticket(
     repo: str,
     title: str,
     description: str,
-    subsystem: str,
+    subsystem: list[str],
     priority: int,
     definition_of_done: str,
     testing_plan: str,
     todos: list[str],
+    blocked_by: list[str] | None = None,
+    blocks: list[str] | None = None,
+    unknowns: list[str] | None = None,
+    related_files: list[str] | None = None,
 ) -> Path:
     """Write a new ticket JSON under content/<EPIC>/ and regenerate BOARD.md.
 
     External epics (e.g. SUGGEST — agent harness output) are written under
     suggestions/<EPIC>/ instead and excluded from BOARD.md totals.
+    Dependency links are written reciprocally onto the referenced tickets.
     """
     ticket_id = _next_ticket_id(epic)
     prefix = extract_prefix(ticket_id)
@@ -372,21 +377,22 @@ def create_ticket(
         "id": ticket_id,
         "epic": prefix,
         "repo": repo,
-        "subsystem": [subsystem],
+        "subsystem": list(subsystem),
         "title": title,
         "description": description,
-        "blocked-by": [],
-        "blocks": [],
+        "blocked-by": _normalized_ids(blocked_by),
+        "blocks": _normalized_ids(blocks),
         "status": "TODO",
         "definition-of-done": definition_of_done,
         "testing-plan": testing_plan,
         "todos": todos,
-        "unknowns": [],
+        "unknowns": list(unknowns or []),
         "changes-made": [],
-        "related-files": [],
+        "related-files": list(related_files or []),
         "priority": priority,
     }
     ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+    _link_dependencies(ticket_id, data["blocked-by"], data["blocks"])
     regenerate_board()
     return ticket_path
 
@@ -530,9 +536,46 @@ def _extend_list_field(data: dict, key: str, items: list[str]) -> None:
     data[key] = current
 
 
+def _normalized_ids(ids: list[str] | None) -> list[str]:
+    seen: list[str] = []
+    for raw in ids or []:
+        for token in str(raw).replace(",", " ").split():
+            normalized = token.strip().upper()
+            if normalized and normalized not in seen:
+                seen.append(normalized)
+    return seen
+
+
+def _add_link(target_id: str, key: str, value_id: str) -> None:
+    """Append value_id to target's key list ("blocks" or "blocked-by") if the target exists in content/."""
+    try:
+        target_path = _ticket_path(target_id)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"  note: not linking {target_id}.{key} -> {value_id}: {exc}")
+        return
+    target = json.loads(target_path.read_text(encoding="utf-8"))
+    current = target.get(key)
+    if not isinstance(current, list):
+        current = []
+    if value_id not in current:
+        current.append(value_id)
+        target[key] = current
+        target_path.write_text(json.dumps(target, indent=4) + "\n", encoding="utf-8")
+
+
+def _link_dependencies(ticket_id: str, blocked_by: list[str], blocks: list[str]) -> None:
+    """Mirror a ticket's blocked-by/blocks onto the referenced tickets so links stay reciprocal."""
+    for other in blocked_by:
+        _add_link(other, "blocks", ticket_id)
+    for other in blocks:
+        _add_link(other, "blocked-by", ticket_id)
+
+
 def update_ticket(
     ticket_id: str,
     *,
+    add_blocked_by: list[str] | None = None,
+    add_blocks: list[str] | None = None,
     append_description: str | None = None,
     definition_of_done: str | None = None,
     testing_plan: str | None = None,
@@ -563,6 +606,12 @@ def update_ticket(
     _extend_list_field(data, "unknowns", add_unknowns or [])
     _extend_list_field(data, "changes-made", add_changes or [])
     _extend_list_field(data, "related-files", add_related_files or [])
+
+    new_blocked_by = [i for i in _normalized_ids(add_blocked_by) if i not in (data.get("blocked-by") or [])]
+    new_blocks = [i for i in _normalized_ids(add_blocks) if i not in (data.get("blocks") or [])]
+    _extend_list_field(data, "blocked-by", new_blocked_by)
+    _extend_list_field(data, "blocks", new_blocks)
+    _link_dependencies(normalized_id, new_blocked_by, new_blocks)
 
     if add_todos:
         todos = data.get("todos")
@@ -776,7 +825,36 @@ def _build_parser() -> argparse.ArgumentParser:
     create_parser.add_argument(
         "--subsystem",
         required=True,
-        help="Subsystem id from subsystems.json (e.g. platform, rendering).",
+        action="append",
+        help="Subsystem id from subsystems.json (e.g. platform, rendering). Repeatable.",
+    )
+    create_parser.add_argument(
+        "--blocked-by",
+        action="append",
+        default=[],
+        dest="blocked_by",
+        help="Ticket ID this ticket waits on (repeatable; the other ticket gets a reciprocal blocks entry).",
+    )
+    create_parser.add_argument(
+        "--blocks",
+        action="append",
+        default=[],
+        dest="blocks",
+        help="Ticket ID that waits on this ticket (repeatable; the other ticket gets a reciprocal blocked-by entry).",
+    )
+    create_parser.add_argument(
+        "--unknown",
+        action="append",
+        default=[],
+        dest="unknowns",
+        help="Open question line (repeatable).",
+    )
+    create_parser.add_argument(
+        "--related-file",
+        action="append",
+        default=[],
+        dest="related_files",
+        help="Related file path (repeatable).",
     )
     create_parser.add_argument(
         "--priority",
@@ -876,6 +954,20 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="add_related_files",
         help="Append one related-files[] path (repeatable).",
     )
+    update_parser.add_argument(
+        "--add-blocked-by",
+        action="append",
+        default=[],
+        dest="add_blocked_by",
+        help="Append one blocked-by[] ticket ID (repeatable; reciprocal blocks entry written).",
+    )
+    update_parser.add_argument(
+        "--add-blocks",
+        action="append",
+        default=[],
+        dest="add_blocks",
+        help="Append one blocks[] ticket ID (repeatable; reciprocal blocked-by entry written).",
+    )
 
     return parser
 
@@ -914,16 +1006,22 @@ if __name__ == "__main__":
             repo=args.repo,
             title=args.title,
             description=args.description,
-            subsystem=args.subsystem,
+            subsystem=list(args.subsystem),
             priority=args.priority,
             definition_of_done=args.definition_of_done,
             testing_plan=args.testing_plan,
             todos=list(args.todos or []),
+            blocked_by=list(args.blocked_by or []),
+            blocks=list(args.blocks or []),
+            unknowns=list(args.unknowns or []),
+            related_files=list(args.related_files or []),
         )
         print(f"Created {path}")
     elif args.command == "update":
         update_ticket(
             args.ticket_id,
+            add_blocked_by=list(args.add_blocked_by or []),
+            add_blocks=list(args.add_blocks or []),
             append_description=args.append_description,
             definition_of_done=args.definition_of_done,
             testing_plan=args.testing_plan,

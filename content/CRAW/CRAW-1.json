@@ -1,0 +1,49 @@
+{
+    "id": "CRAW-1",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "platform"
+    ],
+    "title": "GLB/glTF loading into the mesh pipeline",
+    "description": "Bridge Assimp into the geometry pipeline so the ten Trellis2 scans in ~/crawfish (IMG_4109..IMG_4118.glb, one mesh each, ~623k vertices / ~936k triangles, POSITION+NORMAL+TEXCOORD_0, one PBR material, two embedded PNGs) load as HalfEdgeMesh/ArrayMesh geometry. Today MeshLoader.load dispatches only .obj/.ply/.off to parsers that emit ArrayMesh, while AssimpModelImporter (graphics/render/model) already reads GLB via lwjgl-assimp but emits GPU-interleaved floats and is reachable only from ModelLoadScene. Add a GltfMeshParser in geometry/mesh/data/load that calls Assimp.aiImportFile (aiProcess_Triangulate | aiProcess_JoinIdenticalVertices) and produces the same ArrayMesh shape as ObjMeshParser, carrying TEXCOORD_0 as a per-vertex GeometryBundle slot whose name constant lives on the parser (the material/texture bytes are CRAW-3's job). Register .glb/.gltf in MeshLoader.load, LoadMeshNode.socketDocs, ModelCatalog (staging scan and a plain directory scan) and ixdar-cli list-meshes. Loading must go through the Platform abstraction where it touches native buffers (IxBuffer, not org.lwjgl.BufferUtils). Desktop-only: the web build must not reach Assimp. Related: VIEW-6 (model staging directory + sync-models) is the catalog this extends.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-2",
+        "CRAW-3",
+        "CRAW-12"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. MeshLoader.load(\"~/crawfish/IMG_4109.glb\") returns an ArrayMesh with 622652 vertices and 936035 triangles and a UV slot of matching length. 2. `load_mesh(path=\"...glb\")` works in a .dsl graph and mesh-viewer shows the crawfish via `uv run ixdar-cli run-scene --scene mesh-viewer --property ixdar.model=<path>`. 3. `ixdar-cli list-meshes` lists .glb files found in $IXDAR_MODEL_DIR and ~/crawfish when pointed at it. 4. Peak heap while loading one scan stays under 2 GB (no per-vertex boxing; direct buffers reused). 5. The TeaVM build (`./tools/teavm-build.sh`) still succeeds with no Assimp symbols in classes.js. 6. `mvn -q clean compile -pl annotations,ixdar-app` is checkstyle-green and all existing mesh tests pass.",
+    "testing-plan": "1. Unit test GltfMeshParserTest with a tiny hand-written .gltf (two triangles, UVs) under test resources -- asserts positions, indices, UV slot. 2. Benchmark in ixdar-app/test/benchmark/ that loads one crawfish scan and prints vertex/face counts and elapsed ms. 3. run-scene screenshot of mesh-viewer with the scan; compare against `ixdar-cli mesh-state` counts. 4. Confirm MeshLoader still rejects unknown extensions with the existing IllegalArgumentException message.",
+    "todos": [
+        "Add GltfMeshParser (Assimp -> ArrayMesh + UV slot) in geometry/mesh/data/load",
+        "Register .glb/.gltf in MeshLoader.load and document in LoadMeshNode.socketDocs",
+        "Extend ModelCatalog with a directory scan that includes .glb and surfaces ~/crawfish via IXDAR_MODEL_DIR",
+        "Update ixdar-cli list-meshes / mesh_catalog.py to include the new extension",
+        "Add the tiny .gltf fixture and GltfMeshParserTest",
+        "Add the crawfish load benchmark and record heap/time in the ticket",
+        "Verify TeaVM build stays free of Assimp references"
+    ],
+    "unknowns": [
+        "Whether to keep AssimpModelImporter (render-only path) or make AssimpModelRuntime consume the new parser so there is one Assimp entry point",
+        "Whether Assimp's JoinIdenticalVertices should be disabled so seam UVs survive (glTF already de-duplicates)",
+        "Whether the UV slot should be a Vector3Field with z=0 or a new two-component field type (C6 in REFACTOR-PLAN-2 prefers the Field forms)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/MeshLoader.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/ObjMeshParser.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/AssimpModelImporter.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/data/LoadMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelCatalog.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelChoice.java",
+        "ixdar_automation_cli/mesh_catalog.py",
+        "ixdar-app/pom.xml",
+        "/home/acw/crawfish/IMG_4109.glb",
+        "/home/acw/crawfish/IMG_4109.settings.json",
+        "ixdar-tickets:VIEW-6"
+    ],
+    "priority": 1
+}

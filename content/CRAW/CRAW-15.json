@@ -1,0 +1,39 @@
+{
+    "id": "CRAW-15",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Discrete attributes preserved across booleans and dirty-patch marking",
+    "description": "Carry per-face and per-vertex discrete data through mesh_boolean using CRAW-13 provenance: PatchLabels, patch_id, _tags, _bone_weight_* and any IntField/BoolField slot present on the inputs. Faces from A take A's values by sourceFaceId, faces from B take B's, and faces created by the boolean (NEW) get patch_id -1 and a `dirty` label, per the Mesh Booleans note ('mark any patches that have had triangles changed in the boolean operation as dirty and have them as raw triangles; the rest of the patches should have the normal patch coloring'). Any patch that lost or gained triangles is also marked dirty so the labelling scene shows exactly what needs re-layout. Implement once as a slot-propagation step in MeshBooleanNode (join_geometry already merges _tags/bone slots -- share that code, do not duplicate).",
+    "blocked-by": [
+        "CRAW-6",
+        "CRAW-13"
+    ],
+    "blocks": [
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Two-cube union with labelled patches: untouched patches keep labels and patch_id; intersection faces carry `dirty` and patch_id -1; partially cut patches are marked dirty. 2. Bone weight and _tags slots propagate with the same rule. 3. QuadLayoutRuntime renders dirty faces as raw grey triangles while other patches keep patch colouring (screenshot). 4. Slot propagation shares one helper with join_geometry (no second copy of the merge logic). 5. Build checkstyle-green; existing boolean and join tests pass.",
+    "testing-plan": "1. Unit: labelled plane-layout patches extruded into two blocks, union; assert label/patch_id/dirty per face. 2. Unit: join_geometry still merges the same slots (regression). 3. run-scene mesh-boolean screenshot with dirty rendering.",
+    "todos": [
+        "Extract a shared slot-propagation helper used by join_geometry and mesh_boolean",
+        "Propagate per-face slots by sourceFaceId and per-vertex slots by nearest source vertex of the origin face",
+        "Dirty label and patch_id -1 for NEW faces; mark cut patches dirty",
+        "Dirty rendering in QuadLayoutRuntime",
+        "Unit tests and screenshot"
+    ],
+    "unknowns": [
+        "Per-vertex slots at NEW vertices: nearest source vertex vs barycentric (bone weights want interpolation, tags want nearest)",
+        "Whether dirty should be a label in PatchLabels or a BoolField selection slot (the E-section prefers selections)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/MeshBooleanNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/JoinGeometryNode.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/QuadLayoutRuntime.java",
+        "/home/acw/obsidian/Notes/Mesh Booleans.md"
+    ],
+    "priority": 3
+}

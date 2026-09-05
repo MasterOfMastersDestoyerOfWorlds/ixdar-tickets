@@ -1,0 +1,43 @@
+{
+    "id": "CRAW-20",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "platform"
+    ],
+    "title": "Export DSL output to glTF/GLB for Blender and game engines",
+    "description": "Export the DSL's result in a form Blender or a game engine reads. Today the only writers are the private writeObj helpers in ValidateDsl and BatchDslEvaluator. Add a public GltfMeshWriter in geometry/mesh/data/load (the inverse of CRAW-1's parser), an `export_mesh(geometry, path, format=\"glb\")` node, and `ixdar-cli mesh-export --path out.glb`. The GLB carries: triangle (or quad-triangulated) mesh with normals; the UV slot and MaterialData as a PBR metallic-roughness material with embedded PNG textures (CRAW-3, multi-material from CRAW-14 as multiple primitives); _bone_weight_* slots as a skin (JOINTS_0/WEIGHTS_0, joints and inverse bind matrices from apply_bone); patch labels (CRAW-6) as per-label primitives or `_LABEL_<name>` custom vertex attributes so Blender shows them as vertex groups; the label hierarchy in `extras`. Output must be byte-stable (sorted maps; the Map.of salting trap). Verify with a headless Blender import script.",
+    "blocked-by": [
+        "CRAW-3",
+        "CRAW-6"
+    ],
+    "blocks": [
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. export_mesh writes a valid GLB (passes glTF-Validator or a python `pygltflib` load) for cube, hand.dsl, and a textured crawfish scan. 2. Blender headless (`blender -b --python check_glb.py -- out.glb`) imports it and reports expected vertex/face counts, materials with textures, an armature with the expected bone names, and vertex groups per label. 3. Round trip: export then load through CRAW-1 yields the same `mesh-fingerprint`. 4. Two exports of the same bundle are byte-identical. 5. `ixdar-cli mesh-export` documented via gen-docs. 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit: GltfMeshWriterTest writes a two-triangle bundle with UVs and one bone; parse back with the CRAW-1 parser and compare. 2. Byte-stability test (two writes, equal bytes). 3. Blender headless script in tools/ asserting the imported structure on hand.dsl output. 4. CLI: `mesh-export` against a running mesh-viewer; validate the file.",
+    "todos": [
+        "GltfMeshWriter: buffers, accessors, mesh primitives, normals, UVs, materials with embedded PNGs",
+        "Skin export from _bone_weight_* slots and apply_bone joints",
+        "Label export as vertex groups / custom attributes + extras hierarchy",
+        "export_mesh node and mesh-export CLI command; gen-docs",
+        "Blender headless verification script; round-trip fingerprint test; byte-stability test"
+    ],
+    "unknowns": [
+        "Whether to export quads (glTF is triangle-only; Blender's importer re-merges with a flag) or triangulate on export",
+        "How apply_bone stores rest pose / hierarchy today -- enough for inverse bind matrices?",
+        "Whether Blender's glTF importer maps `_LABEL_*` attributes to vertex groups automatically or a small Blender-side script is needed"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/documentation/ValidateDsl.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/MeshLoader.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/ApplyBoneNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/SetBoneWeightNode.java",
+        "ixdar_automation_cli/cli_commands",
+        "ARCHITECTURE.md"
+    ],
+    "priority": 3
+}

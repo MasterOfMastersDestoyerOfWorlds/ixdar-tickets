@@ -1,0 +1,43 @@
+{
+    "id": "CRAW-11",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "geometry"
+    ],
+    "title": "Shader and material assignment per patch label",
+    "description": "'Should be able to apply shaders to patch labels.' Add `set_label_material(geometry, label, shader, colour, params)` writing a per-label material assignment into the CRAW-3 material slot (label -> MaterialData/shader id), and teach HalfEdgeMeshRuntime to partition the index buffer by label the way TagRange partitions by tag today (generalize TagRange into a draw-range group with its own ShaderProgram/uniforms), binding a different shader per group (e.g. flat, lit, textured, rim-lit, chitin-like specular for the crawfish shell). Unlabelled faces fall through to the default material. Draw order stays deterministic (sorted by label). Related: VIEW-1 (per-vertex color shader), VIEW-2 (tag color mapping), VIEW-5 (tagged rendering pipeline) -- generalize their tag colouring into label materials instead of a parallel path.",
+    "blocked-by": [
+        "CRAW-6"
+    ],
+    "blocks": [
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. set_label_material node registered and documented; catalog regenerated. 2. HalfEdgeMeshRuntime renders two labels with two visibly different shaders in the patch-label scene (screenshot). 3. Faces under a child label inherit the parent's material unless overridden. 4. Per-frame draw does not allocate; groups rebuild only when labels/materials change. 5. Existing setTags/FLAT/SCALAR modes unchanged (regression screenshots on mesh-boolean scene). 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit: material assignment resolution (own label > parent > default) on a hand-built PatchLabels. 2. Unit (headless GL): draw-range grouping produces contiguous ranges covering every face exactly once. 3. run-scene patch-label with a test graph assigning 'claw' textured and 'tail' rim-lit; screenshot.",
+    "todos": [
+        "Generalize TagRange into a label/material draw group with shader reference",
+        "Implement set_label_material node and material slot extension",
+        "Inheritance resolution through the label hierarchy",
+        "Rebuild-on-change caching; regression screenshots",
+        "Catalog regeneration"
+    ],
+    "unknowns": [
+        "Whether per-group shader switching is acceptable cost or materials should be one uber-shader with per-face material index attribute",
+        "How label materials compose with the CRAW-3 photographic base-colour texture (multiply? override?)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/ShaderProgram.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/MeshShader.java",
+        "ixdar-app/src/main/resources/glsl",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshBooleanScene.java",
+        "ixdar-tickets:VIEW-1",
+        "ixdar-tickets:VIEW-2",
+        "ixdar-tickets:VIEW-5"
+    ],
+    "priority": 4
+}

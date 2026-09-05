@@ -1,0 +1,47 @@
+{
+    "id": "CRAW-7",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "geometry"
+    ],
+    "title": "Patch labeling scene with click-to-pick",
+    "description": "'A scene that can be used to label the various patches of a quadlayout' and 'click on a patch and see all of its labels'. Scaffold PatchLabelScene (id patch-label, extends ModelScene) with `uv run ixdar-cli new-scene`; it loads a saved layout .dsl (CRAW-4) and its labels (CRAW-6). Add ray->triangle picking to ModelScene (screen point -> Camera3D ray -> face id; none exists today), map face -> patch via patch_id, highlight the picked patch through HalfEdgeMeshRuntime.setTags/setTagColor while the other patches keep QuadLayoutRuntime patch colouring, and show the patch's labels in the scene menu. Terminal commands `label <name> [parent]` and `unlabel <name>` act on the current selection (multi-select with shift-click); `save-layout` writes labels back through PatchLabelsDslWriter. Expose selection and labels in AutomationRuntime.uiState so ixdar-cli ui-state can assert them. Related: VIEW-4 (click-to-zoom on tag region) and VIEW-5 (tagged rendering pipeline) are in progress on the tag-based viewer; reuse their zoom-to-region and tag colouring rather than adding parallel code, and extend them to patches.",
+    "blocked-by": [
+        "CRAW-6"
+    ],
+    "blocks": [
+        "CRAW-8",
+        "CRAW-9"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. patch-label scene id exists with launch.json entry; loads a saved layout and shows labels. 2. Clicking a patch highlights it and lists its labels; shift-click accumulates. 3. label/unlabel terminal commands mutate PatchLabels and save-layout persists them. 4. ui-state includes selectedPatches and their labels. 5. Picking is allocation-free per frame (reusable vectors) and ignores clicks over the menu panel. 6. Build checkstyle-green.",
+    "testing-plan": "1. run-scene --scene patch-label --keep-alive with the saved plane layout; `ixdar-cli click` at a patch centre projected via orbit-get; `ui-state` shows one selected patch. 2. `ixdar-cli type 'label thumb'` then `ui-state` shows the label; `save-layout` then reload shows it persisted. 3. Screenshot with a highlighted patch for the ticket record. 4. Unit test for the ray->triangle intersection helper on a hand-built triangle.",
+    "todos": [
+        "Scaffold PatchLabelScene via new-scene; wire saved-layout loading",
+        "Implement screen-to-ray and ray-triangle picking in ModelScene/Camera3D with reusable fields",
+        "Face -> patch mapping and highlight via setTags/setTagColor",
+        "label/unlabel terminal commands; save-layout integration",
+        "uiState section for selection and labels",
+        "Automation-driven verification script in the ticket"
+    ],
+    "unknowns": [
+        "Whether picking should test against the extracted quad surface or the source triangles (they differ after embedding)",
+        "BVH vs brute force for 900k-triangle picking (brute force per click may be acceptable)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/cameras/Camera3D.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/QuadLayoutRuntime.java",
+        "ixdar-app/src/main/java/ixdar/scenes/QuadLayoutScene.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/AutomationRuntime.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands",
+        ".vscode/launch.json",
+        "ixdar-tickets:VIEW-4",
+        "ixdar-tickets:VIEW-5"
+    ],
+    "priority": 2
+}

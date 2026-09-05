@@ -1,0 +1,44 @@
+{
+    "id": "CRAW-19",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "End-to-end crawfish.dsl: one labeled, textured, rigged, symmetric model",
+    "description": "The integration ticket for the headline goal in Plan for Crawfish.md. Author `crawfish.dsl` under src/main/resources/dsl/: collection (~/crawfish, kept members) -> align + union (CRAW-16) -> symmetrize (CRAW-18) -> quad_layout -> saved layout + patch labels (CRAW-4/6, labelled via the scene or CRAW-10) -> label_to_selection driving set_bone_weight / apply_bone for claws, legs, tail segments, antennae -> set_label_material per part (CRAW-11) with the photographic texture preserved (CRAW-3/14) -> export_mesh to crawfish.glb (CRAW-20). Register it in the model menu, add a launch.json entry, and record timings with NodeGraphRuntime.logTimings.",
+    "blocked-by": [
+        "CRAW-2",
+        "CRAW-4",
+        "CRAW-6",
+        "CRAW-11",
+        "CRAW-15",
+        "CRAW-16",
+        "CRAW-18",
+        "CRAW-20"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. crawfish.dsl validates with `ixdar-cli mesh-dsl-validate` and evaluates in mesh-viewer with a run-scene screenshot showing the textured, labelled crawfish. 2. Every bone in the rig corresponds to a label; `mesh-state` reports the bone weight slots. 3. The model is mirror-symmetric within tolerance except labels excluded by design. 4. crawfish.glb exported and opens in Blender with textures, armature weights and label vertex groups (per CRAW-20 tests). 5. Total graph evaluation time recorded in changes-made; slow nodes listed. 6. Build checkstyle-green.",
+    "testing-plan": "1. `uv run ixdar-cli mesh-dsl-validate --dsl crawfish.dsl --export`. 2. run-scene mesh-viewer --property ixdar.model=graph:crawfish; screenshot; multiview. 3. `ixdar-cli mesh-validate` on the result; `mesh-export`; Blender headless import assertions from CRAW-20.",
+    "todos": [
+        "Author crawfish.dsl step by step, checking each stage in the scene",
+        "Label the layout (scene or VLM) and commit the saved layout .dsl",
+        "Bone weights from labels; apply_bone rig",
+        "Materials per label; texture preservation check",
+        "Export and Blender verification; record timings"
+    ],
+    "unknowns": [
+        "Whether the final quad layout should be recomputed after union (route a) or merged (route b) -- decided by CRAW-17",
+        "Level of rig detail wanted for the game (per-leg-segment bones vs one bone per leg)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl",
+        "ixdar-app/src/main/resources/dsl/hand.dsl",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/NodeGraphRuntime.java",
+        ".vscode/launch.json",
+        "/home/acw/obsidian/Notes/Plan for Crawfish.md"
+    ],
+    "priority": 5
+}

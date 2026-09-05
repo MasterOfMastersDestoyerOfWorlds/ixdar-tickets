@@ -8,7 +8,9 @@
     "title": "Tag tree panel in mesh viewer",
     "description": "Add a right-hand panel to MeshNodeViewerScene showing the tag hierarchy as a collapsible tree. Built using the existing Font/HyperString 2D overlay system. Shows tag name, vertex count, and coverage stats. Clickable entries for navigation (VIEW-4).",
     "blocked-by": [],
-    "blocks": [],
+    "blocks": [
+        "CRAW-8"
+    ],
     "status": "IN_PROGRESS",
     "definition-of-done": "1. Right-hand panel renders a tree of tags from the loaded DSL mesh. 2. Tree is collapsible (expand/collapse nodes). 3. Each entry shows tag name and vertex count. 4. Panel scrolls if the tree is taller than the viewport.",
     "testing-plan": "1. Load skull.dsl with 3+ distinct tags, verify tree panel shows all. 2. Test expand/collapse interaction. 3. Verify panel doesn't interfere with orbit camera controls.",

@@ -1,0 +1,40 @@
+{
+    "id": "CRAW-8",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Label tree in the right-hand scene menu",
+    "description": "'View/edit labels in a tree structure on the right hand menu so that I can click a label and highlight all of the patches that have that label.' SceneModelMenu builds the ESC panel as a HyperString each frame with clickable words (MODELS, Recompute, CONTROLS). Add a LABELS section (a sibling section class, not more code in SceneModelMenu) that renders the PatchLabels hierarchy as an indented, collapsible tree: click a label -> highlight every patch carrying it (directly or via descendants) with one colour per label; click the picked patch's entry -> expand its labels; counts per label. Rename, delete and re-parent go through terminal commands (`relabel a b`, `reparent a p`) since the panel is click-only. Keep drawing allocation-light (cache the tree HyperString and rebuild only when labels or selection change). VIEW-3 (tag tree panel in mesh viewer, in progress) is the panel this extends from per-vertex tags to PatchLabels; build on it, do not add a second tree.",
+    "blocked-by": [
+        "CRAW-7",
+        "VIEW-3"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. LABELS section shows the hierarchy with expand/collapse and per-label patch counts. 2. Clicking a label highlights all its patches; clicking again clears. 3. relabel/reparent/unlabel commands update the tree immediately and persist via save-layout. 4. Tree HyperString is rebuilt only on change (verified by a counter in a headless test or log). 5. Screenshot in the ticket shows the tree and a highlighted label. 6. Build checkstyle-green.",
+    "testing-plan": "1. run-scene patch-label --keep-alive; `ixdar-cli key ESCAPE`; screenshot; `ixdar-cli click` on a label row; `ui-state` reports highlighted label and patch count. 2. `type 'reparent thumb hand'`; screenshot shows the moved node. 3. Unit test of the tree flattening (labels -> ordered rows with depth) on a hand-built PatchLabels.",
+    "todos": [
+        "Add a LabelTreeSection class producing HyperString rows with clickable words and depth indentation",
+        "Register the section in ModelScene's menu view; extend MENU_PANEL_WIDTH handling if needed",
+        "Highlight-all-patches-for-label via setTags with a per-label colour",
+        "Terminal commands relabel / reparent",
+        "Caching of the tree HyperString; uiState fields for expanded/highlighted label",
+        "Screenshot verification"
+    ],
+    "unknowns": [
+        "Whether the panel needs scrolling for hundreds of labels (MenuBox has scroll; SceneModelMenu does not)",
+        "Colour assignment stability per label across sessions (hash of label name vs PatchColorHash)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/ui/menu/SceneModelMenu.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/menu/MenuBox.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/HyperString.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/color/PatchColorHash.java",
+        "ixdar-tickets:VIEW-3"
+    ],
+    "priority": 3
+}

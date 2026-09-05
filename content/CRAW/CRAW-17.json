@@ -1,0 +1,39 @@
+{
+    "id": "CRAW-17",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Research: reconcile the Mesh Booleans plan with the crawfish flow",
+    "description": "'Figure out what we need from the Mesh booleans plan.' Research-only ticket, bounded to one session, no code. Compare two routes for the crawfish merge: (a) triangle boolean of the raw scans (CRAW-16) -> re-run quad_layout on the merged mesh -> transfer labels by provenance (CRAW-15); (b) QuadMixer-style layout-preserving merge of already-laid-out members as reconstructed in quad-layout-booleans.md and the Mesh Booleans note (retract dissolved patches to a full ring, match T-junction counts by loop cuts, re-solve only the merge region). Evaluate against: label stability (the note's worry that a global re-solve changes patch labels), texture survival, singularity budget, implementation cost given what exists (Manifold provenance from CRAW-13, no Takayama patch quadrangulation, no ILP). Deliverable: a decision note `crawfish-boolean-decision.md` next to quad-layout-booleans.md with a components list and, if (b) or a hybrid wins, drafted follow-on CRAW tickets (titles + one-paragraph scope) appended to this ticket's changes-made for the user to create. MESH-38 (explore quad-preserving boolean operations, in progress) is the general research this consumes; wait for its findings and cite them.",
+    "blocked-by": [
+        "MESH-38"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. crawfish-boolean-decision.md exists with: problem statement, both routes, evaluation table, recommendation, required components with existing/missing status. 2. The LCK21a non-disk guarantee question from the Mesh Booleans note is answered with a citation. 3. Follow-on ticket drafts (if any) are listed in changes-made. 4. No source files changed.",
+    "testing-plan": "1. User review of the decision note. 2. Cross-check every 'exists' claim in the components list against the codebase paths cited.",
+    "todos": [
+        "Re-read quad-layout-booleans.md, Mesh Booleans.md, NHE*19, ZGZ*16, TPH14 and LCK21a on non-disk domains",
+        "Inventory existing components (Manifold backend, provenance, quantization, embedding rerouting)",
+        "Write the evaluation table and recommendation",
+        "Draft follow-on tickets if route (b)/hybrid is chosen"
+    ],
+    "unknowns": [
+        "Whether the scans overlap so completely that boolean union is the wrong tool and per-label part selection + stitching is what is actually wanted"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "quad-layout-booleans.md",
+        "/home/acw/obsidian/Notes/Mesh Booleans.md",
+        "/home/acw/QuadLayoutsPapersCompleted/NHE*19 | Nuvoli | 2019 | QuadMixer: Layout Preserving Blending of Quadrilateral Meshes.pdf",
+        "/home/acw/QuadLayoutsPapersCompleted/ZGZ*16 | Zhou | 2016 | Mesh Arrangements for Solid Geometry.pdf",
+        "/home/acw/QuadLayoutsPapersCompleted/TPH14 | Takayama | 2014 | Pattern-Based Quadrangulation for N-Sided Patches.pdf",
+        "/home/acw/QuadLayoutsPapersCompleted/LCK21a | Lyon | 2021 | Quad Layouts via Constrained T\u2010Mesh Quantization.pdf",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldMeshBooleanBackend.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding",
+        "ixdar-tickets:MESH-38"
+    ],
+    "priority": 2
+}

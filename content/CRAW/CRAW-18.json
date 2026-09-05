@@ -1,0 +1,38 @@
+{
+    "id": "CRAW-18",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Symmetrize: detect the symmetry plane, clip, mirror",
+    "description": "'Should be able to make a mirror symmetrical mesh from the existing non-symmetrical meshes.' Three pieces: `detect_symmetry_plane` (PCA of vertex positions for the candidate planes, refined by reflective ICP: reflect, nearest-point, re-fit; outputs plane point + normal as vector ports), `clip_by_plane` (keep one half-space, split crossing triangles exactly on the plane so the boundary loop lies in the plane; optional cap), then the existing mirror_geometry with merge_distance to weld the loop. Attribute slots (UVs, labels, tags, bone weights) mirror onto the copy; bone names may take a side prefix (left_/right_) via a `side_prefix` input. Works on a HalfEdgeMesh at scan scale (CRAW-2 precondition).",
+    "blocked-by": [
+        "CRAW-2"
+    ],
+    "blocks": [
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. An asymmetrically noised torus becomes mirror-symmetric within 1e-3 (max |p - reflect(p)| over sampled points) after detect -> clip -> mirror. 2. clip_by_plane produces a closed boundary loop in the plane and a manifold half. 3. mirror weld leaves no duplicate vertices or non-manifold edges (mesh-validate passes). 4. Slots survive with mirrored values; bone names prefixed when side_prefix is set. 5. Runs on a full crawfish scan in the mesh-viewer scene (screenshot before/after). 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit: detect_symmetry_plane on a torus with a rotated known plane recovers normal within 0.5 degrees. 2. Unit: clip_by_plane on a cube at an oblique plane -> manifold half, boundary in plane. 3. Unit: symmetry residual on the noised torus. 4. run-scene mesh-viewer with a symmetrize .dsl on IMG_4109.glb; screenshot; `ixdar-cli mesh-validate`.",
+    "todos": [
+        "detect_symmetry_plane (PCA + reflective ICP) node",
+        "clip_by_plane node with exact plane splitting in HalfEdgeMesh",
+        "Slot mirroring and bone side prefix in mirror_geometry",
+        "symmetrize .dsl example graph",
+        "Unit tests; scan screenshot; mesh-validate"
+    ],
+    "unknowns": [
+        "Whether to keep the better-scanned half automatically (compare per-half texture sharpness / triangle quality) or leave the choice to a `keep_side` input",
+        "Whether the crawfish should be symmetric at all in the claws (real crawfish have asymmetric claws) -- per-label symmetry exclusion may be wanted"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/MirrorGeometryNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshMergeByDistance.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/representation/HalfEdgeMesh.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier"
+    ],
+    "priority": 4
+}

@@ -1,0 +1,43 @@
+{
+    "id": "CRAW-5",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Feature-edge detection and cross-field alignment to creases",
+    "description": "First half of 'feature aligned patches for the quad layout'. Add a `select_feature_edges` node producing a per-edge BoolField (dihedral angle above `angle_degrees`, optional min chain length) in the same shape mark_edges/EdgeMarks already use, and a SharpEdgeConstraint ConstraintSource next to CurvatureConstraints so the cross field is pinned parallel to selected edges (KCP*13 alignment constraints; LCK21a section on feature constraints). The cross-field node gains an optional `feature_edges` BOOLEAN input. Feature edges then flow downstream as a BoolField selection (standing ruling: cone points and feature edges are their own values, never sub-components of a UV field). PATCH-89 (Lyon section 4.4 feature lines and boundary alignment in the motorcycle graph) is the downstream half -- forcing layout arcs onto the feature curves -- and is blocked by this ticket; do not re-create it under CRAW.",
+    "blocked-by": [],
+    "blocks": [
+        "PATCH-89"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. `select_feature_edges` node registered, documented in socketDocs, catalog regenerated. 2. `cross_field` accepts feature_edges and the resulting field is parallel to every selected edge within 2 degrees on a beveled-cube fixture. 3. CrossFieldExaminationScene shows selected edges via setFeatureEdgeOverlay and the aligned field. 4. Unit test on the beveled-cube fixture asserts alignment; no mesh files in the unit suite. 5. Fertility baseline unchanged when no feature edges are supplied. 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit: beveled cube (GridMeshNode-built) -> select_feature_edges at 30 degrees selects exactly the 12 crease chains. 2. Unit: cross field with those constraints has per-face direction within 2 degrees of the adjacent crease. 3. run-scene cross-field scene on a decimation-free crawfish scan (once CRAW-2 lands) or on rockerarm; screenshot shows arcs of the field following ridges. 4. Regression: quad-layout scene on fertility reproduces the baseline counts.",
+    "todos": [
+        "Implement select_feature_edges (dihedral threshold, chain filter) returning a per-edge BoolField",
+        "Implement SharpEdgeConstraint as a ConstraintSource and wire into CrossField assembly",
+        "Add feature_edges input port to the cross_field node and QuadLayoutEngine.build path",
+        "Beveled-cube fixture + two unit tests",
+        "Overlay in CrossFieldExaminationScene",
+        "Regenerate mesh-node-catalog.json"
+    ],
+    "unknowns": [
+        "Hard vs soft constraints: KCP*13 alignment is soft; whether creases should be hard-pinned like boundary edges",
+        "How feature edges interact with the gauge anchor and existing boundary constraints on open meshes"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/crossfield/constraint/ConstraintSource.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/crossfield/constraint/CurvatureConstraints.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/MarkEdgesNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/EdgeMarks.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/quadlayout",
+        "ixdar-app/src/main/java/ixdar/scenes/CrossFieldExaminationScene.java",
+        "/home/acw/QuadLayoutsPapersCompleted/KCP*13 | Knoppel | 2013 | Globally Optimal Direction Fields.pdf",
+        "/home/acw/QuadLayoutsPapersCompleted/LCK21a | Lyon | 2021 | Quad Layouts via Constrained T\u2010Mesh Quantization.pdf",
+        "/home/acw/obsidian/Notes/Quad Layouts.md",
+        "ixdar-tickets:PATCH-89"
+    ],
+    "priority": 3
+}

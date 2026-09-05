@@ -1,0 +1,46 @@
+{
+    "id": "CRAW-6",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Patch label data model and DSL nodes",
+    "description": "The label store from 'Labeling Mesh Patches': a tag set per patch plus a separate label hierarchy (parent -> children, PartNet/PartNeXt style), stored as a PatchLabels value class (public final fields, no records/nested classes) in a GeometryBundle slot whose name constant lives on PatchLabels. Patches are the layout's patches (patch_id IntField from PatchSurfaceGeometry); a face-level projection is derived, never stored twice. Nodes: `label_patches(geometry, label, parent=\"\", points=[...])` -- selects patches by a surface point each (nearest face -> patch), obeying the geometric-selection ruling, and adds the label; `remove_label(geometry, label, points=[...])`; `label_to_selection(geometry, label)` -> per-face and per-vertex BoolField (the bridge into set_bone_weight, delete_geometry, set_label_material). Labels serialize as DSL statements appended to the saved layout .dsl from CRAW-4 (a PatchLabelsDslWriter), so a labeled model is one .dsl file.",
+    "blocked-by": [
+        "CRAW-4"
+    ],
+    "blocks": [
+        "CRAW-7",
+        "CRAW-11",
+        "CRAW-15",
+        "CRAW-19",
+        "CRAW-20"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. PatchLabels value + slot constant; multiple labels per patch; hierarchy queries (children, ancestors, all patches under a label). 2. Three nodes registered and documented; catalog regenerated; CanonicalPortNames allowlist updated if needed. 3. label_to_selection output drives set_bone_weight in a test graph on the plane fixture. 4. PatchLabelsDslWriter appends label statements to a saved layout and re-execution restores identical labels. 5. Unit tests on the plane-layout fixture only. 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit: label two patches of plane_layout as 'top' under parent 'hand'; assert membership, hierarchy, and face projection. 2. Unit: label_to_selection -> set_bone_weight yields weight 1.0 exactly on the labelled patches' vertices. 3. Unit: writer round trip -- save, re-execute, compare PatchLabels equality. 4. ValidateDsl on the produced .dsl passes.",
+    "todos": [
+        "Design PatchLabels (tag set per patch, hierarchy map) with slot constant",
+        "Implement label_patches / remove_label / label_to_selection nodes",
+        "Nearest-face-to-point patch selection helper (reuse nearest_vertex machinery)",
+        "PatchLabelsDslWriter appending to CRAW-4 output",
+        "Unit tests on plane fixture; catalog regeneration"
+    ],
+    "unknowns": [
+        "Whether labels should attach to patch ids or to patch centroids so they survive a re-layout with a different id order (the .arr disease)",
+        "Whether the hierarchy belongs in the bundle slot or in a separate ontology .dsl shared across models",
+        "How a label on a patch that later gets split (boolean dirty marking, CRAW-15) should propagate"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/extraction/PatchSurfaceGeometry.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/data/TagGeometryNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/SetBoneWeightNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/selection",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/GeometryBundle.java",
+        "ixdar-app/src/main/resources/dsl/fixtures/plane_layout.dsl",
+        "/home/acw/obsidian/Notes/Labeling Mesh Patches.md"
+    ],
+    "priority": 1
+}
