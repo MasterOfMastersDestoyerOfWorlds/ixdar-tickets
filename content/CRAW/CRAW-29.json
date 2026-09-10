@@ -1,0 +1,37 @@
+{
+    "id": "CRAW-29",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "export_mesh node: write geometry with normals and per-corner UVs to GLB/PLY so repair runs once",
+    "description": "User request 2026-09-06: repair_mesh takes seconds on a scan and every downstream graph would repeat it; export the repaired mesh once and load that. This is the first slice of CRAW-20 (which keeps materials, skins and labels): a public GltfMeshWriter in data/load/ (the inverse of GltfMeshParser: GLB with header, JSON chunk, BIN chunk; POSITION, NORMAL, indices; TEXCOORD_0 from the per-corner _uv CornerUvField via CornerUvSplit so seam vertices are re-split exactly as the loader welds them; byte-stable output with sorted JSON keys and fixed accessor order) plus a PLY writer for tools that want text, and an export_mesh(geometry, path, format) node under nodes/data that writes the incoming bundle and passes it through unchanged so it can sit inline in a graph. Round trip: load_mesh(export_mesh(load_mesh(x))) fingerprints equal on two_triangles.gltf and on the repaired IMG_4109 (CRAW-26), including the corner UVs. Add ixdar-cli mesh-export --path. Motivating graph, checked in as dsl/crawfish_repair_export.dsl: load_mesh IMG_4109 -> repair_mesh -> export_mesh to /home/acw/crawfish/repaired/IMG_4109.glb; then the collection (CRAW-12) can point at the repaired directory and every later stage loads a closed manifold scan in ~0.1 s instead of re-repairing. Materials are NOT written here (CRAW-20); the writer must leave the door open (materials array present but empty).",
+    "blocked-by": [
+        "CRAW-26"
+    ],
+    "blocks": [
+        "CRAW-20"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. export_mesh writes a GLB that GltfMeshParser reloads with identical vertex/face counts, positions, normals and corner UVs (fingerprint-equal round trip) on two_triangles.gltf, the seam fixture and the repaired IMG_4109. 2. Output is byte-identical across two runs. 3. The exported crawfish opens in Blender headless (blender -b --python) with the expected vertex and face counts, or the ticket records why Blender is unavailable. 4. PLY export round-trips through the existing PLY loader. 5. dsl/crawfish_repair_export.dsl validates and produces /home/acw/crawfish/repaired/IMG_4109.glb; loading that file in mesh-viewer takes under 0.3 s and mesh-state reports closed=true. 6. Build checkstyle-green; unit tests use procedural meshes and the tiny fixtures only.",
+    "testing-plan": "1. Unit round trips on procedural meshes and the two tiny glTF fixtures. 2. Run the export graph on the repaired scan, reload, fingerprint. 3. Blender headless import if available.",
+    "todos": [
+        "GltfMeshWriter (GLB, byte-stable) using CornerUvSplit for TEXCOORD_0",
+        "PLY writer",
+        "export_mesh pass-through node + socketDocs",
+        "ixdar-cli mesh-export",
+        "dsl/crawfish_repair_export.dsl and the repaired/ directory convention"
+    ],
+    "unknowns": [
+        "Whether normals should be re-split on disagreement like UVs (the loader found 230 welded groups whose normals differ by >1e-3); default: split on UV only and write the first source normal"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-tickets:CRAW-20",
+        "ixdar-tickets:CRAW-26",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/GltfMeshParser.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/CornerUvSplit.java"
+    ],
+    "priority": 1
+}

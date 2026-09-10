@@ -1,0 +1,23 @@
+{
+    "id": "MESH-54",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "MeshSkeletonExtractor spends its branch budget on one rounded limb tip",
+    "description": "Found by CRAW-22: TEASAR invalidates only min(4, 0.3*DFB) voxels around each extracted path, so a rounded limb tip yields a dozen near-duplicate branch rounds and the default 50 rounds are exhausted on one limb; on fertility at resolution 128 the 22 branches / 58 joints all fan off one limb tip and the remaining limbs are never reached. CRAW-22 worked around it with a caller-set branchBudget (ring code uses 4x) rather than changing the invalidation, because a change there moves the fertility patch decomposition. Fix the invalidation radius (scale with local DFB and path length, e.g. TEASAR's original scale*DFB + const) so each limb yields one branch, re-baseline the fertility patch decomposition deliberately with before/after images, and remove the need for the 4x budget.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Fertility at resolution 128: one skeleton branch per limb (arms, legs, child, base), verified by a branch-count assertion in a unit test on a procedural Y-junction (exactly 3 branches) and visually on fertility. 2. ring_candidates finds the same five fertility rings with the default budget. 3. Fertility patch decomposition re-baselined with the change documented and before/after screenshots. 4. Build checkstyle-green.",
+    "testing-plan": "1. Procedural Y-junction and dumbbell unit tests on branch counts. 2. Fertility skeleton and patch decomposition screenshots via run-scene.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MeshSkeletonExtractor.java",
+        "ixdar-tickets:CRAW-22"
+    ],
+    "priority": 3
+}

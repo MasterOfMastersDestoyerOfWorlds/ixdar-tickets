@@ -7,10 +7,11 @@
         "platform"
     ],
     "title": "Export DSL output to glTF/GLB for Blender and game engines",
-    "description": "Export the DSL's result in a form Blender or a game engine reads. Today the only writers are the private writeObj helpers in ValidateDsl and BatchDslEvaluator. Add a public GltfMeshWriter in geometry/mesh/data/load (the inverse of CRAW-1's parser), an `export_mesh(geometry, path, format=\"glb\")` node, and `ixdar-cli mesh-export --path out.glb`. The GLB carries: triangle (or quad-triangulated) mesh with normals; the UV slot and MaterialData as a PBR metallic-roughness material with embedded PNG textures (CRAW-3, multi-material from CRAW-14 as multiple primitives); _bone_weight_* slots as a skin (JOINTS_0/WEIGHTS_0, joints and inverse bind matrices from apply_bone); patch labels (CRAW-6) as per-label primitives or `_LABEL_<name>` custom vertex attributes so Blender shows them as vertex groups; the label hierarchy in `extras`. Output must be byte-stable (sorted maps; the Map.of salting trap). Verify with a headless Blender import script.",
+    "description": "Export the DSL's result in a form Blender or a game engine reads. Today the only writers are the private writeObj helpers in ValidateDsl and BatchDslEvaluator. Add a public GltfMeshWriter in geometry/mesh/data/load (the inverse of CRAW-1's parser), an `export_mesh(geometry, path, format=\"glb\")` node, and `ixdar-cli mesh-export --path out.glb`. The GLB carries: triangle (or quad-triangulated) mesh with normals; the UV slot and MaterialData as a PBR metallic-roughness material with embedded PNG textures (CRAW-3, multi-material from CRAW-14 as multiple primitives); _bone_weight_* slots as a skin (JOINTS_0/WEIGHTS_0, joints and inverse bind matrices from apply_bone); patch labels (CRAW-6) as per-label primitives or `_LABEL_<name>` custom vertex attributes so Blender shows them as vertex groups; the label hierarchy in `extras`. Output must be byte-stable (sorted maps; the Map.of salting trap). Verify with a headless Blender import script.\n\nRuling 2026-09-06: texture UVs are per-corner in the pipeline; the exporter re-splits vertices where corner UVs disagree (the inverse of the loader's import weld) so glTF gets per-vertex attributes. Use the corner-split helper from CRAW-12.\n\nCorrection 2026-09-06: export_mesh takes the texture UV as a UvField input port (uv), not a slot.\n\nCorrection 2026-09-06: export_mesh reads the `_uv` slot (UvField); ignore the earlier port note.\n",
     "blocked-by": [
         "CRAW-3",
-        "CRAW-6"
+        "CRAW-6",
+        "CRAW-29"
     ],
     "blocks": [
         "CRAW-19"

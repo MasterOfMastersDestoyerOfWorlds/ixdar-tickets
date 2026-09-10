@@ -1,0 +1,23 @@
+{
+    "id": "MESH-52",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "HalfEdgeMeshEngine.buildFromIndexedMesh is the floor under every mesh op: 370 ms for 938k faces",
+    "description": "Measured by the CRAW-26 performance pass with async-profiler: after repair_mesh's own work dropped to ~740 ms on IMG_4109, the remaining ~370 ms of the node is assemble(), and 30 of its 36 samples are HalfEdgeMeshEngine.buildFromIndexedMesh: 938k addFaceInternal calls each clearing and refilling three per-face IntIdList objects, followed by computeNormals. Every node that converts to HalfEdgeMesh pays this (ring_candidates, loop_through_points, repair_mesh, quad_layout). Rewrite the bulk build as a flat pass: allocate the half-edge arrays once from face count, pair twins with a counting sort by lower vertex (the pattern MeshRepair.buildEdges now uses), detect non-manifold directed half-edges in the same pass and report all of them instead of throwing on the first (which also makes MeshRepairReport.unorientedEdgeCount reachable), compute normals in one vectorizable loop. Keep addFace for incremental edits. Target: under 100 ms for 938k faces, byte-identical half-edge structure (fingerprint) to today's builder on fertility and the repaired scan.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. buildFromIndexedMesh on the repaired IMG_4109 (938k faces) under 100 ms warm, recorded in a benchmark under ixdar-app/test/benchmark/. 2. MeshCanonicalFingerprint of the built mesh identical to the old builder on fertility, the torus fixture and the repaired scan. 3. Non-manifold input yields a report of every offending directed half-edge, not an exception on the first; MeshRepair's strict mode can read unorientedEdgeCount. 4. Fertility quad layout baseline unchanged. 5. Build checkstyle-green; unit tests on procedural meshes only.",
+    "testing-plan": "1. Fingerprint equality tests old vs new on procedural meshes. 2. Benchmark on the repaired scan. 3. Fertility regression.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/representation/HalfEdgeMeshEngine.java",
+        "ixdar-tickets:CRAW-26"
+    ],
+    "priority": 2
+}

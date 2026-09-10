@@ -1,0 +1,37 @@
+{
+    "id": "TOOL-3",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Claude Code hooks: checkstyle on Java edits, deny shell edits of source, deny sleep polling; shorter Javadoc-length message",
+    "description": "Three behaviours cost the most across every agent and prompt text has not fixed them (report items 3, 4, 7, 28). Implement as scripts under ai-workspace/hooks/ wired through the hooks section of ai-workspace/.claude/settings.json, with unit tests that feed sample tool inputs to each script. (a) PostToolUse on Edit and Write: when the file is a .java file inside any Ixdar checkout or worktree, run checkstyle on that one file with the same configuration the Ixdar build uses (checkstyle.xml and the custom checks come from the autofix-tool artifact the Ixdar pom depends on; resolve the jars from ~/.m2 once and cache the classpath) and return the violations as hook feedback within a few seconds. (b) PreToolUse on Bash: deny in-place edits of tracked source through the shell: sed -i, awk -i inplace, perl -pi, python heredocs or python -c that write files, cat or tee or plain redirection onto paths under a repo (anything not under the scratchpad or a tmp directory); the denial message points at the Edit and Write tools. Research behind the rule: bash-only editing scored 28 percent versus 51 percent with a string-replace tool on SWE-bench Pro, and unguarded heredoc replacements silently no-op. (c) PreToolUse on Bash: deny until-sleep and while-sleep loops, sleep-then-command chains, and reads of the harness tasks output directory; the message names the Monitor tool and run_in_background. (d) In /home/acw/Code/autofix, change the JavadocDescriptionLength check message to state the current word count and that 50 is a backstop, not a target: cut to about 25 words, do not trim to exactly 50. One sentence so the build output stays readable. Verify the hooks fire in a real session (run a throwaway claude -p command or document the manual check) and that the auto-mode instruction to prefer Bash does not bypass them.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. Editing a .java file with a 60-word Javadoc through the Edit tool returns the checkstyle violation as hook feedback in under five seconds. 2. A Bash call containing sed -i on a tracked file is denied with a message naming Edit; the same command on a scratchpad path is allowed. 3. A Bash call with an until-sleep loop is denied with a message naming Monitor. 4. hooks/ has tests for every script with sample inputs, run via uv run pytest. 5. The autofix message reads as ruled and the autofix tests pass. 6. ai-workspace CLAUDE.md gains one paragraph listing the hooks and what they refuse.",
+    "testing-plan": "1. pytest under ai-workspace/hooks/ with recorded tool-input JSON for allowed and denied cases. 2. Manual: in a fresh session, attempt each denied shape and one Java edit, paste the hook output into changes-made.",
+    "todos": [],
+    "unknowns": [
+        "Whether the hook can read the autofix jars from ~/.m2 on a machine where Ixdar has never been built; fall back to a clear message telling the user to build once.",
+        "The real-session check could not be run: a nested claude -p inside this session hangs and emits nothing but mise activation lines, even for a one-word prompt with the CLAUDE_CODE environment variables cleared, so it is unusable as a probe here. Manual check for the user, in a fresh ai-workspace session (Claude Code may first ask you to review the changed hooks): run sed -i on any tracked Java file and expect a shell_edit_guard denial naming Edit; run an until-grep-do-sleep loop and expect a sleep_poll_guard denial naming Monitor; edit a Java file in an Ixdar worktree so its class Javadoc runs past 50 words and expect the checkstyle violation as PostToolUse feedback."
+    ],
+    "changes-made": [
+        "Added ai-workspace/hooks/ (hook_common.py, checkstyle_edit.py, shell_edit_guard.py, sleep_poll_guard.py) plus pytest suites; wired them through the new hooks key of ai-workspace/.claude/settings.json (PreToolUse matcher Bash for the two guards, PostToolUse matcher Edit|Write|MultiEdit for checkstyle). 64 tests pass with uv run pytest in 4.8 s.",
+        "checkstyle_edit.py audits one edited .java file with the build configuration: checkstyle.xml is read off the classpath out of the autofix-tool artifact, exactly as maven-checkstyle-plugin reads it. Classpath resolved once by maven dependency:build-classpath and cached in ~/.cache/ai-workspace-hooks/checkstyle-classpath.txt; cold resolve 1.7 s, cached hook run 0.9 s end to end, well under the five-second bar.",
+        "shell_edit_guard.py denies sed -i, gsed --in-place, perl -pi, awk -i inplace, python heredocs and python -c that write files, and cat, tee or redirection onto a tracked source path; targets under tmp, target, scratchpad or outside a git repo stay allowed, and an in-place target the hook cannot name is denied. It also denies cat of four or more repository files, pointing at Read (report item 28).",
+        "sleep_poll_guard.py denies until-sleep, while-sleep and for-sleep loops, sleep-then-command chains and reads of the harness task-output directory, naming the Monitor tool and run_in_background.",
+        "autofix message change: src/main/resources/ixdar/autofix/checkstyle/messages.properties javadoc.description.long now reads 'Javadoc description is {0} words; {1} is a backstop, not a target, so cut it to about 25 words rather than trimming it to {1}.' One sentence, 23 words. mvn -o -B test succeeds (the project has no test sources); mvn -o -B install refreshed autofix-tool-0.0.1.jar in ~/.m2 so the Ixdar build and the hook both show the new text.",
+        "Verification: uv run pytest from ai-workspace runs 64 tests in 1.2 s warm (4.4 s cold, including the maven classpath resolve). Each hook is exercised end to end as a subprocess fed the real PreToolUse/PostToolUse event JSON on stdin, so exit code 2 and the stderr message are the same path Claude Code takes. DoD 1: a 60-word Javadoc in a Java file under an Ixdar-shaped checkout returns 'Javadoc description is 65 words; 50 is a backstop, not a target, so cut it to about 25 words rather than trimming it to 50. [JavadocDescriptionLength]' in 0.9 s. DoD 2: sed -i on ixdar-app/src/main/java/ixdar/audio/AudioAssets.java exits 2 naming the Edit tool; the same command on a scratchpad path exits 0 silently. DoD 3: an until-grep-do-sleep loop exits 2 naming the Monitor tool and run_in_background.",
+        "ai-workspace CLAUDE.md gained a Hooks section listing the three scripts and what each refuses, including the note that they override the harness auto-mode instruction to prefer Bash for file edits. .claude/settings.json gained only a hooks key; the permissions key is untouched."
+    ],
+    "related-files": [
+        "ai-workspace/.claude/settings.json",
+        "ai-workspace/CLAUDE.md",
+        "Ixdar/pom.xml",
+        "autofix/src/main/resources/checkstyle.xml",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 1
+}

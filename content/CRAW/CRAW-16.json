@@ -12,7 +12,8 @@
         "CRAW-13"
     ],
     "blocks": [
-        "CRAW-19"
+        "CRAW-19",
+        "CRAW-24"
     ],
     "status": "TODO",
     "definition-of-done": "1. Two crawfish scans: `merge_collection` produces one closed mesh in mesh-boolean scene, tinted by source member (screenshot). 2. align_to_mesh reduces mean nearest-point distance between two scans by at least 5x versus unaligned. 3. All ten members (kept) union in under 5 minutes on the dev machine or the ticket documents which stage dominates. 4. Non-manifold input is reported with member name and defect counts instead of a crash. 5. Build checkstyle-green.",

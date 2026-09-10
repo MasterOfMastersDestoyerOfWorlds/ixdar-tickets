@@ -1,0 +1,80 @@
+{
+    "id": "CRAW-1",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "platform"
+    ],
+    "title": "GLB/glTF loading into the mesh pipeline",
+    "description": "Bridge Assimp into the geometry pipeline so the ten Trellis2 scans in ~/crawfish (IMG_4109..IMG_4118.glb, one mesh each, ~623k vertices / ~936k triangles, POSITION+NORMAL+TEXCOORD_0, one PBR material, two embedded PNGs) load as HalfEdgeMesh/ArrayMesh geometry. Today MeshLoader.load dispatches only .obj/.ply/.off to parsers that emit ArrayMesh, while AssimpModelImporter (graphics/render/model) already reads GLB via lwjgl-assimp but emits GPU-interleaved floats and is reachable only from ModelLoadScene. Add a GltfMeshParser in geometry/mesh/data/load that calls Assimp.aiImportFile (aiProcess_Triangulate | aiProcess_JoinIdenticalVertices) and produces the same ArrayMesh shape as ObjMeshParser, carrying TEXCOORD_0 as a per-vertex GeometryBundle slot whose name constant lives on the parser (the material/texture bytes are CRAW-3's job). Register .glb/.gltf in MeshLoader.load, LoadMeshNode.socketDocs, ModelCatalog (staging scan and a plain directory scan) and ixdar-cli list-meshes. Loading must go through the Platform abstraction where it touches native buffers (IxBuffer, not org.lwjgl.BufferUtils). Desktop-only: the web build must not reach Assimp. Related: VIEW-6 (model staging directory + sync-models) is the catalog this extends.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-2",
+        "CRAW-3",
+        "CRAW-12"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. MeshLoader.load(\"~/crawfish/IMG_4109.glb\") returns an ArrayMesh with 622652 vertices and 936035 triangles and a UV slot of matching length. 2. `load_mesh(path=\"...glb\")` works in a .dsl graph and mesh-viewer shows the crawfish via `uv run ixdar-cli run-scene --scene mesh-viewer --property ixdar.model=<path>`. 3. `ixdar-cli list-meshes` lists .glb files found in $IXDAR_MODEL_DIR and ~/crawfish when pointed at it. 4. Peak heap while loading one scan stays under 2 GB (no per-vertex boxing; direct buffers reused). 5. The TeaVM build (`./tools/teavm-build.sh`) still succeeds with no Assimp symbols in classes.js. 6. `mvn -q clean compile -pl annotations,ixdar-app` is checkstyle-green and all existing mesh tests pass.",
+    "testing-plan": "1. Unit test GltfMeshParserTest with a tiny hand-written .gltf (two triangles, UVs) under test resources -- asserts positions, indices, UV slot. 2. Benchmark in ixdar-app/test/benchmark/ that loads one crawfish scan and prints vertex/face counts and elapsed ms. 3. run-scene screenshot of mesh-viewer with the scan; compare against `ixdar-cli mesh-state` counts. 4. Confirm MeshLoader still rejects unknown extensions with the existing IllegalArgumentException message.",
+    "todos": [
+        "DONE : Add GltfMeshParser (Assimp -> ArrayMesh + UV slot) in geometry/mesh/data/load",
+        "DONE : Register .glb/.gltf in MeshLoader.load and document in LoadMeshNode.socketDocs",
+        "DONE : Extend ModelCatalog with a directory scan that includes .glb and surfaces ~/crawfish via IXDAR_MODEL_DIR",
+        "DONE : Update ixdar-cli list-meshes / mesh_catalog.py to include the new extension",
+        "DONE : Add the tiny .gltf fixture and GltfMeshParserTest",
+        "DONE : Add the crawfish load benchmark and record heap/time in the ticket",
+        "DONE : Verify TeaVM build stays free of Assimp references"
+    ],
+    "unknowns": [
+        "Whether to keep AssimpModelImporter (render-only path) or make AssimpModelRuntime consume the new parser so there is one Assimp entry point",
+        "Whether Assimp's JoinIdenticalVertices should be disabled so seam UVs survive (glTF already de-duplicates)",
+        "Whether the UV slot should be a Vector3Field with z=0 or a new two-component field type (C6 in REFACTOR-PLAN-2 prefers the Field forms)",
+        "DoD 5 (TeaVM) is unevaluable on this machine: TeaVM 0.15 bundles ASM 9.8 (ceiling major 69 = Java 25) and only JDK 26 and 27 are installed, so ./tools/teavm-build.sh has been red since 2026-08-16, independent of this branch. Needs a JDK 25 toolchain, plus `mvn install -pl annotations` or a script fix so the script stops resolving a stale annotations jar from ~/.m2.",
+        "LoadMeshNode.class carries an orphan constant-pool Class entry for GltfMeshParser (from reading the inlined UV_SLOT constant in socketDocs). No instruction references it and TeaVM walks method bodies, so it should create no dependency edge -- but this could not be confirmed against a real classes.js. If it ever trips TeaVM, move UV_SLOT onto LoadMeshNode.",
+        "ModelCatalog.staging() now silently degrades to a plain directory scan when the root has neither dsl/ nor obj/. That is what makes IXDAR_MODEL_DIR=~/crawfish work without sync-models, but a typo-ed staging root now scans as a plain directory instead of coming back empty."
+    ],
+    "changes-made": [
+        "Added GltfMeshParser (geometry/mesh/data/load): Assimp aiImportFile with aiProcess_Triangulate only -- JoinIdenticalVertices is deliberately off so the vertex count still matches the glTF accessors and seam UVs survive. Two passes over the node tree size then bulk-copy the tightly packed Assimp streams into flat float[]/int[] arrays via MemoryUtil.memFloatBuffer(...).get(array, offset, count), baking each node world transform in place; nothing is boxed.",
+        "TEXCOORD_0 rides the bundle as GltfMeshParser.UV_SLOT = \"_uv\", a Vector3Field of (u, v, 0) with one element per vertex (REFACTOR-PLAN-2 C6 prefers the Field forms). Assimp delivers glTF UVs flipped to the OpenGL bottom-left origin, so the slot holds 1 - v_gltf; the unit test asserts that convention rather than silently correcting it, so CRAW-3 knows what it is getting.",
+        "MeshLoader: .glb/.gltf registered; new loadBundle(String) returns a GeometryBundle so attribute slots survive while load(String) keeps its ArrayMesh signature; added isSupported/isGltf/MESH_EXTENSIONS. The parser is reached by Class.forName so there is no compiled edge from MeshLoader to Assimp and the web build refuses the load with a clear IOException.",
+        "LoadMeshNode now calls loadBundle so _uv reaches the graph; description() and socketDocs() document .glb/.gltf and the slot (mesh-node-catalog.json regenerated).",
+        "ModelCatalog gained directory(Path), a plain recursive scan accepting every extension MeshLoader reads; staging(Path) falls back to it when the root has neither dsl/ nor obj/, and otherwise also collects .glb/.gltf below the root. IXDAR_MODEL_DIR=~/crawfish therefore surfaces all ten scans with no sync-models run.",
+        "MeshNodeViewerScene honours -Dixdar.model in mesh-viewer: a catalog token when one resolves, otherwise the property taken as a mesh path. loadObjFromAbsolutePath renamed loadMeshFileFromAbsolutePath since it is no longer OBJ-only.",
+        "mesh_catalog.py: mesh_roots() adds IXDAR_MODEL_DIR, MESH_EXTENSIONS gained .ply/.glb/.gltf, and _gltf_counts reads vertex/triangle counts from the glTF JSON (or the GLB JSON chunk) alone, so a 40 MB scan costs a few hundred kB of I/O.",
+        "VERIFIED DoD 1: benchmark CrawfishScanLoadBenchmark on IMG_4109.glb prints V=622652 F=936035 UV=622652, cold load 261.0ms / warm 120.6ms.",
+        "VERIFIED DoD 4: peak heap 114.4 MiB (98.5 MiB used after load) under -Xmx2g -- about 5% of the 2 GB budget; the scan is four flat primitive arrays, roughly 33 MB.",
+        "VERIFIED DoD 2: mesh-dsl-validate on `scan = load_mesh(path=\"/home/acw/crawfish/IMG_4109.glb\")` returns valid, 622652 verts / 936035 faces, boundaryEdges 0, watertight true, 273ms. run-scene mesh-viewer with ixdar.model=<path> logs \"mesh loaded: ... verts=622652 faces=936035\" and screenshots the crawfish (tmp/craw-1-crawfish-mesh-viewer.png); a second run with IXDAR_MODEL_DIR=~/crawfish and ixdar.model=IMG_4112 resolves through the catalog (10 entries) and renders (tmp/craw-1-catalog-IMG_4112.png).",
+        "VERIFIED DoD 3: IXDAR_MODEL_DIR=/home/acw/crawfish ixdar-cli list-meshes lists all ten scans beside the repo corpus; its accessor-derived counts for IMG_4109 (622652/936035) match Assimp exactly, cross-checking the import.",
+        "VERIFIED DoD 6: 0 checkstyle violations; full suite 164 tests / 1 failure / 1 skipped, the failure being only the documented A7 baseline DenseMeshFewSplitsTest \"9 to 37\". 164 = the 157-test baseline plus 7 new glTF tests.",
+        "NOT MET DoD 5: ./tools/teavm-build.sh cannot run on this machine, for two pre-existing reasons proven independent of this branch. (a) The script builds -pl ixdar-app alone, so annotations resolves from ~/.m2, where the jar is dated 2026-08-16 and predates MeshNodeAnnotation.desktopOnly(); fix is `mvn install -pl annotations` once, not done because it writes shared ~/.m2 while other agents build. (b) With annotations in the reactor, TeaVM 0.15 dies with \"Unsupported class file major version 71\". Nothing on the plugin-reported TeaVM classpath exceeds major 69 (scanned every class in all 60 jars and both target/classes); re-running under JAVA_HOME=java-26-openjdk changes the message to major 70, so the number tracks the JDK running Maven, not our code. TeaVM 0.15 bundles ASM 9.8 (ceiling Java 25 = 69) and this machine has only JDK 26 and mise JDK 27. The last successful classes.js is dated 2026-08-16 20:12, the same day as the stale jar -- the toolchain broke when the JDK moved past 25, long before this branch.",
+        "DoD 5 second clause checked statically since no classes.js could be produced: GltfMeshParser is reached only via Class.forName, so no TeaVM-visible class has a call edge to Assimp. Disclosed caveat: javap shows an orphan constant-pool entry \"#36 = Class .../GltfMeshParser\" in LoadMeshNode.class, emitted because socketDocs() reads the compile-time constant UV_SLOT; no instruction or attribute references it (the \"_uv\" string is inlined) and TeaVM walks method bodies, not raw constant pools, so it creates no dependency edge. Moving UV_SLOT onto LoadMeshNode would remove it if it ever bites.",
+        "Added .vscode/launch.json entry \"CRAW-1: Mesh Viewer (Crawfish GLB)\" -- mainClass ixdar.canvas.IxdarWindow, args mesh-viewer, vmArgs with -Xmx4g and -Dixdar.model=/home/acw/crawfish/IMG_4109.glb.",
+        "Full evidence, commands and output in VERIFICATION.md at the craw-1 worktree root. Left IN_PROGRESS: DoD 5 is the only gap and needs a JDK 25 or older on the machine before anyone can evaluate it.",
+        "Web build (DoD 5) verified after installing JDK 25.0.2 via mise: classes.js 6.68 MB, zero GltfMeshParser/Assimp symbols. Two follow-up fixes in MeshLoader: Class.getPackageName is unsupported by TeaVM (replaced by a runtime-built name from MeshLoader.class.getName so TeaVM cannot resolve Class.forName at compile time); UV_SLOT moved from GltfMeshParser to MeshLoader so LoadMeshNode never references the desktop-only parser"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/MeshLoader.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/ObjMeshParser.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/AssimpModelImporter.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/data/LoadMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelCatalog.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelChoice.java",
+        "ixdar_automation_cli/mesh_catalog.py",
+        "ixdar-app/pom.xml",
+        "/home/acw/crawfish/IMG_4109.glb",
+        "/home/acw/crawfish/IMG_4109.settings.json",
+        "ixdar-tickets:VIEW-6",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/GltfMeshParser.java",
+        "ixdar-app/test/unit/mesh/GltfMeshParserTest.java",
+        "ixdar-app/test/resources/gltf/two_triangles.gltf",
+        "ixdar-app/test/benchmark/CrawfishScanLoadBenchmark.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java",
+        "ixdar_automation_cli/mesh-node-catalog.json",
+        "ixdar_automation_cli/cli_commands/list_meshes.py",
+        ".vscode/launch.json",
+        ".claude/worktrees/craw-1/VERIFICATION.md",
+        "tools/teavm-build.sh"
+    ],
+    "priority": 1
+}

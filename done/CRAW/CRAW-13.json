@@ -1,0 +1,67 @@
+{
+    "id": "CRAW-13",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Mesh boolean face provenance from Manifold (REFACTOR-PLAN-2 C1)",
+    "description": "ManifoldMeshBooleanBackend (Java FFM bindings to Manifold3D) returns MeshBooleanResult.faceOrigin empty because the bindings do not expose Manifold's runIndex/runOriginalID/faceID tables from MeshGL64. Everything downstream that must survive a boolean (labels, tags, bone weights, UVs, dirty-patch marking, provenance tinting) needs to know which input mesh and which input triangle each output face came from. Extend the FFM bindings to read runIndex + runOriginalID (per-run origin manifold) and faceID (original triangle id when Manifold preserves it), populate faceOrigin (A / B / NEW) and a per-face sourceFaceId array, re-enable the @Disabled provenance half of MeshBooleanProvenanceTest, and restore provenance tinting in MeshBooleanScene (from_a/from_b/intersection tags). Also answer the C1 side question: why the old backend reported faces new=0/36 without flagging an intersection face. Related: MESH-50 (mesh_boolean output has unwelded duplicate vertices) -- provenance must survive whatever weld fixes that.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-14",
+        "CRAW-15",
+        "CRAW-16"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. MeshBooleanResult carries faceOrigin for every output face and sourceFaceId where Manifold provides it. 2. MeshBooleanProvenanceTest fully enabled and green (two-cube union: faces from A, from B, and NEW intersection faces all present). 3. mesh-boolean scene tints by origin again (screenshot). 4. mesh_boolean node writes provenance into its existing provenance slots. 5. Build checkstyle-green; ManifoldNativesTest green.",
+    "testing-plan": "1. Unit: two-cube union -> counts of A/B/NEW faces match expectations and sourceFaceId indexes into the right input. 2. Unit: difference and intersection ops report consistent origins. 3. run-scene mesh-boolean screenshot shows three colours.",
+    "todos": [
+        "DONE : Extend ManifoldBindings to read MeshGL64 runIndex/runOriginalID/faceID",
+        "DONE : Map runs to input operands (setOriginalID before the op) and fill faceOrigin/sourceFaceId",
+        "DONE : Re-enable and extend MeshBooleanProvenanceTest",
+        "DONE : Restore MeshBooleanScene tinting",
+        "DONE : Document the new=0/36 finding in changes-made"
+    ],
+    "unknowns": [
+        "Whether the vendored FFM binding version exposes faceID or only runOriginalID (may need a binding regeneration)",
+        "Whether Manifold's own triangulation of coplanar overlaps loses faceID (then NEW faces need a nearest-source fallback)"
+    ],
+    "changes-made": [
+        "Extended the Manifold FFM surface: new ManifoldProvenanceBindings binds manifold_as_original, manifold_original_id, manifold_destruct_manifold, manifold_get_meshgl64 and the run_index / run_original_id / face_id MeshGL64 accessors through SymbolLookup.loaderLookup(), which the vendored com.cadoodlecad.manifold.ManifoldBindings (manifold3d v3.5.1-4) does not wrap. No binding regeneration needed: libmanifoldc.so already exports all three tables.",
+        "New value class ManifoldMeshExport holds one MeshGL64 read back as Java arrays (positions, corners, runIndex, runOriginalId, faceId) with run-to-triangle-range accessors; new VertexPositionIndex is an exact-position to vertex-index table used to match output corners bit-for-bit against input vertices.",
+        "New BooleanFaceProvenance carries the attribution algorithm (data separate from algorithm, one public build() entry point): runIndex/runOriginalId give faceSourceOperand; an output triangle whose three corners resolve to one input triangle is an untouched copy (faceOrigin = that operand, faceSourceQuad from QuadTriangulation.triangleSourceFace); otherwise it is a cut piece (ORIGIN_NEW) whose source quad comes from its faceId coplanar group, resolved by best plane containment of the centroid. That is the nearest-source fallback the ticket's second unknown anticipated.",
+        "ManifoldMeshBooleanBackend now stamps each operand as an original before the op, exports both stamped operands and the result, and manages native lifetimes explicitly inside one confined Arena (imported meshes deleted after stamping, stamped solids destructed in a finally, result deleted after export).",
+        "MeshBooleanResult gained faceSourceOperand alongside faceOrigin and faceSourceQuad. faceOrigin answers 'untouched copy of whose triangle, or cut'; faceSourceOperand answers 'whose surface does this face lie on' and is never ORIGIN_NEW; faceSourceQuad is the input quad id in that operand. CRAW-14/15 need the latter two even for cut faces.",
+        "MeshBooleanNode writes all three arrays into its bundle slots as IntField rather than raw int[] (REFACTOR-PLAN-2 C6 direction), adding FACE_SOURCE_OPERAND_SLOT = _boolean_face_source_operand. MeshBooleanScene was the only reader and was updated; mesh-node-catalog.json regenerated by the build.",
+        "MeshBooleanScene tinting restored: BLUE_WHITE untouched-from-A, BRIGHT_ORANGE untouched-from-B, BRIGHT_GREEN cut by the intersection curve. HalfEdgeMeshRuntime tags are per-vertex and a triangle only wins a tag when all three corners carry it, so the scene uploads an unwelded display copy with one vertex per corner. Scene log now reads 'faces new=24/36' where it used to read 'faces new=0/36'.",
+        "Two-cube fixture counts (cube A [-0.5,0.5]^3, cube B [0,1]^3 so B's corner sits on A's centre): UNION 36 faces, origin A=6 B=6 NEW=24, sourceOperand 18/18; DIFFERENCE 24 faces, origin A=6 B=0 NEW=18, sourceOperand A=18 B=6; INTERSECTION 12 faces, origin all NEW, sourceOperand 6/6. Every face in every op resolves to a source quad (unresolved=0) and its centroid lies in that quad's plane.",
+        "MeshBooleanProvenanceTest fully enabled (no @Disabled left), three tests green, fixture built from literal arrays with no mesh file loaded. ManifoldNativesTest green. Build checkstyle-clean: 0 violations in both modules.",
+        "C1 side question answered -- why the old backend reported 'faces new=0/36' without ever flagging an intersection face. The old decodeProvenance (commit becea043, deleted in 16e99787) prefilled faceOrigin with ORIGIN_NEW then overwrote every triangle covered by a run whose runOriginalID matched an operand. Dumped live for the union: runIndex=[0,54,108] in corners, runOriginalId=[3,4], so run 0 is triangles 0-17 (cube A) and run 1 is triangles 18-35 (cube B) -- the two runs tile all 36 triangles with no gap, so the prefill was overwritten 36 times out of 36. The 36 is exactly this fixture's union triangle count.",
+        "The deeper reason: Manifold's run table has no 'new' category and structurally cannot have one. A run names the originating solid, and Manifold keeps that attribution across the whole retained surface of each operand including the sub-triangles produced when it retriangulates a face the intersection curve cut. A boolean of two closed solids never emits surface belonging to neither operand, so 'in no run' is unreachable by construction. Run membership can answer 'which cube' but never 'was this face split'; that needs geometric comparison against the input triangles, which BooleanFaceProvenance now does.",
+        "Secondary defects in the same old code, for the record: faceID was used as a direct index into operand.triangleSourceFace although it is a coplanar-GROUP id (values {0,1,3,4,5,9} on a cube -- six groups, one per quad, each id being the group's first triangle), not a per-triangle input index; and the cornersPerEntry heuristic happened to pick the right unit here. Neither caused new=0.",
+        "Unknowns closed: the vendored binding wrapper exposes neither faceID nor runOriginalID (its MeshData64 record carries only vertices and triangles), but libmanifoldc.so exports all the C accessors and loaderLookup finds them -- the 'Available Manifold functions' banner printed at load lists only the subset the wrapper binds, which is why the symbols look absent. faceId comes back populated (36 entries for the 36-triangle union). Manifold does not lose faceId through coplanar retriangulation, but because it is a group id a cut face still needs the plane-containment fallback to pick which triangle of the group it came from.",
+        "Found in passing and filed separately: ArrayMesh declares halfEdgeTwin/halfEdgeEdge/edgeHalfEdge/edgeCount but never assigns them, so edgeCount() is always 0, getEdgeIndices() always returns empty and HalfEdgeMeshRuntime's wireframe overlay silently draws nothing for any ArrayMesh (edgeHalfEdge()/isBoundaryEdge() would NPE). The scene's display copy is built with HalfEdgeMesh.bulkAllocate instead; the ArrayMesh defect is untouched.",
+        "./tools/teavm-build.sh is RED for two pre-existing toolchain reasons unrelated to this change, evidence in VERIFICATION.md: (1) the script runs mvn package -pl ixdar-app with no annotations module in the reactor, so it resolved a stale Aug-16 IXDAR:annotations:0.0.1 from ~/.m2 predating MeshNodeAnnotation.desktopOnly() -- refreshed with mvn install -pl annotations from unmodified source; (2) TeaVM 0.15.0 then dies with 'Unsupported class file major version 71' before reaching any application class, because the local JDK is OpenJDK 27 while every class this project emits is major 69 (verified on ManifoldProvenanceBindings, MeshBooleanScene and IxdarWindow). The desktop-only firewall is intact: ManifoldMeshBooleanBackend is still referenced only from LwjglPlatform and HeadlessPlatform, and the other three new classes are pure Java.",
+        ".vscode/launch.json entry 'CRAW-13: Mesh Boolean (provenance tint)' launches ixdar.canvas.IxdarWindow with args mesh-boolean. Headless screenshot at tmp/craw-13-boolean-provenance.png shows the three colours. Full write-up in VERIFICATION.md at the worktree root.",
+        "TeaVM web build verified under JDK 25.0.2 (mise) after the toolchain fix: classes.js 6.67 MB, zero Manifold symbols in the emitted JavaScript"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldMeshBooleanBackend.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/MeshBooleanResult.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/MeshBooleanNode.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshBooleanScene.java",
+        "ixdar-app/test/unit/mesh/MeshBooleanProvenanceTest.java",
+        "REFACTOR-PLAN-2.md",
+        "ixdar-tickets:MESH-50",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/BooleanFaceProvenance.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldMeshExport.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldProvenanceBindings.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/VertexPositionIndex.java",
+        "ixdar-app/src/main/resources/dsl/cube_boolean.dsl",
+        "ixdar_automation_cli/mesh-node-catalog.json",
+        ".vscode/launch.json",
+        "VERIFICATION.md"
+    ],
+    "priority": 1
+}

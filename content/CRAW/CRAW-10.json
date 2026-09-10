@@ -10,7 +10,9 @@
     "blocked-by": [
         "CRAW-9"
     ],
-    "blocks": [],
+    "blocks": [
+        "CRAW-25"
+    ],
     "status": "TODO",
     "definition-of-done": "1. `ixdar-cli label-patches` labels every unlabelled patch of a saved layout in one run and persists via the API. 2. Ontology file format documented; proposed new categories land in a review JSON, not in the label store. 3. Multi-view voting implemented with a confidence threshold; low-confidence patches listed in the report. 4. Agreement report (per-label precision/recall) printed when hand labels exist. 5. API key comes from the environment (ANTHROPIC_API_KEY or `ant auth login`); never from a flag or file in the repo. 6. Dry-run mode renders and saves the prompts/images without calling the API.",
     "testing-plan": "1. Dry-run on the saved plane layout: 4 patches, verify 4 image sets and prompt JSON are produced. 2. Live run on a hand-labelled fixture (a saved layout of hand.dsl with ~20 patches labelled by hand): agreement >= 80% on top-level labels. 3. Batch mode run on the same fixture completes and produces identical labels to the sync path. 4. pytest for voting and report functions with canned model outputs.",

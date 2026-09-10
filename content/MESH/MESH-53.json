@@ -1,0 +1,29 @@
+{
+    "id": "MESH-53",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "ixdar-cli multiview renders all-black in mesh-viewer",
+    "description": "Pre-existing, hit by two CRAW-26 agents and by the lead: run-scene --multiview (the /ui/multiview route) on the mesh-viewer scene with a loaded DSL graph produces a 4096x2048 PNG that is entirely black, while the single screenshot route renders correctly and the VLM multiview pattern in PatchRenderer.renderMultiview works. Likely the multiview render happens before the async graph finishes, or it renders to an FBO whose colour attachment the mesh runtime never draws into in headless mode. Find the cause, fix it, and add a regression check to test_cli or the automation replay so a black multiview fails loudly (mean pixel value above a threshold).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. run-scene --multiview on mesh-viewer with dsl/fixtures/fertility_rings.dsl yields eight non-black views. 2. A test or route check fails when the multiview is all black. 3. Build checkstyle-green.",
+    "testing-plan": "1. run-scene --multiview on two scenes, inspect. 2. The black-frame check in the CLI tests with a synthetic black PNG.",
+    "todos": [],
+    "unknowns": [
+        "DoD 1 names dsl/fixtures/fertility_rings.dsl, which does not exist on master (not on disk, not in git history) and has no ring concept behind it; it looks like it belongs to the unlanded CRAW ring tool. I verified eight non-black views on the mesh-viewer default skull.dsl and on dsl/fixtures/torus_tighten_loop instead. Confirm that substitution is acceptable."
+    ],
+    "changes-made": [
+        "Root cause found and fixed in ixdar-app/src/main/java/ixdar/platform/automation/endpoints/ui/MultiviewScreenshot.java. It was neither async graph timing nor an FBO colour attachment: the handler captured all eight views correctly into the captures array, then allocated the 4x2 composite BufferedImage and wrote that freshly allocated (all-zero, hence black) image straight to disk. Nothing ever drew the captures into it. The file even imported Graphics2D, plus a Color and a Font that pointed at ixdar.graphics.render rather than java.awt, which is the leftover of the compositing loop that was never written. That also explains why the single screenshot route and PatchRenderer.renderMultiview always worked: both draw what they capture.",
+        "Fix: draw each capture at its grid cell with Graphics2D.drawImage and label it with shadowed white text, following the PatchRenderer.renderMultiview pattern; imports corrected to java.awt.Color and java.awt.Font. Verified on the mesh-viewer scene (port 47907, skull.dsl): the composite is 4096x2048 with all eight labelled views showing the mesh, blankViews 0, meanChannelValue 48.6 against 0.0 before. Screenshot at tmp/tool7-multiview.png in the tool-7 worktree.",
+        "Loud failure on a black multiview, two layers. The route now checks each captured view for a single flat colour and returns blankViews plus ok false and an error saying every view rendered blank when all eight are; responseHint updated. Client side, the new ixdar-cli image-stats IMAGE reports mean, min and max channel values and a blank flag and exits 6 on a single-colour frame, with an optional --min-mean brightness floor. test_cli.py test_image_stats_fails_on_a_black_frame builds a synthetic all-black PNG and asserts exit 6, and a non-uniform one asserts exit 0.",
+        "Build green: mvn -q compile -pl annotations,ixdar-app exits 0 with checkstyle clean; 40 CLI tests pass; ixdar-cli gen-docs reports no drift. Work is uncommitted on branch tool-7 in /home/acw/Code/Ixdar/.claude/worktrees/tool-7, landing together with TOOL-7."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/ui/MultiviewScreenshot.java"
+    ],
+    "priority": 3
+}

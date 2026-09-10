@@ -1,0 +1,31 @@
+{
+    "id": "TOOL-6",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Ring confirm stays in memory; explicit save; authored DSL files loaded from disk, not the classpath",
+    "description": "The ring tool writes every confirmed ring straight into the tracked fixture it loaded (fertility_rings.dsl, skull.dsl), so verification dirties the repo and three agents kept pristine copies to restore; the fixture also lives in src/main/resources while the scene reads target/classes, so the two drift (report items 8 and 16; user ruling: never overwrite a DSL without an explicit save action). Change RingTool and RingDslWriter so confirm and anchor edits only update the in-memory ring set and the rendered rings; a terminal command save [path] (and a matching route) writes the statements, defaulting to the file the scene loaded, and ui-state reports an unsaved-changes flag. Move authored DSL files out of the classpath: a dsl directory at the repository root holds user-authored graphs loaded by path, the ixdar.mesh.dsl property accepts a path there or a fixture name, and in a development checkout fixture names resolve to src/main/resources on disk before the classpath so edits are live without a rebuild; the packaged app keeps the classpath path. Update ModelCatalog listing, list-meshes and the CRAW-28 launch entry accordingly. This ticket touches RingTool and RingDslWriter, so it starts after the craw-rings worktree has landed.",
+    "blocked-by": [
+        "CRAW-28"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Confirming a ring in the tool leaves git status clean; the ring renders and ui-state shows unsaved changes. 2. The save command writes the ring statements to the chosen file and reloading that file draws the same rings element-exact. 3. A DSL file under the root dsl directory loads by path from run-scene and F5. 4. Editing a fixture under src/main/resources and rerunning with --skip-build shows the edit. 5. Existing ring tests and the DSL fixtures suite are green; checkstyle green; screenshots under tmp/.",
+    "testing-plan": "1. Unit: RingDslWriter save writes only on the explicit call; loader resolution order test. 2. Manual on fertility: confirm two rings, check git status, save, reload, compare fingerprints.",
+    "todos": [],
+    "unknowns": [
+        "Whether fixtures used by tests stay in src/main/resources or also move to the root dsl directory; recommendation: tests keep resources, authored work moves."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "Ixdar/ixdar-app/src/main/java/ixdar/scenes/model/RingTool.java",
+        "Ixdar/ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/selection/RingDslWriter.java",
+        "Ixdar/ixdar-app/src/main/java/ixdar/graphics/render/model/ModelCatalog.java",
+        "Ixdar/ixdar-app/src/main/resources/dsl/fixtures/fertility_rings.dsl",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 2
+}

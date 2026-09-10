@@ -1,0 +1,38 @@
+{
+    "id": "TOOL-5",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "ui"
+    ],
+    "title": "Input commands: named keys with modifiers everywhere, consumed-key reporting, settle after input, terminal line command",
+    "description": "The two keypress APIs disagree (run-scene --key takes names but no modifiers; ixdar-cli key takes GLFW integers and an integer action), unhandled keys report ok so a swallowed ESCAPE cost two agents 25 calls, and every click or hover is followed by a blind sleep (report items 13, 14, 15). One key syntax for both paths: names such as ESCAPE, GRAVE, RIGHT_BRACKET, P, with modifiers written SHIFT+P and CTRL+SHIFT+S; the action is a word (tap default, press, release). The key route response reports whether any handler consumed the key, and mesh-viewer must stop swallowing ESCAPE and GRAVE (MeshViewerKeyGuy overrides handleSceneKeys with null controls). click, hover and key settle by default: the route returns after the scene has rendered at least two frames past the input (expose a frame counter in ui-state), so callers never sleep; an optional await-log pattern extends the wait. ixdar-cli terminal <line> types a line into the scene terminal, presses enter, and returns after the terminal reports the command handled (CRAW-23 wrote a script to do this with key codes 32 and 257). Regenerate routes and CLAUDE.md with gen-docs; update test_cli.py.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. ixdar-cli key --key SHIFT+P and run-scene --key SHIFT+P both work and integers are no longer accepted. 2. The key response carries consumed true or false; pressing ESCAPE in mesh-viewer opens the menu. 3. A click followed immediately by screenshot shows the click's effect with no sleep in between (verified on the CRAW-28 ring tool hover and click). 4. ixdar-cli terminal 'rings list' runs the command and returns the terminal's response. 5. Routes, CLI docs and test_cli.py updated; suite and checkstyle green.",
+    "testing-plan": "1. Unit: key-name parsing including modifiers and rejection of integers. 2. Manual on mesh-viewer with the fertility ring fixture: ESCAPE opens the menu, hover then screenshot with no sleep shows the preview ring, terminal command round-trips.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "One key syntax everywhere: new ixdar-app/src/main/java/ixdar/platform/input/KeyNames.java parses names with modifiers (ESCAPE, GRAVE, RIGHT_BRACKET, P, SHIFT+P, CTRL+SHIFT+S) into a Keys code plus a GLFW mod mask, reflecting the name table off Keys.java so the two cannot drift; action is a word (tap default, press, release, repeat). Raw GLFW integers are refused with a message naming the replacement.",
+        "InjectKey.java rewritten: takes key/action/settle, holds the named modifier keys down around the key so mods-reading and pressedKeys-reading handlers agree, and answers {ok, key, keyCode, mods, action, consumed, settled}. Verified live: SHIFT+P consumed true and cycles shaderMode; Q consumed false; --key 256 refused.",
+        "Consumed-key reporting: KeyGuy gained keysConsumed plus markKeyConsumed(), called from every binding that acts (KeyGuy shortcuts and terminal forwarding, OrbitCameraKeyGuy Ctrl+R and ControlHint dispatch, MeshViewerKeyGuy Z/P/Shift+P/bracket/K/D). InjectKey samples the counter around the event.",
+        "Settle after input: Clock gained a monotonic framesRendered counter; new ixdar-app/src/main/java/ixdar/platform/automation/InputSettle.java blocks the HTTP thread until two frames past the input have been drawn (5s timeout). key, click and hover settle by default and report settled. Measured on mesh-viewer at 1024x1024: settle 0 = 94 ms, 2 = 127 ms, 20 = 506 ms, 60 = 1329 ms, about 21 ms per frame.",
+        "ixdar-cli terminal 'list toggles': new route /input/terminal (RunTerminalLine.java) focuses the scene terminal, types the line through the real char and key path, presses enter and returns the history lines the command printed; registry command takes the line positionally (new CliOption(positional=True) support in cli_registry.py and ixdar_cli.py). Verified: 26 toggle lines returned, terminal visible in the screenshot tmp/terminal-open.png.",
+        "run-scene --key now takes the same spec (ESCAPE, SHIFT+P) and reports consumed per key; the blind 3s per-key sleep is gone (DEFAULT_KEY_SETTLE_SECONDS is 0.0, the route settles instead). Integer specs are refused before the build and launch by the new ixdar_automation_cli/key_specs.py, which parses its name table out of Keys.java so Python and Java cannot drift. Verified: --key ESCAPE --key SHIFT+P --key Q returned consumed true, true, false.",
+        "ui-state gained framesRendered, terminalFocused, sceneMenuVisible, a controls array (key, description, keyCode) and the scene terminal as a scene_terminal text element. This was the real reason ESCAPE looked swallowed in mesh-viewer: the ESC menu of a ModelScene is sceneModelMenu, which ui-state never reported, while MenuBox.menuVisible stayed false. MeshViewerKeyGuy already fell through to the scene controls; ESCAPE and GRAVE both work and now both report consumed true.",
+        "Tests: new ixdar-app/test/unit/model/KeyNamesTest.java (5 tests, green) covers names, modifiers, action words and integer rejection; test_cli.py gained 7 tests for the Keys.java-derived table, spec validation, integer rejection in run-scene, the key body shape, positional terminal, and click/hover settle defaults. Python suite 40/40 green; Java unit suite 213/214, the one failure being the known pre-existing DenseMeshFewSplitsTest. Checkstyle green; tools/teavm-build.sh green (1799 classes, 7.1 MB classes.js).",
+        "Review fix: consumption is counted in the dispatch primitives only (KeyActions.keyPressed when a binding matches, the ControlHint match in OrbitCameraKeyGuy, the terminal keyPress, one line after MeshViewerKeyGuy's switch), not per binding; KeyGuy.keysConsumed is static. Verified on mesh-viewer: ESCAPE consumed true, Q false, GRAVE true.",
+        "Review fix: removed ixdar_automation_cli/key_specs.py, which parsed Keys.java with a regex; the CLI forwards key names unchanged and the server's KeyNames validates them. 58 CLI tests pass."
+    ],
+    "related-files": [
+        "Ixdar/ixdar-app/src/main/java/ixdar/platform/automation/endpoints/input/",
+        "Ixdar/ixdar-app/src/main/java/ixdar/scenes/mesh/MeshViewerKeyGuy.java",
+        "Ixdar/ixdar_automation_cli/cli_commands/run_scene.py",
+        "Ixdar/ixdar_automation_cli/automation_routes.json",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 2
+}

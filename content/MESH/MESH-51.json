@@ -1,0 +1,24 @@
+{
+    "id": "MESH-51",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "ArrayMesh never builds its lazy edge topology: edgeCount() is 0 and edge ids do not exist",
+    "description": "Found by three CRAW agents (CRAW-22, CRAW-23, CRAW-26): ArrayMesh declares topologyReady, edgeHalfEdge and vertexEdgeOffsets and documents lazy edge topology, but nothing fills them; every topology accessor carries a stray blank first line where an ensureTopology() call used to sit. So edgeCount() is always 0 through ArrayMesh, edge ids do not exist, and per-edge data (EdgeMarks, boundary overlays, mesh-state edge counts) is unreachable for any node whose input is an ArrayMesh (load_mesh output). Nodes work around it by converting to HalfEdgeMesh on entry (ring_candidates, loop_through_points, repair_mesh emits a HalfEdgeMesh). ArrayMeshEngine.deleteEdges and subdivideQuadsOnce are affected too. Either restore the lazy build (one ensureTopology() at the top of every topology accessor, building edgeHalfEdge/vertexEdgeOffsets from the face array with a counting sort, invalidated by any face edit) or delete the dead fields and the edge accessors from ArrayMesh and make the MeshTopology contract explicit that ArrayMesh has no edges. Decide with a grep of every caller; report which callers silently got 0 today.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Either edgeCount()/edgeIdAt/edgeHalfEdge on an ArrayMesh return correct values (unit test on a procedural quad grid: E = V + F - 2 + 2g) or those accessors are removed and every caller compiles against the explicit contract. 2. ArrayMeshEngine.deleteEdges and subdivideQuadsOnce have unit tests that pass on ArrayMesh input. 3. EdgeMarks on a load_mesh ArrayMesh output are drawable in mesh-viewer without a half-edge conversion (or the conversion is the documented contract). 4. Build checkstyle-green.",
+    "testing-plan": "1. Procedural-mesh unit tests for the accessors and the two engine ops. 2. mesh-viewer with a marked-edge fixture on an .off file.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/representation/ArrayMesh.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/representation/ArrayMeshEngine.java",
+        "ixdar-tickets:CRAW-26"
+    ],
+    "priority": 2
+}

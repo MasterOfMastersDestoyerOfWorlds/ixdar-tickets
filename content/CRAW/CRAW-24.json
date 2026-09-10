@@ -1,0 +1,50 @@
+{
+    "id": "CRAW-24",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "automation"
+    ],
+    "title": "Transfer rings and part labels across an aligned collection; report absent parts",
+    "description": "The step that makes the workflow scale: define rings and part labels once on a reference scan, inherit them on the other nine. Input: the aligned collection (CRAW-12 members, CRAW-16 align_to_mesh transforms) and a `crawfish_parts.dsl` holding loop_through_points waypoint statements (CRAW-23), accepted ring_candidates selections by surface point (CRAW-22) and region labels by surface point (CRAW-6 label nodes where available, else a `_part` tag via tag_geometry). Evaluate the same DSL against each member after alignment: waypoints and label points re-snap to that member's surface, Dijkstra closes, FlipGeodesics tightens, regions are flood-filled between rings. Add `transfer_report`: per member and per part, the snap distance of each waypoint (relative to the local skeleton radius), whether the ring closed and tightened without merging, and the region area ratio versus the reference. A part whose waypoints snap farther than a threshold or whose area ratio is far from 1 is marked ABSENT for that member, which is how a badly reconstructed back side is detected without vision. Outputs: per-member rings + labels as bundle slots, a `collection_parts.json`-free approach: write `parts_<member>.dsl` next to the collection (one language) and print the report table via `ixdar-cli parts transfer`. This ticket proves the vision on two scans; the ten-scan run is the stretch goal.\n\nNote 2026-09-07: rings are spline_ring statements (anchor point lists); transfer snaps the anchors to the member's surface and re-traces the spline there. loop_through_points rings from the automatic candidates transfer the same way.\n",
+    "blocked-by": [
+        "CRAW-12",
+        "CRAW-16",
+        "CRAW-22",
+        "CRAW-23",
+        "CRAW-28"
+    ],
+    "blocks": [
+        "CRAW-19",
+        "CRAW-25"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Rings and labels authored on IMG_4109.glb transfer to IMG_4110.glb with every ring on the shared well-reconstructed side closing and tightening; overlay screenshots of both scans side by side in VERIFICATION.md. 2. At least one part is correctly reported ABSENT on a member whose reconstruction lacks it, and the report explains which waypoints failed. 3. `ixdar-cli parts transfer` prints a member x part table (OK / ABSENT / WARN) and writes parts_<member>.dsl files that validate. 4. Unit: two procedural tubes, one with a chunk deleted, transfer yields OK on the intact tube and ABSENT on the damaged one. 5. Run over all ten scans completes (or the ticket records which member fails and why). 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit with procedural meshes only. 2. run-scene on the two-member collection, transfer, screenshots, fingerprint the transferred rings. 3. Full ten-member run timed and recorded.",
+    "todos": [
+        "Evaluate parts .dsl per aligned member with re-snapping (reuse loop_through_points, select_ring)",
+        "Region flood fill between rings -> per-face part field",
+        "transfer_report: snap distances, closure, area ratios, ABSENT flags",
+        "parts_<member>.dsl writer + ixdar-cli parts transfer command",
+        "Two-scan demo on IMG_4109 + IMG_4110, then all ten"
+    ],
+    "unknowns": [
+        "Trellis scans may differ in scale/orientation beyond what PCA+ICP recovers when large regions are missing; may need skeleton-graph matching as the alignment seed",
+        "Threshold for ABSENT (snap distance vs local radius, area ratio) needs calibration on the crawfish set",
+        "CRAW-6 label nodes may not be merged; use _tags per region as the fallback carrier"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-tickets:CRAW-12",
+        "ixdar-tickets:CRAW-16",
+        "ixdar-tickets:CRAW-22",
+        "ixdar-tickets:CRAW-23",
+        "ixdar-tickets:CRAW-6",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/data/TagGeometryNode.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelCatalog.java",
+        "/home/acw/crawfish",
+        "/home/acw/obsidian/Notes/Plan for Crawfish.md"
+    ],
+    "priority": 2
+}

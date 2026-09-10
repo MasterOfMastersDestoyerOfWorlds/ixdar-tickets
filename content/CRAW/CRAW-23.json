@@ -1,0 +1,71 @@
+{
+    "id": "CRAW-23",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui",
+        "automation"
+    ],
+    "title": "Loop through points: click or coordinates -> Dijkstra -> tightened ring, saved as surface waypoints",
+    "description": "The manual and agent-driven ring tool, one node serving both. `loop_through_points(geometry, points=[p1,p2,p3,...], tighten=true)`: snap each point to the nearest surface vertex (NearestVertex), connect consecutive points (and last to first) with Dijkstra shortest edge paths, then tighten the cycle with CRAW-21 FlipGeodesics; outputs the polyline plus per-edge BoolField (EdgeMarks) so the ring can drive mark_edges, delete_geometry cuts and PATCH-89 arcs. Two points define a loop only with a third 'side' point, so require >= 3 points or a point plus a skeleton branch (CRAW-22 ring_at_branch covers that case). Persist rings in DSL as the waypoint list (geometric selection: surface positions, never ids) so the same statement re-evaluates on another aligned scan (CRAW-24). Scene side: in the mesh-viewer / quad-layout scene a `ring` terminal command starts collection, each click on the surface (CRAW-7 ray->face picking if merged; otherwise the existing `ixdar-cli click` plus a `ring add x y z` terminal form) appends a point, `ring close` runs the node and shows seed vs tightened loop, `ring save` appends the statement to the working .dsl. Automation: `/mesh/rings/add` (points json) returning the ring row in the CRAW-22 format, so an agent can add a ring from skeleton endpoint or patch centroid coordinates without vision.",
+    "blocked-by": [
+        "CRAW-21"
+    ],
+    "blocks": [
+        "CRAW-24",
+        "CRAW-28"
+    ],
+    "status": "REVIEW",
+    "definition-of-done": "1. Three surface points around a torus tube in DSL yield a closed tightened ring; fixture validates; unit test asserts closure and length within 1% of the minimal meridian. 2. In a running scene, `ring` + three clicks (or three `ring add` coordinates) + `ring close` shows seed and tightened loop; `ring save` writes a waypoint statement that re-evaluates to the same ring on reload (element-exact). 3. `ixdar-cli rings add --points ...` on IMG_4109.glb around one leg returns a ring row and the ring is visible in the next screenshot. 4. Launch entry 'CRAW-23: Loop Through Points (fertility leg)' with a VERIFICATION.md screenshot. 5. Build checkstyle-green.",
+    "testing-plan": "1. Unit on procedural torus: points -> ring; reorder points -> same ring; two points only -> readable error. 2. run-scene --keep-alive, ixdar-cli click x3 (or rings add), ui-state shows the ring row, screenshot. 3. Reload the saved .dsl and fingerprint the marked edges against the live ring.",
+    "todos": [
+        "loop_through_points node: snap, Dijkstra chain, close, tighten, EdgeMarks + curve outputs",
+        "DSL persistence: waypoint statement writer appended to the working layout .dsl",
+        "Terminal `ring` command family in ModelScene (add/close/save/clear) with seed vs tightened rendering",
+        "/mesh/rings/add route + ixdar-cli rings add",
+        "Fixture dsl/fixtures/torus_loop_through_points.dsl"
+    ],
+    "unknowns": [
+        "Dijkstra between far-apart clicks can take a short-cut across the wrong side of a limb; may need to restrict the path to a geodesic band around the straight segment or require the user to add a point",
+        "Whether waypoints should be stored as raw positions or as position + normal so re-snapping on another scan can reject mirrored hits",
+        "CRAW-7 picking may not be merged; the coordinate path must ship regardless",
+        "The DSL has no list literal, so points is the CRAW-21 waypoint string (points=\"x,y,z; x,y,z; x,y,z\"), not points=[...]; if a real list type is wanted it has to go into PythonParser/PortType first.",
+        "Waypoints are stored as bare positions. Storing position+normal (CRAW-23's own unknown) is still open and matters for CRAW-24: on a scan a mirrored hit on the far wall of a limb re-snaps just as happily as the near one.",
+        "Rings on a mesh-file model use a half-edge copy the viewer builds on demand; a scan that is non-manifold (IMG_4109: the builder still refuses it) fails there with a readable error until CRAW-26 repairs it."
+    ],
+    "changes-made": [
+        "loop_through_points node (LoopThroughPointsNode, id loop_through_points) replaces CRAW-21's tighten_path: points=\"x,y,z; ...\" snap to nearest vertices, Dijkstra chains them, the last closes to the first, FlipOut tightens; outputs the polyline as CurveGeometry plus the snapped cycle as EdgeMarks + per-edge BoolField. tighten=false keeps the seed walk (iterations=0).",
+        "SurfaceRing (geometry/mesh/data/paths) is the one ring algorithm+row: seed and tightened polylines, both edge-id masks, length, seed length, length-weighted centroid, marked edge count; shared by the node, the terminal command and the route. SurfaceWaypoints parses/prints/snaps the \"x,y,z; ...\" waypoint form at fixed 6-decimal precision.",
+        "RingDslWriter appends one loop_through_points statement to the working .dsl, chained onto the graph's last statement through its geometry output port, with a minted ring<N> id; byte-stable, and the reload is element-exact (unit test compares the reloaded edge mask array-for-array against the live ring).",
+        "Terminal ring/rg command family (add x y z | close | save [path.dsl] | clear) on ModelScene, which now carries the collected waypoints, the closed SurfaceRing, ringSurface(), showRing() and workingDslPath(); MeshNodeViewerScene draws seed vs tightened through CRAW-21's edge-mark overlay (labels ring_seed amber, ring_tightened cyan) and builds a half-edge copy on demand so rings work on mesh-file models too.",
+        "/mesh/rings/add route + ixdar-cli rings add --points (grouped CLI subcommands added generically to server_routes.py: any route whose Java commandName carries a space becomes a group); ui-state gained a ring row (points, closed, edgeCount, length, seedLength, centroid, fingerprint) and per-label mesh.edgeMarks with EdgeMarks.fingerprint, the geometry-keyed digest used to compare a reloaded .dsl against the live ring.",
+        "Fixture dsl/fixtures/torus_loop_through_points.dsl replaces torus_tighten_loop.dsl (same seed-vs-tightened demo on the renamed node). Unit test unit.mesh.LoopThroughPointsTest: 3 points -> ring 2.19622 vs analytic 2.19911 (0.13%), 48 edges; rotated point list -> identical fingerprint; 2 points -> readable error; saved statement re-evaluates element-exact.",
+        "Verified live on port 47866: fixture ring renders seed+tightened; rings add returns fingerprint 94ed3ea4832ce03d matching the DSL-evaluated ring_tightened mark; terminal ring add x3 / close / save wrote ring0 = loop_through_points(...) and reloading that .dsl (-Dixdar.model=<file>.dsl, now honoured as a DSL graph) reproduced fingerprint f2b4afb9f1b38ac1 exactly.",
+        "Crawfish: IMG_4109.glb itself is still refused (\"face 0 uses a half-edge its edge does not pair; the mesh is not manifold\") until CRAW-26; on its largest manifold shell (460456 verts / 920091 faces, extracted as FlipGeodesicsScanBenchmark does) a leg ring is 112 edges, length 0.15916 (seed 0.22261), centroid 0.12216,-0.11992,0.41143, identical from the benchmark and from ixdar-cli rings add on the exported shell; screenshot tmp/craw23_crawfish_leg_ring.png.",
+        "Gotcha for TeaVM: Files.readString/Files.writeString drag in java.io.BufferedReader.transferTo, which TeaVM 0.15 does not have and which fails the web build with a stub classes.js; use Files.readAllBytes / Files.write instead.",
+        "CRAW-28 merge: SurfaceRing is now the shared tightening for CRAW-22's producers too (see CRAW-22), and ring_seed / ring_tightened draw through the thick numbered ring path in every shader mode rather than the 1-px feature-edge overlay in STAGES; the torus fixture still gives ring_tightened 48 edges, fingerprint 94ed3ea4832ce03d",
+        "CRAW-28 merge: MeshNodeViewerScene.workingDslPath now returns null unless the viewer is actually showing its DSL graph. It was resolving the default skull.dsl while a mesh file was on screen, so ring save (and the new tool) appended loop_through_points statements to an unrelated graph",
+        "CRAW-28 verification: the interactive tool's confirmed ring on the fertility leg is element-identical to this node's output and to CRAW-22's automatic ring_01 - 41 edges, length 81.88591, fingerprint 977890025bbaba86 - and the statement RingDslWriter appended re-evaluates to the same fingerprint on reload",
+        "CRAW-28 pinned confirm: loop_through_points gained a boolean 'pin' input (default false, today's behaviour). With pin=true every authored point is held and only the arcs between consecutive points straighten, so a ring keeps a kink at each point instead of sliding to the nearest neck; SurfaceRing.through/tightenedOrNull take the count of leading waypoints to hold, and FlipGeodesics gained vertexIsPinned to skip those wedges. RingDslWriter writes the flag. LoopThroughPointsTest gained a procedural waisted-tube case: free ring slides to the waist, pinned ring stays at x=1 and reloads element-exact from 3 waypoints",
+        "CRAW-28's redesign: RingDslWriter now writes two kinds of statement - loop_through_points for the terminal path and the automatic candidates, unchanged, and spline_ring for the interactive tool - and gained nextRingId, appendSpline and replaceSpline. loop_through_points, its pin input and SurfaceRing's pinned tightening are untouched"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/Dijkstra.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/NearestVertex.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/data/InputShortestEdgePathsNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/MarkEdgesNode.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/SceneModelMenu.java",
+        "ixdar-tickets:CRAW-7",
+        "ixdar-tickets:PATCH-89",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceRing.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceWaypoints.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/selection/LoopThroughPointsNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/selection/RingDslWriter.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/RingCommand.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/rings/Add.java",
+        "ixdar-app/test/unit/mesh/LoopThroughPointsTest.java",
+        "ixdar-app/src/main/resources/dsl/fixtures/torus_loop_through_points.dsl"
+    ],
+    "priority": 2
+}

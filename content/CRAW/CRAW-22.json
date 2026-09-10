@@ -1,0 +1,75 @@
+{
+    "id": "CRAW-22",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "automation"
+    ],
+    "title": "Ring candidates from the skeleton: branch regions, tightened necks, ranked list",
+    "description": "Fully automatic proposal of neck loops. Build on MeshSkeletonExtractor (TEASAR): assign every vertex to its nearest skeleton branch (nearest branch sample by Euclidean distance, then a short geodesic smoothing so regions are connected), take each boundary between two branch regions as a seed edge cycle, tighten it with CRAW-21 FlipGeodesics, and reject loops that grew or merged. Also emit cross-section loops at parameter t along a branch (`ring_at_branch(geometry, branch, t)`) so an agent can say 'cut the left antenna at 8% of its length'. Data: `RingCandidates` value (per ring: ordered polyline, conforming EdgeMarks, centroid, length, mean radius, skeleton branch ids on each side, surface area on each side, ratio of loop length to local circumference from the skeleton DFB radius as the 'neckness' score). Nodes: `ring_candidates(geometry, resolution, min_neckness)` producing a curve set plus per-edge BoolField; `select_ring(rings, point)` choosing the ring nearest a surface point (geometric selection, no ids in DSL). Automation: `/mesh/rings/list` (json rows as above, sorted by neckness), `/mesh/rings/highlight` (ring numbers -> color) and a numbered-overlay render so a VLM can refer to rings by number (Set-of-Mark). Rings are EdgeMarks-compatible so PATCH-89 can force arcs along them. No decimation; run on the full scan.",
+    "blocked-by": [
+        "CRAW-21"
+    ],
+    "blocks": [
+        "CRAW-24",
+        "CRAW-28"
+    ],
+    "status": "REVIEW",
+    "definition-of-done": "1. Fertility: ring_candidates proposes a tightened ring at every limb/base junction that a human would loop-cut (the leg/base neck from the user's screenshots included) with no false ring on the flat base; screenshot with numbered overlay in VERIFICATION.md. 2. Crawfish IMG_4109.glb (full resolution): rings at antenna/head, claw/arm, each leg/body and each tail segment on the well-reconstructed side; report which junctions were missed and why. 3. `/mesh/rings/list` returns the ranked rows and `ixdar-cli rings list` prints them; a second call is byte-identical. 4. select_ring by surface point and ring_at_branch by (branch, t) work from DSL and are documented. 5. Unit tests on a procedural two-tube 'Y' mesh: exactly three rings, one per tube base, neckness above threshold. 6. Build checkstyle-green.",
+    "testing-plan": "1. Unit: procedural Y-junction and dumbbell meshes (no files) -> expected ring count and positions. 2. run-scene with fertility and IMG_4109.glb, `ixdar-cli rings list`, highlight top 10, multiview screenshot. 3. Determinism: two runs, diff the json.",
+    "todos": [
+        "Vertex-to-branch assignment with connected-region cleanup",
+        "Region boundary -> seed edge cycle -> FlipGeodesics tighten -> reject merged/grown loops",
+        "RingCandidates value + neckness score",
+        "ring_candidates, select_ring, ring_at_branch nodes with socketDocs",
+        "/mesh/rings/list, /mesh/rings/highlight routes + ixdar-cli commands + gen-docs",
+        "Numbered ring overlay render for Set-of-Mark"
+    ],
+    "unknowns": [
+        "Whether the TEASAR voxel resolution (default 128) resolves antenna-scale branches on a 623k-vertex scan or needs 256+; measure",
+        "Branch-region boundaries on blended joints (the fertility leg/base) may not be near a neck; the neckness score should reject these, verify on fertility",
+        "Whether cross-section loops at parameter t should be planar cuts or geodesic loops seeded by the plane; start with plane-seeded then tightened",
+        "MEASURED (unknown 1): on IMG_4109 resolution 128 gives 15 skeleton branches and 4 rings (claw joints only); 256 with the default budget gives 11 rings, and 256 with skeletonBranchBudget=800 gives 44 branches and 13 rings in 51 s. Antennae never appear at any resolution tried: at 256 a voxel is 0.0039 world units and an antenna is thinner, so the scanline fill leaves it hollow. Resolution alone is not the knob; the branch budget matters as much.",
+        "MEASURED (unknown 2): on fertility the blended leg/base joint does produce a ring and it scores 0.899 neckness, while the 8 loops rejected below 0.6 are the ones that wander across a blend. The flat base gets no ring. The score does reject the blends, but only because the loop is measured against the sphere inscribed at its own centroid rather than against the RDP-simplified skeleton radius, which is flat along a straight branch.",
+        "ANSWERED (unknown 3): plane-seeded then tightened only survives at a constriction. On a tapering limb the tightened loop slides off the end and collapses to one edge, so ring_at_branch now keeps the planar cut whenever the tightening drops below 30% of it. On the dumbbell the tightening wins and lands on the waist to 0.02%.",
+        "The CLI has no two-token subcommands, so the ticket's 'ixdar-cli rings list|highlight' shipped as 'rings-list' and 'rings-highlight', matching collection-list and record-start. Say if the two-token form is wanted; it needs positional support in cli_registry.",
+        "LoopTightener (this ticket) and SurfaceRing (CRAW-23) are the same concept in the same package: waypoints, seed walk, FlipOut, trace, conforming snap, measurements. Whichever lands second should delete its own and use the other; the row fields already match.",
+        "MeshSkeletonExtractor invalidates only min(4, 0.3*DFB) voxels around an extracted path, so a rounded limb tip leaks dozens of near-farthest voxels and each costs a branch round. The new branchBudget parameter works around that; the real fix is the standard TEASAR tube invalidation, which would move the fertility patch decomposition and needs its own ticket.",
+        "RingCandidateExtractor.mergeDistanceInRadii=2 treats two loops of the same length within two ring radii as one cut. That is what keeps a straight limb from proposing three parallel rings, but it may also merge genuinely distinct necks that sit close together, such as consecutive crawfish tail segments."
+    ],
+    "changes-made": [
+        "RingCandidates value (parallel arrays per ring: polyline offsets/points, conforming edge-id cycle, centroid, length, mean radius, region ids and areas each side, inscribed radius, neckness) plus RingBundle slot accessors",
+        "RingCandidateExtractor: TEASAR branches cut at their junctions into regions, nearest-joint vertex assignment, largest-component + geodesic-Voronoi cleanup, per-region rims as seed cycles, FlipOut tightening, and five rejections (unclosed, grown, collapsed, merged, below threshold)",
+        "BranchCrossSectionRing: ring_at_branch cuts the branch nearest an authored point at parameter t, plane-seeded then FlipOut-tightened",
+        "LoopTightener in geometry/mesh/data/paths: one waypoints-to-geodesic run (seed walk, FlipOut, trace, conforming snap, measurements) shared by both ring producers",
+        "Nodes ring_candidates(geometry, resolution, min_neckness), select_ring(rings, point) and ring_at_branch(geometry, branch, t, resolution) with socketDocs; all three convert an ArrayMesh input to half-edge form first, since ArrayMesh carries no edge adjacency",
+        "Routes /mesh/rings/list (rows sorted by neckness, numbers rounded to 6 decimals so two calls are byte-identical) and /mesh/rings/highlight (numbered eight-view Set-of-Mark PNG, named rings hot); CLI rings-list and rings-highlight; gen-docs regenerated",
+        "PatchRenderer.renderRingMultiview draws the front arc of every ring with its number; the camera block drawFeatureEdgeOverlay duplicated is now the shared projectPoints",
+        "MeshSkeletonExtractor.extract gained a branchBudget overload (default 50 unchanged): the loop spends a round on every short dead end, so a mesh with rounded limb tips exhausts 50 rounds on one limb and never reaches the others",
+        "NearestVertex.distanceToNearest gives the inscribed radius at a point, which the neckness score uses instead of the RDP-simplified skeleton radius",
+        "ring_at_branch cuts the plane through the surface first (face-walk of the plane/edge crossings from the crossing nearest the branch point), snaps that to a conforming cycle, and only keeps the FlipOut tightening when it stays between 30% and 100% of the planar cut; a tapering limb has no locally shortest loop, so its tightening collapses and the planar cut is kept",
+        "RingCandidates carries seedLength per ring and /mesh/rings/list emits seed_length, matching CRAW-23 SurfaceRing's row fields (centroid, length, seed length, edge count) so the two merge cleanly",
+        "Launch entry 'CRAW-22: Ring Candidates (fertility)' runs mesh-viewer on dsl/fixtures/fertility_rings.dsl; dsl/fixtures/fertility_ring_pick.dsl demonstrates select_ring and ring_at_branch",
+        "CRAW-28 merge: LoopTightener is gone - CRAW-23's SurfaceRing is the one waypoints-to-geodesic run. SurfaceRing gained markedEdgeIds, unresolvedGaps, meanRadius and a tightenedOrNull(mesh, vertexIds, closed, iterations) that returns null instead of throwing, and RingCandidateExtractor and BranchCrossSectionRing (whose public tightener field is now tightenedRing) call it. The candidate centroid is now SurfaceRing's length-weighted one rather than the point average; RingCandidatesTest's dumbbell numbers are unchanged",
+        "CRAW-28 merge: BranchCrossSectionRing's plane/surface walk moved to PlaneSurfaceLoop in geometry/mesh/data/paths, shared with the interactive tool, which computes crossings lazily per touched face instead of scanning every edge; BranchCrossSectionRing still seeds it with the crossing nearest the branch point, so its results are unchanged",
+        "CRAW-28 merge: ring_NN overlays now draw through HalfEdgeMeshRuntime's thick numbered ring path - screen-facing ribbons of fixed pixel width, one colour per ring, the number at the centroid - in every shader mode, instead of 1-px feature edges gated to STAGES. The fertility fixture shows five numbered rings on load with no key press (tmp/craw28_fertility_rings_on_load.png)",
+        "CRAW-28 merge: the CRAW-22 hunk that moved largestManifoldComponent out of FlipGeodesicsScanBenchmark into ManifoldShell was reapplied on top of CRAW-23's ring-row test in the same file; both are kept and the file now names its own POSITION_STRIDE constant"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MeshSkeletonExtractor.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/SemanticPatchDecomposer.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/skeleton",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/patches/RenderMultiview.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/EdgeMarks.java",
+        "https://inria.hal.science/inria-00001144v1/document (Hetroy & Attali 2003, constrictions)",
+        "https://julien-tierny.github.io/stuff/papers/tierny_tvc08.pdf (Tierny 2008, discrete contour constrictions)",
+        "ixdar-tickets:PATCH-89",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/RingCandidates.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/RingCandidateExtractor.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/BranchCrossSectionRing.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/LoopTightener.java",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/rings"
+    ],
+    "priority": 2
+}

@@ -30,7 +30,7 @@ EPICS_PATH = TICKETS_DIR / "epics.json"
 # all summary counts). These are agent-generated logs, not work to be done.
 EXTERNAL_EPICS = {"SUGGEST"}
 
-STATUS_ORDER = {"PINNED": 0, "IN_PROGRESS": 1, "TODO": 2, "DONE": 3}
+STATUS_ORDER = {"PINNED": 0, "REVIEW": 1, "IN_PROGRESS": 2, "TODO": 3, "DONE": 4}
 DESC_TRUNCATE = 100
 
 
@@ -56,6 +56,8 @@ def normalize_status(raw: str | None) -> str:
         return "DONE"
     if upper in ("IN_PROGRESS", "IN-PROGRESS", "WIP"):
         return "IN_PROGRESS"
+    if upper in ("REVIEW", "IN_REVIEW", "IN-REVIEW", "READY"):
+        return "REVIEW"
     if upper in ("PINNED", "PIN", "GOAL"):
         return "PINNED"
     if upper in ("TODO", "OPEN", "BACKLOG"):
@@ -188,6 +190,15 @@ def render_board(
         lines.append(f"## {epic_name} ({non_pinned_total} tickets, priority {epic_prio})")
         lines.append("")
 
+        # REVIEW: implemented in a worktree, waiting for the user's verification and merge
+        review = status_groups.get("REVIEW", [])
+        if review:
+            lines.append(f"### Review ({len(review)})")
+            lines.append("")
+            for t in review:
+                lines.append(render_ticket_line(t))
+            lines.append("")
+
         # IN_PROGRESS
         in_progress = status_groups.get("IN_PROGRESS", [])
         if in_progress:
@@ -258,16 +269,17 @@ def print_repo_tickets(repo: str) -> None:
     for prefix in sorted_prefixes:
         status_groups = grouped[prefix]
         epic_name = epic_names.get(prefix, prefix)
-        actionable = len(status_groups.get("IN_PROGRESS", [])) + len(status_groups.get("TODO", []))
+        actionable = (len(status_groups.get("REVIEW", [])) + len(status_groups.get("IN_PROGRESS", []))
+                      + len(status_groups.get("TODO", [])))
         done_count = len(status_groups.get("DONE", []))
         print(f"\n{epic_name} ({prefix}) -- {actionable} actionable, {done_count} done")
         print("=" * 60)
 
-        for status in ("IN_PROGRESS", "TODO"):
+        for status in ("REVIEW", "IN_PROGRESS", "TODO"):
             tickets_in_status = status_groups.get(status, [])
             if not tickets_in_status:
                 continue
-            label = "IN PROGRESS" if status == "IN_PROGRESS" else "TODO"
+            label = {"REVIEW": "REVIEW", "IN_PROGRESS": "IN PROGRESS"}.get(status, "TODO")
             print(f"\n  {label}:")
             for t in tickets_in_status:
                 deps = ""
@@ -405,17 +417,20 @@ def _write_board() -> tuple[int, int, int, int]:
     BOARD_PATH.write_text(board, encoding="utf-8")
 
     total_pinned = sum(len(g.get("PINNED", [])) for g in grouped.values())
+    total_review = sum(len(g.get("REVIEW", [])) for g in grouped.values())
     total_ip = sum(len(g.get("IN_PROGRESS", [])) for g in grouped.values())
     total_todo = sum(len(g.get("TODO", [])) for g in grouped.values())
     total_done = sum(len(g.get("DONE", [])) for g in grouped.values())
-    return total_pinned, total_ip, total_todo, total_done
+    return total_pinned, total_review, total_ip, total_todo, total_done
 
 
-def _board_summary_line(totals: tuple[int, int, int, int]) -> str:
-    pinned, ip, todo, done = totals
+def _board_summary_line(totals: tuple[int, int, int, int, int]) -> str:
+    pinned, review, ip, todo, done = totals
     parts = []
     if pinned:
         parts.append(f"{pinned} pinned")
+    if review:
+        parts.append(f"{review} review")
     parts.extend([f"{ip} in-progress", f"{todo} todo", f"{done} done"])
     return "Board updated: " + ", ".join(parts)
 
@@ -499,7 +514,7 @@ def mark_ticket_status(ticket_id: str, status: str) -> None:
     if normalized_status == "DONE":
         ticket_path = _move_ticket_to(ticket_path, DONE_DIR)
     else:
-        # PINNED, IN_PROGRESS, TODO all live under content/.
+        # PINNED, REVIEW, IN_PROGRESS, TODO all live under content/.
         ticket_path = _move_ticket_to(ticket_path, TICKETS_DIR)
     totals = _write_board()
     print(f"Marked {normalized_id} {normalized_status} -> {ticket_path.relative_to(ROOT_DIR)}")
@@ -685,11 +700,14 @@ def print_priorities(epic: str | None, status_filter: str | None, include_done: 
 
     for prefix in sorted(by_epic.keys()):
         bucket = by_epic[prefix]
+        review = sum(1 for t in bucket if t["status"] == "REVIEW")
         ip = sum(1 for t in bucket if t["status"] == "IN_PROGRESS")
         todo = sum(1 for t in bucket if t["status"] == "TODO")
         done = sum(1 for t in bucket if t["status"] == "DONE")
         header = f"{prefix} ({len(bucket)} total"
         parts = []
+        if review:
+            parts.append(f"{review} review")
         if ip:
             parts.append(f"{ip} in-progress")
         if todo:
@@ -776,6 +794,15 @@ def _build_parser() -> argparse.ArgumentParser:
     mark_done_parser.add_argument(
         "ticket_id",
         help="Ticket ID to mark done (e.g. IX-3).",
+    )
+
+    mark_review_parser = mark_sub.add_parser(
+        "review",
+        help="Mark a ticket REVIEW (implemented, awaiting the user's verification and merge) and regenerate BOARD.md.",
+    )
+    mark_review_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to mark for review (e.g. IX-3).",
     )
 
     mark_ip_parser = mark_sub.add_parser(
@@ -924,7 +951,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--status",
         dest="status",
         default=None,
-        help="Set status: TODO, IN_PROGRESS, or DONE.",
+        help="Set status: TODO, IN_PROGRESS, REVIEW (implemented, awaiting the user's merge), or DONE.",
     )
     update_parser.add_argument(
         "--add-unknown",
@@ -994,6 +1021,8 @@ if __name__ == "__main__":
         mark_ticket_done(args.ticket_id)
     elif args.command == "mark" and args.mark_command == "in_progress":
         mark_ticket_status(args.ticket_id, "IN_PROGRESS")
+    elif args.command == "mark" and args.mark_command == "review":
+        mark_ticket_status(args.ticket_id, "REVIEW")
     elif args.command == "mark" and args.mark_command == "todo":
         mark_ticket_status(args.ticket_id, "TODO")
     elif args.command == "mark" and args.mark_command == "pinned":

@@ -1,0 +1,47 @@
+{
+    "id": "TOOL-8",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "geometry"
+    ],
+    "title": "Mesh probe routes: topology report, hole report, peak heap per DSL node; no untracked scratch Java",
+    "description": "Eight agents wrote throwaway Java against a hand-assembled classpath to get numbers about the mesh they were working on: connected components and welded vertices on the scan, hole perimeters and fill quality, per-stage memory (report item 2; user ruling: agents do not run untracked Java, the numbers come from tracked routes). Add mesh topology: vertex, edge and face counts, connected components with a size histogram, boundary loops with edge counts, non-manifold edge count, duplicate-position vertices within a tolerance, Euler characteristic per shell. Add mesh holes: every boundary loop with perimeter, edge count and an area estimate, and when the active graph ran repair_mesh, which loops were filled and with how many triangles (reuse MeshRepairReport). Extend mesh dsl timing with peak heap per node: sample used heap on a timer thread while each node runs (or reset the memory pool peak counter per node) and report the high-water mark in MiB next to the seconds. All three as automation routes with ixdar-cli commands and JSON output; gen-docs regenerated. CLAUDE.md: diagnostics live as committed tests under test/ or are deleted before the ticket is marked REVIEW; no Probe.java or DiagTest is ever left untracked.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. mesh topology on the repaired crawfish reports one shell, zero boundary loops and the expected Euler characteristic; on the raw scan it reports the 74 holes CRAW-26 filled. 2. mesh holes lists them with perimeters and, after repair_mesh, the fill triangle counts. 3. mesh dsl timing shows a peak heap column and quad_layout on the crawfish reads in the gigabytes. 4. Routes, CLI, docs and tests updated; suite and checkstyle green. 5. CLAUDE.md carries the scratch-Java rule.",
+    "testing-plan": "1. Unit: topology on a torus, a two-shell mesh and a mesh with one hole; heap sampler returns a monotone peak. 2. Manual: the three routes on fertility and on IMG_4109 before and after repair_mesh, output pasted into changes-made.",
+    "todos": [],
+    "unknowns": [
+        "DoD 1 says the repaired crawfish reports one shell. It reports seven. crawfish_repaired.dsl passes min_shell_faces=100, and the raw scan has nine edge-connected components of which five small closed blobs (214, 186, 148, 128 and 108 faces) clear that threshold and are not enclosed by the body, so repair_mesh keeps them. Zero boundary loops and the Euler characteristic do hold. Is the one-shell expectation a bug in repair_mesh's shell selection, a reason to raise min_shell_faces in the fixture, or just a wrong expectation in the DoD?",
+        "DoD 3 asks for quad_layout on the crawfish in the gigabytes. I measured quad_layout at 1387.5MiB on fertility (13971 vertices) and did not run it on the 468350-vertex crawfish: this box has 14GB of RAM with about 7GB free and other agents running scenes, so a 33x larger layout would very likely OOM the JVM and take the other agents' scenes with it. Should I retry the crawfish layout on a quiet machine with an explicit -Xmx, or is the fertility number enough evidence for the column?"
+    ],
+    "changes-made": [
+        "New route POST /mesh/topology (ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/Topology.java, CLI mesh-topology): element counts, edge-connected shells with per-shell vertex/edge/face/boundary counts and Euler characteristic, boundary loops, non-manifold and unoriented edges, isolated vertices, duplicate-position vertices at a tolerance. Optional --path analyses a mesh file, otherwise the active viewer mesh.",
+        "New route POST /mesh/holes (endpoints/mesh/Holes.java, CLI mesh-holes): every boundary loop still open with edge count, perimeter, vector-area estimate and shell index, plus the repair_mesh loops with per-loop perimeter, filled flag and fill triangle count read off MeshRepairReport.",
+        "New ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshTopologyAnalysis.java: one analysis both routes read, values as parallel arrays on the object (shellFaceCounts, shellEulerCharacteristics, loopPerimeters, loopAreas, loopShells), no row classes. It works off face corners, not half-edges, because HalfEdgeMesh throws InvalidMeshTopologyException on an edge with three faces and this is the report that has to count them.",
+        "MeshMergeByDistance.pack/mix promoted to public packCell/mixKey and reused for the duplicate-position cell grid instead of a second copy of the spatial hash.",
+        "New ixdar-app/src/main/java/ixdar/geometry/mesh/graph/HeapSampler.java: a daemon thread sampling used heap every 5ms with a resettable high-water mark. NodeGraphRuntime resets it before each node and records the peak in lastPeakHeapBytes, keyed exactly like lastTimingMs; the graph loop is wrapped in try/finally so the thread never outlives a failing run. logTimings now prints ms/MiB per slow node.",
+        "mesh/dsl/timing gained peak_heap_mib per node and a graph-wide peak_heap_mib; AutomationRuntime.appendTiming adds the same field to the mesh-dsl response.",
+        "MeshRepairReport gained holePerimeters and holeFillFaceCounts parallel to holeEdgeCounts and holeFilled; MeshRepair measures each loop before filling and takes the fillFaceCount delta across fillLoop, both sorted longest-loop-first with the existing arrays. toText prints perimeter and fillFaces per hole.",
+        "MeshNodeViewerScene.getLastRepairReport exposes the MeshRepairReport object the repair parked on the output bundle; getMeshRepairReport now delegates to it.",
+        "Tests: ixdar-app/test/unit/mesh/MeshTopologyAnalysisTest.java (torus is one shell with Euler 0, two tetrahedra are two shells with Euler 2 each, a unit square has one four-edge loop of perimeter 4 and area 1, three triangles on one edge report one non-manifold edge and no closed loop, seam duplicates are counted, zero tolerance skips the scan) and HeapSamplerTest.java (peak never falls inside a window, a live 64MiB array raises it, stop ends the thread). All hand-built, no mesh file.",
+        "New fixture ixdar-app/src/main/resources/dsl/fertility_quad_layout.dsl: load_mesh + repair_mesh + quad_layout on fertility, the graph the peak-heap column is read on.",
+        "CLAUDE.md gained a No untracked scratch Java section under Unit tests: never a throwaway .java for a number, the number comes from a tracked route (or you add one), a genuine one-off is a committed test under ixdar-app/test/, and git status in the worktree must show no stray Java before REVIEW.",
+        "Verified on fertility (mesh-topology --path fertility_in_tri.off, 0.21s): V=13971 E=41931 F=27954, 1 shell, 0 boundary edges, 0 loops, Euler -6 (genus 4, correct for fertility), 0 non-manifold edges, 0 duplicate positions.",
+        "Verified on the raw crawfish scan (mesh-topology --path /home/acw/crawfish/IMG_4109.glb, 0.81s for 936035 faces): V=468350 E=1404396 F=936035, 9 shells (920061 / 15122 / 214 / 186 / 148 / 128 / 108 / 42 / ... faces), 945 boundary edges, 17 closed boundary loops, 484 boundary edges unwalkable through 14 non-manifold boundary vertices, 127 non-manifold edges, 33 unoriented edges, Euler -11 whole mesh and -28 on the largest shell.",
+        "mesh-holes on the raw scan lists the 17 loops with perimeter and area, largest 87 edges perimeter 0.15634165 area 0.00054282, total open perimeter 0.78001.",
+        "After mesh-dsl --name crawfish_repaired, mesh-holes reports open_loop_count 0 and repair_hole_count 74, repair_filled_count 74, repair_open_count 0, repair_fill_face_count 2450, with all 74 per-loop rows: largest 87 edges perimeter 0.15634165 fill_faces 395, then 86/0.12625/194, 74/0.10631/150, 65/0.09651/195, 59/0.09706/135. The 87-edge loop perimeter matches the raw-scan loop exactly, so the two code paths agree.",
+        "mesh-topology on the repaired crawfish: 0 boundary edges, 0 boundary loops, Euler -20 whole mesh (largest shell -32), 7 shells, 156 duplicate-position vertices at 1e-6 minted by the hole fill.",
+        "mesh-dsl-timing now carries the peak heap column. On crawfish_repaired: scan (load_mesh) 149ms/250.2MiB, repaired (repair_mesh) 1237ms/915.0MiB, graph 1386ms. On fertility_quad_layout: tri (load_mesh) 139ms/897.0MiB, repaired (repair_mesh) 74ms/915.4MiB, layout (quad_layout) 8857ms/1387.5MiB, i.e. 1.36GiB for the quad layout stage.",
+        "Suite: mvn test -pl annotations,ixdar-app runs 218 tests with one failure, unit.mesh.DenseMeshFewSplitsTest.refiningTheMeshDoesNotMultiplyEdgeSplits (9 to 37 splits). It fails identically on a clean current master (checked in /home/acw/Code/Ixdar at 2439e6ed), so it is pre-existing and not from this change. Checkstyle green."
+    ],
+    "related-files": [
+        "Ixdar/ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/",
+        "Ixdar/ixdar-app/src/main/java/ixdar/geometry/mesh/data/repair/MeshRepairReport.java",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 2
+}

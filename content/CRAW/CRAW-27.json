@@ -1,0 +1,49 @@
+{
+    "id": "CRAW-27",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Seamless solver: detect and diagnose singular systems instead of PARDISO error -4",
+    "description": "CRAW-2 stops at `PARDISO phase 12 failed with error -4` (zero pivot) in GreedyRounding.run -> DirectSolver.factorizeWithPerm while factorizing the ~1M-DOF seamless system of the repaired IMG_4109 shell; CholeskyBackend.factor throws and the ladder never falls to the next rung. A zero pivot means the matrix is singular: some combination of unknowns changes nothing in the energy. Candidate causes on this scan: a chart left untied by the cut graph (free per-chart translation), degenerate cotangent/area weights from slivers (Euler characteristic -148, many small sliver handles), or duplicate/zero rows after leftover-constraint elimination. Deliver: (1) `SingularSystemDiagnosis` (public fields: pivot index, DOF ids and chart/vertex ids in the null vector, its support size, classification chart-gauge vs sliver-cluster vs duplicate-row) computed when factorization fails: recover the null vector by inverse iteration on the regularized matrix or by reading PARDISO's zero-pivot index and back-substituting; map DOFs back to charts and vertices via SeamlessDofSystem; (2) the ladder falls through: on singular, retry with a diagonal shift of 1e-10 * max diagonal and report the shift, then the next backend; (3) a `[seamless] singular` log line with the classification and the first 20 offending vertex positions so the user can locate them in the scene, plus a `/mesh/seamless/diagnosis` route exposing them and a highlight; (4) unit tests that build singular systems on purpose (two charts with no constraint row, a vertex surrounded by zero-area faces, a duplicated row) and assert the classification. Fixing the cause is out of scope: chart-gauge goes back to CutGraph, sliver clusters go to CRAW-27, and CRAW-2 consumes the diagnosis.\n\nCorrection: 'sliver clusters go to CRAW-27' above is a self-reference; sliver repair is a future ticket to be created after this diagnosis, pending a user ruling on flips versus collapses.\n",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-2"
+    ],
+    "status": "REVIEW",
+    "definition-of-done": "1. Unit: the three deliberately singular systems are classified correctly (chart-gauge, sliver-cluster, duplicate-row) and the shifted retry returns a finite solution. 2. On the repaired IMG_4109 shell the run no longer aborts with error -4: it logs the classification, support size and offending vertex positions, and either continues on the shifted system or falls to the next backend with a stated reason. 3. Fertility is unaffected: same singularity/patch/quad counts as the REFACTOR-PLAN-2 baseline. 4. `ixdar-cli` can fetch the diagnosis and highlight the offending vertices in the quad-layout scene; screenshot under tmp/; launch entry 'CRAW-27: Quad Layout (crawfish seamless diagnosis)'. 5. Build checkstyle-green.",
+    "testing-plan": "1. Procedural singular systems in unit tests. 2. run-scene quad-layout on the repaired scan (craw-2 branch + CRAW-26 repair) and read the diagnosis. 3. Fertility regression run.",
+    "todos": [
+        "SingularSystemDiagnosis value and null-vector recovery",
+        "Ladder fall-through with reported diagonal shift",
+        "DOF -> chart/vertex mapping and log line",
+        "/mesh/seamless/diagnosis route + highlight",
+        "Three deliberately singular unit systems"
+    ],
+    "unknowns": [
+        "Whether PARDISO exposes the failing pivot index through the current FFM binding, or the null vector must come from inverse iteration on the shifted matrix",
+        "Whether a 1e-10 shift is enough to factorize the scan system or the deficiency is large-rank (many slivers), in which case the shift solution is meaningless and only the diagnosis matters",
+        "RESOLVED: PARDISO does expose the zero-pivot equation through the current binding (iparm(30), 0-based index 29); it is reported but its index base is not confirmed against the permuted ordering, so the null vector still comes from inverse iteration.",
+        "RESOLVED (differently than expected): a 1e-10 shift cannot rescue the scan system, because the deficiency is not rank but NaN - five assembled rows are non-finite. Only the diagnosis is meaningful there; the shifted solve returns NaN and the pipeline then dies downstream in SeamlessProjector with 'Arithmetic safeDot exceeded F_d range (positive) at index 0'.",
+        "DoD 4's in-scene highlight is unexercised: the route and ixdar-cli mesh-seamless-diagnosis --highlight were verified live against the quad-layout scene on fertility ({ok:true, singular:false}), but no loadable mesh produces a singular seamless system in-scene, and the scan needs CRAW-26's repair node before QuadLayoutScene can load it. Needs a ruling: land as-is, or copy the CRAW-26 repair in to finish the demo."
+    ],
+    "changes-made": [
+        "Copied the craw-2 setup into the craw-27 worktree (CutGraph spanning forest + int[] id maps, SparseConstraintRows, HalfEdgeMesh boundary end-vertex fix, CrawfishQuadLayoutBenchmark) so the PARDISO -4 failure reproduces here.",
+        "SingularSystemException (typed, carries PARDISO iparm(30) zero-pivot equation), SingularSystemDiagnosis (public parallel arrays + classification constants), SingularSystemDiagnoser (inverse iteration on A + sigma I, support extraction, classification).",
+        "CholeskyBackend.factor is now a fall-through ladder: singular native rung retries with 1e-10 * max free diagonal, then falls to EJML with the same shift; the shift and pivot are stamped on the NormalMatrix and logged as [solver] singular.",
+        "SeamlessDofSystem.buildDofGeometryMaps maps final DOFs to cut-open charts and mesh vertices on demand; SeamlessParameterization.diagnoseSingularSystem emits the [seamless] singular line and stores the diagnosis on SeamlessUv.",
+        "POST /mesh/seamless/diagnosis (ixdar-cli mesh-seamless-diagnosis [--highlight]) serves the diagnosis and marks the offending vertices through QuadLayoutRuntime.setDiagnostic; route docs regenerated.",
+        "unit.mesh.SingularSystemDiagnosisTest builds the three deliberately singular systems (untied chart, zero-area vertex, identical columns) and asserts classification plus a finite shifted solve on both the PARDISO and EJML rungs.",
+        "Scan run (CrawfishQuadLayoutBenchmark, benchmark.stage=seamless, IMG_4109 repaired to V=460289 E=1380199 F=919762): the run no longer aborts. [solver] singular reports PARDISO pivot 285447 of 918975, retries with shift 1.0007e-10, then falls to EJML with a stated reason; [seamless] singular sliver-cluster, support 5 DOFs over 1 chart, 3 on zero-area faces, 5 non-finite, at vertices 25114/46487/46488 (-0.2389,0.0279,-0.0823) and 420315/420313 (0.1577,-0.0296,-0.0026).",
+        "The scan system is not merely rank-deficient: 5 free rows carry NaN, assembled from faces whose local-frame area came out non-finite. The diagnoser detects non-finite rows first and reports them as the support; diagonalShiftFor skips non-finite diagonals so the shift is reportable.",
+        "Fertility unchanged: singularities 44 indexSum4=-24, patches 284, quads 13853, euler -6, energy 5.5512e+07 -> 4.0197e+04, 49 iterations, 0/38450 flipped, subdividedChords 4216. Screenshot tmp/craw27-fertility.png; launch entry 'CRAW-27: Quad Layout (crawfish seamless diagnosis)' added."
+    ],
+    "related-files": [
+        "ixdar-tickets:CRAW-2",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/SeamlessDofSystem.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/LeftoverConstraintEliminator.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/CutGraph.java"
+    ],
+    "priority": 1
+}

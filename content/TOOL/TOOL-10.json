@@ -1,0 +1,36 @@
+{
+    "id": "TOOL-10",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "TeaVM build script hardening: install annotations, fail on empty output, errors last, classlib traps documented",
+    "description": "tools/teavm-build.sh resolves the annotations module from ~/.m2 where a stale jar sits, so fresh worktrees fail until someone runs mvn install -pl annotations (one agent wrote 'unevaluable on this machine' onto its ticket three minutes after another agent found the fix); it exits 0 while emitting a 36-byte classes.js; and the 'was not found' lines are buried so agents re-ran the whole build to see them (report item 11). Make the script install annotations first, fail non-zero when classes.js is under a sane minimum size, print every [ERROR] line after the build output so a tail catches them, and end with one summary line (size of classes.js, seconds). Add a CLAUDE.md paragraph listing the TeaVM classlib traps met so far: Files.readString and writeString, Arrays.compare on int arrays, Gson reflection; and the replacement for each. Hook the script into ixdar-cli build --web if TOOL-2 has landed, otherwise leave a note.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. In a fresh worktree the script succeeds without a manual annotations install. 2. A deliberately unsupported API call makes the script exit non-zero with the [ERROR] line as the last output. 3. Summary line present. 4. CLAUDE.md paragraph added.",
+    "testing-plan": "1. Run the script in a fresh worktree and in one with a stale ~/.m2 jar. 2. Insert Files.readString temporarily, run, confirm the failure shape, revert.",
+    "todos": [],
+    "unknowns": [
+        "rebuild-krieg-web (ixdar_automation_cli/cli_commands/rebuild_krieg_web.py) still runs its own mvn package -P web-teavm and so gets none of the hardening: no annotations install, no stub check, no error replay. Should it shell out to tools/teavm-build.sh now, or wait for TOOL-2's ixdar-cli build --web and be folded into that? I left it untouched to avoid colliding with the TOOL-2 worktree."
+    ],
+    "changes-made": [
+        "tools/teavm-build.sh: install IXDAR:annotations into ~/.m2 before the web build. maven-compiler-plugin resolves the annotationProcessorPaths entry IXDAR:annotations:0.0.1 from the repository, never from the reactor, so the existing -am flag did not fix the stale-jar failure. Verified: the ~/.m2 jar was rewritten by the run (21685 to 21682 bytes, mtime moved to the run).",
+        "tools/teavm-build.sh: build output is teed to ixdar-app/target/teavm-build.log, and every [ERROR] line is reprinted after the Maven output with a count header, so a tail catches the TeaVM 'was not found' lines instead of an agent re-running the build to find them.",
+        "tools/teavm-build.sh: one summary line ends the run, for example [teavm-build] OK: ixdar-app/target/teavm/ixdar/classes.js 7156392 bytes, 0 [ERROR] line(s), 42s, full log ixdar-app/target/teavm-build.log; the failing form names the stub size, the 100000-byte minimum and exits 1.",
+        "tools/teavm-build.sh: classes.js is deleted before the build so a failing run cannot pass the size check on the previous good bundle; the size and error reporting run on both the success and failure paths (Maven exit code read through PIPESTATUS, not $?).",
+        "CLAUDE.md: new 'Web build (TeaVM)' section covering the script's guarantees and the three classlib traps met so far, with the replacement for each: Files.readString/writeString reach BufferedReader.transferTo (use new String(Files.readAllBytes(file), StandardCharsets.UTF_8) and Files.write, as CollectionManifest.readUtf8 does), Arrays.compare on int[] is missing (write the lexicographic loop), Gson is reflection-based (use Platforms.get().parseJson into the JsonValue tree).",
+        "Verification run 1, clean worktree: script exit 0, classes.js 7156392 bytes, 0 [ERROR] lines, 48s. Log at Ixdar/.claude/worktrees/tool-10/tmp/run-baseline.log.",
+        "Verification run 2, temporary Files.readString in CollectionManifest.readUtf8 (a class reachable from WebLauncher): Maven still reported BUILD SUCCESS, the script exited 1 with the last two lines being '[ERROR] Method java.io.BufferedReader.transferTo(Ljava/io/Writer;)J was not found' and the FAILED summary naming the 36-byte stub. Reverted; log at tmp/run-readstring.log.",
+        "Verification run 3, after the revert: exit 0, classes.js 7156392 bytes, 0 [ERROR] lines, 42s. Log at tmp/run-final.log.",
+        "ixdar-cli build --web does not exist yet (TOOL-2 not landed), so the script header carries the note that it, and ixdar_automation_cli/cli_commands/rebuild_krieg_web.py, should shell out to this script instead of running mvn package -P web-teavm themselves."
+    ],
+    "related-files": [
+        "Ixdar/tools/teavm-build.sh",
+        "Ixdar/CLAUDE.md",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 3
+}

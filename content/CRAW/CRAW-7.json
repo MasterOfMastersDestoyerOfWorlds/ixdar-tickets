@@ -9,7 +9,8 @@
     "title": "Patch labeling scene with click-to-pick",
     "description": "'A scene that can be used to label the various patches of a quadlayout' and 'click on a patch and see all of its labels'. Scaffold PatchLabelScene (id patch-label, extends ModelScene) with `uv run ixdar-cli new-scene`; it loads a saved layout .dsl (CRAW-4) and its labels (CRAW-6). Add ray->triangle picking to ModelScene (screen point -> Camera3D ray -> face id; none exists today), map face -> patch via patch_id, highlight the picked patch through HalfEdgeMeshRuntime.setTags/setTagColor while the other patches keep QuadLayoutRuntime patch colouring, and show the patch's labels in the scene menu. Terminal commands `label <name> [parent]` and `unlabel <name>` act on the current selection (multi-select with shift-click); `save-layout` writes labels back through PatchLabelsDslWriter. Expose selection and labels in AutomationRuntime.uiState so ixdar-cli ui-state can assert them. Related: VIEW-4 (click-to-zoom on tag region) and VIEW-5 (tagged rendering pipeline) are in progress on the tag-based viewer; reuse their zoom-to-region and tag colouring rather than adding parallel code, and extend them to patches.",
     "blocked-by": [
-        "CRAW-6"
+        "CRAW-6",
+        "CRAW-28"
     ],
     "blocks": [
         "CRAW-8",

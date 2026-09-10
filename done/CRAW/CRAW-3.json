@@ -1,0 +1,87 @@
+{
+    "id": "CRAW-3",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "rendering"
+    ],
+    "title": "UV/material carrier on GeometryBundle and textured HalfEdgeMesh rendering",
+    "description": "Give the pipeline a home for textures. HalfEdgeMesh and ArrayMesh carry positions and normals only; the only UV notion is the parametric UvField, and the only textured draw path is AssimpModelRuntime's procedural checker. Define the texture data model as GeometryBundle slots: the per-vertex UV slot from CRAW-1 plus a material slot (a plain MaterialData class with public final fields: base-color image bytes/width/height, metallic-roughness image, factors) decoded from the GLB's embedded PNGs through the Platform image loader (stbi_load_from_memory already exists in HeadlessPlatform/LwjglPlatform; expose it on the Platform interface, no LWJGL in graphics). Add a TEXTURED mode to HalfEdgeMeshRuntime that uploads the base-color Texture and samples it via the existing MeshShader useTexture path, falling back to solid colour when the slot is missing. Slots must survive the representation-preserving ops in data/ops (merge_by_distance, delete) or fail loudly. This supersedes the pipeline half of ENG-10 (which targets the render-only Assimp path); the user decides whether ENG-10 is closed as superseded.\n\nRuling 2026-09-06: (1) texture UVs become a per-corner UvField over a welded mesh (done in CRAW-12's loader rewrite); the TEXTURED renderer must re-split corners when building GPU buffers, and merge_by_distance no longer needs to throw for UVs (the weld map is still wanted for tags and bone weights). (2) Material bytes come from the pure-Java parser result, not Assimp; GltfMaterialReader is rewritten on top of it. (3) Do not keep three stb call sites: loadTexture on the LWJGL and headless platforms reads file bytes and calls decodeImage; Texture gains a constructor from DecodedImage. Rebase onto master after CRAW-12 lands.\n\nCorrection 2026-09-06: the texture UV arrives as a UvField on load_mesh's uv output port, not as a bundle slot; the TEXTURED renderer takes (geometry, UvField).\n\nCorrection 2026-09-06: the texture UV is the `_uv` slot holding a UvField (CornerUvField); the TEXTURED renderer reads the slot. Ignore the earlier port note.\n",
+    "blocked-by": [
+        "CRAW-1",
+        "CRAW-12"
+    ],
+    "blocks": [
+        "CRAW-14",
+        "CRAW-20"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Loading a crawfish GLB yields a bundle with UV and material slots; the material slot holds both decoded PNGs. 2. mesh-viewer renders the scan with its own base-color texture (run-scene screenshot shows the photographic crawfish colouring, not the checker). 3. Toggle key in the model scene switches TEXTURED / FLAT / tag modes; ControlHint lists it. 4. Slot names are owned by exactly one constant (on MaterialData / the UV field owner), never raw strings at use sites. 5. join_geometry, transform_geometry, mirror_geometry and merge_by_distance carry the new slots (or throw with a clear message where impossible). 6. Build checkstyle-green; existing mesh tests pass.",
+    "testing-plan": "1. Unit test: a two-triangle bundle with a 2x2 RGBA material slot round-trips through transform_geometry and mirror_geometry with UVs intact. 2. Unit test: HalfEdgeMeshRuntime mode selection falls back to solid when no material slot is present (headless GL). 3. run-scene mesh-viewer on IMG_4109.glb, screenshot, visually confirm texture; `ixdar-cli mesh-state` reports the slots. 4. TeaVM build still green (image decode stays behind the platform interface).",
+    "todos": [
+        "DONE : Add MaterialData value class and slot constant; decode embedded PNGs via Platform image loading",
+        "DONE : Expose image-from-memory decode on the Platform interface (headless + LWJGL implementations)",
+        "DONE : Add TEXTURED mode to HalfEdgeMeshRuntime using the existing Texture and MeshShader useTexture uniform",
+        "DONE : Carry UV/material slots through data/ops and the modifier nodes that rebuild bundles",
+        "DONE : Add a mode toggle key + ControlHint to ModelScene-based scenes",
+        "DONE : Write the two unit tests and the run-scene screenshot check",
+        "DONE : Note ENG-10 overlap in changes-made for the user's decision",
+        "DONE : Consolidate stb decoding: loadTexture -> decodeImage, Texture(DecodedImage) constructor",
+        "DONE : Material slot built from the pure-Java parser's image bytes and factors (after CRAW-12)",
+        "DONE : TEXTURED mode re-splits per-corner UVs for GPU upload (after CRAW-12)",
+        "DONE : merge_by_distance: expose the weld map, carry tags/bone weights, UVs untouched (per-corner)"
+    ],
+    "unknowns": [
+        "Per-vertex vs per-corner UVs: glTF is per-vertex, but booleans/quad extraction may need per-corner seams later (CRAW-14)",
+        "Whether metallic-roughness should be sampled now or stored only",
+        "Whether the material slot should be a Field type per REFACTOR-PLAN-2 C6 or a plain value class (it is not per-element data)",
+        "merge_by_distance and the delete ops throw rather than remap the UV slot: MeshMergeByDistance computes the source-to-merged vertex map internally but does not expose it. CRAW-14 will need that map exposed before a welded scan can keep its UVs.",
+        "Metallic-roughness is decoded and stored but not sampled; the mesh shader has only the albedoTex/useTexture path. Sampling it needs a PBR fragment shader (not in this ticket)."
+    ],
+    "changes-made": [
+        "MaterialData value class in geometry/mesh/data owns the '_material' slot: decoded RGBA8 base colour and metallic-roughness images with width/height, baseColorFactor, metallicFactor, roughnessFactor.",
+        "UV carrier decided per-vertex: MeshLoader.UV_SLOT moved to a new TextureCoordinates class in geometry/mesh/data (SLOT constant plus of(bundle) accessor), so geometry ops and the renderer read the slot without importing the file loader. The per-corner nodes/api/UvField stays the parametric solver UV and is deliberately not reused.",
+        "Platform.decodeImage(byte[]) added, returning a plain DecodedImage (RGBA8 + width/height); HeadlessPlatform and LwjglPlatform delegate to a new StbImageDecoder (stbi_load_from_memory, rows flipped to the GL origin), WebPlatform returns null. No LWJGL enters graphics/ or geometry/.",
+        "GltfMaterialReader (desktop-only, next to GltfMeshParser) pulls the embedded base-colour and metallic-roughness PNGs plus baseColorFactor/metallicFactor/roughnessFactor out of the Assimp scene and decodes them through the Platform; GltfMeshParser now emits both the UV and material slots.",
+        "HalfEdgeMeshRuntime gained ShaderMode.TEXTURED, uploadBundle(GeometryBundle) (patches per-vertex UVs into the existing interleaved attribute 2 and uploads the base colour through the existing Texture/initGL path), and the static samplesTexture(mode, uploaded) predicate that decides the solid-colour fallback without a GPU.",
+        "mesh-viewer loads mesh files with MeshLoader.loadBundle + uploadBundle, auto-selects TEXTURED when a base-colour texture arrives, and Shift+P still cycles every mode (ControlHint 'cycle shader mode' already listed); logState and /ui/state now report shaderMode, baseColorTexture and the sorted slot names.",
+        "TextureSlotCarry in data/ops carries the slots: join_geometry concatenates the UVs, mirror_geometry duplicates them for the mirrored half, transform_geometry passes them through unchanged, and merge_by_distance throws a named IllegalStateException when a UV slot would go stale (the weld has no vertex map yet).",
+        "Fixed a latent crash in the stb path: stbi_image_free frees memAddress(buffer) = base + position, so the decoded buffer must be rewound after reading or glibc aborts with munmap_chunk.",
+        "ENG-10 (Material and Texture Import Support for Mesh Pipeline) is fully superseded on the pipeline path by this ticket; its remaining unique scope is OBJ/MTL external-texture resolution via IXDAR_ASSET_REPO_ROOT on the Assimp render path. Recommend closing it as superseded unless OBJ/MTL materials are still wanted.",
+        "Ruling 3 done: stb decoding consolidated to the single StbImageDecoder call site. LwjglPlatform.loadTexture now reads src/main/resources/res/<name> bytes and HeadlessPlatform.loadTexture keeps its classpath read; both call decodeImage. Texture gained Texture(String, DecodedImage) (copies into a native-order direct buffer) and is the only caller of the ByteBuffer constructor; WebPlatform.loadTexture, AssimpModelRuntime's procedural checker and HalfEdgeMeshRuntime's base-colour upload all go through it. Verified byte-identical: all 10 res images decode to the same width/height/bytes as the old inline stbi_load, and the mesh-boolean ESC-menu screenshot (font text) is the same PNG sha256 before and after. The window-icon stbi_load in IxdarWindow is left alone: it must NOT be vertically flipped and needs a live native buffer for GLFWImage.",
+        "Rebased onto master 725a711d (CRAW-12 + CRAW-21). Conflicts in GltfMeshParser, LoadMeshNode, GltfMeshParserTest and CrawfishScanLoadBenchmark resolved by taking master wholesale; MeshLoader and MeshNodeViewerScene resolved to master plus the CRAW-3 lines only.",
+        "TextureCoordinates deleted: the UV slot is CornerUvField.SLOT from CRAW-12, per corner over the welded mesh. MaterialData keeps its class (it has SLOT, of(bundle) and hasBaseColorTexture()) and its fields are already plain arrays and scalars, so it passes the thin-data-class rule.",
+        "GltfMaterialReader rebuilt on GltfMeshParser.read()'s GltfModel arrays: picks the first material with a baseColorTexture, resolves baseColorTexture/metallicRoughnessTexture through textureImage to imageBytes, decodes via Platform.decodeImage, and copies baseColorFactor/metallicFactor/roughnessFactor. No Assimp anywhere; TeaVM links it and simply gets null pixels back on the web.",
+        "MeshLoader.loadBundle now returns UV plus material for glTF (GltfMaterialReader.loadBundle); MeshLoader.load takes a new geometry-only glTF path so a caller that wants just the mesh does not pay for decoding a scan's textures.",
+        "HalfEdgeMeshRuntime TEXTURED mode re-splits per-corner UVs with CornerUvSplit into its own VAO/VBO/EBO, drawn only in TEXTURED; the welded buffers stay behind tag ranges, the wireframe and the scalar attribute. samplesTexture(mode, texturedDrawReady) is still the one fallback decision and hasTexturedDraw() reports both halves being resident.",
+        "ModelCollection's LRU cache holds GeometryBundle instead of ArrayMesh (parsedBundles / loadBundle / cacheBundle / isBundleCached), so stepping through collection members keeps each scan's UV and material slots and the viewer stays textured.",
+        "MeshMergeByDistance gained an instance form: new MeshMergeByDistance().weld(mesh, distance) fills public weldedVertex (source vertex -> merged vertex) and sourceFace (output face -> input face) on both the dense and half-edge paths; the old statics still work for callers that do not need the maps.",
+        "TextureSlotCarry became SlotCarry and now carries every per-element slot: join concatenates corner UVs, mirror reverses each face's corners for the mirrored half, and weld re-indexes corner UVs by sourceFace, ORs _tags and takes the first source's _bone_weight_* per merged vertex. The merge_by_distance UV throw is gone; join and mirror log when a weld changes the face count and the UVs cannot follow.",
+        "Verified: 194 unit tests with only the pre-existing DenseMeshFewSplitsTest failure; checkstyle green; TeaVM BUILD SUCCESS with no StbImageDecoder, stbi_load_from_memory, Assimp or Gson in classes.js; run-scene on 47863 loads IMG_4109.glb as verts=468350 faces=936035 slots=_material,_uv shader=TEXTURED, and the screenshot is RMSE 7.1e-5 against the pre-rebase textured render (visually identical).",
+        "join_geometry and mirror_geometry now weld through the recording MeshMergeByDistance and re-index their corner UVs with SlotCarry.weldCornerUv, so a textured mesh keeps its UVs through mirror_geometry's default seam weld too. No op drops or throws for UVs any more; unit tests cover the mirror-with-weld and merge-with-weld cases.",
+        "Ticket unknowns resolved: per-vertex vs per-corner is settled as per-corner (CRAW-12's CornerUvField); merge_by_distance no longer throws because the weld map is exposed and per-corner UVs follow the faces. Still open and unchanged: metallic-roughness is decoded and stored but not sampled (needs a PBR fragment shader).",
+        "Cost note: MeshLoader.loadBundle now decodes a glTF's embedded textures, and ModelCollection caches whole bundles, so up to MAX_CACHED_MEMBERS members hold their decoded RGBA (about 32 MB per crawfish scan at 2048 square). MeshLoader.load keeps a geometry-only glTF path for callers that only want the mesh."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/GeometryBundle.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/Texture.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/MeshShader.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessPlatform.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/lwjgl/LwjglPlatform.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-tickets/content/ENG/ENG-10.json",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MaterialData.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/TextureCoordinates.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/GltfMaterialReader.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/TextureSlotCarry.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/DecodedImage.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/lwjgl/StbImageDecoder.java",
+        "ixdar-app/test/unit/mesh/GltfMaterialSlotTest.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/SlotCarry.java",
+        "ixdar-app/test/unit/mesh/MergeByDistanceSlotTest.java"
+    ],
+    "priority": 2
+}

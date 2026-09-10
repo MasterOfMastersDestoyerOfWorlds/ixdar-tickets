@@ -1,0 +1,33 @@
+{
+    "id": "CRAW-30",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "geometry"
+    ],
+    "title": "Ring editing: add, move and remove pinned points on an existing ring, re-tightening between pins",
+    "description": "Follow-on to CRAW-28 (user request 2026-09-06). CRAW-28 confirms a ring pinned at the one clicked point and renders that pin. This ticket makes rings editable afterwards: with the ring tool active, hovering an existing ring highlights it and its pins; clicking on the ring surface away from a pin adds a new pin there (the ring is re-tightened as a chain of fixed-endpoint FlipOut segments between consecutive pins, so it now passes through the new point); clicking an existing pin selects it, Delete/Backspace removes it (the two neighbouring segments merge and re-tighten; removing the last pin returns the ring to the unpinned geodesic, which slides to the neck); dragging a selected pin along the surface moves it with live re-tightening at preview rate. Pins are stored as the loop_through_points waypoints with pin=true, so every edit rewrites that ring's statement in the working .dsl in place (RingDslWriter gains replace-by-label) and the file reloads element-exact. Rings from ring_candidates become editable by pinning their first clicked point (which converts them into a loop_through_points statement). Undo for the last edit (one level) via Ctrl+Z. ui-state exposes pins per ring; the /input routes can drive every edit so run-scene can screenshot the sequence.\n\nRedesign 2026-09-07: rings are splines through anchors (CRAW-28). Editing = drag an anchor (live re-trace of its two segments), click the ring to insert an anchor (CRAW-28 ships insertion; this ticket adds drag, delete, and one-level undo), select an anchor and Delete, optional corner anchors (C0 junction as in b/Surf) for deliberately sharp points, and an explicit 'tighten to neck' action on a selected ring that runs FlipOut with the ring's anchors held (FlipGeodesics.vertexIsPinned, loop_through_points pin=true) for the cases where the user wants the geodesic loop rather than the smooth one. Every edit rewrites the ring's spline_ring statement in place.\n",
+    "blocked-by": [
+        "CRAW-28"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Launch entry 'CRAW-30: Ring Editing (fertility)': F5, R, click a confirmed ring off-pin: a second pin appears and the ring passes through it; click a pin and press Delete: the pin goes and the ring re-tightens; drag a pin: the ring follows at preview rate; screenshots of each step under tmp/. 2. Every edit rewrites the ring's statement in place; reloading the .dsl reproduces the edited ring element-exact. 3. An automatic ring becomes editable on first pin and is written as a loop_through_points statement. 4. Unit: on a procedural tapered tube, a two-pin ring passes through both pins within one edge length; removing one pin restores the one-pin ring exactly; removing both yields the waist geodesic. 5. run-scene drives add/remove/drag through the input routes and ui-state shows the pins. 6. Build checkstyle-green; unit tests load no mesh files.",
+    "testing-plan": "1. Procedural tube unit tests for pin add/remove/move. 2. run-scene sequence on fertility with screenshots and .dsl reload fingerprints.",
+    "todos": [
+        "Ring hit-test and pin selection through SurfacePicker",
+        "Chained fixed-endpoint FlipOut between pins; live drag",
+        "RingDslWriter replace-by-label; automatic rings convert on first pin",
+        "Delete/Backspace, Ctrl+Z, HUD, ui-state pins"
+    ],
+    "unknowns": [
+        "Whether a moved pin should snap to vertices or allow an inserted vertex at the barycentric hit (CRAW-28 snaps to the nearest vertex)"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-tickets:CRAW-28",
+        "ixdar-tickets:CRAW-23"
+    ],
+    "priority": 2
+}

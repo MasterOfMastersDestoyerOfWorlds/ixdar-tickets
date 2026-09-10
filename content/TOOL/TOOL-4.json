@@ -1,0 +1,43 @@
+{
+    "id": "TOOL-4",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Worktree lifecycle: wt new, wt done, resume brief, launch entry editing, CLAUDE.md coverage of wt and the deny list",
+    "description": "wt was invoked zero times in 26 agent transcripts because the Ixdar CLAUDE.md never mentions it; agents reached for raw git, hit the deny list, misdiagnosed the denial, and every resume agent rebuilt by hand the inventory wt status prints (report items 6, 10, 20, 29, 32). Extend tools/worktree_sync.py: wt new <ticket> [--repo Ixdar|ixdar-tickets|ai-workspace] creates the worktree and branch from the main branch under <repo>/.claude/worktrees/<ticket>, seeds the Python environment (uv sync) so the first ixdar-cli call is fast, and prints the brief an agent needs (paths, ticket id, the commands to use). wt launch add <ticket> --scene <scene> --property k=v edits .vscode/launch.json as JSONC (comments preserved) so agents never hand-edit it. wt done <ticket>: sync, ixdar-cli build, check the launch entry exists and parses, run it once through ixdar-cli launch (TOOL-1) and keep the screenshot under tmp/, confirm tmp/ holds screenshots, then mark the ticket REVIEW; refuse with a clear reason on any failed step. wt status prints a resume brief: branch, distance from main, changed files, and the last assistant note from the most recent agent transcript that touched the worktree when one can be found. Docs: a paragraph in the Ixdar CLAUDE.md saying git add, commit, merge, branch, checkout and friends are denied for agents, that wt is the one door, and the wt verbs; a repo-layout section in the ai-workspace CLAUDE.md (Ixdar, ixdar-tickets, autofix holds the checkstyle configuration and custom checks as the autofix-tool artifact, obsidian) so agents stop searching the filesystem for checkstyle.xml. Keep land user-only; wt done never lands.",
+    "blocked-by": [
+        "TOOL-1"
+    ],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. wt new tool-99 creates the worktree and branch, seeds the environment, prints the brief; wt new refuses an existing name. 2. wt launch add writes a valid JSONC entry and leaves existing comments intact (diff shows only the added entry). 3. wt done on a worktree with a launch entry runs every step and marks the ticket REVIEW; on a worktree with no screenshots it refuses and says why. 4. wt status shows the resume brief. 5. Ixdar CLAUDE.md and ai-workspace CLAUDE.md carry the paragraphs described. 6. Tests in ai-workspace/tools/ cover the JSONC edit and the brief formatting; existing worktree_sync tests still pass.",
+    "testing-plan": "1. pytest for the JSONC editor and brief formatting. 2. Manual on throwaway worktrees named tool-test-N: new, launch add, done (expect refuse without screenshots, then succeed), remove by hand afterwards.",
+    "todos": [],
+    "unknowns": [
+        "wt done marks a ticket REVIEW only when a ticket JSON matches the branch name; on tool-test-1/2 it printed 'no ticket, everything else passed' instead of refusing. Is that the behaviour you want for worktrees with no ticket, or should it refuse?",
+        "wt done --skip-launch exists so the screenshot check can be exercised without a scene run; it prints that the entry was NOT executed but still marks REVIEW when tmp/ has a screenshot. Say if you would rather it not exist, so the launch entry is always executed.",
+        "wt sync: when the rebase stops with zero unmerged files (git rerere auto-resolved the hunks and left the rebase waiting), continue automatically instead of reporting a sync in progress; seen on tool-2 when land ran after tool-5 landed"
+    ],
+    "changes-made": [
+        "ai-workspace/tools/worktree_sync.py: added wt new (git worktree add -b off the main branch under <repo>/.claude/worktrees/, uv sync seed, printed brief), wt launch add/list, wt done, and a resume note in wt status; the file grew from 259 to 611 lines.",
+        "JSONC editor: strip_jsonc blanks comments and trailing commas to spaces so every offset matches the original, and insert_launch_entry splices the new entry as text. Measured on a real worktree: git diff of .vscode/launch.json is 9 insertions, 0 deletions, all comments intact.",
+        "wt status resume brief: last_agent_note scans the Claude projects transcripts newest-first for the worktree path (chunked byte scan) and prints the last assistant prose, capped at 8 lines of 160 chars. Transcripts touched in the last 120 s are skipped so a session does not quote itself. wt status craw-22 runs in 0.05 s.",
+        "wt done steps: sync, build (ixdar-cli build when it exists, else mvn -q compile -pl annotations,ixdar-app), find the launch.json entry named <TICKET> or <TICKET>: ..., run it once with the screenshot under tmp/, require at least one image under tmp/, then generate_board mark review. Every step refuses with a reason and exit 1.",
+        "The launch run calls ixdar-cli launch <entry name> --screenshot <path> when TOOL-1 has landed it; today uv run ixdar-cli launch --help exits 2 (invalid choice), so it falls back to run-scene with the entry scene plus its -D properties, which is headless. When TOOL-1 lands, re-check the flag names of ixdar-cli launch against launch_command in worktree_sync.py.",
+        "Ixdar/CLAUDE.md: new section Worktrees and git: wt is the one door, before Conventions; it says the git write verbs are denied everywhere, that a denial is about the git verb and not the cd or the pipe, lists the six wt verbs, and keeps land as the user's alone.",
+        "ai-workspace/CLAUDE.md: new Repo layout section naming ai-workspace, Ixdar, ixdar-tickets, autofix (checkstyle.xml and the four custom checks ship as the autofix-tool artifact; there is no checkstyle.xml inside Ixdar) and obsidian; the Subagents paragraph now lists the new wt verbs.",
+        "ai-workspace/tools/test_worktree_sync.py: 19 unittest cases over the JSONC editor, the brief text, the resume note and the screenshot check; run with python3 -m unittest tools.test_worktree_sync (pytest is not installed on this machine). There were no worktree_sync tests before.",
+        "The land script now delegates its ticket lookup to worktree_sync.ticket_for so the two share one implementation; it still imports and resolves CRAW-27 correctly."
+    ],
+    "related-files": [
+        "ai-workspace/tools/worktree_sync.py",
+        "ai-workspace/tools/worktree_land.py",
+        "ai-workspace/CLAUDE.md",
+        "Ixdar/CLAUDE.md",
+        "Ixdar/.vscode/launch.json",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,47 @@
+{
+    "id": "TOOL-1",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "platform"
+    ],
+    "title": "Scene lifecycle: port file, ready-blocking keep-alive, waiting shutdown, resource sync, summary output",
+    "description": "Agents lose more wall time to scene start-up than to anything else (report items 1, 8, 17, 22, 24, 34; one agent spent 41 of 106 minutes polling port 47869 while the scene bound 47832). The scene port is a constant in run_scene.py and automation_client.py; per-worktree overrides were the only way to run scenes in parallel, so agents ended up managing ports. Redesign so nobody passes a port: run-scene picks a free port, the scene writes the bound port to tmp/automation.port under the checkout root it was launched from, and every ixdar-cli command reads that file when no --base-url is given (parallel worktrees each have their own file). run-scene prints the port and base URL in its JSON for debugging. run-scene --keep-alive blocks until the readiness JSON reports sceneReady and only then detaches and returns, so nohup and fixed sleeps are never needed. shutdown blocks until the JVM process has exited (poll the pid) instead of returning accepted. run-scene --skip-build copies files newer in src/main/resources into target/classes before launching, so DSL fixtures edited on disk are what the scene loads. The default run-scene output is a summary: ok, scene, mesh name and V/F, port, screenshot path, and the last log lines matching --await-log; on failure the exception class and first stack frame from the crash log appear inline instead of the text 'the scene threw; see crash'. Also in scope: run-scene --mesh must set ixdar.model for every scene (the stale crossFieldScene.off mapping made --mesh a silent no-op for cross-field-exam); a relative quadLayout.save property must resolve against the module resources directory, not the worktree root; mesh-dsl-validate --dsl must accept an existing file path as well as source text and CLAUDE.md must say which; list-meshes gains a names-only output; ixdar-cli launch <entry> runs a .vscode/launch.json entry (JSONC) with its own cwd and vmArgs, non-headless, and reports the first log lines and a screenshot, so a launch entry can be verified the way F5 runs it. Defaults are the behaviour; add a flag only where both behaviours are wanted.",
+    "blocked-by": [],
+    "blocks": [
+        "TOOL-4"
+    ],
+    "status": "REVIEW",
+    "definition-of-done": "1. Two worktrees can each run-scene at the same time with no port flags and every ixdar-cli command in each worktree reaches its own scene. 2. run-scene --keep-alive returns only after sceneReady and its JSON carries port and baseUrl. 3. shutdown returns after the process is gone; pgrep shows no JVM. 4. Editing a DSL fixture under src/main/resources and running run-scene --skip-build loads the edited file. 5. A scene that throws prints the exception class and first frame in the run-scene output. 6. run-scene --mesh rockerarm on cross-field-exam loads rockerarm. 7. mesh-dsl-validate accepts a path. 8. ixdar-cli launch 'CRAW-28: Ring Tool (fertility)' starts the entry from launch.json non-headless and returns a screenshot. 9. ixdar_automation_cli/test_cli.py covers the port file, the ready wait, the waiting shutdown and the summary output; the suite, checkstyle and gen-docs are green; CLAUDE.md command list regenerated.",
+    "testing-plan": "1. Unit tests in ixdar_automation_cli/test_cli.py with a fake server for port file discovery, keep-alive readiness, shutdown waiting, summary formatting and the crash excerpt. 2. Manual: start mesh-viewer in two worktrees, run health and screenshot in each without flags, shut both down, confirm no orphan JVM. 3. Run the CRAW-28 launch entry through ixdar-cli launch and compare its screenshot with F5.",
+    "todos": [],
+    "unknowns": [
+        "Where the port file lives when a scene is started from VS Code F5 rather than run-scene: the scene itself should write it on bind so both paths agree."
+    ],
+    "changes-made": [
+        "Port file: new AutomationPortFile writes {port, pid} to tmp/automation.port under the checkout the JVM was launched from (found by walking up from user.dir to the directory holding pom.xml and ixdar-app), so F5 and run-scene agree; deleted on stop and on JVM exit. AutomationApiServer now falls back to an ephemeral port on BindException and port() reports what was actually bound.",
+        "CLI port discovery: automation_client gains checkout_root/port_file_path/read_port_file/discover_base_url; ixdar_cli --base-url now defaults to empty and resolves through the port file. Verified two checkouts running mesh-viewer (55795) and quad-layout (39945) at once, each answering health and ui-state with no flags.",
+        "run-scene picks a free port, passes it as ixdar.automation.port, and follows the port file when the JVM had to fall back (_adopt_published_port matches on pid). Measured: requested 41147 occupied, scene bound 33053, run-scene reported 33053 and screenshotted it.",
+        "run-scene now launches the JVM with cwd=ixdar-app (matching launch.json), which fixes scene-relative defaults such as ModelCatalog test/resources/quadlayout; a relative *.save property resolves against ixdar-app/src/main/resources instead of creating a stray src/ tree.",
+        "--keep-alive returns only when sceneReady: _await_scene now requires readiness and, when --await-log is given, the match as well. Measured 3.2s for cross-field-exam with rockerarm, JSON carrying port 58521 and baseUrl.",
+        "shutdown is now a registry command that posts /shutdown and polls the pid from the port file until the process is gone. Measured exited=true after 1.6s and 1.4s; pgrep showed no Ixdar JVM from this worktree afterwards.",
+        "--skip-build copies files newer under ixdar-app/src/main/resources into target/classes. Measured: target/classes held the 1-cube fixture, the edited 2-cube union on disk was synced (syncedResources 1) and the scene loaded V=20 F=36 instead of V=8.",
+        "Default run-scene output is a summary: ok, scene, mesh name and V/F, port, baseUrl, screenshot and a one-line summary field; on failure crash_headline puts the exception class and first frame in error, e.g. java.lang.IllegalStateException: Failed to load initial model /nonexistent/probe.off (at ixdar.scenes.model.ModelScene.initModel(ModelScene.java:164)).",
+        "--mesh now sets ixdar.model for every scene (the stale SCENE_OFF_PROPERTIES map is gone). Verified cross-field-exam --mesh rockerarm logged rockerarm_in_tri.off V=35159 F=70318 singularities=30.",
+        "mesh-dsl-validate --dsl accepts a file path (absolute, working-directory-relative or checkout-relative) as well as source text, and reports dslPath; CLAUDE.md says which. Verified both spellings of dsl/cube_boolean.dsl return valid=true nodeCount=4 while inline source still validates.",
+        "list-meshes gains --names (11 names, no table). ixdar-cli launch <entry> runs a .vscode/launch.json entry (JSONC parsed, vmArgs with workspaceFolder and config: tokens expanded from settings.json) non-headless with its own cwd, and returns the opening log lines plus a screenshot; --list-entries lists the 24 entries. Verified on Mesh Node Viewer: window path (runGLFW), 936x1137 screenshot of the rendered mesh.",
+        "Screenshot and MultiviewScreenshot resolve a relative output path against the checkout root rather than the JVM working directory, so --out tmp/x.png still lands in the checkout after the cwd change.",
+        "cli_registry gains CliOption(positional=True) so launch takes its entry as a positional argument. test_cli.py grows 22 tests (55 total, green) over the port file, the ready wait, port adoption, waiting shutdown, resource sync, summary and crash headline, property resolution, JSONC parsing and launch command assembly. mvn clean compile -pl annotations,ixdar-app green; gen-docs --check reports no drift.",
+        "DoD 8 was verified against 'Mesh Node Viewer' and a new 'TOOL-1: Mesh Node Viewer (writes tmp/automation.port)' entry: master's launch.json has no CRAW-28 entry. The ticket's open unknown is resolved \u2014 the scene writes the port file itself on bind, discovering the checkout by walking up from its working directory, which is ixdar-app for both F5 and run-scene."
+    ],
+    "related-files": [
+        "Ixdar/ixdar_automation_cli/cli_commands/run_scene.py",
+        "Ixdar/ixdar_automation_cli/automation_client.py",
+        "Ixdar/ixdar-app/src/main/java/ixdar/platform/automation/endpoints/Health.java",
+        "Ixdar/ixdar-app/src/main/java/ixdar/platform/automation/AutomationEndpoint.java",
+        "Ixdar/.vscode/launch.json",
+        "ai-workspace/reports/tool-review-2026-09-08.md"
+    ],
+    "priority": 1
+}

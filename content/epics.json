@@ -94,7 +94,7 @@
             "prefix": "DSL",
             "name": "DSL & Quilting Pipeline",
             "priority": 6,
-            "description": "Domain-specific language for procedural mesh generation — parser, node runtime, quilting algorithm parity with Blender, user-editable parameter system, and developer tooling (validation, documentation, LSP)"
+            "description": "Domain-specific language for procedural mesh generation \u2014 parser, node runtime, quilting algorithm parity with Blender, user-editable parameter system, and developer tooling (validation, documentation, LSP)"
         },
         {
             "prefix": "VIEW",
@@ -131,6 +131,12 @@
             "name": "Crawfish Model Pipeline",
             "priority": 7,
             "description": "GLB scans -> quad layout -> labeled, textured, symmetric, rigged single model via the DSL"
+        },
+        {
+            "prefix": "TOOL",
+            "name": "Agent Tooling",
+            "priority": 8,
+            "description": "CLI, worktree, hook and probe tooling agents use to build and verify Ixdar work; each ticket names its repo (Ixdar, ai-workspace, ixdar-tickets). Source: ai-workspace/reports/tool-review-2026-09-08.md"
         }
     ]
 }

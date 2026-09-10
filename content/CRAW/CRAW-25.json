@@ -1,0 +1,45 @@
+{
+    "id": "CRAW-25",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "ui",
+        "rendering"
+    ],
+    "title": "Part gallery: render every scan's version of each part, score with a vision model, choose the best",
+    "description": "For each part label, render each member's version of that part (isolated by the CRAW-24 per-face part field, hidden others, consistent camera from the part's ring centroid and skeleton branch direction, 4-6 views via the multiview render) into one contact sheet per part with member numbers drawn on (Set-of-Mark, as in CRAW-10). Human path: a `parts` section in the scene menu cycles parts, shows the sheet, and a click or `parts choose <part> <member>` records the choice. Agent path: extend the CRAW-10 Python harness with `ixdar-cli parts score` asking the vision model (Anthropic SDK, current vision-capable Claude model id pinned per the claude-api skill) to rank members per part on completeness, surface quality and plausibility, with ABSENT members excluded up front; votes across views; writes the same choice file. Choices are DSL: `parts_choice.dsl` with one `select_part(collection, part, point)`-style statement per part where the member is identified by a surface point on its chosen version rather than an index. Downstream, CRAW-16 assembly consumes the choice file to union chosen parts (cut slightly past their rings) instead of whole members; the ticket documents that contract but does not change CRAW-16.",
+    "blocked-by": [
+        "CRAW-24",
+        "CRAW-10"
+    ],
+    "blocks": [
+        "CRAW-19"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. For the two-scan collection every part has a contact sheet under tmp/ and the scene menu can cycle them; screenshot in VERIFICATION.md. 2. `ixdar-cli parts score` produces parts_choice.dsl that validates, excludes ABSENT members, and logs the model's per-view votes. 3. Agreement report against a hand-chosen subset of at least 8 parts is written to the ticket. 4. Human choose command writes the identical statement form. 5. Build checkstyle-green; Python side has a unit test with a stubbed model client.",
+    "testing-plan": "1. Python unit tests with a fake client returning canned rankings. 2. run-scene on the two-member collection, render sheets, score, reload parts_choice.dsl. 3. Manual review of sheets for 3 parts to confirm camera framing.",
+    "todos": [
+        "Isolated-part render with camera from ring centroid + branch direction",
+        "Contact sheet per part with member numbers (Set-of-Mark)",
+        "Scene menu `parts` section + choose command",
+        "ixdar-cli parts score (vision ranking, view voting, ABSENT exclusion)",
+        "parts_choice.dsl writer + validation",
+        "Agreement report vs hand choices"
+    ],
+    "unknowns": [
+        "Whether renders of isolated parts give the model enough context; may need a second sheet with the part highlighted in the whole scan",
+        "Agreement rate between the model's choices and the user's on the crawfish set; target >= 80% on parts where the user has a clear preference",
+        "How to identify a member by surface point in DSL when members overlap almost completely after alignment; may need point + member fingerprint"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-tickets:CRAW-10",
+        "ixdar-tickets:CRAW-24",
+        "ixdar-tickets:CRAW-16",
+        "ixdar-app/src/main/java/ixdar/platform/automation/endpoints/mesh/patches/RenderMultiview.java",
+        "ixdar_automation_cli/automation_client.py",
+        "ixdar-app/src/main/java/ixdar/scenes/model/SceneModelMenu.java"
+    ],
+    "priority": 4
+}

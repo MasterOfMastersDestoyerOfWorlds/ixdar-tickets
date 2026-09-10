@@ -1,0 +1,59 @@
+{
+    "id": "CRAW-21",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Flip geodesics (FlipOut) port: tighten a surface loop or path to a locally shortest geodesic",
+    "description": "Port Sharp & Crane 2020 'You Can Find Geodesic Paths in Triangle Meshes by Just Flipping Edges' (FlipOut) to Java as the curve-tightening primitive every ring workflow step uses: skeleton-region boundaries (CRAW-22), user/agent loops through picked points (CRAW-23) and loops transferred between scans (CRAW-24) all arrive as rough edge paths and must become tight necks. Data/algorithm split: `IntrinsicTriangulation` (signpost data structure over a MeshTopology: intrinsic edge lengths, signpost angles, vertex-to-face correspondence; public fields, no nested types) and `FlipGeodesics` (the algorithm: for each path vertex with a wedge angle < pi, flip the edges inside the wedge in order until the wedge is > pi on both sides; loop variant with no fixed endpoints; convergence = every wedge straight within epsilon). Output is an intrinsic path; provide `IntrinsicPathTracer` to trace it back to an extrinsic polyline on the input surface (barycentric points per crossed edge) and `ConformingLoopSnap` to produce the nearest conforming edge cycle on the original mesh for consumers that need edge marks (EdgeMarks/mark_edges, PATCH-89 forced arcs, delete_geometry cuts). Expose as a `tighten_path(geometry, path, closed, iterations)` node under nodes/selection producing both the polyline (curve output) and a per-edge BoolField. Never decimate; must run on a 936k-triangle scan loop in seconds. Use double math and reusable int/double buffers; no nested classes/records/enums, no System.getProperty knobs. Reference implementation in geometry-central.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-22",
+        "CRAW-23"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Unit: a wobbly Dijkstra loop around a torus tube tightens to a loop whose length is within 0.5% of the analytic minimal meridian; every wedge angle is at least pi within floating-point error except at most one vertex, whose kink is bounded by that vertex's angle defect (a closed loop must pass through a vertex; Sharp & Crane 2020). 2. Unit: an open path between two points on a sphere tightens to within 0.5% of the great-circle distance with every interior wedge at pi within 1e-6. 3. Unit: tightening the same seed twice yields a byte-identical polyline. 4. Benchmark on the full-resolution IMG_4109.glb: FlipOut on the largest realistic ring (the body girth, ~450 seed edges, ~120k flips) completes in under 100 ms warm, with intrinsic-triangulation setup timed and reported separately. 5. tighten_path node documented; fixture dsl/fixtures/torus_tighten_loop.dsl validates with mesh-dsl-validate. 6. Launch entry 'CRAW-21: Tighten Loop (torus)' shows seed and tightened loops in contrasting colors; screenshot under tmp/. 7. Build checkstyle-green; unit tests do not load meshes from disk.\n",
+    "testing-plan": "1. Unit tests on procedurally built torus and icosphere topologies (no mesh files). 2. Sliver robustness test: a randomly perturbed grid strip with near-degenerate triangles still terminates and shortens. 3. run-scene screenshot of the torus fixture and one crawfish leg loop via --property ixdar.model=/home/acw/crawfish/IMG_4109.glb.",
+    "todos": [
+        "DONE : IntrinsicTriangulation (signposts) over MeshTopology with edge flip, edge length, wedge angle queries",
+        "DONE : FlipGeodesics: open path and closed loop shortening, straightness termination",
+        "DONE : IntrinsicPathTracer: intrinsic path to extrinsic polyline",
+        "DONE : ConformingLoopSnap: polyline to nearest edge cycle on the source mesh as EdgeMarks",
+        "DONE : tighten_path node + DSL fixture (torus loop) + docs in socketDocs",
+        "DONE : Benchmark on a crawfish scan loop in ixdar-app/test/benchmark/"
+    ],
+    "unknowns": [
+        "Whether the signpost triangulation needs Delaunay refinement first for robustness on Trellis meshes with many slivers (paper section 5: FlipOut works on any triangulation but degenerate wedges may need epsilon handling)",
+        "Whether a conforming edge cycle is always recoverable from the intrinsic loop without inserting vertices; fallback is to split crossed edges (mesh edit) which changes vertex count downstream",
+        "Expected iteration count on 900k-triangle meshes; paper reports milliseconds on 100k-face meshes"
+    ],
+    "changes-made": [
+        "IntrinsicTriangulation (ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/IntrinsicTriangulation.java): signpost intrinsic triangulation over a MeshTopology - twin-paired half-edge arrays, intrinsic edge lengths, unrescaled CCW signpost angles, vertex angle sums, wedge side-angle query and the convex-diamond edge flip that keeps lengths and signposts current",
+        "FlipGeodesics (data/paths/FlipGeodesics.java): the FlipOut algorithm - open path and closed loop, smallest-wedge-first priority queue, wedge clearance test, single-edge and two-segment loop cases, plus a re-measure sweep so the run only stops when a full pass over the live wedges changes nothing",
+        "IntrinsicPathTracer + TracedSurfacePath (data/paths/): traces each intrinsic half-edge back onto the source surface by unfolding triangles, emitting a polyline with per-point vertex or crossed-edge-plus-fraction correspondence; verified to match the intrinsic length to 4e-9 relative on the torus",
+        "ConformingLoopSnap (data/paths/ConformingLoopSnap.java): snaps a traced geodesic to the nearest conforming edge cycle on the source mesh as per-edge-id marks, joining snapped points with a bounded Dijkstra walk so no vertex is inserted",
+        "GeodesicSeedPath (data/paths/GeodesicSeedPath.java): chains shortest edge walks through surface waypoints into the rough seed FlipOut starts from",
+        "tighten_path node (nodes/selection/TightenPathNode.java): geometry, path (semicolon-separated x,y,z waypoints), closed, iterations (-1 straight, 0 seed only, n capped) and label; outputs the geodesic polyline in the curve slot, the snapped cycle in the edge-marks slot and a per-edge BoolField selection. Documented in socketDocs; mesh-node-catalog.json regenerated",
+        "dsl/fixtures/torus_tighten_loop.dsl: seed and tightened loop on one carrier under two edge-mark labels; mesh-dsl-validate reports valid=true, 3 nodes, 0 errors, 0 warnings",
+        "MeshNodeViewerScene: minimal overlay that draws every boolean edge-marks label from the graph's output bundle as its own coloured feature-edge category (amber seed, cyan tightened), on both the initial and reload DSL paths",
+        "unit/mesh/FlipGeodesicsTest.java: torus meridian (2.19622 vs 2.19911 analytic, 0.13%), icosphere great circle (1.35754 vs 1.35840, 0.06%, no interior wedge left), byte-identical repeat polyline, traced polyline matches intrinsic length, perturbed sliver strip terminates and shortens",
+        "test/benchmark/FlipGeodesicsScanBenchmark.java: IMG_4109 at 920091 manifold faces - intrinsic setup 105 ms, FlipOut warm 1.95 ms for the leg loop (117 seed edges -> 7) and 34.05 ms for the body girth loop (451 -> 14), trace 0.09-0.24 ms",
+        "Launch entry 'CRAW-21: Tighten Loop (torus)' in .vscode/launch.json; screenshots in tmp/craw21_torus_tighten_loop.png and tmp/craw21_torus_tighten_loop_far.png",
+        "Benchmark rerun on the real /home/acw/crawfish/IMG_4109.glb through MeshLoader (glTF loader merged from master f90e02cd), no longer the OFF conversion. Loader: 622652 vertices, 936035 faces; benchmark-local weld at 1e-6: 468350 vertices, 936033 faces; non-manifold filter and largest component: 920091 faces, 460456 vertices, 1380704 edges; load+weld 3.2 s",
+        "DoD 4 on the real file: leg loop warm best intrinsic setup 107.7 ms, seed walk 382.5 ms, FlipOut 2.10 ms, trace 0.08 ms (117 seed edges 0.22261 -> 7 geodesic edges 0.15916, 4089 flips, 200 traced points); body girth loop setup 108.8 ms, seed walk 385.7 ms, FlipOut 33.51 ms, trace 0.26 ms (453 -> 14 edges, 0.86536 -> 0.61246, 119704 flips, 707 traced points). Both far under the 100 ms warm target, intrinsic setup timed and reported separately",
+        "Post-merge verification: clean compile with checkstyle exit 0, unit suite 168 tests with the one pre-existing DenseMeshFewSplitsTest failure (reproduced unchanged on clean master), tools/teavm-build.sh BUILD SUCCESS. The merge changed no behaviour in this branch"
+    ],
+    "related-files": [
+        "https://nmwsharp.com/research/flip-geodesics/",
+        "https://nmwsharp.com/media/papers/flip-geodesics/flip_geodesics.pdf",
+        "https://github.com/nmwsharp/geometry-central (src/surface/flip_geodesics.cpp, signpost_intrinsic_triangulation.cpp)",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/Dijkstra.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/ShortestPathForest.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/EdgeMarks.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/modifier/MarkEdgesNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/ArcRerouter.java",
+        "ixdar-tickets:PATCH-89"
+    ],
+    "priority": 2
+}
