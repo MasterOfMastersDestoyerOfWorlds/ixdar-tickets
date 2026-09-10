@@ -12,16 +12,16 @@
         "CRAW-2",
         "CRAW-29"
     ],
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "definition-of-done": "1. Unit (procedural, no files): seam-split square welds to 4 vertices with UVs intact per corner; a fin on a cube becomes a separate boundary flap; a Mobius strip is reported not silently oriented; a sphere with an interior bubble drops the bubble and keeps the sphere; a 6-edge hole is filled and faired. 2. IMG_4109.glb repairs to one main shell with a report listing every class count; strict mode fails only on the large back-side openings, which are listed with their edge counts. 3. CRAW-2 benchmark uses the node and its load/repair rows match the previous throwaway numbers within 1%. 4. Report output is byte-stable across runs. 5. Launch entry 'CRAW-26: Mesh Viewer (repaired crawfish scan)' shows the repaired scan with boundary loops highlighted; screenshot under tmp/. 6. Build checkstyle-green; no unit test loads a mesh file.",
     "testing-plan": "1. Procedural fixtures for each defect class. 2. run-scene on IMG_4109.glb with repair on, ixdar-cli mesh-state shows the report. 3. Re-run CrawfishQuadLayoutBenchmark load/repair stages.",
     "todos": [
-        "MeshRepairReport value + MeshRepair stages 1-6 with reusable buffers",
-        "Weld keeps vertex-to-original map; slot carry rules for _uv and _tags",
-        "repair_mesh node, socketDocs, strict mode",
-        "Replace the benchmark's throwaway weld with the node",
-        "Unit fixtures: seam-split square, fin, Mobius strip, bubble-in-sphere, small hole",
-        "Fill the four remaining IMG_4109 holes; raise max_hole_edges to a safety cap; strict ignores debris drops"
+        "DONE : MeshRepairReport value + MeshRepair stages 1-6 with reusable buffers",
+        "DONE : Weld keeps vertex-to-original map; slot carry rules for _uv and _tags",
+        "DONE : repair_mesh node, socketDocs, strict mode",
+        "DONE : Replace the benchmark's throwaway weld with the node",
+        "DONE : Unit fixtures: seam-split square, fin, Mobius strip, bubble-in-sphere, small hole",
+        "DONE : Fill the four remaining IMG_4109 holes; raise max_hole_edges to a safety cap; strict ignores debris drops"
     ],
     "unknowns": [
         "Whether the 15,118-face second shell of IMG_4109 is an interior bubble or a detached external part; the containment test decides, verify visually",

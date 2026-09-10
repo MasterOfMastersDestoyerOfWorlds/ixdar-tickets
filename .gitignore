@@ -6,3 +6,4 @@ suggestions/
 # Byte code and test caches; one .pyc had been committed before the CLI grew tests.
 __pycache__/
 .pytest_cache/
+.claude/worktrees

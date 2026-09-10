@@ -11,15 +11,15 @@
     "blocks": [
         "CRAW-2"
     ],
-    "status": "REVIEW",
+    "status": "DONE",
     "definition-of-done": "1. Unit: the three deliberately singular systems are classified correctly (chart-gauge, sliver-cluster, duplicate-row) and the shifted retry returns a finite solution. 2. On the repaired IMG_4109 shell the run no longer aborts with error -4: it logs the classification, support size and offending vertex positions, and either continues on the shifted system or falls to the next backend with a stated reason. 3. Fertility is unaffected: same singularity/patch/quad counts as the REFACTOR-PLAN-2 baseline. 4. `ixdar-cli` can fetch the diagnosis and highlight the offending vertices in the quad-layout scene; screenshot under tmp/; launch entry 'CRAW-27: Quad Layout (crawfish seamless diagnosis)'. 5. Build checkstyle-green.",
     "testing-plan": "1. Procedural singular systems in unit tests. 2. run-scene quad-layout on the repaired scan (craw-2 branch + CRAW-26 repair) and read the diagnosis. 3. Fertility regression run.",
     "todos": [
-        "SingularSystemDiagnosis value and null-vector recovery",
-        "Ladder fall-through with reported diagonal shift",
-        "DOF -> chart/vertex mapping and log line",
-        "/mesh/seamless/diagnosis route + highlight",
-        "Three deliberately singular unit systems"
+        "DONE : SingularSystemDiagnosis value and null-vector recovery",
+        "DONE : Ladder fall-through with reported diagonal shift",
+        "DONE : DOF -> chart/vertex mapping and log line",
+        "DONE : /mesh/seamless/diagnosis route + highlight",
+        "DONE : Three deliberately singular unit systems"
     ],
     "unknowns": [
         "Whether PARDISO exposes the failing pivot index through the current FFM binding, or the null vector must come from inverse iteration on the shifted matrix",

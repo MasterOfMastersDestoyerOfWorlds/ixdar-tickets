@@ -9,7 +9,7 @@
     "description": "tools/teavm-build.sh resolves the annotations module from ~/.m2 where a stale jar sits, so fresh worktrees fail until someone runs mvn install -pl annotations (one agent wrote 'unevaluable on this machine' onto its ticket three minutes after another agent found the fix); it exits 0 while emitting a 36-byte classes.js; and the 'was not found' lines are buried so agents re-ran the whole build to see them (report item 11). Make the script install annotations first, fail non-zero when classes.js is under a sane minimum size, print every [ERROR] line after the build output so a tail catches them, and end with one summary line (size of classes.js, seconds). Add a CLAUDE.md paragraph listing the TeaVM classlib traps met so far: Files.readString and writeString, Arrays.compare on int arrays, Gson reflection; and the replacement for each. Hook the script into ixdar-cli build --web if TOOL-2 has landed, otherwise leave a note.",
     "blocked-by": [],
     "blocks": [],
-    "status": "REVIEW",
+    "status": "DONE",
     "definition-of-done": "1. In a fresh worktree the script succeeds without a manual annotations install. 2. A deliberately unsupported API call makes the script exit non-zero with the [ERROR] line as the last output. 3. Summary line present. 4. CLAUDE.md paragraph added.",
     "testing-plan": "1. Run the script in a fresh worktree and in one with a stale ~/.m2 jar. 2. Insert Files.readString temporarily, run, confirm the failure shape, revert.",
     "todos": [],

@@ -12,7 +12,7 @@
     "blocks": [
         "TOOL-4"
     ],
-    "status": "REVIEW",
+    "status": "DONE",
     "definition-of-done": "1. Two worktrees can each run-scene at the same time with no port flags and every ixdar-cli command in each worktree reaches its own scene. 2. run-scene --keep-alive returns only after sceneReady and its JSON carries port and baseUrl. 3. shutdown returns after the process is gone; pgrep shows no JVM. 4. Editing a DSL fixture under src/main/resources and running run-scene --skip-build loads the edited file. 5. A scene that throws prints the exception class and first frame in the run-scene output. 6. run-scene --mesh rockerarm on cross-field-exam loads rockerarm. 7. mesh-dsl-validate accepts a path. 8. ixdar-cli launch 'CRAW-28: Ring Tool (fertility)' starts the entry from launch.json non-headless and returns a screenshot. 9. ixdar_automation_cli/test_cli.py covers the port file, the ready wait, the waiting shutdown and the summary output; the suite, checkstyle and gen-docs are green; CLAUDE.md command list regenerated.",
     "testing-plan": "1. Unit tests in ixdar_automation_cli/test_cli.py with a fake server for port file discovery, keep-alive readiness, shutdown waiting, summary formatting and the crash excerpt. 2. Manual: start mesh-viewer in two worktrees, run health and screenshot in each without flags, shut both down, confirm no orphan JVM. 3. Run the CRAW-28 launch entry through ixdar-cli launch and compare its screenshot with F5.",
     "todos": [],
