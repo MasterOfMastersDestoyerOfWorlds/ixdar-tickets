@@ -2,3 +2,7 @@
 # not real work. Keep them out of git in both old and new locations.
 content/SUGGEST/
 suggestions/
+
+# Byte code and test caches; one .pyc had been committed before the CLI grew tests.
+__pycache__/
+.pytest_cache/
