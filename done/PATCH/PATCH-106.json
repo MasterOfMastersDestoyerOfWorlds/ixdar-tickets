@@ -1,0 +1,37 @@
+{
+    "id": "PATCH-106",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout",
+        "quadlayout / entrypoint"
+    ],
+    "title": "Rockerarm fails with Index 27954 out of bounds when loaded after another model in QuadLayoutScene; global grid map takes 7.3s",
+    "description": "Two problems seen on ixdar-app/test/resources/quadlayout/figure_8/rockerarm_in_tri.off (and the identical figure_9 copy) in QuadLayoutScene.\n\n**Second-load failure.** Rockerarm loads fine when it is the first mesh opened in the scene. Loading fertility first and then switching to rockerarm ends with:\n\n```\nfailed to load test/resources/quadlayout/figure_8/rockerarm_in_tri.off: Index 27954 out of bounds for length 27954\n```\n\nThe pipeline itself completes (`[quad-layout] global grid map 7.282s`, `[quad-layout] patch surfaces 0.007s`), so the out-of-bounds index comes after buildPatchSurfaces, in the runtime upload or in state the scene keeps from the previous model. 27954 looks like a vertex or node count of one mesh being used to index arrays sized for the other. Candidates: QuadLayoutRuntime buffers or index arrays that are not reset in setSeamlessParametrization / setEmbeddedTMesh / setMotorcycleGraph when the mesh changes, the patchSurfacesInitial / patchCoonsInitial bundles kept on QuadLayoutScene, or a cache keyed by mesh identity inside the engine. Rockerarm from figure_9 reproduces the same way, so it is not a corrupt file.\n\n**Global grid map time.** The `[global-grid] relax 1.42e+19\u21924.63e+04 it=99` line shows the relaxation starting from an energy of 1.4e19 and running out its iteration budget (99). A starting energy that large means the initial grid map is wildly wrong for some vertices (probably a handful of vertices far from their patch or an unscaled term), and the optimizer spends 7 seconds pulling them in. The other stages are milliseconds. Expected: an initial guess within a few orders of magnitude of the converged energy and a run time well under a second on an 80k-triangle mesh.\n\nThe global-grid timing (7.3s, relax 1.42e19\u21924.63e04 it=99) is tracked separately in PATCH-110; this ticket is only the second-load index failure.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Loading fertility then rockerarm (both figure_8) in QuadLayoutScene produces the same layout as loading rockerarm first, with no exception. 2. The stale-state source is named on the ticket and every per-mesh field on QuadLayoutScene and QuadLayoutRuntime is reset on loadModel. 3. The failed-to-load handler logs the full stack trace, not just the exception message.\n",
+    "testing-plan": "1. Add a launch.json entry for QuadLayoutScene on fertility_in_tri.off, then switch to rockerarm with the scene's model picker; capture the full stack trace of the IndexOutOfBoundsException (the failed-to-load message drops it). 2. Fix the stale field or cache; verify with the fertility\u2192rockerarm and rockerarm\u2192fertility orders and with figure_9 rockerarm. 3. Screenshot of rockerarm after the second load under tmp/.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause: QuadLayoutRuntime.arrangement (ArcNetwork from the previous model) survived a model switch. QuadLayoutScene.rebuildLayout calls setSeamlessParametrization first, which uploads the iso surface through uploadSeamlessSurface -> uploadIsoSurface with arrangement.traceRecordsByFace as traceRows. That array is allocated float[faceCount][MAX_TRACE_RECORDS_PER_FACE*4] over the OLD mesh (fertility: 27954 faces), while uploadIsoSurface loops activeFace over the NEW mesh (rockerarm: 70318 faces), so traceRows[27954] threw ArrayIndexOutOfBoundsException: Index 27954 out of bounds for length 27954.",
+        "Full stack trace captured after making the handler log it: QuadLayoutRuntime.uploadIsoSurface(:843) <- uploadSeamlessSurface(:811) <- setSeamlessParametrization(:226) <- QuadLayoutScene.rebuildLayout(:126) <- QuadLayoutScene.loadModel(:92) <- ModelScene.loadModelOrGraph(:303) <- ModelScene.applyPendingModel(:416) <- ModelScene.drawScene(:189) <- Canvas3D.paintGL(:273).",
+        "Fix 1: QuadLayoutRuntime now overrides upload(MeshTopology) and calls a new clearMeshState() before super.upload, dropping every per-mesh field: arrangement, seamlessParametrization, seamlessMesh, the isoSurface/crossField/constraints/layoutLines/layoutFill/copyWireframe/embeddedArcs/embeddedZeroArcs buffers, the diagnostic and patch-cloud lists, the singularities/graphNodes/layoutCorners/embeddedNodes point sets, layoutBoundaryVertexCount, constraintRangeStart/Count, layoutPatchIndexStart/Count, layoutPatchColors, sphereRadiusCap and diagnosticRegionRadius. This mirrors the base runtime, which already resets its own size-coupled state in upload. It also fixes the same latent ordering in MotorcycleGraphExaminationScene.",
+        "Fix 2: QuadLayoutScene.rebuildLayout now clears engine, patchSurfacesInitial, patchCoonsInitial and gridMapView before building, and assigns the engine field only once the build succeeded, so a throw part-way through leaves no engine indexed by the old mesh for the C/O/G toggles to read.",
+        "Fix 3: ModelScene.applyPendingModel logs the exception plus every frame of every cause, instead of just getMessage().",
+        "Unknown 1 answered: thrown at QuadLayoutRuntime.uploadIsoSurface line 843, the traceRows[activeFace] read.",
+        "Unknown 2 answered: only pairs where the SECOND mesh has more faces than the first throw. traceRecordsByFace is float[faceCount][], so a larger second mesh runs off its end; a smaller-or-equal second mesh silently painted one frame's iso surface with the previous mesh's trace rows before setMotorcycleGraph re-uploaded, which is why rockerarm-then-fertility never crashed."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/QuadLayoutScene.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/QuadLayoutRuntime.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/gridmap/GridMapDofSystem.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/QuadLayoutEngine.java",
+        "ixdar-app/test/resources/quadlayout/figure_8/rockerarm_in_tri.off",
+        "ixdar-app/test/resources/quadlayout/figure_9/rockerarm_in_tri.off"
+    ],
+    "priority": 2
+}

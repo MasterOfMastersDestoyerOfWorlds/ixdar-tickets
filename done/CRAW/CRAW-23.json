@@ -16,7 +16,7 @@
         "CRAW-24",
         "CRAW-28"
     ],
-    "status": "REVIEW",
+    "status": "ARCHIVED",
     "definition-of-done": "1. Three surface points around a torus tube in DSL yield a closed tightened ring; fixture validates; unit test asserts closure and length within 1% of the minimal meridian. 2. In a running scene, `ring` + three clicks (or three `ring add` coordinates) + `ring close` shows seed and tightened loop; `ring save` writes a waypoint statement that re-evaluates to the same ring on reload (element-exact). 3. `ixdar-cli rings add --points ...` on IMG_4109.glb around one leg returns a ring row and the ring is visible in the next screenshot. 4. Launch entry 'CRAW-23: Loop Through Points (fertility leg)' with a VERIFICATION.md screenshot. 5. Build checkstyle-green.",
     "testing-plan": "1. Unit on procedural torus: points -> ring; reorder points -> same ring; two points only -> readable error. 2. run-scene --keep-alive, ixdar-cli click x3 (or rings add), ui-state shows the ring row, screenshot. 3. Reload the saved .dsl and fingerprint the marked edges against the live ring.",
     "todos": [
@@ -48,7 +48,8 @@
         "CRAW-28 merge: MeshNodeViewerScene.workingDslPath now returns null unless the viewer is actually showing its DSL graph. It was resolving the default skull.dsl while a mesh file was on screen, so ring save (and the new tool) appended loop_through_points statements to an unrelated graph",
         "CRAW-28 verification: the interactive tool's confirmed ring on the fertility leg is element-identical to this node's output and to CRAW-22's automatic ring_01 - 41 edges, length 81.88591, fingerprint 977890025bbaba86 - and the statement RingDslWriter appended re-evaluates to the same fingerprint on reload",
         "CRAW-28 pinned confirm: loop_through_points gained a boolean 'pin' input (default false, today's behaviour). With pin=true every authored point is held and only the arcs between consecutive points straighten, so a ring keeps a kink at each point instead of sliding to the nearest neck; SurfaceRing.through/tightenedOrNull take the count of leading waypoints to hold, and FlipGeodesics gained vertexIsPinned to skip those wedges. RingDslWriter writes the flag. LoopThroughPointsTest gained a procedural waisted-tube case: free ring slides to the waist, pinned ring stays at x=1 and reloads element-exact from 3 waypoints",
-        "CRAW-28's redesign: RingDslWriter now writes two kinds of statement - loop_through_points for the terminal path and the automatic candidates, unchanged, and spline_ring for the interactive tool - and gained nextRingId, appendSpline and replaceSpline. loop_through_points, its pin input and SurfaceRing's pinned tightening are untouched"
+        "CRAW-28's redesign: RingDslWriter now writes two kinds of statement - loop_through_points for the terminal path and the automatic candidates, unchanged, and spline_ring for the interactive tool - and gained nextRingId, appendSpline and replaceSpline. loop_through_points, its pin input and SurfaceRing's pinned tightening are untouched",
+        "Archived 2026-09-26 without landing, as tag archive/craw-23 at 46fceb1a: superseded: landed via craw-rings e45ce8a6"
     ],
     "related-files": [
         "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/Dijkstra.java",

@@ -1,0 +1,33 @@
+{
+    "id": "PATCH-112",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout"
+    ],
+    "title": "Injectivity QP never converges on bolt: slacks collapse to 1e-13, ratios pin at RATIO_CAP, 60 rounds end with violated=4",
+    "description": "Found while fixing PATCH-107. That ticket makes the condensed KKT system factorable by regularising its diagonal, but on ixdar-app/test/resources/quadlayout/figure_10/bolt_in_tri.off the BCE13 injectivity loop still does not converge: every LazyConstraints round burns all 50 InteriorPointQp iterations (MAX_ITERATIONS) with the slacks at 1e-11 to 1e-13 and the multiplier/slack ratios pinned at RATIO_CAP = 1e12, the loop runs to its 60-round cap, and it ends with `[injectivity] done violated=4 flippedTriangles=1`, i.e. the seamless map stays non-injective. The loop takes 24 s on bolt. On hand and rockerarm the same code converges in 2 rounds with 7 and 14 interior-point iterations, so this is a step-length collapse specific to bolt's constraint set (86 active constraints in round 0, 10 of them sharing one DOF), not a general regression.\n\nInteriorPointQp is a primal-dual interior-point method with a single Newton step per iteration (the class doc explains why Mehrotra's predictor-corrector was not used: it costs a second solve per iteration on the same factor). When the complementarity products go to zero far from the central path the fraction-to-boundary rule shrinks the step to nothing and the iterate stalls with tiny slacks. Candidates: (a) Mehrotra's corrector, which is a second solve on the same factorization and so cheap here; (b) a slack floor and a centering parameter that keeps mu from collapsing (the code has SLACK_START_FLOOR = 1e-2 only at the start); (c) dropping constraints whose multipliers explode and re-adding them next round instead of keeping them active; (d) checking whether the four persistently violated constraints are mutually infeasible under the seamless transition constraints, in which case no QP can satisfy them and the loop should detect that and stop early rather than spin for 60 rounds.\n\nThe downstream effect matters: the flipped triangle it leaves behind is the leading suspect for the double-claim failure in the T-mesh carve on bolt (sibling ticket).\n\nSUPERSEDED: folded into PATCH-107 at the user's direction; the QP convergence fix is that ticket's root cause. Nothing should be started here; delete or mark this ticket once PATCH-107 lands.\n",
+    "blocked-by": [
+        "PATCH-107"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. On bolt the injectivity loop ends with violated=0 and flippedTriangles=0, or the ticket demonstrates that the remaining constraints are infeasible and the loop stops early with a clear log line instead of running to the round cap. 2. Each QP on bolt converges before MAX_ITERATIONS, and the whole loop takes under 5 s. 3. hand and rockerarm still converge in 2 rounds with the same or fewer interior-point iterations and meanDistortion within 1e-6 of today's values. 4. InteriorPointQpTest gains a case that reproduces the stall (a small QP whose active set drives slacks to the boundary) and passes with the fix.",
+    "testing-plan": "1. In a worktree synced after PATCH-107 lands, run bolt through the quad-layout scene and log per-iteration mu, min slack, max ratio and accepted step length for round 0. 2. Confirm the step length collapses rather than the direction being wrong. 3. Implement the chosen remedy; rerun bolt, hand, rockerarm and compare the [lazy-constraints] and [injectivity] lines. 4. Run the solver tests. 5. Screenshot of bolt's seamless stage under tmp/.",
+    "todos": [],
+    "unknowns": [
+        "Are the four persistently violated constraints feasible at all given the seamless transition constraints?",
+        "Does the stall come from the step length (fraction-to-boundary) or from a bad Newton direction under the regularised diagonal?"
+    ],
+    "changes-made": [
+        "Resolved by PATCH-107 as landed: bolt loads end to end (feature-alignment guard in SeamlessDofSystem plus the carve end-crossing trim in SnappingCarve). Closed with it."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/solver/InteriorPointQp.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/solver/system/LazyConstraints.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/SeamlessParameterization.java",
+        "ixdar-app/test/unit/mesh/InteriorPointQpTest.java",
+        "ixdar-app/test/resources/quadlayout/figure_10/bolt_in_tri.off"
+    ],
+    "priority": 3
+}

@@ -203,6 +203,26 @@ class TicketCliTest(unittest.TestCase):
         self.assertIn("1. only", err)
         self.assertEqual(path.read_text(encoding="utf-8"), before)
 
+    def test_remove_blocked_by_drops_both_sides_of_the_link(self) -> None:
+        """update --remove-blocked-by removes the entry and the other ticket's reciprocal blocks entry."""
+        self._write_ticket("TEST", "TEST-1", **{"blocked-by": ["TEST-2", "TEST-3"]})
+        self._write_ticket("TEST", "TEST-2", blocks=["TEST-1"])
+        code, _, err = _run("update", "TEST-1", "--remove-blocked-by", "test-2")
+        self.assertEqual(code, 0, err)
+        first = json.loads((self.root / "content" / "TEST" / "TEST-1.json").read_text())
+        second = json.loads((self.root / "content" / "TEST" / "TEST-2.json").read_text())
+        self.assertEqual(first["blocked-by"], ["TEST-3"])
+        self.assertEqual(second["blocks"], [])
+
+    def test_remove_an_absent_link_fails_without_writing(self) -> None:
+        """Removing a blocks entry the ticket does not have fails and leaves the file alone."""
+        path = self._write_ticket("TEST", "TEST-1", blocks=["TEST-2"])
+        before = path.read_text(encoding="utf-8")
+        code, _, err = _run("update", "TEST-1", "--remove-blocks", "TEST-2", "--remove-blocks", "TEST-9")
+        self.assertEqual(code, 1)
+        self.assertIn("no blocks entry TEST-9", err)
+        self.assertEqual(path.read_text(encoding="utf-8"), before)
+
     # DoD 3: show resolves content/ versus done/ from any working directory.
 
     def test_show_finds_a_ticket_under_done(self) -> None:
@@ -221,6 +241,23 @@ class TicketCliTest(unittest.TestCase):
     def test_root_is_discovered_from_the_script_location(self) -> None:
         """The tickets root is found from this file, so no working directory is required."""
         self.assertEqual(generate_board._discover_root_dir(), REPO_ROOT)
+
+    def test_show_field_prints_the_last_list_entries_with_their_numbers(self) -> None:
+        """show --field --last prints the tail of a list numbered as in the full list."""
+        directory = self.root / "content" / "TEST"
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "TEST-8.json").write_text(
+            json.dumps({"id": "TEST-8", "changes-made": ["a", "b", "c"], "definition-of-done": "Loads."}),
+            encoding="utf-8",
+        )
+        code, out, err = _run("show", "TEST-8", "--field", "changes-made", "--last", "2")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(out.strip().splitlines(), ["2. b", "3. c"])
+        code, out, err = _run("show", "TEST-8", "--field", "definition-of-done")
+        self.assertEqual(out.strip(), "Loads.")
+        code, _, err = _run("show", "TEST-8", "--field", "nope")
+        self.assertEqual(code, 1)
+        self.assertIn("changes-made", err)
 
     def test_show_reports_a_missing_ticket_cleanly(self) -> None:
         """An unknown ticket ID exits 1 with a message, not a traceback."""
@@ -275,6 +312,20 @@ class TicketCliTest(unittest.TestCase):
         self.assertEqual(code, 0, err)
         self.assertIn("Marked TEST-1 DONE", out)
         self.assertTrue((self.root / "done" / "TEST" / "TEST-1.json").exists())
+
+    def test_mark_archived_closes_without_the_worktree_guard(self) -> None:
+        """mark archived files the ticket under done/ even while its worktree is dirty: the work is
+        being kept on a tag, not landed, so there is nothing to merge first."""
+        self._write_ticket("TEST", "TEST-1", status="REVIEW")
+        worktree = self._make_worktree("Ixdar", "test-1")
+        self._stub_state({worktree: (3, 1)})
+
+        code, out, err = _run("mark", "archived", "TEST-1")
+        self.assertEqual(code, 0, err)
+        self.assertIn("Marked TEST-1 ARCHIVED -> done/TEST/TEST-1.json", out)
+        self.assertFalse((self.root / "content" / "TEST" / "TEST-1.json").exists())
+        written = json.loads((self.root / "done" / "TEST" / "TEST-1.json").read_text())
+        self.assertEqual(written["status"], "ARCHIVED")
 
     def test_mark_done_force_overrides_the_guard(self) -> None:
         """--force marks DONE even with a dirty worktree, for work that has already landed."""

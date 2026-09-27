@@ -12,26 +12,37 @@
         "CRAW-13"
     ],
     "blocks": [],
-    "status": "TODO",
+    "status": "REVIEW",
     "definition-of-done": "1. mesh_boolean on two textured cubes yields a bundle whose every face has UVs and a material index; the checker pattern is continuous across the intersection seam in a screenshot. 2. Union of two crawfish scans renders each region with its own scan texture. 3. UV interpolation error at intersection vertices is below 1e-4 in a unit test with analytically known UVs (planar quads). 4. Slots absent on inputs -> result has no slots, no exception. 5. Build checkstyle-green.",
     "testing-plan": "1. Unit: two planar-UV cubes, union; verify UV at a known intersection point equals the analytic value. 2. Unit: mixed inputs (one textured, one not) produce a result with material index -1 for untextured faces. 3. run-scene mesh-boolean with a textured cube_boolean variant; screenshot.",
-    "todos": [
-        "Extend ManifoldBindings to pass and read vertex properties (numProp)",
-        "Encode UV (+ material index) as properties before the op; decode after",
-        "Multi-material slot (list of MaterialData + per-face index) and HalfEdgeMeshRuntime binding by index",
-        "Unit tests; textured cube_boolean.dsl variant; screenshot"
-    ],
+    "todos": [],
     "unknowns": [
-        "Whether Manifold merges vertices across property discontinuities (it keys on position + properties, so seams should survive -- verify)",
         "Whether to bake both scan textures into one atlas later for export (CRAW-20) or keep multi-material"
     ],
-    "changes-made": [],
+    "changes-made": [
+        "UVs ride through Manifold as interpolated vertex properties. ManifoldProvenanceBindings gained manifold_meshgl64 (the numProp constructor the vendored ManifoldBindings hardcodes to 3), manifold_meshgl64_merge, manifold_of_meshgl64 and manifold_meshgl64_num_prop; importProperties() builds a solid with 5 channels (x,y,z,u,v), merging first so vertices split by UV weld back instead of reading as a crack.",
+        "ManifoldMeshExport now carries propertiesPerVertex (read from manifold_meshgl64_num_prop) and strides by it; its vertexPositions field became vertexProperties and cornerCoordinate() takes a channel, so the CRAW-13 provenance path reads positions unchanged whatever the channel count.",
+        "New BooleanVertexProperties builds one operand's kernel vertex table: positions only at 3 channels, or positions plus UV with one vertex per distinct corner UV (chained dedup, bit-exact compare) at 5. QuadTriangulation.build(CornerUvField) carries per-corner UVs onto the triangles, which only an already-triangular operand can do (a corner field is indexed three per face, so a split quad has no corner to read); it logs and drops otherwise.",
+        "Unknown 1 answered: Manifold does interpolate vertex properties across a boolean, linearly, and does keep property discontinuities. With UVs affine in position on two unit cubes, every corner of the union reproduces the analytic UV within 1e-4 (the test asserts that bound; the observed error is float round-trip only). Seams survive because a MeshGL vertex is a property vertex and the merge vectors say which ones are one point.",
+        "MeshBooleanResult gained cornerU/cornerV per output face corner. The backend welds the output by exact position when properties split it (VertexPositionIndex, the CRAW-13 class), so a UV seam no longer cracks the result mesh; the per-corner UV field carries the seam instead. Untextured booleans keep their old vertex numbering untouched, so MESH-50 is unaffected either way.",
+        "New MaterialSet slot (_materials plus per-face _face_material IntField, NO_MATERIAL = -1) is the multi-material carrier; MaterialData._material stays the single-material one. mesh_boolean gives each output face the material of the input face it was copied or cut from, looked up through the CRAW-13 faceSourceOperand/faceSourceQuad pair, so operands that are themselves multi-material compose. The node now drops the stale _uv/_material/_materials/_face_material slots it used to carry over from operand A.",
+        "Scaffolding and demos (previous agent, recorded now): CheckerMaterialNode (checker_material) triangulates a mesh and gives it world-space box UVs plus a generated two-tone checker texture; cube_boolean_textured.dsl unions two checker cubes; MeshBooleanTexturedScene (id mesh-boolean-textured) renders it with the textured draw; crawfish_union.dsl unions IMG_4109 and IMG_4110 (repaired, the second nudged 0.25 along X). HalfEdgeMeshRuntime uploads one base-colour texture per material and draws one index range per material, faces naming none falling back to the solid colour; CornerUvSplit takes a face order so those ranges are contiguous.",
+        "Hole-fill triangles: repair_mesh leaves NaN UVs on the triangles it fills holes with, and Manifold rejects a non-finite property (NON_FINITE_VERTEX), so the crawfish union failed. BooleanVertexProperties now hands the kernel a finite stand-in (MISSING_UV_STAND_IN) for those corners, and the backend puts NaN back on every output face whose provenance source face had no UVs, including every face from an untextured operand.",
+        "Seam weld by merge vectors: the backend welded output property vertices by exact position, which also fused the distinct copies repair_mesh splits a pinched vertex into and failed on the crawfish with 'Non-manifold or duplicate face edge'. It now welds by the output MeshGL's mergeFromVert/mergeToVert (ManifoldProvenanceBindings binds manifold_meshgl64_merge_length/_from_vert/_to_vert; ManifoldMeshExport carries them). Untextured booleans still skip the weld, so their vertex numbering is unchanged.",
+        "mesh_boolean drops operand A's _edge_marks slot, which indexes edges the result no longer has; carried through, it made the mesh viewer switch to the STAGES shader and hide the texture. Both of MeshNodeViewerScene's DSL routes (the resource reload and the -Dixdar.model=<file>.dsl path) now upload the graph's whole bundle through one uploadGraphOutput helper, so a textured graph output draws textured. The QuadTriangulation dropped-UV log line and a textured-draw log line in MeshBooleanScene were removed as scaffolding.",
+        "Verification: BooleanTextureTransferTest (7 procedural tests: analytic UV at cut vertices within 1e-4, box-projected UV seams weld into a closed mesh keeping each face's projection, every face has UV + material, untextured operand faces get NO_MATERIAL and NaN UVs, NaN hole-fill UVs survive the kernel and stay NaN only on their faces, no slots in -> no slots out, stale slots including _edge_marks dropped). Screenshots tmp/craw-14-textured-cubes.png (checker continuous across the cut) and tmp/craw-14-crawfish-union*.png (each scan region in its own texture). Launch entries 'CRAW-14: mesh-boolean-textured', 'CRAW-14: crawfish-union' and the permanent 'Mesh Boolean Textured'."
+    ],
     "related-files": [
         "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldMeshBooleanBackend.java",
         "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/QuadTriangulation.java",
         "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/geometry/MeshBooleanNode.java",
         "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
-        "ixdar-app/src/main/resources/dsl/cube_boolean.dsl"
+        "ixdar-app/src/main/resources/dsl/cube_boolean.dsl",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/BooleanVertexProperties.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/csg/ManifoldProvenanceBindings.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/MaterialSet.java",
+        "ixdar-app/test/unit/mesh/BooleanTextureTransferTest.java",
+        "ixdar-app/src/main/resources/dsl/crawfish_union.dsl"
     ],
     "priority": 3
 }

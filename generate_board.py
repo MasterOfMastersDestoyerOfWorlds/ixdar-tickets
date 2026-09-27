@@ -70,7 +70,10 @@ def set_root_dir(root: Path | str) -> None:
 # all summary counts). These are agent-generated logs, not work to be done.
 EXTERNAL_EPICS = {"SUGGEST"}
 
-STATUS_ORDER = {"PINNED": 0, "REVIEW": 1, "IN_PROGRESS": 2, "TODO": 3, "DONE": 4}
+# ARCHIVED is closed without landing: the work is kept on an archive/<ticket> tag, the idea is
+# shelved. Like DONE it lives under done/ and is hidden from the actionable lists.
+STATUS_ORDER = {"PINNED": 0, "REVIEW": 1, "IN_PROGRESS": 2, "TODO": 3, "DONE": 4, "ARCHIVED": 5}
+CLOSED_STATUSES = ("DONE", "ARCHIVED")
 DESC_TRUNCATE = 100
 
 # Repositories whose .claude/worktrees/<ticket-id-lowercased> directory is checked before a
@@ -158,6 +161,8 @@ def normalize_status(raw: str | None) -> str:
         return "REVIEW"
     if upper in ("PINNED", "PIN", "GOAL"):
         return "PINNED"
+    if upper in ("ARCHIVED", "ARCHIVE", "SHELVED"):
+        return "ARCHIVED"
     if upper in ("TODO", "OPEN", "BACKLOG"):
         return "TODO"
     return upper
@@ -321,6 +326,17 @@ def render_board(
             lines.append(f"<details><summary>Done ({len(done)})</summary>")
             lines.append("")
             for t in done:
+                lines.append(render_ticket_line(t, done=True))
+            lines.append("")
+            lines.append("</details>")
+            lines.append("")
+
+        # ARCHIVED (collapsed): closed without landing, work kept on a tag
+        archived = status_groups.get("ARCHIVED", [])
+        if archived:
+            lines.append(f"<details><summary>Archived ({len(archived)})</summary>")
+            lines.append("")
+            for t in archived:
                 lines.append(render_ticket_line(t, done=True))
             lines.append("")
             lines.append("</details>")
@@ -567,7 +583,7 @@ def create_ticket(
     return ticket_path
 
 
-def _write_board() -> tuple[int, int, int, int]:
+def _write_board() -> tuple[int, int, int, int, int, int]:
     epic_names, epic_priorities = load_epics()
     tickets = load_tickets()
     grouped = group_by_epic(tickets)
@@ -579,17 +595,20 @@ def _write_board() -> tuple[int, int, int, int]:
     total_ip = sum(len(g.get("IN_PROGRESS", [])) for g in grouped.values())
     total_todo = sum(len(g.get("TODO", [])) for g in grouped.values())
     total_done = sum(len(g.get("DONE", [])) for g in grouped.values())
-    return total_pinned, total_review, total_ip, total_todo, total_done
+    total_archived = sum(len(g.get("ARCHIVED", [])) for g in grouped.values())
+    return total_pinned, total_review, total_ip, total_todo, total_done, total_archived
 
 
-def _board_summary_line(totals: tuple[int, int, int, int, int]) -> str:
-    pinned, review, ip, todo, done = totals
+def _board_summary_line(totals: tuple[int, int, int, int, int, int]) -> str:
+    pinned, review, ip, todo, done, archived = totals
     parts = []
     if pinned:
         parts.append(f"{pinned} pinned")
     if review:
         parts.append(f"{review} review")
     parts.extend([f"{ip} in-progress", f"{todo} todo", f"{done} done"])
+    if archived:
+        parts.append(f"{archived} archived")
     return "Board updated: " + ", ".join(parts)
 
 
@@ -782,7 +801,7 @@ def mark_ticket_status(ticket_id: str, status: str, force: bool = False) -> None
         data["todos"] = _normalize_done_todos(data["todos"])
 
     ticket_path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
-    if normalized_status == "DONE":
+    if normalized_status in CLOSED_STATUSES:
         ticket_path = _move_ticket_to(ticket_path, DONE_DIR)
     else:
         # PINNED, REVIEW, IN_PROGRESS, TODO all live under content/.
@@ -792,14 +811,19 @@ def mark_ticket_status(ticket_id: str, status: str, force: bool = False) -> None
     print(_board_summary_line(totals))
 
 
-def show_ticket(ticket_id: str, indices: bool = False) -> None:
+def show_ticket(ticket_id: str, indices: bool = False, field: str | None = None, last: int = 0) -> None:
     """Print a ticket JSON from content/ or done/, optionally with resolvable entry numbers.
 
     :param ticket_id: ticket ID to print.
     :param indices: also print numbered todos and unknowns for --resolve-todo/--resolve-unknown.
+    :param field: print only this field: text as is, a list as numbered entries.
+    :param last: with a list field, only its last N entries (0 prints all), numbered as in the list.
     """
     ticket_path = _ticket_path(ticket_id)
     text = ticket_path.read_text(encoding="utf-8")
+    if field is not None:
+        _print_field(json.loads(text), field, last)
+        return
     print(text)
     if not indices:
         return
@@ -809,6 +833,24 @@ def show_ticket(ticket_id: str, indices: bool = False) -> None:
         print(f"{key} ({len(entries)}):")
         for number, entry in enumerate(entries, start=1):
             print(f"  {number}. {entry}")
+
+
+def _print_field(data: dict, field: str, last: int) -> None:
+    """Print one ticket field: text as is, a list as numbered entries, the tail when asked.
+
+    :param data: the parsed ticket.
+    :param field: field name as it appears in the JSON (e.g. changes-made).
+    :param last: only the last N list entries when positive.
+    """
+    if field not in data:
+        raise ValueError(f"{data.get('id', 'ticket')} has no field {field!r}; fields: {', '.join(data)}")
+    value = data[field]
+    if not isinstance(value, list):
+        print(value if isinstance(value, str) else json.dumps(value, indent=4))
+        return
+    start = max(len(value) - last, 0) if last > 0 else 0
+    for number, entry in enumerate(value[start:], start=start + 1):
+        print(f"{number}. {entry}")
 
 
 def _append_text_field(data: dict, key: str, fragment: str) -> None:
@@ -888,6 +930,19 @@ def _add_link(target_id: str, key: str, value_id: str) -> None:
         target_path.write_text(json.dumps(target, indent=4) + "\n", encoding="utf-8")
 
 
+def _remove_link(target_id: str, key: str, value_id: str) -> None:
+    """Remove value_id from target's key list ("blocks" or "blocked-by") if the target exists in content/."""
+    try:
+        target_path = _ticket_path(target_id)
+    except (FileNotFoundError, ValueError):
+        return
+    target = json.loads(target_path.read_text(encoding="utf-8"))
+    current = target.get(key)
+    if isinstance(current, list) and value_id in current:
+        target[key] = [i for i in current if i != value_id]
+        target_path.write_text(json.dumps(target, indent=4) + "\n", encoding="utf-8")
+
+
 def _link_dependencies(ticket_id: str, blocked_by: list[str], blocks: list[str]) -> None:
     """Mirror a ticket's blocked-by/blocks onto the referenced tickets so links stay reciprocal."""
     for other in blocked_by:
@@ -901,6 +956,8 @@ def update_ticket(
     *,
     add_blocked_by: list[str] | None = None,
     add_blocks: list[str] | None = None,
+    remove_blocked_by: list[str] | None = None,
+    remove_blocks: list[str] | None = None,
     append_description: str | None = None,
     definition_of_done: str | None = None,
     testing_plan: str | None = None,
@@ -920,6 +977,8 @@ def update_ticket(
     :param ticket_id: ticket ID to patch.
     :param resolve_todos: one-based todo positions to remove.
     :param resolve_unknowns: one-based unknown positions to remove.
+    :param remove_blocked_by: ticket IDs to drop from blocked-by, with their reciprocal blocks entries.
+    :param remove_blocks: ticket IDs to drop from blocks, with their reciprocal blocked-by entries.
     :param force: skip the unmerged-worktree guard when the new status is DONE.
     :return: path of the patched ticket JSON.
     """
@@ -952,6 +1011,20 @@ def update_ticket(
     _extend_list_field(data, "blocked-by", new_blocked_by)
     _extend_list_field(data, "blocks", new_blocks)
     _link_dependencies(normalized_id, new_blocked_by, new_blocks)
+    removals = [
+        (key, reciprocal, other)
+        for key, reciprocal, ids in (
+            ("blocked-by", "blocks", remove_blocked_by),
+            ("blocks", "blocked-by", remove_blocks),
+        )
+        for other in _normalized_ids(ids)
+    ]
+    for key, _, other in removals:
+        if other not in (data.get(key) or []):
+            raise ValueError(f"{normalized_id} has no {key} entry {other}")
+    for key, reciprocal, other in removals:
+        data[key] = [i for i in data[key] if i != other]
+        _remove_link(other, reciprocal, normalized_id)
 
     if add_todos:
         todos = data.get("todos")
@@ -1013,7 +1086,8 @@ def print_priorities(epic: str | None, status_filter: str | None, include_done: 
 
     Defaults: hides DONE tickets and shows all epics. Use --all to include DONE.
     """
-    tickets = _load_ticket_records(include_done=include_done or status_filter == "DONE")
+    wants_closed = status_filter is not None and normalize_status(status_filter) in CLOSED_STATUSES
+    tickets = _load_ticket_records(include_done=include_done or wants_closed)
     if epic:
         prefix = epic.strip().upper()
         tickets = [t for t in tickets if t["prefix"] == prefix]
@@ -1021,7 +1095,7 @@ def print_priorities(epic: str | None, status_filter: str | None, include_done: 
         normalized = normalize_status(status_filter)
         tickets = [t for t in tickets if t["status"] == normalized]
     elif not include_done:
-        tickets = [t for t in tickets if t["status"] != "DONE"]
+        tickets = [t for t in tickets if t["status"] not in CLOSED_STATUSES]
 
     if not tickets:
         print("(no tickets match)")
@@ -1037,6 +1111,7 @@ def print_priorities(epic: str | None, status_filter: str | None, include_done: 
         ip = sum(1 for t in bucket if t["status"] == "IN_PROGRESS")
         todo = sum(1 for t in bucket if t["status"] == "TODO")
         done = sum(1 for t in bucket if t["status"] == "DONE")
+        archived = sum(1 for t in bucket if t["status"] == "ARCHIVED")
         header = f"{prefix} ({len(bucket)} total"
         parts = []
         if review:
@@ -1047,6 +1122,8 @@ def print_priorities(epic: str | None, status_filter: str | None, include_done: 
             parts.append(f"{todo} todo")
         if done:
             parts.append(f"{done} done")
+        if archived:
+            parts.append(f"{archived} archived")
         if parts:
             header += ": " + ", ".join(parts)
         header += ")"
@@ -1198,6 +1275,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Ticket ID to mark pinned (e.g. PATCH-37).",
     )
 
+    mark_archived_parser = mark_sub.add_parser(
+        "archived",
+        help="Mark a ticket ARCHIVED (closed without landing; the work is kept on an archive/<ticket> "
+             "tag by `ixd wt archive`) and regenerate BOARD.md. The ticket moves under done/.",
+    )
+    mark_archived_parser.add_argument(
+        "ticket_id",
+        help="Ticket ID to mark archived (e.g. PATCH-104).",
+    )
+
     show_parser = sub.add_parser(
         "show",
         help="Print a full ticket JSON, whether it lives under content/ or done/.",
@@ -1210,6 +1297,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--indices",
         action="store_true",
         help="Also list todos and unknowns numbered for --resolve-todo/--resolve-unknown.",
+    )
+    show_parser.add_argument(
+        "--field",
+        help="Print only this field (e.g. changes-made, definition-of-done); a list prints numbered.",
+    )
+    show_parser.add_argument(
+        "--last",
+        type=int,
+        default=0,
+        help="With a list --field, print only its last N entries, keeping their numbers.",
     )
 
     create_parser = sub.add_parser(
@@ -1350,7 +1447,8 @@ def _build_parser() -> argparse.ArgumentParser:
         "--status",
         dest="status",
         default=None,
-        help="Set status: TODO, IN_PROGRESS, REVIEW (implemented, awaiting the user's merge), or DONE.",
+        help="Set status: TODO, IN_PROGRESS, REVIEW (implemented, awaiting the user's merge), DONE, "
+             "or ARCHIVED (closed without landing).",
     )
     update_parser.add_argument(
         "--force",
@@ -1420,6 +1518,20 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="add_blocks",
         help="Append one blocks[] ticket ID; a reciprocal blocked-by entry is written.",
     )
+    update_parser.add_argument(
+        "--remove-blocked-by",
+        action="append",
+        default=[],
+        dest="remove_blocked_by",
+        help="Remove one blocked-by[] ticket ID and its reciprocal blocks entry.",
+    )
+    update_parser.add_argument(
+        "--remove-blocks",
+        action="append",
+        default=[],
+        dest="remove_blocks",
+        help="Remove one blocks[] ticket ID and its reciprocal blocked-by entry.",
+    )
 
     _annotate_option_help(parser)
     return parser
@@ -1484,8 +1596,10 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         mark_ticket_status(args.ticket_id, "TODO")
     elif args.command == "mark" and args.mark_command == "pinned":
         mark_ticket_status(args.ticket_id, "PINNED")
+    elif args.command == "mark" and args.mark_command == "archived":
+        mark_ticket_status(args.ticket_id, "ARCHIVED")
     elif args.command == "show":
-        show_ticket(args.ticket_id, indices=args.indices)
+        show_ticket(args.ticket_id, indices=args.indices, field=args.field, last=args.last)
     elif args.command == "create":
         path = create_ticket(**_create_fields_from_args(args))
         print(f"Created {path}")
@@ -1494,6 +1608,8 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             args.ticket_id,
             add_blocked_by=list(args.add_blocked_by or []),
             add_blocks=list(args.add_blocks or []),
+            remove_blocked_by=list(args.remove_blocked_by or []),
+            remove_blocks=list(args.remove_blocks or []),
             append_description=args.append_description,
             definition_of_done=args.definition_of_done,
             testing_plan=args.testing_plan,

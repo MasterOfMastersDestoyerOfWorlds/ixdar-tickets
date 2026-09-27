@@ -1,0 +1,40 @@
+{
+    "id": "CRAW-31",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Ring segment modes: follow cross-field streamlines in either direction, toggled per ring",
+    "description": "User request 2026-09-19, follow-on to the ring tool (CRAW-28) and its two-tier anchor redesign (CRAW-30). Today every spline segment between two anchors is traced with geodesic midpoints, so a ring is the smooth shortest-ish loop through its anchors. On a scan the cut the user actually wants often follows the cross field: around a tail segment or a claw joint the field's directions run along and across the limb, and a ring that follows the across-direction sits on the segment boundary without the user placing many anchors. Add a per-ring segment MODE with three values, geodesic (today's behaviour, the default), field A and field B, and a toggle that cycles them.\n\nTracing. Nothing traces streamlines over a raw cross field today: ChartWalker walks iso-lines of a seamless parametrization, which the crawfish never reaches (CRAW-2), and NDirectionField (the cross_field node) stops at the per-face 4-RoSy. Add CrossFieldStreamline in geometry/mesh/data/paths: from a surface point and one of the four field directions at its face, march face to face in the field, choosing at each edge crossing the neighbouring face's direction closest to the incoming one (standard 4-RoSy matching), with a maximum length budget and a stop when the trace comes within tolerance of a target point. Field A and field B are the two directions of the cross at the ring's first authored anchor that are closest to the girdling plane's tangent, so A and B are the two ways round the local cross and differ where the field is not aligned with the limb axis; the choice propagates along the trace by matching, so the user never picks per face. A segment in field mode is the streamline from its start anchor stopped at its end anchor's nearest point; if the streamline misses the end anchor by more than the fit tolerance the segment falls back to the geodesic and the HUD says so. The draft's closing segment in field mode closes the ring when the streamline returns within tolerance of the start; otherwise the gap is bridged by a geodesic. Supporting anchors are not fitted on field-mode segments; the streamline is the polyline, snapped to a conforming edge cycle by ConformingLoopSnap as the spline is.\n\nField source. The tool computes the cross field once per model on entering a field mode and caches it beside the skeleton and the intrinsic triangulation (LimbAxis's per-model cache); on the 920k-face shell this is 22 to 86 s, logged, with the HUD showing 'computing cross field' until it lands. Reuse the cross field a graph already carries when the loaded .dsl has a cross_field node. When CRAW-5's crease alignment lands the aligned field is the one the tool should follow, so the tool takes the field through one interface both can satisfy.\n\nToggle. T cycles geodesic / field A / field B for the draft; ui-state and the HUD show the mode; the mode is written into the spline_ring statement (mode=\"geodesic\"|\"field_a\"|\"field_b\") and the node re-traces the same way on reload, so a field-mode ring is element-exact against the live one. Confirmed rings keep their mode; re-opening a confirmed ring as the draft (CRAW-30) allows changing it.\n\nNote 2026-09-26: CRAW-5 (crease-aligned cross field) is being archived by user ruling. Field modes follow the plain cross_field output only; drop the requirement to take the field through an interface CRAW-5 could satisfy.\n",
+    "blocked-by": [
+        "CRAW-30"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Launch entry 'CRAW-31: Ring Field Modes (fertility)': F5, R, draft a ring mid-thigh, press T: the ring re-traces along field A and the HUD reads 'mode: field A'; T again: field B, visibly different where the field twists; T again: back to geodesic; screenshots of each under tmp/. 2. Same on the repaired crawfish on a tail segment: a field-mode ring follows the segment boundary closer than the geodesic ring (measured as mean distance from the ring polyline to the nearest crease edges from CrestLineDetector, both numbers recorded). 3. Ctrl+S writes mode= into the spline_ring statement and the reload is element-exact for each of the three modes. 4. Unit, procedural only: on a straight tube with an analytic cross field aligned to its axis, field A traces the circumference to within 1 percent of its length and field B traces a generator line and reports the closure failure; a mismatch above tolerance at the end anchor falls back to the geodesic and flags it. 5. The cross field is computed once per model and reused across drafts; the time is logged and shown in the HUD while it runs. 6. ui-state ringTool reports the mode per draft and per confirmed ring. 7. Build checkstyle-green; unit tests load no mesh files.",
+    "testing-plan": "1. Procedural unit tests on a tube with an analytic 4-RoSy and on a sphere. 2. run-scene on fertility cycling T through the three modes with screenshots and ui-state checks. 3. Repaired crawfish tail segment: field vs geodesic ring distance to crease edges. 4. Reload each saved mode and compare fingerprints.",
+    "todos": [
+        "CrossFieldStreamline tracer over NDirectionField with 4-RoSy matching, length budget and target stop",
+        "Per-model cross field cache beside the skeleton and the intrinsic triangulation; reuse a graph's cross_field output; field interface CRAW-5's aligned field can satisfy",
+        "Segment mode on the draft: geodesic / field A / field B, T cycles, geodesic fallback with HUD notice",
+        "spline_ring mode= input and RingDslWriter; reload element-exact per mode",
+        "ui-state mode per draft and per ring; launch entry; screenshots"
+    ],
+    "unknowns": [
+        "Whether the streamline should be traced as a straight line within each face (piecewise linear, cheap) or with a midpoint step, given the crawfish's tubercled surface",
+        "Whether field A/B should be defined at the first authored anchor or re-chosen per segment from the previous segment's outgoing direction",
+        "Whether the 22 to 86 s cross-field compute on the scan is acceptable inside the tool or should be a precomputed node the .dsl carries"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/crossfield/NDirectionField.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/motorcycle/ChartWalker.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceSplineTracer.java",
+        "ixdar-tickets:CRAW-5",
+        "ixdar-tickets:CRAW-28"
+    ],
+    "priority": 3
+}

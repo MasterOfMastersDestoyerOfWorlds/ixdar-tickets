@@ -1,0 +1,33 @@
+{
+    "id": "PATCH-113",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / tmesh"
+    ],
+    "title": "Bolt (figure_10) fails in LayoutEmbedding.assertSubcomplex: 4 copy elements claimed by two T-mesh elements at once",
+    "description": "Found while fixing PATCH-107 (the PARDISO singular pivot). With the injectivity loop no longer failing, ixdar-app/test/resources/quadlayout/figure_10/bolt_in_tri.off gets past the seamless stage and then dies in QuadLayoutEngine.buildTMesh:\n\n```\nIllegalStateException: 4 copy elements are claimed by two T-mesh elements at once\n  at LayoutEmbedding.assertSubcomplex (LayoutEmbedding.java ~192)\n```\n\nassertSubcomplex is the post-carve invariant check: every arc embedded, every hop a real copy edge, and topology.claimConflictCount == 0. A non-zero count means the carve laid two T-mesh elements (arcs or nodes) over the same copy vertex or edge. That is the same family of failure as the buddha chord crossing in PATCH-105 (acrossFreeEdge refuses an edge already held by another arc) and the block zero-arc collapse in PATCH-111: two elements of the arc network contending for one strip of the working copy. On bolt it is caught only by the final assertion, so the conflict was recorded during the carve (EmbeddedMeshTopology increments claimConflictCount) rather than thrown at the claim site.\n\nNote the seamless map that feeds this carve is not injective on bolt (the injectivity QP ends at its 60-round cap with violated=4 and flippedTriangles=1, see the sibling ticket on QP convergence). A folded triangle in the parametrization can make two motorcycle traces cross in UV where they should not, which would explain the double claim. Check that first: if the four conflicts sit in or next to the flipped triangle, the fix belongs upstream and this ticket should be blocked by the QP one.\n\nUPDATE: with the PATCH-107 diff (converging QP, Farkas-certificate stop) bolt now passes assertSubcomplex and loads end to end, so this no longer reproduces. The injectivity loop still ends violated=1 on bolt because the active set is infeasible (two faces collapsed by integer rounding, now PATCH-116), so the map is not fully injective; the double claim was evidently downstream of the stalled QP's worse map. Recheck once PATCH-107 lands; if bolt stays clean, close this as fixed by PATCH-107. If it returns, block on PATCH-116.\n",
+    "blocked-by": [
+        "PATCH-107"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Bolt (figure_10) runs through buildPatchSurfaces in QuadLayoutScene once PATCH-107 lands. 2. The ticket records which copy elements were double-claimed, which two T-mesh elements claimed each, and whether they sit at the non-injective triangle of the seamless map. 3. Either the carve refuses the conflicting claim at the claim site with a diagnostic naming both elements (so this never reaches the final assertion), or the upstream cause is fixed and the assertion passes. 4. The [contract] and T-mesh log lines on rockerarm, fertility, hand and fandisk are unchanged.",
+    "testing-plan": "1. In a worktree synced after PATCH-107 lands, load bolt in QuadLayoutScene and reproduce. 2. Make EmbeddedMeshTopology record the conflicting element pairs alongside claimConflictCount and print them in the assertion message. 3. Cross-reference the four conflicts with the injectivity log's flipped triangle. 4. Fix at the right layer and rerun bolt; screenshot under tmp/. 5. Compare the embedding logs on the four other meshes before and after.",
+    "todos": [],
+    "unknowns": [
+        "Are the four double-claimed elements at the seamless map's flipped triangle, making this an injectivity problem rather than a carve problem?",
+        "If the double claim sits at the flipped triangle, add PATCH-112 (QP convergence) as a blocker."
+    ],
+    "changes-made": [
+        "No longer reproduces on the PATCH-107 worktree synced onto master afc4057c. With the interior-point fix of PATCH-107 (Mehrotra predictor-corrector, consistent ratio cap, violation-sized starting slacks, and a Farkas-certificate stop on the infeasible active set) bolt's seamless stage ends in 0.23s with meanDistortion 0.1829 instead of 0.8653, and QuadLayoutScene loads bolt end to end: 'ok scene=quad-layout mesh=bolt V=2892 F=5780'. assertSubcomplex passes. Recheck once PATCH-107 lands on master before closing - the old failure count moved with the seamless map (4 copy elements, then 6, now none), so it was a consequence of the wrecked parameterization.",
+        "Resolved by PATCH-107 as landed: bolt loads end to end (feature-alignment guard in SeamlessDofSystem plus the carve end-crossing trim in SnappingCarve). Closed with it."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/LayoutEmbedding.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/records/EmbeddedMeshTopology.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/SnappingCarve.java",
+        "ixdar-app/test/resources/quadlayout/figure_10/bolt_in_tri.off"
+    ],
+    "priority": 3
+}

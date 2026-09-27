@@ -1,0 +1,41 @@
+{
+    "id": "PATCH-108",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quadlayout / entrypoint"
+    ],
+    "title": "Block (figure_8) is a binary OFF (\"C N OFF BINARY\") and OffMeshParser only reads ASCII OFF",
+    "description": "Loading ixdar-app/test/resources/quadlayout/figure_8/block_in_tri.off in QuadLayoutScene throws before any pipeline stage:\n\n```\njava.lang.IllegalArgumentException: Not an OFF file: missing OFF header\n  at OffMeshParser.load(OffMeshParser.java:47)\n  at MeshLoader.loadBundle(MeshLoader.java:103)\n  at MeshLoader.load(MeshLoader.java:68)\n  at ModelScene.loadModel(ModelScene.java:275)\n  at QuadLayoutScene.loadModel(QuadLayoutScene.java:91)\n```\n\nThe file is not corrupt: its first line is `C N OFF BINARY` followed by big-endian binary vertex and face records (1.95 MB). OffMeshParser reads the file as text, requires the first non-comment line to end with `OFF`, and then parses ASCII numbers, so it rejects the `BINARY` suffix and could not read the payload anyway. The other `_in_tri.off` files in the figure directories are ASCII. The exception is also uncaught (the main thread dies), unlike pipeline failures which reach the failed-to-load message.\n\nEither add binary OFF support to OffMeshParser (the Geomview format: header keywords N, C, ST, 4, n prefix OFF, optional BINARY; binary payload is 32-bit big-endian ints and floats, with per-vertex normals/colours when N/C are present and a colour-count int after each face) or convert block_in_tri.off to ASCII in the resources and make the parser reject binary files with a message that names the format. Binary support is preferred since the quadlayout figure sets come from external benchmark data that ships in this form.",
+    "blocked-by": [],
+    "blocks": [
+        "PATCH-111"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. block_in_tri.off loads in QuadLayoutScene and the pipeline runs on it. 2. OffMeshParser handles the BINARY keyword and the N and C prefixes for both ASCII and binary files, or the resource is converted and the parser raises a clear 'binary OFF is not supported' error. 3. A loader failure in ModelScene.loadModel reaches the scene's failed-to-load reporting rather than killing the main thread. 4. A parser test covers a small binary OFF fixture.",
+    "testing-plan": "1. Confirm the header with `head -c 64 block_in_tri.off` and inspect the record layout against the Geomview OFF spec. 2. Implement the binary branch in OffMeshParser (detect BINARY on the header line, then switch to a DataInputStream over the remaining bytes). 3. Load block in QuadLayoutScene and screenshot under tmp/. 4. Add a unit test that writes a tiny binary OFF (with N and C flags) and reads it back.",
+    "todos": [],
+    "unknowns": [
+        "RESOLVED: block_in_tri.off is the only binary resource. Every other *_in_tri.off and *_out_quad*.off under ixdar-app/test/resources/quadlayout is ASCII (headers OFF, 'N OFF' or 'C N OFF'); the .ndf cross-field files are a separate format and are not read by OffMeshParser.",
+        "block still fails LATER in the pipeline, unrelated to the parser: QuadLayoutEngine.buildPatchSurfaces -> NetworkContraction.contract -> ZeroArcCollapseOperator.dragArcEndOntoVertex throws ArrangementDiagnosticException 'arc 3958 could not be re-routed onto vertex 14145 inside patches 1284 and 645, which it separates, without fencing in the rest of the fan'. The surface mesh is uploaded and rendered before that stage runs, so the scene shows the block. Worth its own ticket."
+    ],
+    "changes-made": [
+        "OffMeshParser now takes byte[] and parses the header line into the Geomview flags (ST/C/N prefixes, joined or separate tokens) plus the BINARY keyword; ASCII bodies go through the old line parser, binary bodies through a new word reader. MeshLoader hands .off the raw bytes instead of a UTF-8 string.",
+        "Binary OFF reading: 32-bit words, counts then fixed-stride vertex records then self-describing face records. Neither the word order nor the per-vertex colour width is pinned by the header, so the reader trials big- then little-endian against 4/3/1 colour components and accepts the layout that consumes the file exactly with every index in range.",
+        "block_in_tri.off turns out to be LITTLE-endian with 3-component per-vertex colours (9 floats per vertex: position, normal, RGB) and 4-component per-face colours, not the big-endian RGBA the Geomview note suggests; the trial-parse is what makes both spellings load.",
+        "ModelScene.initModel no longer throws IllegalStateException on a bad initial model: it and applyPendingModel both route the failure through a new reportFailedLoad(path, throwable) that logs the message plus the full stack trace and every cause, so a loader or pipeline fault leaves an empty scene instead of killing the main thread.",
+        "New unit test ixdar-app/test/unit/mesh/OffMeshParserTest.java: 6 cases over a hand-built two-triangle square - ASCII OFF, ASCII 'C N OFF' with normal/colour columns, big-endian binary with RGBA vertex colours, little-endian binary with RGB vertex colours (the block layout), a non-OFF header, and a truncated binary body. No mesh file is read.",
+        "ixdar_automation_cli/mesh_catalog.py no longer marks binary OFF unloadable: _off_header reads the counts out of the binary words too, so 'block' is now a resolvable --mesh name (V=18083 F=36174) and list-meshes stopped reporting it under 'unloadable'.",
+        "Verified: run-scene --scene quad-layout --property ixdar.model=.../block_in_tri.off now loads and renders the block (tmp/quad-layout-block.png); mesh-topology on it reports V=18083 E=54261 F=36174, euler=-4, 1 shell, 0 boundary/non-manifold edges, 0 duplicate positions. ASCII path unchanged: the default fertility model still runs the whole quad-layout pipeline (tmp/quad-layout-fertility-ascii.png).",
+        "Verification note: 'ixd wt done' had to be run with --skip-launch. A windowed (non-headless) launch in this agent session renders ~3 frames and then stalls - the Wayland surface is never shown, so no frame callbacks arrive and the /ui/screenshot route, which runs on the render thread, times out after the client's fixed 10s even though /health and /ui-state answer and sceneReady is true. Headless run-scene screenshots are unaffected; tmp/ holds both. Also: 'ixd wt launch-add --property' crashes (ai-workspace ixd/commands/wt/launch_add.py declares the repeatable option with a tuple default, so argparse's append action hits 'tuple object has no attribute append'), so the -Dixdar.model arg had to be appended to the entry's vmArgs string by hand."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/OffMeshParser.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/load/MeshLoader.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-app/test/resources/quadlayout/figure_8/block_in_tri.off",
+        "ixdar-app/test/unit/mesh/OffMeshParserTest.java",
+        "ixdar_automation_cli/mesh_catalog.py"
+    ],
+    "priority": 2
+}

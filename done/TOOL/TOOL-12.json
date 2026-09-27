@@ -1,0 +1,26 @@
+{
+    "id": "TOOL-12",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "run-scene and launch write numbered logs under the checkout's tmp/, never a shared /tmp path",
+    "description": "Tool review 2026-09-20 item 7. run_scene.py defaults --log to /tmp/ixdar-scene-<scene>.log and launch_entry.py to /tmp/ixdar-launch-<entry>.log, one path per scene shared by every checkout and worktree on the machine. In the reviewed session agents' runs overwrote the log of the user's own F5 run twice, and each agent invented its own tmp/<name>.log naming by hand (patch-111 holds 28 logs, patch-115 32, names like hand8, fix7, sync-botijo), then grepped files that did not exist (tmp/patch-114-hand11.log). tmp/ is gitignored (Ixdar .gitignore: tmp/*), so this is about clobbering and findability, not about git. Default the log to <checkout>/tmp/logs/<scene>-<mesh or entry>-<n>.log with n the next free number, print that path as the first line of output, and keep a tmp/logs/latest-<scene>.log symlink pointing at the newest so 'the last run' has a fixed name. An explicit --log still wins.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. run-scene and launch without --log write to <checkout>/tmp/logs/<scene>-<mesh|entry>-<n>.log with n incrementing per run, never under /tmp. 2. The chosen path is printed first and appears in the JSON summary. 3. tmp/logs/latest-<scene>.log points at the newest run. 4. Two worktrees running the same scene at once write different files. 5. --help and CLAUDE.md name the default; gen-docs regenerated; tests cover the numbering.",
+    "testing-plan": "1. Run run-scene twice in one worktree and once in another; list tmp/logs in each. 2. Run the F5 launch entry and confirm an agent's run-scene afterwards leaves its log intact.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "New ixdar_automation_cli/run_logs.py: next_log_path reserves <checkout>/tmp/logs/<scene>-<mesh|entry>-<n>.log (exclusive create, n = highest on disk + 1), point_latest atomically repoints tmp/logs/latest-<scene>.log (relative symlink), mesh_label derives the mesh from --mesh or the ixdar.model property. run-scene and launch use it by default, print 'log: <path>' as the first stderr line, report the absolute path in the JSON 'log' field (run-scene also in 'summary'); explicit --log still wins and also moves the latest link. launch names the scene from the entry's first arg. 6 new unittest cases in test_cli.py (RunLogsTest); suite 74/74 OK.",
+        "Verified live: in tool-12, run-scene circle-canvas twice plus once with --property ixdar.model=fertility and one 'ixdar-cli launch \"TOOL-12: circle-canvas\"' gave tmp/logs/circle-canvas-1.log, circle-canvas-2.log, circle-canvas-fertility-1.log, circle-canvas-tool-12-circle-canvas-1.log, latest-circle-canvas.log -> the launch log; the same CLI run from the main checkout wrote /home/acw/Code/Ixdar/tmp/logs/circle-canvas-1.log and left the worktree's logs untouched. 'log: <path>' is the first output line. --help, README (gen-docs) and CLAUDE.md name the default. Launch entry 'TOOL-12: circle-canvas' added; screenshot tmp/tool-12-circle-canvas.png."
+    ],
+    "related-files": [
+        "ixdar_automation_cli/cli_commands/run_scene.py",
+        "ixdar_automation_cli/cli_commands/launch_entry.py"
+    ],
+    "priority": 3
+}

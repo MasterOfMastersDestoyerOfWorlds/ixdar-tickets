@@ -13,20 +13,22 @@
     "blocks": [
         "CRAW-20"
     ],
-    "status": "TODO",
-    "definition-of-done": "1. export_mesh writes a GLB that GltfMeshParser reloads with identical vertex/face counts, positions, normals and corner UVs (fingerprint-equal round trip) on two_triangles.gltf, the seam fixture and the repaired IMG_4109. 2. Output is byte-identical across two runs. 3. The exported crawfish opens in Blender headless (blender -b --python) with the expected vertex and face counts, or the ticket records why Blender is unavailable. 4. PLY export round-trips through the existing PLY loader. 5. dsl/crawfish_repair_export.dsl validates and produces /home/acw/crawfish/repaired/IMG_4109.glb; loading that file in mesh-viewer takes under 0.3 s and mesh-state reports closed=true. 6. Build checkstyle-green; unit tests use procedural meshes and the tiny fixtures only.",
+    "status": "REVIEW",
+    "definition-of-done": "1. export_mesh writes a GLB that GltfMeshParser reloads with identical vertex/face counts, positions, normals and corner UVs (fingerprint-equal round trip) on two_triangles.gltf, the seam fixture and the repaired IMG_4109. 2. Output is byte-identical across two runs. 3. The exported crawfish opens in Blender headless (blender -b --python) with the expected vertex and face counts, or the ticket records why Blender is unavailable. 4. PLY export round-trips through the existing PLY loader. 5. dsl/crawfish_repair_export.dsl validates and produces /home/acw/crawfish/repaired/IMG_4109.glb; loading that file in mesh-viewer takes under 0.3 s and mesh-state reports closed=true. 6. Build checkstyle-green; unit tests use procedural meshes and the tiny fixtures only.\n\n7. MeshExport.nonFiniteUvCount stays: /mesh/export reports it as zeroed_uv_corners (repair's hole fills carry NaN UVs). The benchmark's single '[export] round trip' summary line in CrawfishMeshExportBenchmark stays: it is the scan-scale size and timing report.\n\n(The kept summary line prints as '[export] round trip V=... F=... glb=... export=... reload=...'.)\n",
     "testing-plan": "1. Unit round trips on procedural meshes and the two tiny glTF fixtures. 2. Run the export graph on the repaired scan, reload, fingerprint. 3. Blender headless import if available.",
-    "todos": [
-        "GltfMeshWriter (GLB, byte-stable) using CornerUvSplit for TEXCOORD_0",
-        "PLY writer",
-        "export_mesh pass-through node + socketDocs",
-        "ixdar-cli mesh-export",
-        "dsl/crawfish_repair_export.dsl and the repaired/ directory convention"
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "GltfMeshWriter (data/load): byte-stable GLB with POSITION, NORMAL, TEXCOORD_0 (per-corner _uv re-split via CornerUvSplit), uint32 indices, sorted JSON keys, empty materials array; MeshExport flattens a bundle (fans n-gons, NaN corner UVs written as 0 and counted in nonFiniteUvCount, normals computed when the mesh has none).",
+        "Weld key: repair_mesh's pinch split leaves distinct vertices at identical positions (156 on IMG_4109), which the loader's bitwise position weld fused back (469131 -> 468975 vertices). The writer now adds an application-specific float attribute _IXDAR_WELD_KEY (0,1,.. per coincident twin) only when such twins exist, and GltfMeshParser welds on position AND key. Files without the attribute load exactly as before.",
+        "PlyMeshWriter: ASCII PLY of the mesh's own vertices (no seam split) with nx/ny/nz and MeshLab's per-face 'property list uchar float texcoord'; PlyMeshParser rewritten to read columns by property name (x/y/z, nx/ny/nz), keep uniform tri/quad arity, fan mixed faces, refuse binary PLY, and ignore extra face lists. The PLY loader does not read texcoord back (geometry round trip only).",
+        "export_mesh node (nodes/data, desktopOnly): geometry/path/format(GLB|PLY, empty = by extension), writes then passes the bundle through untouched; POST /mesh/export route + ixdar-cli mesh-export --path [--format]; MeshCanonicalFingerprint now fingerprints non-half-edge meshes by fanning faces so a loaded file and the pipeline mesh compare.",
+        "dsl/crawfish_repair_export.dsl: load_mesh IMG_4109 -> repair_mesh -> export_mesh /home/acw/crawfish/repaired/IMG_4109.glb. Launch entry 'CRAW-29: Mesh Viewer (repair then export crawfish)'. Graph: load 316ms, repair 1938ms, export 583ms; output 33,734,472 bytes, 624270 split vertices, 938302 triangles, attributes NORMAL/POSITION/TEXCOORD_0/_IXDAR_WELD_KEY.",
+        "Verification: unit.mesh.MeshExportTest 11/11 (procedural square, seam square, pinched twin vertices, quad fan, NaN UV, node pass-through, PLY, both tiny glTF fixtures). benchmark.CrawfishMeshExportBenchmark on repaired IMG_4109 passes: GLB and PLY reload V=469131 F=938302 fingerprint-equal, per-corner normals and UVs equal (7350 NaN corners -> 0), two writes byte-identical; export 0.40s, reload 0.06s. mesh-viewer opening /home/acw/crawfish/repaired as a collection: ixdar-cli model IMG_4109 took 0.136/0.059/0.154 s; mesh-state closed=true boundaryEdgeCount=0.",
+        "Blender is not installed on this machine (no blender binary, package or flatpak), so DoD 3 is recorded as unavailable; an independent stdlib-Python structural check of the GLB (header, chunk alignment, bufferView bounds, accessor min/max, index range) passed.",
+        "Normals unknown resolved with its default: seams split on UV only; every split copy carries its source vertex's single normal, so the reload weld sees no conflict. Splitting on normal disagreement is left to CRAW-20 if wanted.",
+        "ixdar-cli mesh-export on the reloaded repaired scan: GLB {bytes 33734472, vertex_count 624270, triangle_count 938302, has_uv true} with sha256 494d8bcf... identical to the file the DSL wrote (export -> load -> export is byte-stable across JVMs); PLY 114712562 bytes, 469131 vertices. The route's has_uv now reads the corner UVs so PLY reports it too. Note: tools/teavm-build.sh fails on master's MeshNodeViewerScene.loadDslSource Files.readString (from the craw-rings commit), not on this change."
     ],
-    "unknowns": [
-        "Whether normals should be re-split on disagreement like UVs (the loader found 230 welded groups whose normals differ by >1e-3); default: split on UV only and write the first source normal"
-    ],
-    "changes-made": [],
     "related-files": [
         "ixdar-tickets:CRAW-20",
         "ixdar-tickets:CRAW-26",
