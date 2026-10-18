@@ -1,0 +1,26 @@
+{
+    "id": "TOOL-15",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixdar-cli drove the user's windowed scene: two scenes in one checkout share one port file",
+    "description": "2026-10-07: the user ran the CRAW-50 entry with F5 in the craw-50 worktree while the coordinating agent ran 'ixdar-cli launch \"CRAW-50\" --keep-alive' in the same worktree. Every scene publishes its automation port to the one per-checkout file tmp/automation.port (automation_client.port_file_path / discover_base_url), so whichever scene started last owns it. The agent's next commands (connection, orbit-set) went to the user's windowed scene: they switched it to the connection tool, set two picks and moved the camera. Health then reported port 47832, sceneReady false, and a screenshot got connection refused, so the agent could not even tell which scene it was talking to. A plain command with no --base-url should never be able to reach a scene the user launched by hand.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Two scenes running from one checkout (an F5 windowed scene and an ixdar-cli launch headless one) never share a port record: each scene publishes its own (e.g. tmp/automation/<pid>.port with its port, pid, scene id, entry name, headless flag), and a scene that exits removes its own. 2. A command with no --base-url resolves to exactly one scene: the headless scene this checkout's ixdar-cli launch started. A windowed scene is reached only when named explicitly (--base-url, or a --scene/--pid selector). When the choice is ambiguous the command refuses and lists the live scenes with their ports, instead of picking one. 3. launch prints the port it got on its first line and every command's output names the port and scene it talked to. 4. shutdown with no target never stops a windowed scene. 5. test_cli.py covers: two port records in one checkout, the windowed one ignored by default, the ambiguity refusal, stale records of dead pids dropped.",
+    "testing-plan": "Unit tests in ixdar_automation_cli/test_cli.py for the resolution rules; live: F5 a scene in a worktree, ixdar-cli launch a second there, run orbit-set and screenshot without --base-url and confirm only the headless one moves.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Each scene now writes its own record tmp/automation/<pid>.json (port, pid, scene id, headless) and deletes it on exit (AutomationPortFile/AutomationRuntime); tmp/automation.port is gone. The CLI resolves lazily (AutomationClient.resolve -> resolve_target): no --base-url/--pid means the checkout's one headless scene; a windowed scene only when named by --pid (new global flag) or --base-url; zero or several candidates refuse with exit 4 and list the live scenes; records of dead pids are deleted; no fallback to 47832. Every reply leads with a target line (pid, port, scene, headless|windowed); launch's payload starts with the bound port and pid; shutdown takes its pid from the resolved record, so it never stops a windowed scene by default. mesh-viewer no longer shuts down whatever answers 47832 and follows the record its launched viewer publishes. 8 resolution tests in test_cli.py; live check with two headless Circle scenes (one record rewritten as windowed) confirmed ambiguity refusal, default targeting of the headless one, windowed refusal, --pid reach and record cleanup on exit."
+    ],
+    "related-files": [
+        "ixdar_automation_cli/automation_client.py",
+        "ixdar_automation_cli/ixdar_cli.py",
+        "ixdar_automation_cli/cli_commands/launch.py"
+    ],
+    "priority": 2
+}

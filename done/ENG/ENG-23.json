@@ -1,0 +1,32 @@
+{
+    "id": "ENG-23",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "platform"
+    ],
+    "title": "One tool hosting contract: ToolHost on Scene plus pointer callbacks on the tool; 3D tools off OrbitMouseTrap's hook fields",
+    "description": "Repo plan phase 2.1, merge 3A.1-2. 3D tools reach the mouse two ways: hook fields on OrbitMouseTrap (toolClick, untakenClick, toolGrab, toolRelease, assigned and nulled in each tool's activate/deactivate: RingTool.java:455-486, ConnectionTool.java:115-144, RingRegionTool.java:128-144, OrbitTool.java:41-55) and a full-window PointerRegion (DslGraphView.java:167, 611-724). Replace both with optional onPress/onDrag/onRelease/onScroll/onHover callbacks on the tool interface that the Scene routes through PointerDispatcher. Tools take their host (the Scene) through a host interface Scene implements (switchTool, defaultTool, refreshControls, frameAll, emptySpaceClicked, errorToasts, cameras, pointer) rather than a RingScene/ModelScene constructor argument where the concrete type is not needed. Controls stay a method that lists ControlHint rows. CRAW-73 (sub-tools) builds on this.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-19"
+    ],
+    "blocks": [
+        "ENG-24",
+        "CRAW-73"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. OrbitMouseTrap has no tool hook fields; DslGraphView no longer subscribes a whole-window PointerRegion; every 3D tool receives the mouse through the one callback contract.\n2. Behaviour unchanged: ring, bisector, region, connection, orbit and graph-view interactions as before; BisectorTest and the ring tests pass; ring fingerprints on the crawfish and fertility DSL copies byte-identical.\n3. Launch entries and screenshots of each tool active.",
+    "testing-plan": "1. mvn test.\n2. Live: each tool's click, drag and scroll paths; double-click frame-all; Esc chain.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Pointer contract on EditTool: default onPress(x,y,mods)->takes drag, onDrag, onRelease(x,y,click)->took click, onScroll(dx,dy)->took wheel. PointerDispatcher offers each left press/drag/release and the wheel to the active tool of the trap's Scene after the UI regions and before the camera trap; a taken press never reaches the trap, a tool-taken click skips the overlay links (OrbitMouseTrap.mouseReleased ends the press). OrbitMouseTrap lost toolClick/untakenClick/toolGrab/toolRelease/toolDragging and its isCameraDragging override; DslGraphView no longer implements PointerRegion or subscribes paneBounds. Ring/connection tools take anchor/pick drags in onPress (Shift leaves the drag to the camera pan, as before); OrbitTool takes Scene instead of ModelScene and counts empty clicks in onRelease; RingRegionTool.requestClick folded into onRelease. Host contract: no ToolHost interface - every tool host is a Scene, whose switchTool/defaultTool/refreshControls/frameAll/emptySpaceClicked already are the hosting methods (user rule: methods on Scene when every host is a Scene); a parent tool hosts sub-tools (CRAW-73) by forwarding the four callbacks. No onHover: no tool needs it yet (all read the scene cursor in perFrame). Evidence: ring/bisector/connection/region fingerprints on tmp copies of fertility_rings and crawfish_rings identical to an eng-28 build (tmp/eng-23-fingerprints-*.txt); a scripted live pass (click, drag, scroll, double-click, Esc for orbit, ring, region, connection, graph) gives identical state traces on base and change; screenshots tmp/eng-23-{orbit,ring,region,connection,graph}.png; launch entry 'ENG-23: ring-tool'."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/OrbitMouseTrap.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java"
+    ],
+    "priority": 3
+}

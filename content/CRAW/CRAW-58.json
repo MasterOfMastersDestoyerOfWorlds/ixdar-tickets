@@ -1,0 +1,34 @@
+{
+    "id": "CRAW-58",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Agent segments IMG_4111 from scratch with today's tools: find what tools segmentation is missing",
+    "description": "User request 2026-10-08. The point is NOT to transfer the user's segmentations (IMG_4109: fixtures/crawfish_rings.dsl, 82 rings; IMG_4110: dsl/crawfish/IMG_4110.dsl, 68 rings) to another scan, but to find out what tools are missing to segment a crawfish from scratch. An agent segments IMG_4111 (same animal, different scan; starter file ixdar-app/src/main/resources/dsl/crawfish/IMG_4111.dsl: load_mesh + repair_mesh, no rings) using only the tools on master as of 2e8fc002, driving the ring scene headless through ixdar-cli (rings routes, connection route, regions route, screenshots, orbit). It must not read the user's segmentations while working; they are used only afterwards to score coverage. It keeps a friction log as it goes: every time it cannot see, measure, aim or check something, what it wanted, what it did instead and the time lost. Not on master yet at the start: CRAW-46 (hide/isolate), CRAW-49 (split region with cuts), VIEW-19; the run measures master as is.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. IMG_4111.dsl in the worktree holds the agent's segmentation (rings that load, metric= wired), as far as the time budget got. 2. tmp/segmentation-friction-log.md: chronological log of friction points with what was tried, the workaround and the time lost. 3. A coverage comparison against IMG_4109's segmentation done after the run: which body parts (claws, legs, antennae, tail segments, carapace) got separated, which did not. 4. A ranked list of missing tools on the ticket (unknowns/todos), each tied to log entries, for the user to turn into tickets.",
+    "testing-plan": "Load the resulting IMG_4111.dsl in the ring tool (F5 entry) and look at the region colours; read the friction log.",
+    "todos": [
+        "Missing tool #1 (blocker): ring save/load round trip. Ctrl+S wrote ring points that the loader rejects ('ambiguous nearest vertex ... tie, move the point' on repair_mesh's coincident split vertices), so the saved file crashed the scene; needs save-time re-snap validation or a loader tie-break, and a route that reports every bad point at once. Log F15.",
+        "Missing tool #2: screen<->surface routes. 'pick --x --y' (point, normal, face, region) and 'project --point' (pixel), plus screen-space args on connection / rings add. Picking was hover + ui-state previewHitPoint scraping; aiming on hidden/other views needed hand-calibrated ortho pixel maps. Log F2, F7, F9, F14.",
+        "Missing tool #3: handle/bridge finder. Show where the scan's handles are (genus ~7: tucked legs/claws fused to body), list every bridge between two regions, and compute 'does not separate' for the ring set rather than per ring (pairs of rings that jointly cut a claw are reported as failures). Log F4, F6, F10, F11.",
+        "Missing tool #4: joint-finding for flush joints and tubes. A ring that follows the groove/crease nearest a clicked point, and connection with a girth profile along the path / max-girth / 'joint nearest the from-point' option (connection cut leg tips instead of bases, found no neck on the tapering abdomen or the flat tail fan, and the skeleton preview plane was wrong on claw and abdomen). Log F7, F9, F10, F13, F14.",
+        "Missing tool #5: ring management routes. rings list / delete / reopen by id, and 'rings add --confirm' to commit authored points as a confirmed ring (rings add is display-only). Deleting a ring today means hover until hoveredRing matches, click, Delete, or Ctrl+Z then Delete; X keeps it. Log F7, F8, F9, F11.",
+        "Missing tool #6: perception aids. Hide/isolate a region (CRAW-46), x-ray or clip plane for hidden contacts, a high-contrast/cavity shader, neighbour-distinct and stable region colours, and clearing stale hover previews and connection paths that look like rings. Log F1, F6, F9, F12, F14.",
+        "Missing tool #7: framing. frame --selection region:N / ring:N, frame around a point with a radius, a true top/bottom view (elevation clamps at 1.48), and multiview of a selection with its own framing (it keeps the current zoom). Log F1, F5, F13.",
+        "Missing tool #8: tool-state feedback. connection silently switches the active tool, so later clicks / Ctrl+Z went to the connection tool or toggled wireframe; key/click replies should name the tool that consumed the event and what it did. Log F8, F12, F14.",
+        "Missing tool #9: rings-list on the shown (repaired) mesh, with ring points and an 'accept proposal N' route; today it needs --path to a raw file (HTTP 500 on the non-manifold scan), times out at resolution 128 in the CLI and returns centroids only. Log F3."
+    ],
+    "unknowns": [],
+    "changes-made": [
+        "Agent run 2026-10-08 (~43 min): IMG_4111.dsl segmented from scratch with master tools, 35 rings / 33 regions (antennae, antennules, eyes, claw merus/carpus/palm, abdomen A1-A6 + telson + fan, ~11 walking-leg pieces; no leg bases). File reloads in the ring tool after removing one unloadable saved ring by hand. Friction log with 15 entries, state at stop and the coverage comparison vs IMG_4109: worktree tmp/segmentation-friction-log.md."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/crawfish/IMG_4111.dsl"
+    ],
+    "priority": 1
+}

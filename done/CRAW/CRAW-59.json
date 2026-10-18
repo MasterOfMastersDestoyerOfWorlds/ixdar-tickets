@@ -1,0 +1,28 @@
+{
+    "id": "CRAW-59",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Ring tool saves a .dsl its own loader refuses: saved points tie between coincident vertices repair_mesh split",
+    "description": "Found by CRAW-58 (agent segmenting IMG_4111, log entry F15 in that worktree's tmp/segmentation-friction-log.md). After a ring-tool Ctrl+S, reloading the file fails the whole scene with 'ambiguous nearest vertex to (x, y, z): distances d and d tie, move the point' on ring_02 (right antenna base). Cause: repair_mesh splits non-manifold vertices into copies at the same position (2375 on IMG_4111); a saved anchor point that sits on one of them is equidistant to two vertices, and NearestVertex.find (the grid since CRAW-57) refuses a near-tie by design. The tool itself held the vertex id, so the save lost information the reload needs. Every one of that ring's points hit it. The agent had to delete the statement by hand and re-point the next ring's geometry= chain. IMG_4109 and IMG_4110 load today but any later save can break them the same way.\n\nRule chosen (CRAW-59): both sides. LOADER: NearestVertex.find tells coincident copies apart by their faces, never by id - the point picks the copy that has a face within 0.1 x (point's distance to the shared position) of it, only when exactly one copy does and the point sits at least 0.02 of the way to the next distinct vertex; a point on the shared position itself (what the old writer saved) is still refused. WRITER: the ring tool writes each anchor through SurfaceWaypoints.resolvingPoints, which uses the vertex's own position when it resolves after %.6f printing, otherwise a point halfway to the centroid of one of that copy's faces, and re-snaps every candidate before writing; when none resolves the save is refused naming the anchor, so the file never changes the traced ring. A load that meets unresolvable points reports every bad point of every spline_ring / loop_through_points at once: the ring reports through NodeContext.reportFailure, passes its surface on unmarked, and NodeGraphRuntime throws one exception listing them all once every statement has run.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A ring-tool save never writes a file that fails to reload: every saved point resolves to exactly the vertex the tool held (either the saved point is chosen/nudged so the pick is unambiguous and identical, or the reload resolves coincident copies deterministically to the same vertex the tool used - decide and document which; a silent change of the traced ring is not acceptable). 2. A load that still meets an ambiguous point reports every bad point of every ring at once, not only the first, naming ring and point. 3. Unit test: a mesh with a split non-manifold vertex, a ring whose anchor sits on it, save then reload gives the identical ring fingerprint. 4. IMG_4111's original failing ring line (craw-58 worktree tmp/ring_02_removed.txt) reloads, or is refused with the full report, per the chosen rule. 5. Fixture ring fingerprints (fertility 13, crawfish 82) unchanged.",
+    "testing-plan": "Unit test on a procedural mesh with a split vertex; live: restore ring_02 from craw-58's tmp/ring_02_removed.txt into a tmp copy of IMG_4111.dsl and load it; save and reload IMG_4110 and check fingerprints.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Ring saves now reload onto exactly the vertex the tool held. NearestVertex tells coincident copies (repair_mesh's split vertices) apart by their faces: a point picks the copy whose face it lies on, if it is clearly off the shared position and only one copy qualifies. A point on the shared position itself is still refused. The ring tool writes every spline and exact-loop anchor through the new SurfaceWaypoints.resolvingPoints. That uses the vertex's own position, or a point halfway into one of that copy's faces, and re-snaps each point before writing; if none resolves, the save is refused. snap reports every bad point of a ring. spline_ring and loop_through_points report through the new NodeContext.reportFailure and pass the surface on, and NodeGraphRuntime throws once with every ring's bad points. New CoincidentAnchorSaveTest: icospheres stacked pole to pole, welded and split; a ring held on both split poles saves and reloads with the identical fingerprint, and a file with points on the poles is refused naming both points of both rings. IMG_4111's original ring_02 line is refused, naming its 4 bad points out of 9. A ring made fresh on the same seam (connection, Ctrl+S) reloads with the identical fingerprint 45bbaee15ec7066e. Fertility 13 and crawfish 82 fixture fingerprints are identical to master. mvn test: 450 tests, 0 failures."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/NearestVertex.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/nodes/selection/RingDslWriter.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshRepair.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceWaypoints.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/NodeGraphRuntime.java"
+    ],
+    "priority": 1
+}

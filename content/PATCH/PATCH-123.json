@@ -1,0 +1,28 @@
+{
+    "id": "PATCH-123",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Cross field smoothest path reads the solution in the wrong layout (u[v], u[V+v] instead of interleaved 2v, 2v+1)",
+    "description": "Found during PATCH-122 (2026-10-04). NDirectionField assembles the realified system with each vertex's real and imaginary parts interleaved at 2v and 2v+1 (realify; the aligned path reads x[2 * v], x[2 * v + 1], NDirectionField.java ~1026). solveSmoothest, the path taken when there is no curvature alignment and no feature alignment edges (solveField's else branch), reads the PowerIteration result as uReal[v] = u[v] and uImaginary[v] = u[vertexCount + v] (~970): the block layout. If PowerIteration's solution uses the matrix's interleaved layout, every smoothest-only field has paired the real part of vertex v/2 with something unrelated and produced scrambled angles and singularities. Confirm first: check PowerIteration's solution layout, then run solveSmoothest on a simple closed mesh with a known answer (a torus has a singularity-free smoothest 4-field; a sphere has 8 index +1/4 singularities, Poincar\u00e9-Hopf) before and after. Find every caller and test that exercises this path and why none caught it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. The layout mismatch is confirmed or ruled out with evidence on the ticket. 2. If real: fixed, and smoothest fields on a torus (no singularities) and a sphere (8 singularities of index 1/4, total index 2) come out as theory says. 3. A unit test covering the smoothest path that would have caught this. 4. Aligned-path results unchanged.",
+    "testing-plan": "1. Unit tests on torus and sphere for the smoothest path. 2. Re-run CrossFieldEquivalenceBenchmark for the aligned path to show it is unchanged.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Confirmed: PowerIteration writes the eigenvector in the matrix's own index space (it solves DirectSolver.solveCompact against energyMatrix and copies u into dofs.solution unpermuted), and assemble/realify put vertex v's real and imaginary DOFs at 2v and 2v+1. solveSmoothest read u[v], u[V+v] (block layout), pairing unrelated DOFs. Evidence before the fix: smoothest-only on fertility_in_tri gave 2501 singularities with 6934 raw singular triangles (conversion mismatch); icosphere(subdiv 3) 106 instead of 8; torus 4. Fix: solveSmoothest reads u[2v], u[2v+1]. After: fertility smoothest-only 40 singularities, 40 raw singular triangles, index sum -24 = 4chi; icosphere 8 of index +1/4; thin torus 0.",
+        "Reach: the smoothest branch runs only when useCurvatureAlignment is false and the mesh has no feature/boundary alignment edges. useCurvatureAlignment defaults to true and nothing in main code, any DSL, QuadLayoutEngine or the app has ever set it false (git log -S), so no DSL or path took the branch: production fields are unaffected. No test set the flag either, which is why nothing caught it.",
+        "Aligned path unchanged: CrossFieldEquivalenceBenchmark recorded before and compared after on fertility_in_tri (40 singularities) and crawfish IMG_4110 repaired via surface_metric (3056 singularities): max angle and face-theta difference 0, 0 singularity mismatches. Crawfish has feature edges, so it takes the aligned path even with curvature alignment off.",
+        "New unit test CrossFieldSmoothestTest (torus primitive r/R 0.15: 0 singularities; icosphere: 8 x +1/4). It fails on the old layout (sphere 106). A fat torus (r/R 0.35) correctly gives 12 singularities in +/- pairs after the fix, raw and extracted counts agreeing, so the DoD's 'torus has no singularities' holds only for a thin torus."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/crossfield/NDirectionField.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/solver/system/PowerIteration.java"
+    ],
+    "priority": 1
+}

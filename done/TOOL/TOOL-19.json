@@ -1,0 +1,30 @@
+{
+    "id": "TOOL-19",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Python client calls routes generically from automation_routes.json; registry commands stop shadowing routes",
+    "description": "Repo plan merge 3F.25. automation_client.py hand-writes one method per route (348-455), which has already drifted (fixed for the known cases by the phase 0 bug batch). Replace the per-route methods with one generic call(command, **params) resolved from automation_routes.json, keeping the few that add behaviour. Three registry commands shadow same-named manifest routes (server_routes.py:46): terminal, shutdown, mesh-overlay; let the route win or rename the wrapper (shutdown adds process waiting, so e.g. stop-scene). Drop the dead 'try: from .x / except ImportError' fallbacks. Regenerate the CLAUDE.md command region with gen-docs only if the user asks (the region is generated; say if it is stale).\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-16"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. No hand-copied route path remains in the client; a test asserts every requested path exists in the manifest.\n2. No registry command shares a name with a route.\n3. test_cli passes; the documented CLI commands work against a running scene.",
+    "testing-plan": "1. test_cli.\n2. Live: health, screenshot, ui-state, a ring route, quilt-mesh-compare.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "AutomationClient.call(command, **params) resolves path, method and waitSeconds from automation_routes.json (load_manifest moved into automation_client); refuses unknown commands and undeclared params. All 11 per-route methods deleted; every caller uses call(); dispatch_server_command goes through call() too.",
+        "Shadowing removed: registry 'terminal' deleted (route wins: terminal --line ...), registry 'mesh-overlay' deleted (route wins), registry 'shutdown' renamed 'stop-scene' (keeps process waiting); server_command_map/gen_docs no longer filter by registry names. Dead ImportError fallbacks and unused KEY_*/MOD_CTRL/DEFAULT_SETTLE_FRAMES constants dropped.",
+        "Tests: every client.call in the package names a manifest route with declared params and no module passes a literal path to request_json; call refusal and body tests; registry/route names disjoint. 99 tests OK. Live (ring-tool, mesh-viewer rocker-arm.obj): health, ui-state, screenshot, terminal --line, key, pick, rings add, quilt-mesh-compare (sha match), mesh-overlay load/clear, probe, mesh-probe, stop-scene all OK.",
+        "Correction: test_cli runs 98 tests, all OK (not 99)."
+    ],
+    "related-files": [
+        "ixdar_automation_cli/automation_client.py",
+        "ixdar_automation_cli/server_routes.py"
+    ],
+    "priority": 5
+}

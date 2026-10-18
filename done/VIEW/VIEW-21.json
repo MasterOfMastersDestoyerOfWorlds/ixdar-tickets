@@ -1,0 +1,24 @@
+{
+    "id": "VIEW-21",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Framing: frame a region, ring or point, true top/bottom views, multiview of a selection",
+    "description": "From CRAW-58 (missing tool #7, friction log F1, F5, F13): the camera can only be aimed by orbit-set numbers; there is no way to frame a region, a ring or a point with a radius, the orbit elevation clamps at 1.48 so a true top or bottom view is impossible, and multiview keeps the current zoom instead of framing the selection. Wanted both as keys in the ring scene (frame the selected region / ring) and as automation routes.\n\nNote 2026-10-08: an automation route 'frame [--selection] [--bounds] [--padding] [--azimuth] [--elevation]' already exists (see ixdar-cli frame --help); extend it (region/ring/point selections, pole views) rather than adding a second one.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Frame the selected region or ring (key in the ring and region tools) and a route frame --region N / --ring label / --point x,y,z --radius r that fits it in view with a margin. 2. True top and bottom views (elevation reaches +-pi/2 without gimbal flip or the camera up vector breaking). 3. multiview of a selection frames each view on it. 4. Unit tests on the framing math (bounds fit the viewport); live on a crawfish copy.",
+    "testing-plan": "Unit tests on the fit math and the pole views; live screenshots framing a claw region and a small ring.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Framing: OrbitMouseTrap.frame fits a padded sphere to the narrower view angle; elevation wraps through the poles with a meridian up vector (true top/bottom, no flip, drag and pan sound over the pole). frame and multiview take --region N[,M]|selected, --ring LABEL, --point x,y,z --radius r, --bounds, --selection (SelectionBounds resolves all; patch kind dropped); multiview frames every view on the selection with true poles. F frames the selected regions in the region tool and the open/hovered ring in the ring tool. AutomationRuntime runs only actions queued before each frame's pass, fixing multiview cells repeating stale frames. OrbitFramingTest: fit math on wide/tall/top views, pole continuity, point/box/ring bounds."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingScene.java"
+    ],
+    "priority": 2
+}

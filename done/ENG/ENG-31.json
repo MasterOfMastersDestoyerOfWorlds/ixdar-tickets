@@ -1,0 +1,29 @@
+{
+    "id": "ENG-31",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Remove MainScene.current(): TSP terminal commands get their editor from the terminal that runs them; Scene.instance becomes volatile",
+    "description": "From the user's review of ENG-25 (2026-10-18). ENG-25 turned MainScene's statics into instance fields and gave code without a passed-in editor MainScene.current(), an unchecked cast of the global Scene.instance (MainScene.java ~307). At the top of the stack 16 files still call it: 13 TSP terminal commands (Add, Move, MoveAfter, MoveBefore, Ask, Color, Comment, Exit, Reset, SubGraph, Update, ...), Knot and Segment hover text, Grid and IrregularQuadGrid coordinate readouts. Problems: (1) the cast is unchecked: a TSP command typed into another scene's terminal (the command registry is global) or hover text built during a switch throws a bare ClassCastException; (2) Scene.instance is written on the render thread during a switch and read by other threads (automation handlers), the same cross-thread case ENG-25 made volatile for IxdarWindow.canvas and AutomationRuntime.canvas, but it is not volatile. Wanted: a terminal belongs to a scene, so commands receive the scene that owns the terminal running them (TSP commands accept only a MainScene host and refuse elsewhere with a terminal message, the way ENG-26's ct refuses tools of another scene type); Knot/Segment/Grid hover and readout text take the editor from their caller; MainScene.current() is deleted; Scene.instance becomes volatile. Repo plan: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "DSL-51"
+    ],
+    "blocks": [
+        "UI-11"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. MainScene.current() no longer exists; no code casts Scene.instance to MainScene.\n2. TSP terminal commands run against the scene owning the terminal; typed in a non-TSP scene they print a refusal instead of throwing; a test covers one command in both cases.\n3. Scene.instance is volatile.\n4. TSP editing behaves as before (load, add, move, ask, colour, reset, subgraph via the terminal; hover text; grid readouts); unit suite and test_cli pass; launch entry and screenshot.",
+    "testing-plan": "1. mvn test plus the new command test.\n2. Live: ixdar-cli terminal --line commands in ixdar-canvas, and one TSP command in mesh-viewer's terminal.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MainScene.current() deleted; nothing casts Scene.instance to MainScene. Terminal holds a final 'scene' (the scene owning it, a constructor argument), replacing the ModelScene-only 'modelScene' field; model/set/collection/ring/explode check it with instanceof as before.",
+        "The 13 TSP commands (add, ask, clr, cmt, ex, ma, mb, mv, rst, sg, updt and the static ResetCommand.run(option, editor)) run against terminal.scene and, outside a MainScene, print 'EXCEPTION: <cmd> is a MainScene command' (modelled on ct's '<tool> is a <Host> tool'). ct and ls read terminal.scene instead of Scene.instance.",
+        "Knot.toHyperString(editor), Segment.toHyperString(editor, ...), CutMatchList.toHyperString(editor, ...) (no callers) and Grid/IrregularQuadGrid.toCoordString(editor) take the editor from their caller (the knot tools pass their editor field). Scene.instance is volatile.",
+        "Test: unit.scenes.MainSceneTerminalCommandTest (ex in the editor's terminal switches to its back scene; ex in a MenuScene terminal prints the refusal and switches nothing). mvn test 530/530, test_cli 96 OK. Live before/after on dsl-51 vs eng-31: ENG-26's tmp/eng-26-tsp.sh output identical; tmp/eng-31-terminal.sh (ask, clr, rst, ls, ct, sg, ld, mv, ma, mb, cmt, updt, add, ex on a scratch copy of djbouti) identical; in mesh-viewer the TSP commands threw ClassCastException on the base and left their text in the command line (next line read 'clrex'); now each prints the refusal (tmp/eng-31-change-mesh-viewer.png)."
+    ],
+    "related-files": [],
+    "priority": 3
+}

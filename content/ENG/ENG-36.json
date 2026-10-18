@@ -1,0 +1,22 @@
+{
+    "id": "ENG-36",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "/ui/multiview returns a bare {error} with no ok key when the framebuffer is 0x0",
+    "description": "ixdar.automation.endpoints.ui.MultiviewScreenshot answers a 0x0 framebuffer (minimised or not yet shown window) with a JSON object holding only error, no ok key, unlike every other failure, which goes through AutomationEndpoint.failure() since ENG-34. Clients that test response['ok'] raise a KeyError. Found by ENG-34. Return failure(message) there.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The 0x0 framebuffer case returns {ok:false, error} through AutomationEndpoint.failure().\n2. No route in ixdar.automation answers a failure without an ok key.",
+    "testing-plan": "1. Unit test or a minimised-window run of ixdar-cli multiview; paste the response.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/MultiviewScreenshot.java"
+    ],
+    "priority": 3
+}

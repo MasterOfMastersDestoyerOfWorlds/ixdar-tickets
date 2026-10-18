@@ -75,6 +75,10 @@ EXTERNAL_EPICS = {"SUGGEST"}
 STATUS_ORDER = {"PINNED": 0, "REVIEW": 1, "IN_PROGRESS": 2, "TODO": 3, "DONE": 4, "ARCHIVED": 5}
 CLOSED_STATUSES = ("DONE", "ARCHIVED")
 DESC_TRUNCATE = 100
+# A review summary says what the ticket is and why it is needed, nothing more: `ixd review` shows it first.
+REVIEW_SUMMARY_MAX_WORDS = 50
+REVIEW_SUMMARY_MAX_SENTENCES = 3
+SENTENCE_END = re.compile(r"[.!?](?:\s|$)")
 
 # Repositories whose .claude/worktrees/<ticket-id-lowercased> directory is checked before a
 # ticket may go DONE, and the directory holding them (e.g. /home/acw/Code).
@@ -963,18 +967,25 @@ def update_ticket(
     testing_plan: str | None = None,
     append_definition_of_done: str | None = None,
     append_testing_plan: str | None = None,
+    review_summary: str | None = None,
     add_unknowns: list[str] | None = None,
     add_changes: list[str] | None = None,
     add_todos: list[str] | None = None,
     add_related_files: list[str] | None = None,
+    remove_related_files: list[str] | None = None,
     resolve_todos: list[int] | None = None,
     resolve_unknowns: list[int] | None = None,
     status: str | None = None,
+    priority: int | None = None,
     force: bool = False,
 ) -> Path:
     """Patch an existing ticket JSON and regenerate BOARD.md.
 
     :param ticket_id: ticket ID to patch.
+    :param review_summary: replaces review-summary, the plain-words paragraph `ixd review` shows
+        first (the problem before, what is true after, why it matters); blank removes it.
+    :param remove_related_files: exact related-files paths to drop; removals run before additions.
+    :param priority: new priority, lower is higher; None keeps the current one.
     :param resolve_todos: one-based todo positions to remove.
     :param resolve_unknowns: one-based unknown positions to remove.
     :param remove_blocked_by: ticket IDs to drop from blocked-by, with their reciprocal blocks entries.
@@ -1001,9 +1012,27 @@ def update_ticket(
         data["testing-plan"] = testing_plan.strip() + "\n"
     elif append_testing_plan:
         _append_text_field(data, "testing-plan", append_testing_plan)
+    if review_summary is not None:
+        if review_summary.strip():
+            words = len(review_summary.split())
+            sentences = len(SENTENCE_END.findall(review_summary.strip()))
+            if words > REVIEW_SUMMARY_MAX_WORDS or sentences > REVIEW_SUMMARY_MAX_SENTENCES:
+                raise ValueError(
+                    f"review-summary is {words} words in {sentences} sentences; the limit is "
+                    f"{REVIEW_SUMMARY_MAX_WORDS} words in {REVIEW_SUMMARY_MAX_SENTENCES} sentences. Say what "
+                    "changed (one sentence, the class a reader knows) and why it is needed (one sentence); "
+                    "no method lists, counts, measurements or decisions, which the review page shows elsewhere."
+                )
+            data["review-summary"] = review_summary.strip() + "\n"
+        else:
+            data.pop("review-summary", None)
 
     _extend_list_field(data, "unknowns", add_unknowns or [])
     _extend_list_field(data, "changes-made", add_changes or [])
+    missing_related = [p for p in remove_related_files or [] if p not in (data.get("related-files") or [])]
+    if missing_related:
+        raise ValueError(f"{normalized_id} has no related-files entry: " + ", ".join(missing_related))
+    data["related-files"] = [p for p in data.get("related-files") or [] if p not in (remove_related_files or [])]
     _extend_list_field(data, "related-files", add_related_files or [])
 
     new_blocked_by = [i for i in _normalized_ids(add_blocked_by) if i not in (data.get("blocked-by") or [])]
@@ -1035,6 +1064,9 @@ def update_ticket(
             if text:
                 todos.append(text)
         data["todos"] = todos
+
+    if priority is not None:
+        data["priority"] = priority
 
     if status is not None:
         normalized_status = normalize_status(status)
@@ -1409,6 +1441,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Ticket ID (e.g. FLOWER-1).",
     )
     update_parser.add_argument(
+        "--priority",
+        type=int,
+        default=None,
+        help="New priority; lower = higher.",
+    )
+    update_parser.add_argument(
         "--append-description",
         dest="append_description",
         default=None,
@@ -1442,6 +1480,16 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         type=text_option,
         help="Append to testing-plan.",
+    )
+    update_parser.add_argument(
+        "--review-summary",
+        dest="review_summary",
+        default=None,
+        type=text_option,
+        help="Replace review-summary, which `ixd review` shows first: what changed (one sentence, naming "
+             "the class a reader knows) and why it is needed (one sentence), at most 50 words in 3 "
+             "sentences, plain words, no method lists, counts, measurements or decisions. An empty value "
+             "removes it.",
     )
     update_parser.add_argument(
         "--status",
@@ -1485,6 +1533,13 @@ def _build_parser() -> argparse.ArgumentParser:
         default=[],
         dest="add_related_files",
         help="Append one related-files[] path.",
+    )
+    update_parser.add_argument(
+        "--remove-related-file",
+        action="append",
+        default=[],
+        dest="remove_related_files",
+        help="Remove one related-files[] path, matched exactly; runs before --add-related-file.",
     )
     update_parser.add_argument(
         "--resolve-todo",
@@ -1615,13 +1670,16 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             testing_plan=args.testing_plan,
             append_definition_of_done=args.append_definition_of_done,
             append_testing_plan=args.append_testing_plan,
+            review_summary=args.review_summary,
             add_unknowns=list(args.add_unknowns or []),
             add_changes=list(args.add_changes or []),
             add_todos=list(args.add_todos or []),
             add_related_files=list(args.add_related_files or []),
+            remove_related_files=list(args.remove_related_files or []),
             resolve_todos=list(args.resolve_todos or []),
             resolve_unknowns=list(args.resolve_unknowns or []),
             status=args.status,
+            priority=args.priority,
             force=args.force,
         )
     else:

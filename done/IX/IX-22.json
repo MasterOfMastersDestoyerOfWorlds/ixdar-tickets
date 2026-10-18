@@ -1,0 +1,20 @@
+{
+    "id": "IX-22",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Strip the last 137 constant Javadocs (ConstantJavadoc rule; finishes IX-21)",
+    "description": "IX-21 landed with 137 ConstantJavadoc violations left in ixdar-app: StripConstantJavadocRecipe's OpenRewrite parser failed on 39 files and skipped them. Until these are gone, every build with checkstyle on fails, including wt done for every worktree. Delete the /** ... */ block above each listed constant. Change nothing else; keep a source citation (URL, paper, license) as a single // line.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. mvn -q compile -pl annotations,ixdar-app with checkstyle ON exits 0. 2. The unit suite passes. 3. Only Javadoc blocks on constants are removed; no code changes.",
+    "testing-plan": "1. checkstyle:check before and after (137 to 0). 2. mvn compile with checkstyle on. 3. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

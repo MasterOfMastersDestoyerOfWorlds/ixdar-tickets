@@ -1,0 +1,23 @@
+{
+    "id": "CRAW-51",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Exploded view: animate segments flying apart from each other",
+    "description": "User idea 2026-10-04: once a model is segmented into regions, an animation that separates every segment from its neighbours (each moves outward along the direction from the model centre, or from its neighbours, through its centroid) so the segmentation can be seen at once; reversible, with a slider or key.\n\nRework (user review, 2026-10-06): (1) RingRegionTool knows far too much about the explosion: it holds EXPLODE_SECONDS, FULL_EXPLODE_SPREAD, explodeProgress, explodeTarget, appliedExplodeAmount, the smoothstep easing, the held ,/. key polling and the loop writing per-region offsets (advanceExplode). Move the animation state, easing, stepping and offset writing into RegionExplosion (the existing class; no new class), so the region tool only owns one explosion, forwards its key bindings and calls one per-frame method. (2) Rings can be hidden with a toggle/keybind in the ring-tool scene (all tools), and are hidden by default while the view is exploded (they are drawn at the assembled positions, so they float in the wrong place); collapsing restores the user's ring visibility setting. Pick a key that collides with nothing in RingScene's controls, including keys CRAW-45 (G region colours, A absorb slivers) and CRAW-50 (Ctrl+J, W, F, C) add, and list it in the controls menu.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A key or control explodes and collapses the segmented model smoothly. 2. Works on the 82-ring crawfish.\n\nRingRegionTool holds no explosion animation state or easing: one RegionExplosion field, key bindings, one per-frame call. No new class. A key toggles ring visibility in every tool of the ring scene; rings are hidden while exploded and the user's setting returns on collapse.\n",
+    "testing-plan": "1. Screenshots of collapsed, half and fully exploded states.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Exploded view in the ring region tool: X toggles an animated explode/collapse (0.6 s, smoothstep), holding , or . moves the amount, terminal 'explode <0..1>'. Each region moves by t*0.4*(region centroid - model centroid), area-weighted, applied as a per-tag-range model translation in HalfEdgeMeshRuntime, so no buffers are rebuilt; RegionExplosion holds the offsets, RegionExplosionTest covers them. Crawfish (300 regions) draws at about 48-49 fps assembled and exploded. mvn test 427/0 failures; wt done passed. Merge note for CRAW-45: offsets are keyed by RingRegionTool.regionTag(region); CRAW-45's setFaceGroups names draw ranges String.valueOf(group), so the two must agree when they meet or regions silently stop moving.",
+        "Rework after review (2026-10-06): RegionExplosion now owns the whole exploded view (progress, target, smoothstep easing, SWEEP_SECONDS 0.6, FULL_SPREAD 0.4, measure(), toggle(), animateTo(), step(seconds, heldDirection, offsets), collapse(), exploded()), keyed through RingRegionTool::regionTag passed to its constructor; RingRegionTool keeps one final RegionExplosion field, the X / hold , . bindings, explodeTo for the explode command and one step call per frame, and refuses clicks while explosion.exploded(). H in RingScene shows/hides ring lines and numbers in every tool (RingScene.showRings, gated through MeshOverlayRuntime.showLineGroups); while exploded a separate showRingsExploded (default hidden) applies, so collapsing restores the user's setting. RegionExplosionTest covers measuring, stepping, holding, easing and collapse (7 tests). mvn test 433/0; wt done passed; screenshots tmp/craw51-ringtool-rings-{shown,hidden}.png, craw51-exploded-rings-hidden.png, craw51-exploded-rings-shown-by-H.png, craw51-collapsed-rings-back.png."
+    ],
+    "related-files": [],
+    "priority": 3
+}

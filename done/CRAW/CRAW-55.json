@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-55",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "ixdar-cli mesh-dsl must not resubmit a graph when its client times out",
+    "description": "From the crawfish segmentation review (2026-10-04): ixdar-cli mesh-dsl retried after its HTTP client timed out while the scene was still evaluating a long graph, so the same 15-minute graph was queued twice and the scene ran for about 30 minutes. A request that the server has accepted must not be resent: either the client waits with progress, or the route returns a job id and the CLI polls it, and a second submit of a graph already running is refused or joins the running one. Check other long routes for the same retry.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A long mesh-dsl evaluation is submitted exactly once regardless of client timeouts (test with a slow graph). 2. The CLI reports progress or a job id instead of silently retrying. 3. Other routes with long work audited; findings on the ticket.",
+    "testing-plan": "1. Automation test with an artificially slow graph and a short client timeout: the server log shows one evaluation.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Reproduced on master: slow graph (quad_cylinder -> subdivision_surface levels 4 -> ring_candidates resolution 384, 218 s per evaluation) in a headless mesh-viewer scene; ixdar-cli mesh-dsl timed out after 10 s, resent the POST twice (3 submits in 34 s, exit 1 with a TimeoutError traceback) and the scene evaluated the graph back to back.",
+        "Audit of other long routes: before the fix the client resent EVERY POST up to 3 times on a 10 s read timeout (and on HTTP errors), so any long POST could double-run. The client fix covers them all. Still declaring no waitSeconds (they now fail at 10 s with a 'not resent' error while the scene keeps working, rather than double-running): mesh-dsl-validate (its meshProbe evaluates the graph), mesh-skeleton-sensitivity (a graph per parameter for the Jacobian), mesh-skeleton-compare/-detailed, mesh-patches-decompose, rings-list, mesh-segmentation (all off the render thread, so a resend used to run concurrently), connection and mesh-compare (render thread, capped by the 60 s runOnMainThread wait). model (/scene/model) already declares 900 s. Follow-up: give each of those a measured waitSeconds.",
+        "Repro confirmed in the scene log: the same graph evaluated back to back (218561 ms, then 226692 ms, a third queued) from one ixdar-cli mesh-dsl call; ixdar-cli shutdown also hung behind the busy render thread, so the scene had to be killed.",
+        "Fix: (1) ixdar_automation_cli/automation_client.py request_json never resends a POST unless the connection was refused (the one failure proving the scene never saw it); a POST that timed out raises URLError 'no answer from POST <path> after N s ...; it was not resent' (exit 3, no traceback), GETs still retry, HTTP errors are not retried; a request with a longer-than-default timeout prints 'waiting for <path>: N s of at most M s; it is sent once and never resent' to stderr every 30 s. (2) LoadDSL (/mesh/dsl) declares waitSeconds 1800 so the CLI waits for the graph instead of 10 s, waits that long on the render thread via a new AutomationRuntime.runOnMainThread(action, waitMillis) overload instead of failing at 60 s, and refuses a submit while a graph is queued or running ({ok:false, running, error}) instead of queueing it behind.",
+        "Verified after the fix in a fresh headless mesh-viewer scene (slow graph at resolution 256): a /mesh/dsl POST with a 5 s client timeout returned 'no answer from POST /mesh/dsl after 5 s (timed out); ... it was not resent'; an immediate second ixdar-cli mesh-dsl was refused in 5 s ({ok:false, running: slow.dsl}, exit 1); the scene log shows exactly one evaluation (58262 ms). A following plain ixdar-cli mesh-dsl waited 71 s for a 70451 ms graph (past the old 60 s main-thread cap), printed 'waiting for /mesh/dsl: 30 s / 60 s of at most 1810 s' to stderr, and returned ok with 33024 vertices; one evaluation again. Tests: 4 new CLI tests (real slow HTTP server gets exactly one POST; mesh-dsl timeout exits 3 after one call with the 1810 s manifest timeout; refused POST retried; timed-out GET retried) pass; full suite 88/89, the one failure is the pre-existing stale test_screenshot_and_frame_routes_expose_their_new_flags (VIEW-21 added region/ring/radius/point to frame). gen-docs not run: CLAUDE.md and README already drift from the manifest on master, and regenerating rewrites CLAUDE.md."
+    ],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,22 @@
+{
+    "id": "PATCH-124",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Cross field on open meshes with curvature_bias != 0: indefinite aligned system, still solved by PCG",
+    "description": "Found during PATCH-122 (2026-10-04). The aligned solve now uses one Cholesky factorization, but on a mesh with boundary and curvature_bias != 0 the bias term's boundary part does not cancel (it only cancels across interior edges), so the energy matrix is indefinite and Cholesky refuses it (shown on the mesh_disk fixture). PATCH-122 kept the old Jacobi-PCG for that case, which was already running CG on an indefinite system: CG is not guaranteed to converge or to minimise anything there. Decide what open meshes should do: fix the boundary term so the matrix is SPD (check KCP13's treatment of boundary terms with s != 0 and the Neumann conditions it mentions), or solve the indefinite system with a suitable method (LDL^T / MINRES) and say what energy it minimises. Only matters for open scans; the crawfish and fertility are closed.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The cause of indefiniteness is explained on the ticket against KCP13. 2. Open meshes with curvature_bias != 0 get a correct, well-defined solve (no CG on an indefinite matrix). 3. Closed-mesh results unchanged (CrossFieldEquivalenceBenchmark).",
+    "testing-plan": "1. mesh_disk and one open scan: field and singularities before and after. 2. Closed meshes unchanged.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/crossfield/NDirectionField.java"
+    ],
+    "priority": 3
+}

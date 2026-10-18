@@ -1,0 +1,37 @@
+{
+    "id": "ENG-24",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "platform"
+    ],
+    "title": "Canvas3D folds into Scene; the main menu becomes MenuScene; IrregularGridScene extends Scene",
+    "description": "Repo plan phase 2.2, merge 3A.3. canvas/Canvas3D is the base of every Scene and also: the GL frame loop (262-301), reflective audio (103-179), reflective automation (181-192), TSP Shell/DistanceMatrix seeding (200-219), main-menu hosting (308-327), and it draws TradeScene or MainScene by hand (318-321). Scene extends it. Fold Canvas3D into Scene (keep the name Scene; CanvasSceneMap keys unchanged). The 'ixdar' id (today a bare Canvas3D) becomes MenuScene in scenes/menu. IrregularGridScene extends Scene and drops its second SceneInputFrameUpdater.update (IrregularGridScene.java:71, double-pumping Canvas3D.paintGL:274). Keep one bindAutomationIfAvailable (copies in Canvas3D:377, Scene:277, MainScene:837, TradeScene:413). TSP seeding moves to MainScene.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-23",
+        "ENG-20"
+    ],
+    "blocks": [
+        "ENG-25",
+        "ENG-29"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Canvas3D no longer exists (or is reduced to what the ticket justifies); every launchable id resolves to a Scene subclass except ixdar-canvas/trade, which the next ticket converts.\n2. Main menu, every scene in CanvasSceneMap, the TSP scene and the trade game launch and behave as before.\n3. Web build still works (or the reason it cannot be run).\n4. Launch entries and screenshots.",
+    "testing-plan": "1. mvn test.\n2. Live: each scene id; main menu navigation into the TSP scene and a new trade game.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Canvas3D deleted and folded into ixdar.scenes.Scene (frame loop, GL init, audio statics, automation start, the one bindAutomationIfAvailable, activate/shutdown); every Canvas3D reference (input handlers, cameras, AutomationBackend/Runtime, IxdarWindow, WebLauncher, ShaderCodePane, MenuBox, DslGraphView, tests) now names Scene. Scene.initGL runs initPoints once (it ran twice: Canvas3D.initGL then Scene.initGL); the three System.out startup timing prints are gone.",
+        "New ixdar.scenes.menu.MenuScene, @SceneAnnotation(id = \"ixdar\") replacing the hand-registered bare Canvas3D: owns the MenuBox and SDFFluid and draws the menu or, once hidden, TradeScene/MainScene by hand as Canvas3D.drawScene did; lists no controls. MainScene.main hosts on a new MenuScene. KeyGuy, MouseTrap and the ui-state route reach the menu through instanceof MenuScene; PointerDispatcher and ui-state drop the now-redundant instanceof Scene.",
+        "IrregularGridScene extends Scene and no longer pumps SceneInputFrameUpdater a second time in drawScene. new-scene scaffold: --base removed (Scene is the only base) and its double input pump dropped; CLI README regenerated.",
+        "Not moved: the unit-square Shell/DistanceMatrix/PointSet seeding stays in Scene.initPoints because seven anatomy demos (line, dashed x3, arrow, bezier, bouncing) build their Knot/Segment on it; MainScene never used the canvas's shell (it seeds its own static shell from the .ix file).",
+        "Verified: mvn compile clean, mvn test 522/0 failures, tools/teavm-build.sh OK (classes.js 7.27 MB, 0 errors). All 21 launchable ids run-scene exit 0 and were image-diffed against eng-23: 11 identical; the rest differ only in FPS text, the time-driven dash phase, the animated menu fluid and the random TSP knot colours. Live: menu -> Debug Menu -> Load -> clover -> clover.ix opens the TSP editor (mode main); Start New Game opens the trade map (mode trade). Screenshots tmp/eng-24*.png, tmp/scenes, tmp/baseline."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/canvas/Canvas3D.java",
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/IrregularGridScene.java"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-53",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Open groove cuts: a curve along a surface groove that ends on two existing rings",
+    "description": "From the review of the user's 82-ring crawfish segmentation (2026-10-04): the dorsal carapace and abdomen bands follow the cervical groove and tergite edges, but the ring tool only makes closed loops, so the user drew them as 0.7-1.2-long loops around the whole body, which then cross each other and the other rings. Wanted: an open cut, a surface curve whose two ends attach to existing rings (on the ring, sharing that point exactly), drawn with anchors like a ring and optionally following a groove (minimum principal-curvature valley) between them. The region flood treats it as a wall, so a groove cut between two rings splits the band between them. Saved in the .dsl like rings. Relates to CRAW-49 (rings sharing stretches of existing rings); the two should share the 'attach to an existing ring' mechanism.\n\n2026-10-07: folded into the CRAW-49 rework (split a region with cuts); a cut ending on two walls is exactly this ticket's groove cut. Close this when CRAW-49 lands if its cuts cover the groove case.\n",
+    "blocked-by": [
+        "CRAW-49"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. An open cut can be drawn whose ends snap onto two existing rings. 2. The region split treats it as a wall: a band between two rings is split in two with no slivers. 3. Saved and reloaded through the .dsl. 4. Works on the crawfish carapace.",
+    "testing-plan": "1. Unit test: cylinder with two rings and one open cut between them gives the expected region count. 2. Live: redraw one dorsal band of the crawfish as an open cut; screenshots.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java",
+        "ixdar-app/src/main/resources/dsl/fixtures/crawfish_rings.dsl"
+    ],
+    "priority": 2
+}

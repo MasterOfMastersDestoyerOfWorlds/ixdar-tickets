@@ -1,0 +1,28 @@
+{
+    "id": "CRAW-65",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Part chooser: compare each named part across the scans of a collection and pick the best copy of each",
+    "description": "User request 2026-10-14, replacing CRAW-16 (boolean union of a collection's scans, archived as not wanted): \"once every crawfish is segmented, I want to look through the various parts of the crawfish (or scan collection) and choose: I want this claw and this eye and this back leg and this tail from the N different models. I don't know why I would want to boolean a bunch of meshes together; the point is choosing the correct parts.\"\n\nSo the collection workflow is: segment each scan with rings (ring tool, bisector), give the parts names (CRAW-42 names regions by a point), then compare the same part across the N scans and pick the best copy of each. Wanted: a part chooser scene/tool that, for a collection (CRAW-12 collection manifest, ~/crawfish), lists the named parts and for each part shows that part from every scan that has it side by side (extracted with RingRegionExtraction, framed the same way, same orientation via alignment where available), lets the user pick one per part, and stores the choices in the collection's manifest/DSL (per part: which scan, which region selection). Parts a scan lacks or that are not segmented are shown as missing. Output: the chosen parts as a set the later steps read (CRAW-19's end-to-end model now assembles chosen parts rather than a union of whole scans).",
+    "blocked-by": [
+        "CRAW-42"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. For a collection of segmented, part-named scans, a scene lists every part name across the collection, and for a selected part shows that part extracted from each scan that has it, side by side, framed and oriented alike.\n2. The user picks one scan's copy per part with a click or key; the choice persists in the collection manifest/DSL by part name, scan and the region's selection (surface point), and survives reloads and ring edits.\n3. Missing or unnamed parts are shown as such per scan.\n4. An ixdar-cli route lists parts, which scans have them, and the current choice, so agents can read it.\n5. Verified on at least three crawfish scans with named parts; screenshots and a launch entry.",
+    "testing-plan": "Three crawfish copies under tmp/ segmented and named; pick parts; reload; check manifest and route output.",
+    "todos": [],
+    "unknowns": [
+        "Alignment: compare parts in each scan's own frame, or align scans first (CRAW-16 had align_to_mesh; salvage that part if needed)?",
+        "How are parts matched across scans: by the same name only (CRAW-42 names), or also by position for unnamed regions?",
+        "What does a downstream model do with chosen parts from different scans: kept as separate pieces, or stitched? Not part of this ticket."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/RingRegionExtraction.java"
+    ],
+    "priority": 2
+}

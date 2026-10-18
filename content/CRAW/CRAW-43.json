@@ -1,0 +1,24 @@
+{
+    "id": "CRAW-43",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Ring tool hover preview over 50 ms on body-scale girdles of a full crawfish scan",
+    "description": "Found in CRAW-41 on the full repaired crawfish scan (IMG_4109 through repair_mesh: 469,131 vertices / 938,302 triangles, ring-tool scene). The ring tool's hover preview meets the ~50 ms target on limbs and the tail fan (4-35 ms; girdles of 150-950 edges), but misses it on body-scale girdles: hovering the carapace or the claw/body junction gives girdles of 1000-1440 edges (length 0.8-1.16 against a 0.52 mesh radius) at 40-78 ms (median 38 ms over 24 body hovers, 8 of them over 50 ms), and the first hover after each ring-tool activation costs 98-168 ms.\n\nProfile (run-scene --profile, 24 body hovers, tmp/profile-hover.html in the craw-41 worktree; cpu, coarse: 1232 samples in the whole run): RingTool.previewAt 58 samples inclusive, of which GirdlingPlane.find (length cap removed in CRAW-40) is only 9; the cost is the spline fit through the girdle: SurfaceSplineTracer.subdivide 82 incl, retraceSegment 54, SurfaceGeodesics.geodesic 52, SurfaceSplineTracer.average 46, insertAnchor 36, SurfaceGeodesics.seedWalk 24. The hover fit traces about as many geodesics as there are girdle edges (geodesicsTraced 600-1500 on these hovers), so its cost grows with ring length.\n\nNot decimation: the scan is not degraded (CRAW-2 ruling). Directions to evaluate: cap the hover-time subdivision depth by on-screen pixel error rather than surface tolerance (the confirm/click fit can stay at full depth), reuse the previous frame's geodesics when the girdle barely moves, and warm the tracer on activation so the first hover is not the JIT's.\n\nCorrection to the count above: 4 of the 24 profiled body hovers were over 50 ms (54.7, 55.7, 50.2 and 133 ms, the last the first after activation), not 8; across all CRAW-41 hovers 9 of 34 were over 50 ms, all on girdles of 1290+ edges or the first hover after activation.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. On the full repaired crawfish scan, hover preview on body-scale girdles (1000+ edges) is under 50 ms (median and 90th percentile over at least 20 hovers), and the first hover after activation is under 50 ms.\n2. Limb hovers are no slower than CRAW-41's numbers (4-35 ms), and confirmed rings (the click/Enter fit) are unchanged: the three crawfish ring fingerprints of CRAW-41 (2e825ad314260fe0, 8276d8d8dbdccaf8, 3f51890db2075257) and fertility_rings.dsl's 13 ring fingerprints reload identically.",
+    "testing-plan": "1. Launch ring-tool with -Dixdar.mesh.dsl=<absolute path of a tmp/ copy of crawfish_repaired.dsl>, Ctrl+R, hover the carapace and claw/body junction at 20+ points with ixdar-cli hover and read ringTool.previewMillis from ui-state; compare with the CRAW-41 table.\n2. Profile the hovers with run-scene --profile and report previewAt's callees before and after.\n3. Reload fertility_rings.dsl read-only and the crawfish ring dsl and compare ring fingerprints.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceSplineTracer.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/GirdlingPlane.java"
+    ],
+    "priority": 3
+}

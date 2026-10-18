@@ -1,0 +1,26 @@
+{
+    "id": "MESH-63",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Shared primitives: delete the private Dijkstra, union-find, exact-predicate and CG copies; split quad-layout algorithms from their MeshNode adapters",
+    "description": "Repo plan merge 3C.17 and phase 4.6. paths/Dijkstra calls itself the one shared core, yet private PriorityQueue Dijkstras remain in ConformingLoopSnap (~181), CutGraph (~184, ~329), RingCandidateExtractor (~273), ArcNetworkRecarve (~274) and crossfield/DijkstraNode. Union-find: data/UnionFind, cuts/DisjointUnionSets (keyed by Knot), EmbeddedMeshTopology's patch alias. Exact predicates: ExactBarycentricOrient, ExactArithmetic, SeamlessProjector.orient2dHelper (~1167). MeshHoleFiller has its own conjugate-gradient solve (~76, ~430). Use the numeric package's single copy of each. Also split the algorithm classes that implement MeshNode directly (NDirectionField 1382 lines, MotorcycleGraph, SeamlessParameterization, LayoutEmbedding, NetworkContraction, GridMapAssembly, QuantizedMeshGrid) into the algorithm and a thin node in quadlayout/nodes, keeping class names for the algorithm halves.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.\n\nAMENDED 2026-10-17 (user ruling, DSL-52): all node packs live in ixdar.nodegraph.nodes, so the node halves split off the quad-layout algorithm classes go to nodegraph/nodes/quadlayout, not geometry/mesh/quadlayout/nodes.\n",
+    "blocked-by": [
+        "MESH-57",
+        "MESH-59"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. One Dijkstra, one union-find, one set of exact predicates, one CG solver; the copies are deleted.\n2. Quad-layout algorithm classes do not implement MeshNode.\n3. Quad-suite and ring fingerprints byte-identical (tie-breaking differences explained if any); unit suite passes; launch entry and screenshot.",
+    "testing-plan": "1. Fingerprints and quad-suite timings before and after.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/Dijkstra.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/UnionFind.java"
+    ],
+    "priority": 4
+}

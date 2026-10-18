@@ -1,0 +1,38 @@
+{
+    "id": "ENG-33",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Scene.setTools(): every scene registers its tools in one overridable method, like setControls",
+    "description": "Scenes register their tools in scattered places: MainScene's constructor (freeTool, mapEditorTool, the ctrl+N / ctrl+B switches, defaultTool, activeTool, freeTool.activate()), TradeScene's constructor (hqPickerTool, routePlanningTool, defaultTool, activate), ModelScene's constructor (orbitTool as default and active) plus ModelScene.initPanes (the ctrl+G DslGraphView switch) and ModelScene.initInput (activeTool.activate()), and RingScene's constructor (the ctrl+R / ctrl+T / ctrl+J switches). A child scene (the seven ModelScene subclasses, RingScene) that wants the parent's tools, or wants to replace one, has to know which constructor or init step its parent used.\n\nGive Scene a setTools() method, the tool counterpart of setControls(): a scene overrides it, calls super.setTools() to keep its parent's tools, then adds its own with tools.add / addToolSwitch and may set defaultTool. Scene calls it once, at the start of initGL before the first refreshControls, then makes the default tool active and activates it, so no scene sets activeTool or calls activate() during setup itself. Move every registration above into its scene's setTools(); a child that replaces a parent tool does it there. ChangeToolCommand's lazy hosting of registry tools (scene.tools.add on first use) stays as it is.\n\nCheck the timing move from constructor to initGL for each scene: anything a constructor or the automation binding reads off a tool before initGL (MainScene's editorCamera.resetTarget reads activeTool/freeTool, TradeScene's State endpoint reads activeTool) must still find it. No renames.\n\nAlso (user ruling): drop the host element from @ToolAnnotation. RegistryProcessor reads each tool's host from the parameter type of its public one-argument constructor, which it already looks up to check; MAP, HOSTED_BY and HOST_NAMES are generated from that. Every @ToolAnnotation becomes @ToolAnnotation(id = ...). A tool with no public one-argument constructor, or more than one, fails the build with a message naming it.\n",
+    "blocked-by": [
+        "ENG-32"
+    ],
+    "blocks": [
+        "ENG-34"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Scene has setTools(); MainScene, TradeScene, ModelScene and RingScene register every tool and tool switch there and nowhere else.\n2. Scene calls setTools() once in initGL and activates the default tool; no scene sets activeTool or calls activate() during setup.\n3. Each scene opens on the same default tool with the same tool switches and controls as before.\n4. Full test suite passes.\n\n5. @ToolAnnotation has no host element; the registry takes each tool's host from its constructor, and ls tools and the change-tool refusal still work.\n",
+    "testing-plan": "1. Open main, trade, mesh-viewer, ring and one other ModelScene subclass through ixdar-cli; screenshot the controls panel of each under tmp/ before and after.\n2. Switch tools with each ctrl chord and through the terminal's change-tool command.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Scene.setTools(): overridable tool counterpart of setControls; Scene.initGL calls it once after initPoints (webViews exist, which DslGraphView needs) and before the first refreshControls, then switchTool(defaultTool) activates the default. switchTool now tolerates no current tool. MainScene, TradeScene, ModelScene (orbit default + ctrl+G graph, moved out of the constructor, initPanes and initInput) and RingScene (ctrl+R/T/J, moved out of the constructor) register only in setTools(). Tool construction stays where it was (constructor/field initializers), except DslGraphView, now built in ModelScene.setTools.",
+        "ToolAnnotation lost its host element; RegistryProcessor takes each tool's host from its one public one-argument constructor and fails the build naming the tool when there are zero or several (checked with a scratch javac run: 'NoneTool needs exactly one public one-argument constructor, taking its host scene; it has 0', 'TwoTool ... it has 2'). OrbitTool's constructor and field now take ModelScene so its host stays ModelScene. ToolRegistry_Tools MAP/HOSTED_BY/HOST_NAMES unchanged in content.",
+        "Timing: removed MainScene's constructor 'if (activeTool.canUseToggle(Manifold)) Manifold.value = true', a no-op (canUseToggle returns false or the toggle's own value). editorCamera.resetTarget reads activeTool lazily (null before initGL, so no selected knot, same as a fresh free tool). State endpoint's trade and ringTool blocks skip while activeTool is null (before initGL). Tests that build scenes without initGL now call initPoints/setTools/switchTool(defaultTool), and RingScene tests install GlStandIn since DslGraphView builds GL shapes in setTools.",
+        "Verified: controls rows (ui-state) identical before/after for ixdar-canvas, mesh-viewer, dungeon-viewer, quad-layout, trade; ring-tool has the same rows but ctrl+G now lists before ctrl+R/T/J (parent's switch first, as super.setTools() comes first). Ctrl chords and ct/ls tools work in all scenes, incl. refusals 'orbit is a ModelScene tool', 'free is a MainScene tool', 'ring tool is a RingScene tool'. mvn test: 531 run, 0 failures. Evidence under tmp/eng-33-*."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/main/MainScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/trade/TradeScene.java",
+        "annotations/src/main/java/ixdar/annotations/tool/ToolAnnotation.java",
+        "annotations/src/main/java/ixdar/annotations/RegistryProcessor.java"
+    ],
+    "priority": 2,
+    "review-summary": "Every scene registers its tools in Scene.setTools(), which subclasses extend like setControls, and a tool's host scene now comes from its constructor instead of the annotation. Tool setup lives in one overridable place with nothing to keep in sync.\n"
+}

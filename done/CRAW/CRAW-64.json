@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-64",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Ring saves still refused where repair_mesh's coincident copies are indistinguishable; repair IMG_4111",
+    "description": "Follow-up to CRAW-59 (landed 1581625d). SurfaceWaypoints.resolvingPoints writes, for a held vertex that is one of several coincident copies repair_mesh split, a point halfway toward one of that copy's face centroids, and keeps it only if NearestVertex.find resolves it back to that copy. Repairing IMG_4110 found copies where no face works (copy 184458 at ring_19, 169816 at ring_40): the two copies' fans lie on top of each other, so every nudged point is as close to the other copy's faces as to its own and the loader cannot tell them apart; the writer then refuses the save ('the coincident vertices there share every face' - misleading wording). In the tool this is a dead end: a ring holding that copy cannot be saved. Geometrically the copies are interchangeable for a ring (same position; the traced ring visits both on IMG_4110), so the fix should make the choice well-defined rather than impossible. Options to weigh: (a) resolve indistinguishable copies by the ring's own context at load (the copy whose faces lead toward the neighbouring anchors, as the IMG_4110 repair did by hand) - deterministic, reproduces the held copy in nearly every case, and the writer verifies; (b) the tool never holds a copy the writer cannot express: when a click snaps to such a copy, hold the expressible one; (c) a canonical copy (e.g. by the sheet the ring plane crosses). Never break ties by vertex id (NearestVertex's stated rule). Also: IMG_4111.dsl on master (dsl/crawfish) fails to load at ring_51 with the same ambiguous-point error (saves made before CRAW-59 landed); repair it like IMG_4110 (only the bad coordinates change, choices reported per point).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Saving a ring that holds any coincident copy succeeds and reloads to an identical fingerprint, including the IMG_4110 copies 184458 and 169816 (unit test reproducing a pair of overlapping fans). 2. The refusal message, if any refusal remains, says in plain words what is wrong and what to do. 3. IMG_4111.dsl on master repaired: loads with all its rings; git diff shows only the bad coordinates; per-point choice reported. 4. IMG_4109/IMG_4110/fertility fingerprints unchanged; full mvn test green.",
+    "testing-plan": "Unit test with two coincident copies whose fans overlap; reload IMG_4110 and IMG_4111 headless.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Ring saves on repair_mesh's split vertices now reload the same ring far more often. Two causes were found. First, the 'copies 184458 and 169816 cannot be told apart' failures on IMG_4110 were not overlapping fans: a zero-area hole-fill face beside the copy made the face-distance test return NaN, which poisoned the copy. NearestVertex now measures such a face as the segment between its distinct corners, and both copies save and reload. Second, where two copies' faces really do lie on top of each other, a written point names both, and the loader now settles it from the ring itself: the copy a walk along the surface from the neighbouring anchors reaches first, through its own edges; if two tie, the one whose faces point most toward those anchors. Never by vertex id. The writer checks every point with the same rule, also tries a point an eighth of the way into each face for very thin faces, and otherwise refuses with a plain message saying which anchor and to move it off the split point. New unit test: a small sphere inside a large one touching at the top pole, so the two pole fans overlap; a ring held on either copy saves and reloads with the identical fingerprint, and a lone anchor there is refused with the new message. IMG_4111: the fixed loader finds one bad point (ring_51 point 12 of 12, on the shared spot of copies 331511/331706); replaced by a point for 331511, which the surface walk from its neighbours reaches first (3.77 mm against 4.22 mm). Repaired file loads all 54 rings into 181 regions. IMG_4109, IMG_4110 and fertility fingerprints identical to master (82, 72, 13 rings). mvn test: 457 tests, 0 failures. Still refused (measured on synthetic 3-anchor rings through every copy no single point names): about a third of those copies, where the neighbours reach the other copy first; in about 60% of those cases the ring through the other copy has the same fingerprint anyway."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceWaypoints.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/NearestVertex.java",
+        "ixdar-app/src/main/resources/dsl/crawfish/IMG_4111.dsl"
+    ],
+    "priority": 1
+}

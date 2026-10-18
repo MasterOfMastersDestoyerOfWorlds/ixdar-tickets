@@ -1,0 +1,23 @@
+{
+    "id": "ENG-30",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform",
+        "automation"
+    ],
+    "title": "Split ixdar-app into Maven modules: ixdar-core, ixdar-engine, ixdar-desktop, ixdar-web (plus annotations)",
+    "description": "User request (2026-10-18), from the repo plan discussion. Modules and dependencies:\n- annotations (exists): annotations and processors only; the app base types it holds today (SceneDrawable, Geometry, TerminalOption, AutomationRoute, RouteDoc, RouteDocBuilder, RouteParamType, APIMethod) move to the app modules.\n- ixdar-core (annotations): pure Java, no LWJGL: platform interfaces (Platform, GL, IxBuffer, input device types, json, file, concurrent, Clock, Compat), numeric, geometry (mesh, tsp, grid2d), nodegraph and its node packs.\n- ixdar-engine (core): platform-neutral drawing and interaction: graphics, gui, tools, input, models, scenes, game, procgen.\n- ixdar-desktop (engine): LWJGL and headless backends, IxdarWindow, the automation server (HTTP, Gson), OpenAL audio, native solvers (MKL, Accelerate, PARDISO), Manifold CSG, the Assimp importer, desktop-only nodes, devtools.\n- ixdar-web (engine): TeaVM backend, WebLauncher, TeaVM transformers.\nWhy: the web build stops relying on reachability (the desktopOnly registry twin and its Class.forName, WebPlatform's null audio()/automation(), 'TeaVM must not reach X' care); layering is enforced by the compiler instead of greps in definitions of done; geometry/nodegraph/quadlayout tickets can build and test ixdar-core alone, without GL or natives.\nLeaks to fix first (some are other tickets): graphics/render/model importing LWJGL BufferUtils and Assimp (VIEW-24 routes buffers through IxBuffer; the Assimp importer moves to desktop); desktop-only nodes registering from ixdar-desktop (ServiceLoader or launch-time registration instead of the generated twin); AutomationBackend's Scene import (move it to engine, or bindInput takes platform types); the annotations module's base types.\nTooling to update: ixd (ai-workspace) BUILD_COMMAND '-pl annotations,ixdar-app' and LAUNCH_MAIN_CLASS; ixdar-cli run_scene's build-state check and classpath file; .vscode/launch.json projectName/mainClass; teavm-build; the pom exec entries (export routes/catalog, SpliceArchitectureDoc). Repo plan: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "VIEW-24"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The reactor builds annotations, ixdar-core, ixdar-engine, ixdar-desktop and ixdar-web; ixdar-core and ixdar-engine have no LWJGL, Assimp, Gson-server, OpenAL, native-solver or TeaVM dependency.\n2. The desktopOnly registry twin and its Class.forName are gone; desktop-only nodes register from ixdar-desktop.\n3. Every scene launches from ixdar-desktop exactly as before (all CanvasSceneMap ids); the web build from ixdar-web passes.\n4. ixd, ixdar-cli (run-scene build state, launch, teavm-build) and launch.json work against the new layout; the generated route and node catalogs are unchanged.\n5. Unit suite passes, split per module; ring, dungeon and quad-suite fingerprints unchanged; launch entry and screenshot.",
+    "testing-plan": "1. mvn -q install from the root; mvn test per module.\n2. ixdar-cli run-scene on several scenes; teavm-build.\n3. Fingerprints as in the earlier tickets.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

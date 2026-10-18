@@ -1,0 +1,28 @@
+{
+    "id": "CRAW-68",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Quad-layout motorcycle graph stage: 0.15 s to under 100 ms",
+    "description": "Make the `motorcycle graph` stage of QuadLayoutEngine fast. It takes 0.145 s today. 33k events, 320 traces, 6792 arcs; the trace itself reports 0.13 s. Related: PATCH-41. Baseline, measured 2026-10-15 with `uv run ixdar-cli run-scene --scene quad-layout --property quadLayoutScene.alpha=15` on the default model (headless, 9.1 s to ready): cross field 0.395 s, seamless 0.800 s, motorcycle graph 0.145 s, quantization 1.526 s, carve 0.674 s, contract 1.475 s, global grid map 1.897 s. These run synchronously before the scene's first frame, so together they are almost all of the quad-layout scene's time to first paint. The user's goal is first paint under 0.1 s; a sibling ticket moves the pipeline off the first frame, and each stage ticket makes one stage as fast as it can go. Target: this stage under 100 ms on the default model, or as close as the algorithm allows, with the reason it can go no lower. The stage's output must not change: same singularity count, arc/node/patch counts, quad count and a screenshot that image-diffs clean against the master baseline. Use the stage's own `[quad-layout] <stage>` log line and an async-profiler capture (`run-scene --profile`, read with `ixdar-cli profile-report`). Stay inside this stage's package; touch shared code (solver/, HalfEdgeMesh, QuadLayoutEngine) only where the stage needs it, and list every shared-file change in the report, because six sibling tickets run in parallel. Related: CRAW-2 (scan-scale pipeline), CRAW-4 (cached layouts).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The stage's `[quad-layout] motorcycle graph` time on the default quad-layout model is recorded before and after (median of 3 runs) in changes-made, with the after time under 100 ms or a stated reason it cannot be. 2. Singularity count, arc/node/patch counts and quad count match master exactly. 3. A screenshot of the final layout under tmp/ image-diffs clean against a master screenshot taken the same way. 4. No debugging scaffolding is left behind; `ixd wt done` passes.\n\n5. Whole-suite check: `python3 /home/acw/Code/Ixdar/tmp/quad-suite/run_suite.py --checkout <this worktree> --out /home/acw/Code/Ixdar/tmp/quad-suite/<ticket> --compare /home/acw/Code/Ixdar/tmp/quad-suite/master-0f52d26f` covers sphere_base, sphere_random, bolt, hand, fandisk, elk, feline, fertility, botijo, block, Hand-tri-30k, rockerarm, buddha and the crawfish scan (~/crawfish/IMG_4109.glb, 8 GB heap). Every mesh reports MATCH against the master baseline: the same status (a mesh master fails on must fail the same way), the same count signature, and an identical screenshot. The per-mesh stage times before/after go in changes-made. A DIFF stops for a user ruling.\n",
+    "testing-plan": "1. On master: run-scene quad-layout three times, record the stage time and counts, take a screenshot. 2. In the worktree: the same three runs plus a profile capture; compare times and counts. 3. image-diff the two screenshots. 4. mvn test for the touched packages.",
+    "todos": [],
+    "unknowns": [
+        "Whether the stage can reach 100 ms without changing its output; if not, what the floor is and why"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/motorcycle/MotorcycleGraph.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/QuadLayoutEngine.java",
+        "~/QuadLayoutsPapersCompleted/EGK*08 | Eppstien | 2008 | Motorcycle Graphs Canonical Quad Mesh Partitioning.pdf",
+        "~/QuadLayoutsPapersCompleted/LCK21a | Lyon | 2021 | Quad Layouts via Constrained T\u2010Mesh Quantization.pdf",
+        "~/QuadLayoutsPapersCompleted/PPM*16 | Pietroni | 2016 | Tracing Field-Coherent Quad Layouts.pdf"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-46",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Hide and isolate regions in the ring tool: hide this segment, show only this segment",
+    "description": "User request 2026-10-04: segmenting the crawfish means fighting the camera. With region colours in the ring tool (previous ticket), the user wants to select a region and hide it, or hide everything except it to focus on one part, and bring everything back. Optionally a labelled region (CRAW-42) could be hidden automatically once labelled. Hidden regions take no picks, no hover preview and no ring clicks.",
+    "blocked-by": [
+        "CRAW-45"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Keys/menu actions: hide selected region, isolate selected region, show all, listed in the controls menu. 2. Hidden faces are not drawn and cannot be picked or hovered. 3. Works on the 82-ring crawfish without a full rebuild per toggle.",
+    "testing-plan": "1. Live on a tmp copy of fixtures/crawfish_rings.dsl: isolate a leg, draw a ring on it, show all; screenshots. 2. Unit test that picks skip hidden faces.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Hide/isolate regions (Ixdar craw-46): RegionLayer holds a per-face hidden mask (kept through ring edits, dropped on a new surface); region tool Shift+H hides the selection, Shift+I isolates it, U (every tool) shows all. Hidden faces leave HalfEdgeMeshRuntime.setFaceGroups (negative group = undrawn) and the face-pick pass (uploadFacePickBuffer takes the mask), so no tool draws, picks, hovers or ring-clicks them; rings bounding only hidden regions go undrawn (RingTool.markRings hidden labels). Applies in every tool and in the exploded view; toggling re-uploads the index and pick buffers only (no region rebuild). regions route reports hidden/hiddenFaces/hiddenRings. Test: RegionHidingTest. Verified live on a tmp copy of crawfish_rings.dsl (938k faces): isolate claw, ring on it, show all (301 regions, incremental update), hide claw + explode."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java"
+    ],
+    "priority": 1
+}

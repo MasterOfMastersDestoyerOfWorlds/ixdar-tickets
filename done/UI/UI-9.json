@@ -1,0 +1,27 @@
+{
+    "id": "UI-9",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Esc in the top-level menu after leaving the TSP editor shows a blank frame (MenuBox.menuVisible left false)",
+    "description": "Found by the ENG-29 agent (2026-10-18) on the repo-plan stack (after ENG-25 made MainScene/TradeScene real Scenes switched through Scene.switchTo, with MenuScene as the back scene): leaving the TSP editor with Esc returns to MenuScene, but a further Esc in the top-level MenuScene can leave MenuBox.menuVisible false, so the frame is blank. The editor's activate(true) hides the menu, and MenuScene's Esc row only steps back through submenus, so nothing shows the menu again. Likely introduced by ENG-25/ENG-27 (menu Esc became a ControlHint row). Fix so the menu is visible whenever MenuScene is current, and Esc at the top level either does nothing or what it did on master (check master's behaviour first).",
+    "blocked-by": [
+        "ENG-29"
+    ],
+    "blocks": [
+        "UI-10"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Menu -> TSP editor -> Esc -> Esc (and the same via the trade game) never shows a blank frame; behaviour at top-level Esc matches master.\n2. A test or recorded ixdar-cli run covers it; launch entry and screenshot.",
+    "testing-plan": "1. Live: ixdar-cli key presses through the path above, screenshot after each.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause: Scene() runs the subclass activate(true) while the editor is being built, so MainScene hides the menu and becomes Scene.instance before switchTo; when the build throws (Continue with no cached file NPEs on retTup, on master too) MenuScene stays current with MenuBox.menuVisible false and Esc only steps menus, so the frame stayed blank. Fix: MainScene.open reactivates the current scene and restores Scene.instance when the editor build throws, then rethrows. Master keeps the menu visible after the failed Continue and its top-level Esc calls Platform.exit (a no-op headless); the worktree now matches. Successful editor and trade-game paths (Esc, Esc, Esc) already matched master and still do. Test: unit.scenes.MainSceneOpenTest. Live run: trade, editor (Load > box > box_WH.ix) and failed Continue, each followed by Esc presses, gave menuVisible true and non-blank screenshots under tmp/ui-9-*.png. Launch entry 'UI-9: ixdar'.",
+        "Revised per coordinator (no rollback hack): root cause fixed in Scene. The Scene constructor no longer sets Scene.instance or calls activate(true) on a half-built subclass; Scene.show() now makes a built scene current (instance, activate(true), automation, then initGL once), and paintFrame deactivates the old scene then show()s the successor, so each showing activates exactly once (before, a switched-to scene was activated twice: constructor and paintFrame). MainScene's constructor drops its own activate(true); MainScene.open's try/catch is gone. WebLauncher calls show() instead of initGL() so web scenes are still activated. A constructor that throws (Continue with no cached file) now leaves the menu current and visible with no rollback. Tests: full unit suite 528/0 failures incl. MainSceneOpenTest; TeaVM build OK. Live: trade, editor (Load > box > box_WH.ix) and failed Continue each followed by Esc presses gave menuVisible true and non-blank screenshots (tmp/ui-9-*.png); ixdar-canvas, ring-tool and arrow-line-canvas start and render."
+    ],
+    "related-files": [],
+    "priority": 3
+}

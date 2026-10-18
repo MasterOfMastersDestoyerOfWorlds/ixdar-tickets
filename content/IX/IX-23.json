@@ -1,0 +1,22 @@
+{
+    "id": "IX-23",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Organize ixdar.geometry.mesh.data: 49 loose classes into packages by what they are about",
+    "description": "User request 2026-10-06: ixdar-app/src/main/java/ixdar/geometry/mesh/data is becoming a dumping ground. It holds 49 top-level classes beside the subpackages load/, ops/, paths/ and representation/, mixing core mesh types with whole features. A first reading of the groups (verify by reading each class and its callers, do not trust names alone):\n- core types: GeometryBundle, GeometryBundles, MeshTopology, EdgeKey, EdgeMarks, TriangleBvh, TriangleGeometry, UnionFind, MeshDistance, MeshScale, MeshVertexOffset;\n- rings and regions: RingRegions, RingRegionExtraction, RingBundle, RingCandidates, RingCandidateExtractor, BranchCrossSectionRing, RegionExplosion (a view animation, possibly not geometry at all);\n- skeleton and limbs: MeshSkeletonExtractor, MeshSkeletonComparator, SkeletonSensitivityAnalyzer, LimbAxis, MeshSegmenter;\n- patch decomposition and Morse-Smale: Patch, PatchDecomposition, PatchBoundaryWalker, PatchColors, MorseSmaleComplex, MorseSmaleDecomposer, MscCellAssembly, DiscreteGradient, DiscreteGradientCells, SaddlePointDetector, SemanticPatchDecomposer, CrestLineDetector, PrincipalDirectionField, QuadMeshTopologyHelper;\n- surfaces and curves: CoonsEvaluator, CoonsReconstructionError, CharrotGregoryPatchSampler, BezierFit, CurveGeometry, BoundarySnap;\n- UV and materials: CornerUvField, CornerUvSplit, MaterialData, MaterialSet;\n- misplaced entry points: PatchDecomposerCLI (a CLI in a data package).\nDecide the target layout (subpackages of mesh.data, or moves to existing packages such as geometry/mesh/quadlayout, scenes, graphics/render/color for PatchColors), justify it in package-info.java files, and move with no behaviour change. Also check the existing subpackages (paths/ has grown with the ring tool) for the same problem. Keep ARCHITECTURE.md and the generated docs in step (they regenerate on build). Timing: several open worktrees edit classes here (CRAW-45 RingRegions, CRAW-49 shared rings, CRAW-50 connection tool, CRAW-57 ring load time); do the move after those land, in one pass, so no worktree has to replay a mass rename. PatchColors' own hex packing duplicates Color/ColorRGB and can be folded into graphics/render/color as part of this.\n\nPatchColors' consolidation is split out as its own ticket (see the IX ticket 'One colour home'); IX-23 should not move PatchColors separately.\n\nThat ticket is IX-24.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. No feature class is left loose in ixdar.geometry.mesh.data; each group has its own package with a package-info.java saying what belongs there. 2. Pure moves and renames of packages: no behaviour change, mvn test passes, the web build (./tools/teavm-build.sh) builds. 3. ARCHITECTURE.md and generated catalogs regenerated. 4. Done after CRAW-45, 49, 50 and 57 land.",
+    "testing-plan": "1. mvn test and teavm build before and after. 2. A grep that no imports of the old locations remain.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/package-info.java"
+    ],
+    "priority": 2
+}

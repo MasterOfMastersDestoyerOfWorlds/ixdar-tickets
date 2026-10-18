@@ -1,0 +1,22 @@
+{
+    "id": "ENG-35",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "OrbitSet answers ok:true when no ModelScene is active: it discards its own refusal",
+    "description": "ixdar.automation.endpoints.ui.OrbitSet makes a first main-thread call that returns the 'no ModelScene is active' failure, but the endpoint ignores that result and answers ok:true, so orbit-set on a 2D scene (ixdar-canvas, circle-canvas) reports success while nothing moved. Found by ENG-34's before/after route probe (eng-34 worktree tmp/eng34-*-circle-canvas.txt); behaviour unchanged there. Return the failure when the scene is not a ModelScene.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. orbit-set on a scene that is not a ModelScene returns failure(\"no ModelScene is active\") with ok:false.\n2. orbit-set on mesh-viewer still moves the orbit and answers ok:true.",
+    "testing-plan": "1. uv run ixdar-cli: orbit-set on circle-canvas and on mesh-viewer; paste both responses.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/OrbitSet.java"
+    ],
+    "priority": 3
+}

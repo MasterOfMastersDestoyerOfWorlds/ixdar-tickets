@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-62",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Handle and bridge finder: show where a scan's parts are fused together, and judge separation for the ring set as a whole",
+    "description": "From CRAW-58 (missing tool #3, friction log F4, F6, F10, F11): Trellis scans fuse tucked legs and claws to the body, so the surface has handles (genus ~7 on IMG_4111, ~17 on IMG_4109's main shell) and bridges between parts that should be separate. Nothing shows where they are, so the user and agents cut a limb and find it still joined through a bridge somewhere else. Also RingRegions judges each ring alone ('does not separate', 'loops a handle'), so two rings that together cut off a claw are each reported as failures; on IMG_4110 23 of 68 rings are flagged as looping a handle. Wanted: (1) find and draw the handles and bridges: for each handle, where it is and the shortest loop around it (the cut that would remove it), and for each pair of regions that should be apart, the bridges joining them; (2) separation judged for the whole ring set: which rings, together, cut a part free, so a ring is only flagged when no combination with the others makes it useful. Related: CRAW-50's connection tool (shortest path between two places and the min cut) and SurfaceConnection; repair_mesh's fill faces (F shows them) are one source of false bridges.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. A handles/bridges view in the ring scene: every handle of the shown surface marked with its shortest non-separating loop (or the generator loops), counted, with genus reported. 2. A route listing them with positions and loop lengths. 3. RingRegions reports separation for the ring set: a ring that cuts a part free together with others is not flagged; rings flagged only when no combination separates anything. 4. On IMG_4110 and IMG_4111 the count of flagged rings drops accordingly, and each remaining flag names the handle responsible. 5. Runs on the crawfish in seconds; fertility unchanged.\n\nKeeps SurfaceHandles.handleCount: the handle count the view and route report (DoD 1-2). Keeps the [handles]/[rings] lines of test/benchmark/SurfaceHandlesBenchmark: the crawfish timings and flagged-ring counts DoD 4-5 are measured by, run with -Dtest=SurfaceHandlesBenchmark -Dbenchmark.ringGraph=...\n\nKeeps the SurfaceHandlesBenchmark lines '[handles] shell' (genus per shell), '[rings] slivers absorbed' and '[rings] absorbed' (flagged count with slivers merged) and '[rings] update without' (incremental update time stays fast).\n",
+    "testing-plan": "Procedural tests: a double torus (genus 2) gives 2 handles; two tubes joined by a bridge and cut by two rings is not flagged. Live on IMG_4110/4111 copies.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "New SurfaceHandles (geometry/mesh/data/paths): per-shell genus from Euler characteristic (MeshTopologyAnalysis.shellGenus, also in the mesh-topology route), Z/2 homology by tree-cotree annotations with boundary loops capped, candidate loops from each of 8 farthest-point basepoints' greedy system (Erickson-Whittlesey) cut back past the stem, kept shortest-first when independent and uncrossed with the kept ones: one cut per handle. RingRegions now flags only rings that split nothing with the whole set in place (ringSplitsNothing); such a ring's problem line names the handle it loops (handlesByRing), or says it only walls off slivers; rings that separate only together with others are no longer problems. Ring scene: B draws each handle's cut loop in magenta (RegionLayer); new route /mesh/handles (ixdar-cli handles) lists genus per shell and each handle's position, loop length and edges; /mesh/regions reports flaggedRings with their handles and ringsSeparatingOnlyTogether. Tests: SurfaceHandlesTest (double torus = 2 handles whose cuts leave it whole; two tubes joined by a bridge cut by two rings not flagged, bridge ring alone flagged naming handle 0); RingRegionsTest torus case now not flagged. Benchmark SurfaceHandlesBenchmark: IMG_4109 (938k faces) genus 17, 17 handles in 2.8 s, flagged 43 -> 0 of 82 rings; IMG_4110 genus 9, 9 handles in 2.8 s, flagged 26 -> 1 of 72 (ring_31, loops handle 7); fertility genus 4, flagged 13 -> 0, regions unchanged (10). IMG_4111 not run (fails to load, CRAW-64).",
+        "Archived 2026-10-09 without landing, as tag archive/craw-62 at aff80537: connection tool covers bridges; multi-ring cuts are expected, handle flag removed on master"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/RingRegions.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceConnection.java"
+    ],
+    "priority": 2
+}

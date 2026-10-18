@@ -1,0 +1,30 @@
+{
+    "id": "PROCGEN-13",
+    "epic": "PROCGEN",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes",
+        "ui"
+    ],
+    "title": "DungeonViewerScene extends ModelScene; the dungeon's near-copy 2D/3D node pairs merge",
+    "description": "Repo plan phase 2.6, merge 3A.6. DungeonViewerScene extends Scene, not ModelScene: it re-implements DSL loading (still reading System.getProperty('ixdar.mesh.dsl'), DungeonViewerScene.java:81, its own fromSource and logTimings :131,138, a duplicated DSL_FOLDER), camera framing and input binding, and walks the AST by node type (bindPlayerGridFromDsl :176). Make it a ModelScene using GraphChoice, keeping only its player and fly modes. Merge DungeonGridToMeshNode + DungeonGridToMesh3DNode (0.83 similar) and AStarCorridorsNode + AStarCorridors3DNode (0.74) into single nodes, keeping the node ids used by the dungeon DSLs (or migrating them).\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-27"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. DungeonViewerScene extends ModelScene; no ixdar.mesh.dsl property read remains anywhere.\n2. The two node pairs are one node each; dungeon_2d and dungeon_3d DSLs evaluate to the same geometry as master (fingerprint).\n3. Player and fly modes behave as before; launch entry and screenshots.",
+    "testing-plan": "1. mvn test; fingerprint the dungeon DSL outputs before and after.\n2. Live: dungeon viewer orbit, fly and player modes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "DungeonViewerScene extends ModelScene: dungeon_2d/dungeon_3d are registered GraphChoices loaded through loadGraph (-Dixdar.model=dungeon_3d or the model menu); the ixdar.mesh.dsl read, its own DSL load, DSL_FOLDER and the AST walk by node type are gone (player grid comes from the final grid-to-mesh record's inputs). Player physics runs in updateScene, render in renderScene; Esc leaves player mode via escapePressed. pom dungeon-viewer profile passes -Dixdar.model.",
+        "Merged AStarCorridors3DNode into AStarCorridorsNode (grid_d > 0 carves the 3D lattice, as random_rooms) and DungeonGridToMesh3DNode into DungeonGridToMeshNode (DungeonGrids.isLattice picks 2D/3D from the tiles); dungeon_3d.dsl migrated to astar_corridors/dungeon_grid_to_mesh. Fingerprints identical before/after: dungeon_2d 2db0fbd1...b55a (8976 v/2244 f), dungeon_3d 0dad5ccb...2d42 (13008 v/3252 f).",
+        "Scene.refreshControls: F frame-all is added only when neither the tool nor the scene binds plain F (row position unchanged). ModelScene.resolveInitialModel resolves -Dixdar.model through availableModels() (graphs included); ModelScene/OrbitTool list the orbit drag/scroll/shift+drag rows only while the mouse drives the orbit camera. ENG-27 dungeon camera pass (tmp/procgen-13-camera.sh) identical before/after; mvn test 525 pass."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/scene/DungeonViewerScene.java",
+        "ixdar-app/src/main/java/ixdar/procgen/dungeon/nodes"
+    ],
+    "priority": 5
+}

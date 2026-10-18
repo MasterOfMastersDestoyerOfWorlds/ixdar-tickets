@@ -1,0 +1,37 @@
+{
+    "id": "MESH-56",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Primitive-array heap for every mesh search instead of java.util.PriorityQueue<double[]>",
+    "description": "Ixdar/CLAUDE.md says scratch state (distance arrays, visit stamps, queues) lives as primitive-array fields of the class that uses them, with no per-entry objects. 16 main-source classes still run their searches on java.util.PriorityQueue, most as PriorityQueue<double[]>: every push allocates an array, boxes through a Comparator, and the queue is rebuilt per call. SurfaceGeodesics is the only class with a primitive heap (heapKey/heapVertex/heapSize fields, heapPush/heapPop), and it is the fast path: the geodesic ring preview is interactive while the crease trace in AuthoredSplineRing (PriorityQueue<double[]>) took 0.1-2 s per call on the crawfish (CRAW-63 is switching that one path now). Wanted: one primitive min-heap that every surface search uses, held where an existing class can own it (not copy-pasted per class, and not a new class unless no existing one fits), and the hot searches moved onto it, with whole-mesh scratch arrays reused through visit stamps instead of reallocated per call.\n\nUsers (main source): geometry/mesh/data/paths/Dijkstra, FlipGeodesics, ConformingLoopSnap, AuthoredSplineRing; geometry/mesh/data/BoundarySnap, MeshSkeletonExtractor, DiscreteGradient, RingCandidateExtractor; quadlayout/crossfield/constraint/CurvatureConstraints, quadlayout/motorcycle/MotorcycleGraph, quadlayout/seamless/CutGraph, quadlayout/embedding/ArcNetworkRecarve; scenes/main/MainScene; procgen/dungeon/algo/AStarCorridorPathfinder2D/3D, PrimMinimumSpanningTree.",
+    "blocked-by": [
+        "CRAW-63"
+    ],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. One primitive-array min-heap (double keys, int payload; decrease-key or lazy deletion, stated) used by SurfaceGeodesics and the mesh searches, in one place; no copies of heap code across classes.\n2. Every PriorityQueue in geometry/mesh (paths, data, quadlayout) replaced by it, or kept with a one-line reason on the ticket (cold path, needs a non-scalar key).\n3. Whole-mesh scratch arrays in the converted searches are fields reused through visit stamps, not reallocated per call.\n4. Results unchanged: ring fingerprints on the crawfish IMG_41xx DSLs and fertility, quad layout outputs on fertility and rockerarm, existing tests green.\n5. Before/after timings for Dijkstra.forest, the crease trace, FlipGeodesics and the motorcycle graph on the crawfish and fertility recorded on the ticket.",
+    "testing-plan": "1. mvn test. 2. Ring fingerprint comparison on the crawfish DSLs (copies under tmp/) master vs branch. 3. Benchmarks before/after for the searches named in DoD 5.",
+    "todos": [],
+    "unknowns": [
+        "Where the shared heap lives: SurfaceGeodesics already owns one; is a tiny named heap class justified (it is a named concept with behaviour) or should the searches share an existing owner?",
+        "procgen dungeon pathfinders and MainScene: in scope, or leave them (not mesh, not hot)?"
+    ],
+    "changes-made": [
+        "Heap home: new ixdar/geometry/mesh/data/MinHeap (double key, int id, growing primitive arrays, lazy deletion, no decrease-key; tiesById breaks equal keys by smaller id). Own class because it is a named concept with behaviour used from data, data/paths and quadlayout; SurfaceGeodesics as owner would make CutGraph/CurvatureConstraints depend on the geodesic engine. Pops in exactly PriorityQueue's order (same sift rules), so results are bit-identical. SurfaceGeodesics' public heapKey/heapVertex/heapSize/heapPush/heapPop are gone; it holds a private MinHeap. SurfaceConnection's hand-rolled heap copy deleted.",
+        "Converted searches (each holds its MinHeap as a field, emptied with size = 0): SurfaceGeodesics (Dijkstra labels and A*), AuthoredSplineRing crease sheet search (own heap, no longer borrows the geodesic engine's), ConformingLoopSnap, SurfaceConnection, FlipGeodesics wedge queue (id packs turn<<30|segment, tiesById reproduces the angle,turn,segment order), Dijkstra.forest (heap per call; the arrays are the returned forest), RingCandidateExtractor, MeshSkeletonExtractor (both voxel searches), BoundarySnap (static cold path, per-call heap), CurvatureConstraints (DijkstraNode class deleted), ArcNetworkRecarve (distance now visit-stamped instead of Arrays.fill per route), CutGraph (both searches; singularity routes now reuse stamped routeDistance/routePreviousVertex/routePreviousEdge fields instead of three whole-mesh arrays per singularity).",
+        "Kept PriorityQueue: MotorcycleGraph - events are TraceEvent objects (type, u, v, other segment, serial) keyed by (length, traceId), and the queue holds at most one live event per trace (184 on fertility), so it is cold and not scalar-keyed. DiscreteGradient - lexicographic simplex-value tuple key, not a scalar. procgen dungeon pathfinders and MainScene left alone (not mesh).",
+        "Equivalence, master (git archive of master) vs branch: ring fingerprints and every ring's .xyz byte-identical on crawfish_rings (IMG_4109), IMG_4110, IMG_4111 and fertility_rings DSL copies (225 files); GrooveRingBenchmark#crossingsOverManyCursorVertices identical (crawfish: geodesic 7/400 crossing 1.8%, crease 1/400 0.3%, in-groove 0.139/0.527; fertility identical); GridMapPipelineBenchmark on fertility and rockerarm: every pipeline log line identical apart from timings (grid-optimize 1.433192e+05 -> 3.840133e+04 / 1.266755e+05 -> 3.788673e+04); FlipOut leg and body loops identical (4089 / 119683 flips); Dijkstra.forest distance sum and parent hash identical. mvn test: 482 run, 0 failures.",
+        "Timings master -> branch (warm best, shared machine, other agents running): Dijkstra.forest crawfish shell 460456 vertices 142.0 -> 109.0 ms, fertility 13971 vertices 11.35 -> 5.33 ms; FlipOut crawfish leg 3.97 -> 4.18 ms, body 105.6 -> 93.3 ms (noise; the wedge queue is not the cost); crease trace (GrooveRingBenchmark mean per ring) crawfish 39 -> 43 ms, fertility 2 -> 2 ms (noise; CRAW-63 already took the crease search off PriorityQueue); motorcycle graph fertility 0.22 -> 0.15 s (MotorcycleGraph unchanged). The crawfish motorcycle graph cannot be timed: on master and branch alike the seamless stage throws ArithmeticException 'safeDot exceeded F_d range' (ExactArithmetic.safeDot) on IMG_4109.",
+        "Archived 2026-10-16 without landing, as tag archive/mesh-56 at 794029e9: Mostly swaps PriorityQueue for an own heap; only Dijkstra.forest measurably faster, hot crease search already done in CRAW-63"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/SurfaceGeodesics.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/Dijkstra.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/AuthoredSplineRing.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/FlipGeodesics.java"
+    ],
+    "priority": 2
+}

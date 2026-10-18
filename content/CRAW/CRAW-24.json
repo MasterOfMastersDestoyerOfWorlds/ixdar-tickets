@@ -27,7 +27,8 @@
         "Region flood fill between rings -> per-face part field",
         "transfer_report: snap distances, closure, area ratios, ABSENT flags",
         "parts_<member>.dsl writer + ixdar-cli parts transfer command",
-        "Two-scan demo on IMG_4109 + IMG_4110, then all ten"
+        "Two-scan demo on IMG_4109 + IMG_4110, then all ten",
+        "Flood the regions between rings with ixdar.geometry.mesh.data.RingRegions (CRAW-32, ring_regions node) rather than a second flood fill; its select query (point x,y,z / between ring_a ring_b) is how a part label is named by surface point."
     ],
     "unknowns": [
         "Trellis scans may differ in scale/orientation beyond what PCA+ICP recovers when large regions are missing; may need skeleton-graph matching as the alignment seed",

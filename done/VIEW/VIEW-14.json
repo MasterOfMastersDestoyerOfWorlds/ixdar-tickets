@@ -1,0 +1,31 @@
+{
+    "id": "VIEW-14",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "HyperWord click areas are about ten times wider than the drawn text, so one click fires a row's action several times",
+    "description": "Found 2026-10-03 while building VIEW-12's model menu: HyperWord hit-tests with the raw font width rather than the width scaled to the drawn row height (HyperString scales by Drawing.FONT_HEIGHT_PIXELS / font.fontHeight when laying out), so a word's click and hover bounds run far past its text, overlap the words after it and, in the model menu, make one click run the row's action several times (model loading happened to dedupe to one load). Shared by every HyperString user: the knot view's info pane, the terminal, tooltips, menus. Fix the bounds at the root so a word's hit area matches what is drawn.",
+    "blocked-by": [],
+    "blocks": [
+        "VIEW-18"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. A word's click and hover bounds match its drawn rectangle (unit test comparing setBounds against the drawn width). 2. One click on a model-menu row runs its action exactly once (log or counter in a test). 3. Hover and click still work in the knot view's info pane and the terminal (screenshots).",
+    "testing-plan": "1. Unit test on HyperString layout bounds. 2. F5 the ring-tool scene, click a model row, check the log shows one request. 3. F5 the knot view and hover a word.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cause: HyperWord.width is the advance in font-atlas pixels (atlas size 256, fontHeight 348.6), and hit tests used xScreenOffset + width, while layout drew words at FONT_HEIGHT_PIXELS/fontHeight (30/348.6 = 0.086) of that width, so each click/hover rectangle was ~11.6x the drawn word and overlapped every following word on its row; a click on a row with N words ran its action up to N times.",
+        "Fix: HyperWord.setBounds now takes the drawn width and stores it as drawnWidth; calculateHover/calculateClearHover/click test against drawnWidth. HyperString.setLineOffsetFromTopRow scales by rowHeight/fontHeight (the height drawHyperStringRows draws at) and setLineOffsetCentered takes the drawn height, so its width, height and centring (knot point labels, MenuBox/DropDown labels, City labels) match the glyphs. ui-state reports drawnWidth as a word's width. CanvasSceneMap's ixdar-canvas entry now goes through MainScene.main (it crashed with a null canvas), so the knot view launches directly.",
+        "Verification: HyperStringBoundsTest (drawn width equals bounds, words abut, a point hovers/clicks one word only, centred bounds scaled to drawn height) and MenuScrollBoxWrapTest.oneClickOnAModelRowRunsItsActionOnce pass; full mvn test 368/368; mvn -q compile clean; teavm-build OK; ixd wt done passed. Live: knot view hover on Knot[ 0 1 ] shows its tooltip, hover right of the text shows none (tmp/view14-knot-hover-word.png, tmp/view14-knot-hover-right-of-text.png, tmp/view14-knot-hover-label.png, tmp/view14-terminal.png); ring-tool model menu click on hand.dsl loads it once, a click right of a row's text loads nothing (tmp/view14-model-menu-hover.png, tmp/view14-model-menu-after-click.png). Launch entries VIEW-14: ixdar-canvas and VIEW-14: ring-tool.",
+        "2026-10-03 (coordinator): F5 of 'VIEW-14: ixdar-canvas' in a real window aborted the JVM ('No context is current or a function that is not available'): MainScene builds shaders in its constructor, which runs inside the CanvasSceneMap supplier before Canvas3D.initGL calls createCapabilities. IxdarWindow.init now calls Platforms.gl().createCapabilities() right after glfwMakeContextCurrent. The headless launcher creates capabilities earlier, which is why the agent's run passed. Build clean; real-window F5 pending the user.",
+        "2026-10-03 (coordinator): removed the now-redundant createCapabilities() from Canvas3D.initGL; LWJGL's GL.createCapabilities rebuilds the function table on every call, and the window already calls it before the scene is built (the render thread keeps its own call, since capabilities are per thread; headless and web implementations are no-ops). Build clean, headless launch OK; real-window F5 pending the user."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/HyperWord.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/HyperString.java"
+    ],
+    "priority": 3
+}

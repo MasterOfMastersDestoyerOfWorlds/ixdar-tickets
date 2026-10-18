@@ -1,0 +1,28 @@
+{
+    "id": "TOOL-20",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Shell scripts become Python ixdar-cli commands (Windows support); one repo-root and Maven helper; run_scene split",
+    "description": "Repo plan merge 3F.26; the user notes bash is not cross-platform to Windows. tools/install-cli.sh duplicates cli_commands/install_alias.py ('Mirrors tools/install-cli.sh'; both write a bash wrapper: write a .cmd on Windows); tools/link-profiler.sh duplicates run_scene's ASYNC_PROFILER_CANDIDATES; tools/teavm-build.sh (136 lines; JDK pick via mise/TEAVM_JAVA_HOME, Maven, optional Hugo; REFACTOR-PLAN-2.md B4 notes it swallows TeaVM errors) overlaps rebuild_krieg_web.py and is wired in .vscode/tasks.json; tools/check-incremental-build.sh (TOOL-18) is bash. Port each to Python (or delete where an ixdar-cli command already covers it) and point tasks.json at uv run ixdar-cli. The repo root is computed six ways (automation_client.checkout_root, run_scene.REPO_DIR, gen_docs.REPO_ROOT, rebuild_krieg_web._ixdar_root, new_scene, install_alias.REPO_ROOT) and Maven is invoked in five places (run_scene._run_maven, mesh_viewer, rebuild_krieg_web, duplication, dsl_optimizer): one helper module. run_scene.py (815 lines) splits its build-state block into its own module.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.\n\nAMENDED 2026-10-17: ixd's worktree seeding runs 'uv run ixdar-cli link-profiler' when the checkout's CLI has that command and falls back to tools/link-profiler.sh, so the Python port must be a CLI command named exactly link-profiler (exit 0 on success, one line of output).\n",
+    "blocked-by": [
+        "ENG-16"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. No .sh under tools/ (or each remaining one justified); every replacement runs on Linux and has no bash dependency.\n2. One repo-root function and one Maven runner; no hard-coded tool paths.\n3. test_cli passes; run-scene, install-alias and teavm-build work live; TeaVM errors are no longer swallowed.",
+    "testing-plan": "1. test_cli.\n2. Live: each ported command.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "tools/ has no .sh left. install-cli.sh, link-profiler.sh and teavm-build.sh deleted; tools/check-incremental-build.sh was never committed (TOOL-18 only referenced it), so its reasoning (the incremental-vs-clean comparison that proved compile without clean is safe) now lives in build_state.build_decision's docstring. New commands: `ixdar-cli link-profiler` (one line on stdout, exit 0; exit 1 with the install hint on stderr; symlink, copy where symlinks are not allowed; reuses the resolver run-scene uses, skipping the link itself; ixd's seeding picks it up, verified via ixd.worktree.link_profiler -> 'seed: linked .profiler/libasyncProfiler -> /usr/lib/libasyncProfiler.so'); `ixdar-cli teavm-build [--hugo]` replaces teavm-build.sh and rebuild-krieg-web (deleted): same JDK pick (TEAVM_JAVA_HOME, mise where java@25, else warn when the JDK is newer than 25), annotations installed first, old classes.js removed first, [ERROR] lines repeated after the output and now any [ERROR] line fails the run (exit 1), as does a missing or <100000-byte classes.js; one summary line; KRIEG_ETERNA_WEB still overrides the Hugo dir. install-alias writes a #!/bin/sh wrapper, or ixdar-cli.cmd on Windows. .vscode/tasks.json: teavm-build runs `uv run ixdar-cli teavm-build` (process task, no hard-coded /usr/local/maven PATH). One repo root: ixdar_automation_cli/checkout.py checkout_root() (moved out of automation_client; the working directory's checkout, else the package's), used by build_state, run_logs, launch_entry, mesh_catalog, gen_docs, new_scene, install_alias, link_profiler, scenario_commands, coverage_report, duplication, mesh_viewer, teavm_build. One Maven runner: checkout.run_maven (captured or streamed to stderr, raises with exit code and 25-line tail) plus maven_executable() (shutil.which, so mvn.cmd on Windows); used by build_state, duplication, dsl_optimizer, teavm_build, and mesh_viewer's Popen. run_scene split: its build-state block (sync_resources, build_inputs, build_decision, ensure_build, the path constants) is ixdar_automation_cli/build_state.py; the profiler resolver is in cli_commands/link_profiler.py; run_scene.py 822 -> ~585 lines. java -cp now joins with os.pathsep (run-scene and launch). CliCommandResult takes a str payload, printed raw (stdout on success, stderr on failure). Tests: test_cli 103 run, OK (new: link-profiler output and failure, install-alias posix/cmd wrappers, run_maven stream and failure tail, teavm-build fails on an [ERROR] line with a good bundle and on a leftover-free missing bundle). Live: link-profiler; install-alias into a scratch HOME (wrapper runs); run-scene circle-canvas (clean compile through run_maven, screenshot tmp/tool-20.png); teavm-build OK on mise JDK 25.0.2, classes.js 7283789 bytes, 0 [ERROR], 41 s. README regenerated; CLAUDE.md's generated block is stale (gen-docs --check reports it) and was not edited."
+    ],
+    "related-files": [
+        "tools",
+        "ixdar_automation_cli/cli_commands/run_scene.py",
+        ".vscode/tasks.json"
+    ],
+    "priority": 5
+}

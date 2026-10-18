@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-40",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Ring tool: cannot start a new ring by clicking on the tube's center ridge line",
+    "description": "User report 2026-10-03, after CRAW-39 (ring tool on quad meshes, polygon split inside IntrinsicTriangulation) landed. On the tube DSL, with the ring tool active, clicking on the center ridge line does not place the first point of a new ring: nothing happens. Once a ring exists, its anchors can be dragged onto that same ridge without trouble. So the press path that starts a ring (pick -> first anchor/draft) rejects or misses hits on the ridge, while the anchor-drag path (which projects onto the surface differently) accepts them. Likely suspects to check first, not conclusions: SurfacePicker.hitFace / the pick for a new ring when the ray lands exactly on a mesh edge shared by two faces (a tie or a strict inside test that rejects both faces), a crease/ridge edge whose neighbouring face normals face away from the camera test, or the new-ring path requiring a face or vertex hit where the drag path accepts an edge hit. Find the actual cause and fix it in the shared picking code so starting a ring and moving an anchor use the same surface-hit rules; no per-tool special case.\n\nModel identified: CRAW-39's tmp/quad_tube.dsl was a plain copy of ixdar-app/src/main/resources/dsl/varying_tube_test.dsl (quad mesh, 1280 faces). Its radius float_curve is piecewise linear 0.2 -> 0.8 -> 0.2, so the tube is a diamond: wide at the center, thin at the ends, with a sharp crease ring at the widest point. That crease ring is the 'center ridge line' the user cannot click to start a ring. Load the master file directly in the ring-tool scene; no copy is needed unless you save.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "3. A unit test fires a pick ray exactly onto a shared edge (and onto a ridge/crease edge) and gets a valid surface hit; fertility's ring fingerprints are unchanged.",
+    "testing-plan": "1. Reproduce live with ixdar-cli click on the ridge before the fix (log the pick result), then after. Screenshot both under tmp/. Never save over fertility_rings.dsl.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause: not picking. The click and the anchor drag already share one pick (GPU id face + SurfacePicker.hitFace), but a new ring is only drafted from the hover preview, and GirdlingPlane.find capped every girdle at 2x the mesh bounding radius (longestGirdleInRadii). On the diamond tube that cap is 4.02 while the cross-section loop is ~4.1 at y=0.5 and ~5.0 at the crease, so every click in the wide band |y|<~0.6 around the ridge got 'no preview loop under the cursor'; drags never use the girdle, so they worked. Fix: GirdlingPlane drops the cap (and modelRadius/measuredSurface); the search keeps the shortest closed cut among the scanned planes with no up-front budget. Also hardened the shared hit: SurfacePicker.hitFace is now the watertight ray/triangle test (Woop, Benthin, Wald 2013), so a ray onto a shared edge or a quad's fan diagonal can no longer miss both triangles (the old Moller-Trumbore test missed a ray onto a fan diagonal), and the new SurfacePicker.pickNear tests the GPU id face then its one-ring neighbours, which RingTool uses for every press, hover and drag. Verification: live ridge click at (512,605) on master: no draft, error 'no preview loop under the cursor' (tmp/before_ridge_click_master.png); after: draft opened, 32 edges, length 4.675 (tmp/after_ridge_click.png); hover scan from y=1.0 to -0.47 all give a valid preview. SurfacePickerTest gains crease-edge and shared-edge/fan-diagonal ray tests (hit + girdle). mvn test 407/407; fertility_rings ring fingerprints (13 rings) identical to master."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java",
+        "ixdar-app/src/main/resources/dsl/curve_sweep_tube.dsl",
+        "ixdar-app/src/main/resources/dsl/varying_tube_test.dsl"
+    ],
+    "priority": 2
+}

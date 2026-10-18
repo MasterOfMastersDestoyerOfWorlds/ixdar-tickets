@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-13",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Scene status text: decide where feedback goes (terminal, transient toast or toggleable HUD) instead of permanent on-screen text",
+    "description": "User request 2026-10-03, from reviewing CRAW-32 (ring regions): scenes print status text permanently on screen (for example the region tool's \"20 regions, 0 selected / select=...\" block at the top left, the ring tool's status line and last-row summary). The user does not want text on screen all the time. Decide where scene status and feedback belong: the terminal (the in-app terminal and/or the process log), a transient toast that fades, a toggleable HUD, or the control-hint panel. Survey every scene that draws persistent status text, propose one rule, apply it to the ring tool and the region tool first, and list the remaining scenes as follow-ups. CRAW-32's rework removes its own top-left text block in the meantime; this ticket decides the general rule.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A written rule on the ticket, agreed with the user. 2. The ring tool and region tool follow it. 3. The other scenes with persistent text are listed as follow-ups.",
+    "testing-plan": "1. Screenshots of the ring and region tools before and after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

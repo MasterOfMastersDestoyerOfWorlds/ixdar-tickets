@@ -1,0 +1,25 @@
+{
+    "id": "VIEW-15",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "platform"
+    ],
+    "title": "Scene keys fire while the terminal has focus: typing in the terminal switches tools, toggles the menu, confirms drafts, saves",
+    "description": "Found 2026-10-03 (CRAW-32 key audit): OrbitCameraKeyGuy.keyCallback dispatches scene ControlHints without checking whether the scene terminal (~) has focus, so typing in the terminal also triggers scene keys: Ctrl+R/Ctrl+T/Esc switch tools, Ctrl+I toggles the menu, Enter confirms a ring draft, Backspace deletes an anchor, N and C toggle, Ctrl+S saves. Affects every model scene. While the terminal is focused, keys go to the terminal only (paintUpdate already checks Toggle.IsTerminalFocused); the key that opens and closes the terminal itself keeps working.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. With the terminal focused, none of the scene's control keys fire (ui-state unchanged while typing a command containing those letters plus Enter and Backspace). 2. With the terminal closed every key works as before. 3. The terminal toggle key still opens and closes it.",
+    "testing-plan": "1. Unit test on OrbitCameraKeyGuy with the focus toggle set. 2. F5 the editing scene, open the terminal, type, check tools and rings are unchanged.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cause: the terminal toggle (~) is a scene ControlHint, so OrbitCameraKeyGuy.keyCallback dispatched every ControlHint (and its Ctrl+R orbit reset) without checking Toggle.IsTerminalFocused; KeyGuy's MainScene shortcuts (Ctrl+N/Ctrl+B tool switches, tool keys, Esc exit) and its key-release Esc menu-back / R camera reset leaked the same way, as did DungeonKeyGuy's F/V/Esc.",
+        "Fix: KeyGuy.terminalOwnsKey(key) = terminal focused and key != GRAVE. OrbitCameraKeyGuy.handleSceneKeys and its Ctrl+R reset skip owned keys (the ~ hint still fires); KeyGuy.keyPressed skips its shortcut block and Esc exit, keyReleased skips Esc/R; DungeonKeyGuy fires no F/V/Esc toggle while the terminal has focus. TradeKeyGuy has no terminal and is unchanged.",
+        "Verified: unit.input.OrbitCameraKeyGuyTerminalFocusTest (3 tests: no control fires with focus set, ~ still closes/reopens, every control fires once closed); mvn -q compile clean; mvn test 367 run, 0 failures. Live in ring-tool (entry 'VIEW-15: ring-tool terminal focus') via /input routes: with a ring draft open and the terminal focused, R T I N C X, Ctrl+R/T/I, Esc, Backspace, Enter and typed text left tool, menu, draft, undo depth and the 13 rings unchanged in ui-state (only the terminal text changed; Backspace edited the terminal line). Closed: Ctrl+T -> region select, Ctrl+R -> ring tool, Ctrl+I toggles the menu, Esc -> orbit. Screenshots tmp/view15-0[1-8]-*.png. Ctrl+S not pressed live (unit test covers it); fertility_rings.dsl untouched."
+    ],
+    "related-files": [],
+    "priority": 3
+}

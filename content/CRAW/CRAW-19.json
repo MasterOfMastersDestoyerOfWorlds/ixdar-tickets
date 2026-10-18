@@ -6,10 +6,9 @@
         "geometry"
     ],
     "title": "End-to-end crawfish.dsl: one labeled, textured, rigged, symmetric model",
-    "description": "The integration ticket for the headline goal in Plan for Crawfish.md. Author `crawfish.dsl` under src/main/resources/dsl/: collection (~/crawfish, kept members) -> align + union (CRAW-16) -> symmetrize (CRAW-18) -> quad_layout -> saved layout + patch labels (CRAW-4/6, labelled via the scene or CRAW-10) -> label_to_selection driving set_bone_weight / apply_bone for claws, legs, tail segments, antennae -> set_label_material per part (CRAW-11) with the photographic texture preserved (CRAW-3/14) -> export_mesh to crawfish.glb (CRAW-20). Register it in the model menu, add a launch.json entry, and record timings with NodeGraphRuntime.logTimings.",
+    "description": "The integration ticket for the headline goal in Plan for Crawfish.md. Author `crawfish.dsl` under src/main/resources/dsl/: collection (~/crawfish, kept members) -> align + union (CRAW-16) -> symmetrize (CRAW-18) -> quad_layout -> saved layout + patch labels (CRAW-4/6, labelled via the scene or CRAW-10) -> label_to_selection driving set_bone_weight / apply_bone for claws, legs, tail segments, antennae -> set_label_material per part (CRAW-11) with the photographic texture preserved (CRAW-3/14) -> export_mesh to crawfish.glb (CRAW-20). Register it in the model menu, add a launch.json entry, and record timings with NodeGraphRuntime.logTimings.\n\nSCOPE CHANGE (user, 2026-10-02): the saved, labelled layout comes from PATCH-57 (a self-contained Coons-patch .dsl), not CRAW-4.\n",
     "blocked-by": [
         "CRAW-2",
-        "CRAW-4",
         "CRAW-6",
         "CRAW-11",
         "CRAW-15",
@@ -17,7 +16,8 @@
         "CRAW-18",
         "CRAW-20",
         "CRAW-24",
-        "CRAW-25"
+        "CRAW-25",
+        "PATCH-57"
     ],
     "blocks": [],
     "status": "TODO",

@@ -1,0 +1,22 @@
+{
+    "id": "CRAW-54",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Automation: regions route returns region geometry (centroid, bounds, area, neighbours) so tools can read the region split",
+    "description": "From the crawfish segmentation review (2026-10-04): the automation 'regions' route returns no geometry, and the region overlay is not a bundle tag that 'frame' can read, so the analysis agent had to chain 94 ring_regions nodes (about 9 s each) to measure each region and gave up after 30 minutes. The route should return, per region, face count, area, centroid, bounding box, bounding rings and neighbour regions, computed from the split the scene already has, in one call.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixdar-cli regions prints per-region face count, area, centroid, bounds, bounding rings and neighbours. 2. On the 82-ring crawfish it returns in about the time of one region split, not per region. 3. automation_routes.json and the CLI docs regenerated.",
+    "testing-plan": "1. Unit test on a two-ring cylinder. 2. Run on the crawfish fixture (tmp copy).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/regions/RingRegionTool.java"
+    ],
+    "priority": 3
+}

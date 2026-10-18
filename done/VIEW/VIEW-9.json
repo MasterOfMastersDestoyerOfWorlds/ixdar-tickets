@@ -1,0 +1,32 @@
+{
+    "id": "VIEW-9",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Model scenes: W/WASD desyncs the orbit camera (lighting shifts until you orbit) and near-side wireframe edges z-fight away",
+    "description": "Two rendering bugs in orbit-camera model scenes, both seen in the mesh-boolean scene (`MeshBooleanScene`, where W toggles the wireframe).\n\n**1. W changes the lighting; orbiting restores it.** W is bound twice. `OrbitCameraKeyGuy.handleSceneKeys` fires the scene's `ControlHint` (toggle wireframe), and `KeyGuy.paintUpdate` also runs `Camera2DInputController.apply` every frame, where `KeyActions.MoveUp` is W. That calls `Camera3D.move(FORWARD)`, which moves `position` along the free-fly `front` vector (from the camera's stale yaw/pitch; the orbit never sets it) and then `updateCameraVectors()` overwrites `target = position + front` and `up`. The view matrix is not rebuilt (only `OrbitMouseTrap.applyOrbit` does that), so the geometry does not move. But `HalfEdgeMeshRuntime.render` derives `lightDir` from `camera.target - camera.position`, which is now the stale `front`, so the camera-following light swings. `nearPlaneFor`/`farPlaneFor` also read `position.distance(target)`, which is now 1. The next drag or scroll calls `applyOrbit()`, which resets position and target, so the lighting comes back. A, S and D (MoveLeft/MoveDown/MoveRight) do the same, and D is also mesh-boolean's \"difference\" key. Every `ModelScene` using `OrbitCameraKeyGuy` is affected, not only mesh-boolean.\n\nLikely fix: orbit scenes should not run the free-fly WASD camera movement. Either `OrbitCameraKeyGuy` overrides `paintUpdate` to skip `Camera2DInputController.apply`'s move keys, or a key consumed by a ControlHint is kept out of `pressedKeys` movement. Separately, `HalfEdgeMeshRuntime` could take the light direction from the view matrix instead of position/target, so it can never disagree with what is drawn.\n\n**2. You see edges on the far side of the model but not the near side.** `HalfEdgeMeshRuntime.renderEdges` draws every edge twice. The faint pass has depth test off, so far-side edges show through the model by design. The bold pass has depth test on but never sets `depthBias`, so it draws at exactly the faces' depth (PATCH-17 only biases `renderFeatureEdgeOverlay`, with 0.0003). Under GL_LESS the near-side bold edges z-fight with the faces they lie on and mostly disappear, which leaves the faint far-side edges as the only visible lines. Likely fix: set `meshUnlitShader.setFloat(DEPTHBIAS, NUM_0_0003)` for the bold pass and reset it to 0 afterwards, as the feature-edge overlay does. Also reconsider whether the faint depth-off pass should stay on by default. Confirm in a screenshot that this is what the user sees. If instead whole front *faces* are missing, check the boolean output's winding/normals (`display.computeNormals()` in `MeshBooleanScene.applyProvenanceTags`) and the depth state.\n\nSide note: in `mesh.fs` the rim term uses world-space `n.z`, so it does not follow the camera. Not this bug, but a candidate to fix alongside it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. In mesh-boolean, pressing or holding W (and A/S/D) changes nothing except the bound control: the lighting and the near/far planes stay the same before and after, and dragging afterwards does not cause a lighting jump.\n2. The orbit target and position in Camera3D are only ever written by OrbitMouseTrap in ModelScene subclasses that use OrbitCameraKeyGuy.\n3. With wireframe on, the near-side edges are drawn clearly on top of the faces and the far-side edges read as fainter than them.\n4. A `.vscode/launch.json` entry for mesh-boolean, and before/after screenshots under `tmp/` (wireframe on, after pressing W, and after orbiting).",
+    "testing-plan": "1. Launch mesh-boolean, take a screenshot, press W twice (wireframe off and on again), and take another screenshot. The shading must be identical apart from the edges.\n2. Hold W for a second, then drag-orbit slightly and back. The shading must not jump.\n3. Zoom in on one cube face with wireframe on and check that its edges are solid red, not broken up by z-fighting.",
+    "todos": [],
+    "unknowns": [
+        "Is the 'can't see the front side' report about the wireframe edges (z-fighting, likely) or about whole faces? Confirm with a screenshot before fixing."
+    ],
+    "changes-made": [
+        "Bug 1 (W/A/S/D shifted the lighting until you orbited): OrbitCameraKeyGuy now overrides paintUpdate to apply only the =/- zoom keys (new Camera2DInputController.applyZoom), so orbit scenes never run free-fly Camera3D.move and OrbitMouseTrap is the only thing that sets position/target. HalfEdgeMeshRuntime now takes lightDir from the view matrix (view.positiveZ negated), so the light always matches what is drawn. Verified: a frame after pressing W twice is pixel-identical to the start frame (it was 39% different before); tmp/view-9-before-*.png vs tmp/view-9-after-*.png. Bug 2 (near-side wireframe edges hidden): confirmed as z-fighting, since before the fix the red edges were dashed and broken while every face rendered. renderEdges' bold pass now uses depthBias 0.0003, like the feature-edge overlay, and resets it to 0 afterwards. Near edges are now solid red (tmp/view-9-after-zoom.png); far edges show only as the faint depth-off pass. mesh.fs: the rim term now uses the view-space normal z, so it follows the camera. Launch entry 'VIEW-9: mesh-boolean'."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/input/OrbitCameraKeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/KeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/Camera2DInputController.java",
+        "ixdar-app/src/main/java/ixdar/graphics/cameras/Camera3D.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshBooleanScene.java",
+        "ixdar-app/src/main/resources/glsl/mesh.fs"
+    ],
+    "priority": 2
+}

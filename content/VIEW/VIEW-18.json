@@ -1,0 +1,23 @@
+{
+    "id": "VIEW-18",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Highlight the model menu row under the cursor",
+    "description": "User request 2026-10-03, follow-on to VIEW-12: hovering a model row in the model menu highlights it (a brighter colour or a background bar across the row's full width, including all its wrapped lines), so it is clear what a click will load. The current model keeps its own marker and colour; hovering it still shows the hover state. Uses HyperString's existing hover handling; depends on VIEW-14 because hover bounds are currently about ten times too wide and would highlight the wrong rows.",
+    "blocked-by": [
+        "VIEW-12",
+        "VIEW-14"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Hovering any line of a model row highlights the whole row, and only that row (screenshots, including a wrapped row). 2. Moving off the row clears it. 3. Works in a scrolled box.",
+    "testing-plan": "1. F5 the editing scene, open the menu, hover rows at several scroll positions. 2. Automation hover route plus screenshot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

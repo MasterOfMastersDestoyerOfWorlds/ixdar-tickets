@@ -1,0 +1,27 @@
+{
+    "id": "MESH-52",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "HalfEdgeMeshEngine.buildFromIndexedMesh is the floor under every mesh op: 370 ms for 938k faces",
+    "description": "Measured by the CRAW-26 performance pass with async-profiler: after repair_mesh's own work dropped to ~740 ms on IMG_4109, the remaining ~370 ms of the node is assemble(), and 30 of its 36 samples are HalfEdgeMeshEngine.buildFromIndexedMesh: 938k addFaceInternal calls each clearing and refilling three per-face IntIdList objects, followed by computeNormals. Every node that converts to HalfEdgeMesh pays this (ring_candidates, loop_through_points, repair_mesh, quad_layout). Rewrite the bulk build as a flat pass: allocate the half-edge arrays once from face count, pair twins with a counting sort by lower vertex (the pattern MeshRepair.buildEdges now uses), detect non-manifold directed half-edges in the same pass and report all of them instead of throwing on the first (which also makes MeshRepairReport.unorientedEdgeCount reachable), compute normals in one vectorizable loop. Keep addFace for incremental edits. Target: under 100 ms for 938k faces, byte-identical half-edge structure (fingerprint) to today's builder on fertility and the repaired scan.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. buildFromIndexedMesh on the repaired IMG_4109 (938k faces) under 100 ms warm, recorded in a benchmark under ixdar-app/test/benchmark/. 2. MeshCanonicalFingerprint of the built mesh identical to the old builder on fertility, the torus fixture and the repaired scan. 3. Non-manifold input yields a report of every offending directed half-edge, not an exception on the first; MeshRepair's strict mode can read unorientedEdgeCount. 4. Fertility quad layout baseline unchanged. 5. Build checkstyle-green; unit tests on procedural meshes only.\n\n6. HalfEdgeBuildBenchmark logs one [build] line per mesh (warm min and median of buildFromIndexedMesh); that log line is the acceptance number and stays.\n",
+    "testing-plan": "1. Fingerprint equality tests old vs new on procedural meshes. 2. Benchmark on the repaired scan. 3. Fertility regression.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Bulk build rewritten as packedBuild in HalfEdgeMeshEngine (buildFromIndexedMesh, bulkAllocate and bulkAllocateMixed all use it): counting sort of corners by lower vertex, edge grouping with per-high-vertex stamps, edges numbered in first-corner order (half-edges 2e/2e+1), CSR vertex rows; ids, links and adjacency order identical to the face-at-a-time addFace build. Adjacency moved from ArrayList<IntIdList> to the new IntIdTable (rows packed into shared arrays, a row copied into its own IntIdList on first edit), so a bulk build allocates no per-element objects; addFace/splitEdge/removeFace edit through it unchanged. ActiveIdSet.addFirstIds fills a fresh set in one pass.",
+        "Collisions: the build reports every non-manifold or duplicate directed half-edge in one InvalidMeshTopologyException ('N non-manifold or duplicate directed half-edges: a->b ...'). MeshRepair.assemble keeps the survivors as an ArrayMesh when unorientedEdgeCount > 0, so repair_mesh strict mode reads the count from the report instead of dying in the build.",
+        "Measured (HalfEdgeBuildBenchmark, warm, loaded machine): repaired IMG_4109 938k faces 208 ms min / 398 ms median before -> 75 ms min / 77 ms median after; fertility 10.8/11.2 ms -> 2.4-6.2 ms. Warm stage split after: validate+count 6, low-vertex sort 7, edge grouping 15, numbering 11, face links 8, vertex rows 16, assemble 8, normals ~12 ms. Crawfish ring scene (crawfish_rings.dsl copy): graph 3153/2692 ms -> 2488/2734 ms, cold build inside repair_mesh ~570 -> ~250 ms (scene profile), repair_mesh heap 950 -> ~780 MiB; screenshot pixel-identical. Fertility grid map energy unchanged (1.433192e5 -> 3.840133e4, 25 iterations, 0 flipped). HalfEdgeBulkBuildTest compares bulk vs addFace on torus, scrambled open grid, quad torus, mixed mesh; unit suite 487/487."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/representation/HalfEdgeMeshEngine.java",
+        "ixdar-tickets:CRAW-26"
+    ],
+    "priority": 2
+}

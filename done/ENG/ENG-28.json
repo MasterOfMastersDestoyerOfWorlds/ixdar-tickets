@@ -1,0 +1,27 @@
+{
+    "id": "ENG-28",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "ui"
+    ],
+    "title": "Automation hover and click do not reach the TSP scene's 2D tools (ixdar-canvas)",
+    "description": "Found by the ENG-15 agent (2026-10-17), present on master too: ixdar-cli hover and click at a segment's midpoint in ixdar-canvas (djbouti loaded) leave the info pane at 'Point: None' and set no hover, so the Free tool's hover/click and the neighbor and negative-cut-match tools cannot be exercised by automation. The 2D tool merge (ENG-26) and the input merge (ENG-27) need these paths verifiable without a human. Find where the injected pointer events stop (AutomationInputBinder / InjectKey and the click/hover endpoints against MouseTrap's MainScene path, MouseTrap.java ~156-171 and ~390-395, and MainScene.inView) and make injected events take the same path as real ones. Repo plan: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [],
+    "blocks": [
+        "ENG-26"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. ixdar-cli hover over a knot or segment in ixdar-canvas sets the hover shown in the info pane; click selects as a real click does.\n2. A test or a recorded CLI run demonstrates it for the Free tool and one other 2D tool.\n3. No behaviour change for real mouse input; unit suite passes; launch entry and screenshot of the hovered state.",
+    "testing-plan": "1. Live: ixdar-cli hover/click on ixdar-canvas before and after.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause: injected hover/click already take the real path (InjectHover/InjectClick -> MainScene.mouse, the same MouseTrap bindInput feeds; probe confirmed MouseTrap.mousePos -> Tool.calculateHover with view=KnotView). Two things made it look dead: (1) at startup MainScene.knotDrawLayer is -1 (every layer drawn) and knotsDisplayed is empty, so Tool.calculateHover/calculateClick hit nothing for real or injected input until a layer key ([ / ]) picks a layer -- MainScene line ~315 assigns knotDrawLayer = totalLayers before totalLayers is computed; left unchanged (real-input behaviour, user's call); (2) ui-state serialised the info pane's dynamic words as '?MissingWord?', so automation could not read the hovered point. Fix: HyperWord.toString returns a dynamic word's drawn sub-words. Evidence: tmp/eng-28-run.sh / tmp/eng-28-run.log (Free tool: hover 17-18 -> 'Point: 18', click 14-16 then hover away -> 'Point: 16'; negative-cut-match tool: tmp/eng-28-negcut-hover.png draws cut 17-18, tmp/eng-28-negcut-click.png keeps 14-16 selected). Open: NeighborViewTool/NegativeCutMatchViewTool info pane never updates on hover because Tool.info() caches buildInfoText() forever (real input too) -- ENG-26 territory."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/input/MouseTrap.java"
+    ],
+    "priority": 3
+}

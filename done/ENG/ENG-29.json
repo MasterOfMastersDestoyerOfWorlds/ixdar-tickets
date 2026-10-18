@@ -1,0 +1,29 @@
+{
+    "id": "ENG-29",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform",
+        "automation"
+    ],
+    "title": "The platform owns the automation runtime: IxdarWindow knows nothing about automation",
+    "description": "User ruling (2026-10-18) on reviewing ENG-20: 'move the runtime back to platform, ixdar window should not know about it'. ENG-20 made LwjglPlatform and HeadlessPlatform take an AutomationBackend constructor argument (stored in a public final field) supplied by canvas/IxdarWindow via AutomationRuntime.get(); ENG-24/ENG-25 then had IxdarWindow start and rebind automation on scene switches (paintFrame / Scene.switchTo path), and ENG-27 made Scene.bindAutomationIfAvailable(platform) an instance method. Wanted: the desktop platforms (LwjglPlatform, HeadlessPlatform) own the automation runtime themselves again (automation() returns AutomationRuntime.get() or a field they create; no constructor argument, no public field); IxdarWindow (and WebLauncher) contain no reference to AutomationRuntime/AutomationBackend or automation start/rebind; whatever needs to start or rebind automation when the current scene changes does it through Platform.automation() from Scene (or the platform), not the window. The platform -> automation import this re-adds in the desktop backends is accepted (user: the dependency does not matter for a single Maven module); ENG-20's DoD item 1 is relaxed to allow it for the desktop backends only. The web build must still exclude the automation server (WebPlatform returns null). Placed on top of the stack because ENG-24/25 build on ENG-20's injection. Repo plan: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-20",
+        "ENG-24",
+        "ENG-25"
+    ],
+    "blocks": [
+        "UI-9"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. grep finds no AutomationRuntime, AutomationBackend or automation start/bind call in canvas/IxdarWindow.java or WebLauncher.java.\n2. LwjglPlatform and HeadlessPlatform construct without an automation argument and expose automation only through Platform.automation(); no public automation field.\n3. Automation still works across scene switches: ixdar-cli health, ui-state, key, click and screenshot answer in the mesh viewer, after switching menu -> TSP editor -> trade game, and after model switches; the unit suite runs without opening an automation port.\n4. TeaVM build passes and its bundle contains no AutomationRuntime/AutomationApiServer.\n5. Unit suite and test_cli pass; launch entry and screenshot.",
+    "testing-plan": "1. mvn test; test_cli.\n2. Live: start the menu scene, drive it with ixdar-cli through the scene switches above.\n3. teavm-build; grep the bundle.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "LwjglPlatform(long) and HeadlessPlatform(int,int) lose the AutomationBackend argument and public field; automation() returns AutomationRuntime.get() (pre-ENG-20 shape). New Scene.show(): hands the scene to platform.automation().start(this) and runs initGL on first showing; paintFrame and IxdarWindow (headless and GLFW) call it, so IxdarWindow has no automation import or call. SuitePlatform overrides automation() to null in an anonymous LwjglPlatform so tests open no port. Verified: mvn test 527/0 fail (no Listening line); test_cli 96 OK; live menu -> TSP editor (circle_5.ix) -> menu -> trade -> menu -> TSP editor, health/ui-state/key/click/screenshot answering in each; mesh-viewer health/key/click/screenshot after model switches to scaled_torus and coons_cube; teavm-build OK, classes.js has 0 AutomationRuntime/AutomationApiServer hits (class names are kept: 290 WebPlatform/MenuScene hits)."
+    ],
+    "related-files": [],
+    "priority": 3
+}

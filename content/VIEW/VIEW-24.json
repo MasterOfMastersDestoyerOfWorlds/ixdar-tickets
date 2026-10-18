@@ -1,0 +1,30 @@
+{
+    "id": "VIEW-24",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "platform"
+    ],
+    "title": "Render duplicates: SDFCircle + SDFCircleSimple, one SDF draw signature, ColorBox on SDFRoundedRect (legacy staging path deleted), one GPU buffer abstraction, LwjglGL + HeadlessGL",
+    "description": "Repo plan merge 3D.20. (a) SDFCircle and SDFCircleSimple are two circle primitives with two shaders and different edge constants (8 vs 2): one SDFCircle with border options. (b) Every SDF primitive takes the same geometry-first draw(..., Color, Camera) form; SDFBezier is configured through public fields (20-45), SDFUnion only has drawCentered. (c) ColorBox is the only user of ShaderProgram's legacy staging path (drawColorRegion ~982, useBuffer): rebuild it on SDFRoundedRect with radius 0, delete the staging path. (d) shaders/VertexArrayObject + VertexBufferObject and model/VertexBuffer + VertexLayout are two buffer abstractions (HalfEdgeMeshRuntime uses both, 92-95); LWJGL BufferUtils leaks into graphics/render/model (VertexBuffer, AssimpModelRuntime, HalfEdgeMeshRuntime): one abstraction over IxBuffer. (e) LwjglGL (728) and HeadlessGL (891) make the same LWJGL calls and differ only in context creation; DefaultBuffer and HeadlessBuffer likewise: one implementation with a context choice. GL.setWindowTitle duplicates Platform.setTitle; ShaderProgram detects the web build by class name (512-523) though gl.usesWebGlsl() exists. Keep existing class names where one survives.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-18"
+    ],
+    "blocks": [
+        "ENG-30"
+    ],
+    "status": "TODO",
+    "definition-of-done": "1. Each of (a)-(e) done or justified on the ticket.\n2. Screenshots of the SDF demo scenes, the menus, a mesh scene and a headless screenshot run match master.\n3. Unit suite and headless capture pass; launch entry.",
+    "testing-plan": "1. Before/after screenshots of the anatomy scenes and menus, headless and windowed.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/sdf",
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/ShaderProgram.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessGL.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/lwjgl/LwjglGL.java"
+    ],
+    "priority": 5
+}

@@ -1,0 +1,29 @@
+{
+    "id": "TOOL-17",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixd tickets: browse tickets by epic in priority order, each with the user message that led to it",
+    "description": "The user does not keep ticket numbers or their reasons in their head, and the board has 300+ open tickets. When the coordinating session lists \"what can be started\", the user cannot judge the list without knowing why each ticket exists. Wanted: an `ixd` command in the style of `ixd review` (same terminal menu, ixd/commands/review/_menu.py, and the same ticket page in the browser, _page.py) that browses tickets: pick an epic first (with open-ticket counts per epic), then the epic's open tickets listed in priority order (status, priority, blocked-by shown, blocked ones dimmed), then a ticket opens its page. The page shows the ticket in plain language (title, description, definition of done, unknowns, changes-made, blockers) AND the user's own message that led to the ticket: the user prompt in the Claude Code transcript that preceded the `generate_board.py create` call which created it, quoted in full, with the session and date. Tickets already exist without a recorded origin, so the origin is found from transcripts (~/.claude/projects/<slug>/<session>.jsonl and subagents/, the same files ixd/transcripts.py reads for `ixd stats`): find the tool call whose result says \"Created .../<ID>.json\", walk back to the nearest real user message (not a tool result, task notification or agent hand-back), and show it. For tickets created from now on, `generate_board.py create` should also record where it came from (session id and timestamp, or the prompt itself), so the lookup is a field read, not a search.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. `ixd tickets` (name open to the user) opens an epic menu with open-ticket counts, then the chosen epic's open tickets in priority order with status and blockers; arrow keys or number pick, like `ixd review`.\n2. Choosing a ticket opens its page (reusing ixd review's page renderer) with title, description, definition of done, unknowns, changes-made, blockers and the originating user message quoted with session id and date; `--print` writes the same as text to the terminal for use without a browser.\n3. Origin lookup finds the creating `generate_board.py create` call in transcripts and the nearest preceding genuine user message; tickets with no transcript say so plainly. Lookup is cached so the menu stays instant.\n4. `generate_board.py create` records the origin for new tickets (a field such as `origin` with session id, timestamp and the prompt text) so future lookups are a field read; `show` prints it.\n5. Verified by running it on CRAW-49, MESH-56 and IX-25 (created in session 9efaa0b3) and showing the output; `ixd docs` regenerated; `uv run black ixd hooks` run. No tests in ai-workspace (its CLAUDE.md).",
+    "testing-plan": "Run the command on a few tickets created in this session and on an old ticket with no transcript; show the terminal output and the page.",
+    "todos": [],
+    "unknowns": [
+        "How does create learn its origin: an env var Claude Code sets (session id), a --origin argument the coordinating session passes, or the transcript search run at create time?",
+        "A subagent created ticket: show the coordinator's user message that spawned the agent, not the agent's brief."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixd/commands/review/review.py",
+        "ixd/commands/review/_menu.py",
+        "ixd/commands/review/_page.py",
+        "ixd/transcripts.py",
+        "generate_board.py"
+    ],
+    "priority": 2
+}

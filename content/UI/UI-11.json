@@ -1,0 +1,22 @@
+{
+    "id": "UI-11",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Terminal: a command that throws leaves its text in the command line (glued onto the next line); sg writes its subgraph under a backslash path",
+    "description": "Found by the ENG-31 agent (2026-10-18), both present on master. (1) When a terminal command throws through the terminal route (ixdar-cli terminal --line or typed), its text is not cleared, so the next line typed is appended to it (e.g. 'clr' then 'ex' runs 'clrex'). The command line should be cleared and the exception reported the same way a refusal is, for every command. (2) The sg (subgraph) command builds its output path with a backslash, so the file lands under a 'solutions/djbouti\\./...' directory on Linux; build it with Path/File joins.",
+    "blocked-by": [
+        "ENG-31"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A throwing command leaves an empty command line and prints its error; a test covers it.\n2. sg writes its file to the intended solutions/<name>/ path on Linux (and Windows); a test covers the path.\n3. Unit suite passes; launch entry and screenshot.",
+    "testing-plan": "1. Live: ixdar-cli terminal --line with a command that throws, then another command.\n2. sg on a scratch copy of djbouti; check the output path.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

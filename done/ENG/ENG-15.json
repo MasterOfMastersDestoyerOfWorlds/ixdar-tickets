@@ -1,0 +1,32 @@
+{
+    "id": "ENG-15",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Replace geometry/point/Point2D (a GPL-2.0 copy of OpenJDK's java.awt.geom.Point2D) with JOML Vector2d",
+    "description": "Repo plan phase 0. geometry/point/Point2D.java is a 421-line verbatim copy of OpenJDK's java.awt.geom.Point2D under Oracle's 'GPL version 2 only' header (committed 2025-08). The Classpath exception covers linking to the JDK, not copying its source into the project; GPL code is banned (the code must stay commercialisable). It is the only GPL/Oracle-headed file in the repo. Users: geometry/knot/Knot, geometry/knot/Segment, geometry/point/PointND, gui/ui/Drawing, graphics/cameras/Camera2D and others (grep Point2D). Replace every use with org.joml.Vector2d (or Vector2f where the caller is float) and delete the file. Do not read the OpenJDK source for reference.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [],
+    "blocks": [
+        "ENG-21",
+        "ENG-26"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. geometry/point/Point2D.java is deleted and no source in the repo carries a GPL or Oracle header (grep -rl 'GNU General Public' finds nothing outside target/).\n2. Every former user uses JOML Vector2d/Vector2f; no new point class is introduced.\n3. Unit suite passes; the TSP main scene (ixdar-canvas) loads a .ix file and draws, and the 2D tools (free, neighbor, negative cut match) behave as before.\n4. Launch entry and a screenshot of the TSP scene under tmp/.",
+    "testing-plan": "1. grep for Point2D and the GPL header.\n2. mvn test.\n3. Live: launch ixdar-canvas, load djbouti, hover and click knots, screenshot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Deleted geometry/point/Point2D.java (the GPL-2.0 OpenJDK copy). PointND.toPoint2D() became toVector2d() returning org.joml.Vector2d; Knot (winding order), Segment.getPointSpaceVector, Camera2D (bounds, reset ratio via Vector2d.distance, pointsToScreenSpace) and Drawing read .x/.y. No new point class. grep finds no Point2D and no GPL/Oracle header outside target/. mvn compile clean, mvn test 518/0 failures. ixdar-canvas loads djbouti and draws the same geometry as master (only the time-cycling colours differ); automation hover/click registers no hover on master or the branch alike (pre-existing). Launch entry 'ENG-15: ixdar-canvas', screenshots tmp/eng-15*.png."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/point/Point2D.java",
+        "ixdar-app/src/main/java/ixdar/geometry/knot/Knot.java",
+        "ixdar-app/src/main/java/ixdar/geometry/knot/Segment.java",
+        "ixdar-app/src/main/java/ixdar/geometry/point/PointND.java",
+        "ixdar-app/src/main/java/ixdar/graphics/cameras/Camera2D.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/Drawing.java"
+    ],
+    "priority": 1
+}

@@ -1,0 +1,26 @@
+{
+    "id": "VIEW-20",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Refused clicks give no feedback: show the reason as red top-left text that fades over 30 s",
+    "description": "User report 2026-10-08, segmenting the crawfish in the ring scene: much of the time a click on the mesh does nothing, with no sign why, which is frustrating. The tools do know why: they set lastError (RingTool, ConnectionTool, RingRegionTool, split mode) or drop the click silently (camera moving / zoom settle per CRAW-48, hover paused, pick buffer not ready, click on a hidden region, an existing ring under the cursor, preview not valid yet, a refused confirm). That reason only reaches the process log or ui-state. Wanted: every refused or failed click and key action shows its reason on screen as red text at the top left that fades out over 30 seconds (newest on top; a repeat of the same message restarts its fade instead of stacking). This is the transient-toast answer to VIEW-13 (where scene feedback goes) for errors; VIEW-13 still decides the rule for non-error status text. Part of the work is an audit: find every path where a click is swallowed without setting a reason and give it one, so 'nothing happened' never happens silently.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A shared error-toast in the editing scene (one place, used by every EditTool), red, top-left, fading over 30 s, repeats restart the fade. 2. Every refusal path in the ring tool, connection tool, region tool and split mode routes its reason there, including the currently silent ones (camera moving, pick buffer not ready, hidden region, click on an existing ring, preview not ready); the audit lists each path found. 3. Messages say what to do (e.g. 'camera still moving - click again'), not just what failed. 4. ui-state reports the visible toasts so agents and tests can read them. 5. Unit test: a refused click produces exactly one toast with the expected text, and a repeated refusal restarts the fade rather than adding a second.\n\n6. (user 2026-10-08) Every toast is also printed to the in-app terminal and the process log, with the tool that raised it.\n",
+    "testing-plan": "Unit tests on the toast and on each tool's refusal paths; live: F5 the ring tool on a crawfish copy, click during an orbit, on a hidden region and on empty space, and see the red message fade.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Refusal toasts: new ErrorToasts (scenes/ring) owned by RingScene, red (Color.ERROR_TOAST) top-left rows via the existing font.drawHyperStringRows, newest first, 30 s linear fade, a repeat (same tool + message) moves to top and restarts; each toast also goes to the in-app terminal and the process log as '[refused] <tool>: <message>'; ui-state reports errorToasts [{source, message, opacity}]. RingScene.pickRefusal/cursorMissReason name the silent pick refusals (camera moving / zoom settle, pick buffer not ready, missed mesh). RingTool, ConnectionTool and RingRegionTool route every click/key refusal there with messages that say what to do; region tool now refuses clicks while an extraction hides the surface. Tests: unit.mesh.RefusalToastTest (4); full mvn test 460 green. Launch entry 'VIEW-20: ring-tool (crawfish copy, refusal toasts)' on tmp/view20_crawfish_rings.dsl; screenshots tmp/view20_toasts_ring_tool.png, tmp/view20_toasts_region_tool.png.",
+        "Rework (2026-10-09): the fade is now a property of the colour. ColorLerp gained a one-shot mode (durationSeconds/startSeconds, ColorLerp.lerpOnce factory, finished()): start -> end once over a duration, clamped, then holds; oscillating callers unchanged. ErrorToasts holds one ColorLerp per toast (ERROR_TOAST -> TRANSPARENT, alpha only) instead of raisedSeconds and hand-written opacity; a repeat gets a fresh colour, perFrame drops toasts whose colour finished(), ui-state opacity is the colour's alpha. Synced onto master; the worktree's RingScene.pickRefusal(runtime) is renamed cursorPickRefusal(runtime) and starts from master's pickRefusal() (extraction shown / exploded view / no mesh), so RingRegionTool's own extraction/exploded checks are gone. ConnectionTool F with no fills toasts (and logs) once, from showFills. RefusalToastTest ages a toast through its colour's startSeconds. Master's test tree does not compile (GrooveRingBenchmark calls NDirectionField.build without the SurfaceMetric PATCH-125 added), so the 39 unit tests touching these classes were run through the JUnit launcher directly: all green."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingScene.java"
+    ],
+    "priority": 1
+}

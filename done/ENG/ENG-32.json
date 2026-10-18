@@ -1,0 +1,35 @@
+{
+    "id": "ENG-32",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "platform"
+    ],
+    "title": "One KeyGuy: fold MainSceneKeyGuy, OrbitCameraKeyGuy, DungeonKeyGuy and TradeKeyGuy into the base, every scene key a control row",
+    "description": "One KeyGuy for every scene. After ENG-26 every scene's keys are ControlHint rows (key -> function) from setControls, yet four KeyGuy subclasses remain, each deciding in its own way when those rows fire: MainSceneKeyGuy (rows on a first press, Control silences plain rows, shared release actions off), OrbitCameraKeyGuy (own keyCallback firing rows on press, Ctrl+R resets the orbit target, paintUpdate applies zoom only because OrbitMouseTrap owns the camera position), DungeonKeyGuy (edge-detects F / V / Esc in paintUpdate and runs callbacks, suppresses WASD in player mode) and TradeKeyGuy (own keyCallback firing every row on press and on repeat, no terminal).\n\nFold them into the one KeyGuy that Scene builds, never subclassed:\n- The base fires the scene's rows on a first press (handleSceneKeys); on a repeat only rows with repeatsWhileHeld fire, through the existing held-repeat path.\n- Holding Control silences plain-key rows in every scene (controlSilencesPlainKeys becomes the behaviour, not a field), so Ctrl+R in an orbit scene does not also fire a plain R row.\n- The shared release actions (R resets the camera, Esc steps a MenuScene's menu back) become ordinary rows in Scene.setControls; a scene that binds R or Esc itself (MainScene) does not get them.\n- Ctrl+R recentring the orbit becomes a Control-held row in Scene's 3D controls; controlRResetsTarget goes, a scene binding Ctrl+R itself simply wins the row lookup.\n- Whether held WASD moves the camera becomes a Scene method keysMoveCamera(): false for the orbit scenes (zoom still applies), !playerMode for DungeonViewerScene.\n- DungeonViewerScene's F / V / Esc become its own rows; the callbacks and lastFState/lastVState/lastEscState go.\n- TradeScene / RoutePlanningTool rows that should keep repeating while held get repeatsWhileHeld; the rest fire once per press. Report which rows were marked.\n- The base already skips terminal handling when there is no terminal, so TradeKeyGuy's charCallback override goes.\n\nDelete MainSceneKeyGuy, OrbitCameraKeyGuy, DungeonKeyGuy and TradeKeyGuy. No other renames. Every control row a scene lists in its controls panel must still fire, and no key may fire twice.\n\nScope after review (session lead, 2026-10-18): the fold of the four subclasses landed in ENG-27 (a565ea38), with the CameraController strategy deciding whether held WASD moves the camera. This ticket is what remained: Control silences plain-key rows in every scene (KeyGuy.controlSilencesPlainKeys removed), and the trade route's Z (undo) and Y (redo) rows repeat while held. Decided: no Scene.keysMoveCamera() (the controller is the one place that decides it); no shared R row in Scene.setControls (R stays only where a reset does something: DungeonViewerScene, IrregularGridScene); Esc menu-back stays MenuScene's own row. The definition of done's keysMoveCamera() wording means the controllers' decision.\n",
+    "blocked-by": [
+        "ENG-26"
+    ],
+    "blocks": [
+        "ENG-33"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. KeyGuy has no subclasses; the four subclass files are deleted.\n2. Every scene's keys are control rows from setControls; the controls panel of each scene lists exactly what fires.\n3. Control held silences plain rows in every scene; Ctrl+R recentres the orbit in the mesh scenes; R/Esc behave as before in the tour editor and the menus.\n4. Dungeon F/V/Esc, trade route keys and the orbit zoom work as before; held WASD moves the camera only where keysMoveCamera() is true.\n5. Full test suite passes.",
+    "testing-plan": "1. Drive keys through ixdar-cli in main, mesh-viewer, ring, dungeon-viewer, trade and the main menu; screenshot before/after under tmp/.\n2. Add a launch.json entry per scene checked.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Most of this ticket already landed with ENG-27 (commit a565ea38): the four KeyGuy subclasses are deleted, rows fire on a first press, repeats fire only repeatsWhileHeld rows, ctrl+R recentre is a ModelScene row, Dungeon F/V/Esc/R and MenuScene Esc are rows, TradeKeyGuy's charCallback is gone. ENG-32 diff (uncommitted, worktree eng-32): KeyGuy.controlSilencesPlainKeys removed; holding Control silences plain-key rows in every scene, on the press and on the held repeat (MainScene no longer sets the field). RoutePlanningTool Z (undo) and Y (redo) marked repeatsWhileHeld; P/G/C/Enter/Backspace/Esc fire once per press. ControlRowDispatchTest updated (plain row silent under Control; held repeating row silent under Control). Verified: mvn test 531 run, 0 failures; live key pass tmp/eng-32-keys.sh, tmp/eng-32-followup.sh, tmp/eng-32-trade-taps.sh (logs alongside) in mesh-viewer, ring-tool, dungeon-viewer, ixdar menu, trade and ixdar-canvas: held W leaves the orbit camera still, held MINUS zooms (fov 45 -> 44.3), ctrl+R/T/J switch ring tools, Esc back, dungeon fly-mode W moves, F/V/R/Esc consumed, menu Esc consumed, trade single Z tap undoes one step and a held Z undoes to the bottom (same end state as repeated taps), ctrl+Z and ctrl+G silent. Launch entries ENG-32: ixdar-canvas, mesh-viewer, ring-tool, dungeon-viewer, ixdar; screenshots tmp/eng-32-*.png. wt done NOT run: two open questions. (1) keysMoveCamera() on Scene: ENG-27 put that decision in the CameraController strategy (Camera3D orbit keysHeld zooms only; FlyController moves only while not walking), so a Scene method would be a second authority. (2) Shared R camera-reset row in Scene.setControls: the old shared R called Camera3D.reset(), which only resets yaw/pitch and has no visible effect in orbit scenes; ENG-27 kept R rows only where reset does something (DungeonViewerScene, IrregularGridScene). A base R row would list a no-op in most scenes and needs a bindsR scan like frameAll's F.",
+        "Open questions resolved by the session lead: no keysMoveCamera(), no shared R row, Esc stays MenuScene's row; nothing further changed in code. related-files now point at ixdar.input.KeyGuy and the files this diff touches (the deleted subclass paths are gone). generate_board.py gained update --remove-related-file to make that fix."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/input/KeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/scenes/main/MainScene.java",
+        "ixdar-app/src/main/java/ixdar/tools/trade/RoutePlanningTool.java",
+        "ixdar-app/test/unit/input/ControlRowDispatchTest.java"
+    ],
+    "priority": 2,
+    "review-summary": "Holding Control now silences plain-key control rows in every scene, not just the tour editor, and trade route undo and redo repeat while held. It gives the single KeyGuy one rule for modified keys everywhere.\n"
+}

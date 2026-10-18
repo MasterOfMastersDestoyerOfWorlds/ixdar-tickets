@@ -1,0 +1,26 @@
+{
+    "id": "VIEW-19",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "input"
+    ],
+    "title": "Ctrl+B crashes the ring scene: MainScene's tool shortcuts live in the base KeyGuy every scene inherits",
+    "description": "User report 2026-10-07: pressing Ctrl+B in a new ring scene throws NullPointerException: MainScene.terminal is null (Tool.reset -> NeighborViewTool.reset -> ChangeToolCommand.run -> KeyGuy.keyPressed:160 -> OrbitCameraKeyGuy.keyCallback). The base KeyGuy.keyPressed handles MainScene's (the 2D tour editor's) shortcuts - Ctrl+B NeighborViewTool, the NegativeCutMatchViewTool shortcut, Save/SaveAs stubs, and the non-control tool toggles reading MainScene.tool - for every scene, because MainScene uses KeyGuy directly while OrbitCameraKeyGuy (ring, mesh viewer scenes), TradeKeyGuy and DungeonKeyGuy extend it. Any of those shortcuts can crash or misfire outside MainScene. Fix the ownership: MainScene's shortcuts move to a key handler only MainScene installs (or MainScene's own handler), and the base KeyGuy keeps only what every scene shares. No null guard as the fix.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Ctrl+B and every other MainScene shortcut do nothing in the ring scene, mesh viewer, trade and dungeon scenes (no exception, no state change). 2. MainScene keeps all of its shortcuts working as before. 3. The base KeyGuy no longer references MainScene. 4. A unit test drives the ring scene's key handler with each former MainScene shortcut and asserts no exception.",
+    "testing-plan": "Unit test on OrbitCameraKeyGuy with each former MainScene shortcut; live: F5 the ring tool, press Ctrl+B and the other moved shortcuts, no exception in the log; F5 MainScene and check Ctrl+B still switches to the neighbour view tool.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MainScene's shortcuts (Ctrl+B/Ctrl+N tool switches, the C/B/Y/M/[/]/Up/Down/O/G/U/Enter/R toggles on MainScene.tool, Esc exit, Left/Right tool cycling) moved from the base KeyGuy into the new ixdar.scenes.main.MainSceneKeyGuy, which only MainScene installs, through a sceneKeyPressed(firstPress) hook on KeyGuy; KeyGuy no longer references MainScene (field main and the MainScene constructor removed); the empty Ctrl+S/Ctrl+Q Save/SaveAs stubs were dropped. Test: unit.input.OrbitCameraKeyGuyMainSceneShortcutsTest drives OrbitCameraKeyGuy with every former shortcut, with an editor tool left on MainScene.tool, and asserts no exception and no toggle, tool or knot-layer change. Live: ring-tool headless with CTRL+B, CTRL+N, CTRL+Q, B, Y, M, O, U, C, LEFT, RIGHT, no exception in the log; launch entry 'VIEW-19: ring-tool'."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/input/KeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/platform/input/OrbitCameraKeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/scenes/main/MainScene.java"
+    ],
+    "priority": 1
+}

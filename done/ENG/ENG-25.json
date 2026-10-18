@@ -1,0 +1,34 @@
+{
+    "id": "ENG-25",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "game-sim"
+    ],
+    "title": "MainScene and TradeScene become real Scene instances (no static state); tooltip on Scene",
+    "description": "Repo plan phase 2.3. MainScene (847 lines) and TradeScene hold all their state in statics read from 36 files (15 in gui/terminal/commands, 5 in the 2D tools, plus geometry, graphics and automation), and are started in-process (LoadIxCommand.java:82 MainScene.main; StartNewGameAction.java:33 TradeScene.startNewGame). Make both extend Scene with instance state, launched by id or swapped in by the menu; the static readers go through the current scene or a passed host. The identical static tooltip code (MainScene 691-721, TradeScene 351-379) becomes one tooltip on Scene. Layer inversions to remove on the way: Camera2D.reset reading MainScene.tool (Camera2D.java:244-252), ShaderProgram reporting hot-reload errors through MainScene.terminal (ShaderProgram.java:431), MouseTrap and Toggle importing scenes.main.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-24"
+    ],
+    "blocks": [
+        "ENG-26",
+        "ENG-29"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. No static mutable state on MainScene or TradeScene; nothing outside scenes/main and scenes/trade imports them except launch wiring.\n2. TSP editing, terminal commands, trade game start, route planning behave as before.\n3. Unit suite and trade scenario CLI checks pass.\n4. Launch entries and screenshots.",
+    "testing-plan": "1. mvn test; ixdar-cli trade scenarios.\n2. Live: load a .ix, run terminal commands, start a trade game, plan a route.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MainScene and TradeScene extend Scene with instance state only (no static mutable fields left). Scene gains switchTo/paintFrame: a scene hands the window to its successor after the frame (old deactivated, new made Scene.instance, activated, initGL'd on first showing, rebound to the automation runtime); IxdarWindow (GLFW + headless) and WebLauncher paint through paintFrame, and the window, not the Scene constructor, starts/rebinds automation. MenuScene no longer hand-draws either: Start New Game, the debug Load/Continue items and the ld/nw/rld commands switch the window (TradeScene.startNewGame, MainScene.open); Escape switches back to the scene each was opened from (backScene). ixdar-canvas builds MainScene over a fresh MenuScene in CanvasSceneMap.",
+        "Tooltip moved onto Scene (toolTip/showToolTip, setTooltipText/clearTooltipText, tooltipBounds, drawTooltip), replacing the two static copies; HyperString shows tooltips on Scene.instance and takes highlight/clear actions for hover knots and segments instead of calling MainScene. State reports mode/trade/terminal/info/tooltip from the automation runtime's current scene.",
+        "Layer inversions removed: Camera2D.reset frames an optional resetTarget supplier (MainScene supplies hover/selected knot) instead of reading MainScene; ShaderProgram reports hot-reload IO errors through Platforms.log; MouseTrap no longer holds or imports MainScene (paneAt/paneClicked/paneHovered hooks, overridden by the new scenes/main/MainSceneMouseTrap); KeyGuy release shortcuts moved into a sceneKeyReleased hook (MainSceneKeyGuy keeps them off, as when the inactive menu host owned them); Terminal and InfoPane no longer import MainScene; Drawing's dead drawSingleCutMatch removed. Toggle itself imports nothing from scenes.main (it lives there); MouseTrap/KeyGuy still read Toggle for pane focus.",
+        "Remaining static readers (tools/knot, the TSP terminal commands, Knot/Segment hyperstrings, Grid coordinate readouts) go through MainScene.current() (the current Scene cast) or a passed host (MainSceneKeyGuy/MainSceneMouseTrap/InfoPane, trade tools and handlers via their TradeScene). TradeScene fields renamed where they would hide Scene's: activeTool->activeTradeTool, camera->mapCamera, pointSet->cityPoints; MainScene camera->editorCamera, shell->tourShell."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/main/MainScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/trade/TradeScene.java"
+    ],
+    "priority": 4
+}

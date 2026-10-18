@@ -1,0 +1,20 @@
+{
+    "id": "CRAW-61",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Sketch a ring: draw a stroke on screen, project it onto the surface as the ring's anchors",
+    "description": "User idea 2026-10-08: drag a stroke across the view (like an SVG path) and project it onto the visible surface to seed a ring's authored anchors, instead of clicking anchors one by one. The stroke covers the visible side; the ring closes round the far side by the usual tracing (or the crease mode, CRAW crease-following rings). Needs screen-to-surface picking along the stroke (shares the pick math with the TOOL pick/project ticket).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A sketch gesture in the ring tool turns a dragged stroke into a draft ring whose anchors follow the stroke on the visible surface and close round the back. 2. Resample the stroke to a sensible anchor count. 3. Undoable, saved like any ring.",
+    "testing-plan": "Headless drag route over a procedural tube; live on the crawfish.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

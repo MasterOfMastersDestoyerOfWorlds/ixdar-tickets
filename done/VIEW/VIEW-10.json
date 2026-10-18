@@ -1,0 +1,27 @@
+{
+    "id": "VIEW-10",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Fold FeatureEdgeColors into the central Color palette",
+    "description": "`ixdar-app/src/main/java/ixdar/geometry/mesh/data/FeatureEdgeColors.java` is a separate palette of raw 0x00RRGGBB ints (DIHEDRAL, PRINCIPAL, CREST, SADDLE, MULTI_SOURCE, BOUNDARY_ONLY, CREST_IGNORED, CREST_HONORED). Colors belong in the central repository, `ixdar.graphics.render.color.Color`, as `ColorRGB` constants.\n\nCurrent consumers:\n- `MeshNodeViewerScene` (~1297-1324) builds `HalfEdgeMeshRuntime.FeatureEdgeCategory(int colorRgb, ...)` from these ints.\n- `HalfEdgeMeshRuntime.setFeatureEdgeOverlay` (~601-640) decodes the int by hand into a Vector4f, using its own NUM_16/NUM_8/NUM_0xf/NUM_255 constants. Its javadoc links FeatureEdgeColors.\n- The FeatureEdgeColors javadoc mentions a CPU `PatchRenderer` PNG diagnostic that no longer exists.\n\nChange: delete FeatureEdgeColors. Add the colors to `Color` (reuse an existing constant where it is the same color, otherwise add named feature-edge constants with the same RGB values). Change `FeatureEdgeCategory` to carry a `Color` and use `color.toVector4f()` instead of the manual bit-unpacking, then drop the bit-unpacking constants that become unused.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. FeatureEdgeColors.java is deleted and nothing references it.\n2. FeatureEdgeCategory takes a Color, and setFeatureEdgeOverlay has no manual RGB bit-unpacking.\n3. The feature-edge overlay colors in mesh-node-viewer STAGES and CREST_VS_BOUNDARY modes look the same as before (screenshot under tmp/).\n4. The build and checkstyle are clean.",
+    "testing-plan": "1. Run mesh-node-viewer with the feature-edge overlay in STAGES mode and in CREST_VS_BOUNDARY mode, and compare screenshots against master: the edge colors must match.\n2. Grep for FeatureEdgeColors: there must be no hits.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Deleted geometry/mesh/data/FeatureEdgeColors.java. Feature-edge colors now live in Color as FEATURE_EDGE_DIHEDRAL (106,200,255), FEATURE_EDGE_PRINCIPAL (255,215,0), FEATURE_EDGE_CREST (255,48,64; used for both STAGES crest and CREST_VS_BOUNDARY crest-ignored), FEATURE_EDGE_SADDLE (123,31,162), FEATURE_EDGE_CREST_HONORED (0,224,80); multi-source reuses Color.WHITE and boundary-only reuses Color.BLACK. HalfEdgeMeshRuntime.FeatureEdgeCategory now carries a Color; setFeatureEdgeOverlay uses color.toVector4f() (same int/255f math) and its javadoc points at the Color constants; NUM_16 and NUM_0xf removed. MeshNodeViewerScene's two other FeatureEdgeCategory callers converted too: EDGE_MARK_COLORS became Color.EDGE_MARK_AMBER/CYAN/MAGENTA (same RGB), the Morse-Smale arc overlay uses Color.BLACK, and its NUM_0x000000 constant is gone. Verified on fandisk: tmp/view-10-stages.png and tmp/view-10-stages-semantic.png (STAGES: 1551 exact (106,200,255) dihedral pixels, 32 exact (255,215,0) principal, 1314 exact white multi-source), tmp/view-10-crest-vs-boundary.png (2037 exact black boundary pixels). Crest/saddle/honored categories were empty on fandisk with both decomposers (decomposer logs crest=0 saddle=0), so those three colors are verified by the identical RGB values rather than on screen."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/FeatureEdgeColors.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/color/Color.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java"
+    ],
+    "priority": 3
+}

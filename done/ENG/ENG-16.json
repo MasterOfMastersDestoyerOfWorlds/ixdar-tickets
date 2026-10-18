@@ -1,0 +1,38 @@
+{
+    "id": "ENG-16",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "ui"
+    ],
+    "title": "Bug batch from the repo survey: terminal -h help path, mesh-viewer first tool never activated, optimizer blind to desktop nodes, drifted Python client routes (quilt-mesh-compare broken), hard-coded /opt/homebrew paths",
+    "description": "Repo plan phase 0. Bugs the read-only survey found:\n(a) gui/terminal/commands/TerminalCommand.java:28 reads help from './src/shell/terminal/help/<cmd>.help'; ixdar-app/src/shell does not exist, so every terminal command's help prints 'helpfile not found'. The 18 .help files sit in src/main/java/ixdar/gui/terminal/help. Move them to src/main/resources/terminal/help and load them as resources through the Platform (so the web build works too).\n(b) scenes/mesh/MeshNodeViewerScene.initInput (~239-250) copies ModelScene.initInput but omits activeTool.activate() (ModelScene.java:173): in mesh-viewer and ring scenes OrbitTool's hooks (double-click frame-all) are likely unwired until the first tool switch. Confirm live, then fix without duplicating ModelScene's initInput (call through to it).\n(c) geometry/mesh/graph/LiteralParameterDescriptor.java:97 reads MeshNodeRegistry_MeshNodes.MAP only, so the desktop-only partition (network and quad-layout nodes, loaded reflectively at NodeGraphRuntime.java:337) is invisible to the optimizer. Resolve through the runtime's supplier lookup.\n(d) ixdar_automation_cli/automation_client.py hand-copies route paths that have drifted: mesh_fingerprint calls /ui/mesh/fingerprint (route is /mesh/fingerprint, endpoints/mesh/Fingerprint.java:16), so quilt-mesh-compare (cli_commands/scenario_commands.py:156) is broken; mesh_skeleton calls /mesh/skeleton (no route); mesh_segment calls /mesh/segment (route is /mesh/segmentation). 13 client methods have no caller (load_dsl, set_orbit, get_orbit, clear_hover, set_projection, get_projection, toggle_wireframe, mesh_skeleton, three skeleton_*, mesh_patches_decompose, mesh_segment): delete them. test_cli mocks urlopen so it never caught this; add a test that every path the client requests exists in automation_routes.json.\n(e) dsl_optimizer hard-codes /opt/homebrew/bin/mvn; run_scene.py:72 hard-codes /opt/homebrew/lib/libasyncProfiler.dylib. Resolve mvn from PATH and the profiler from the existing candidate search; no machine-specific path in tracked files.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [],
+    "blocks": [
+        "TOOL-19",
+        "TOOL-20"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. ',help <cmd>' (or the command's -h) prints the help text for every command that has a .help file; the files live under src/main/resources and load via the Platform.\n2. In mesh-viewer and ring scenes the default tool is activated at startup (double-click empty space frames the mesh before any tool switch); a test covers it.\n3. LiteralParameterDescriptor sees desktop-only nodes; a test resolves one.\n4. Every client path exists in automation_routes.json (test); quilt-mesh-compare works live; the 13 uncalled methods are gone.\n5. No /opt/homebrew path remains in tracked files.\n6. Unit suite and test_cli pass; launch entry and screenshot.",
+    "testing-plan": "1. mvn test; uv run python -m pytest ixdar_automation_cli/test_cli.py (or the repo's documented runner).\n2. Live: terminal help for two commands; mesh-viewer double-click frame-all right after launch; quilt-mesh-compare against a running mesh viewer.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "(a) Confirmed live: 'model -h' in mesh-viewer printed 'helpfile: model.help not found at: ./src/shell/terminal/help/model.help'. Moved the 18 .help files to ixdar-app/src/main/resources/terminal/help (pom resource includes and the TeaVM copy-resources both gain **/*.help); TerminalCommand.help loads them through Platform.loadSourceAsync(HELP_RESOURCE_FOLDER, ...), printing the usage line in the callback so order holds on web. LwjglPlatform.loadSource now throws IOException for a missing resource instead of an NPE, so a command without a .help file reports it. manifoldtest.help has no command (orphan, left for the dead-code ticket).",
+        "(b) Confirmed live: after launch, orbit-set then a double-click on empty space left the distance at 7.19 (framedDistance 3.60): OrbitTool never activated. MeshNodeViewerScene.initInput now hides the menu and calls super.initInput() (which activates the default tool); RingScene inherits it. Test: unit.mesh.ModelSceneDefaultToolTest (mesh-viewer and ring).",
+        "(c) Confirmed: cross_field is in MeshNodeRegistry_MeshNodes.DESKTOP_ONLY_IDS but not MAP, so LiteralParameterDescriptor skipped it. getPortMap now resolves through NodeGraphRuntime.supplierFor. Test: unit.graph.LiteralParameterDescriptorTest resolves cross_field.curvature_bias.",
+        "(d) mesh_fingerprint now calls /mesh/fingerprint; the 13 uncalled client methods (load_dsl, set_orbit, get_orbit, clear_hover, set_projection, get_projection, toggle_wireframe, mesh_skeleton, skeleton_compare, skeleton_compare_detailed, skeleton_sensitivity, mesh_patches_decompose, mesh_segment) are deleted. test_cli ClientRoutesTest checks every literal request_json path and method in automation_client.py against automation_routes.json. Also fixed the stale frame-flags test (VIEW-21 added point/radius/region/ring), which was failing on master.",
+        "(e) dsl_optimizer runs 'mvn' from PATH like the other commands; run_scene and tools/link-profiler.sh drop the /opt/homebrew candidate and instead find the library in the lib directory beside the asprof launcher's real path (covers Homebrew's prefix); REFACTOR-PLAN.md's two JDK mentions now say $(brew --prefix). git grep /opt/homebrew is empty. Test: test_async_profiler_library_is_found_beside_the_asprof_launcher.",
+        "(d, continued) With the route fixed, quilt-mesh-compare reached the scene but reported a mismatch on rocker-arm.obj: the Python fingerprint rounded coordinates in double while Java's MeshCanonicalFingerprint rounds in float (e.g. 0.499745 -> 0.49974 vs 0.49975). quilt_mesh_fingerprint.round_coord now emulates Java's single-precision Math.round; live compare against ixdar-app/test/resources/quadlayout/rocker-arm/rocker-arm.obj is ok=true (sha a928d41d...). Test pins the 0.499745 case. Note: the command's default reference (test/resources/test-meshes/quilting_cube.obj) does not exist, so it needs --reference.",
+        "Verification: mvn test 521 run, 0 failures; test_cli 96 OK. Live in mesh-viewer: 'model -h' and 'save -h' print their help, 'clear -h' reports no help file; orbit-set distance 40 then double-click empty space returns to framed distance 1.5 with no tool switch. Screenshot tmp/eng-16.png; launch entry 'ENG-16: mesh-viewer'."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/TerminalCommand.java",
+        "ixdar-app/src/main/java/ixdar/scenes/mesh/MeshNodeViewerScene.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/graph/LiteralParameterDescriptor.java",
+        "ixdar_automation_cli/automation_client.py",
+        "ixdar_automation_cli/cli_commands/run_scene.py"
+    ],
+    "priority": 1
+}

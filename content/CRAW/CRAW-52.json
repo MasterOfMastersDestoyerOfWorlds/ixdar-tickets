@@ -1,0 +1,24 @@
+{
+    "id": "CRAW-52",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Ring work saves into gitignored tmp/: warn, show the save path, and keep the user's segmentation tracked",
+    "description": "User report 2026-10-04: the user saved 82 hand-made crawfish rings through an agent's F5 entry, which opened a copy under the worktree's gitignored tmp/; the work would have been lost when the worktree was removed. The scene saves back to whatever file it opened, so the tmp location came from the launch entry, not a tool default. Fix both sides: (1) the ring scene shows the file a save writes to in the status line, and warns (or asks) when that file is gitignored or inside a worktree's tmp/; (2) verification launch entries that open an editable scene on a tmp copy are labelled as such ('tmp copy, not saved to the fixture'). Decide with the user whether Ctrl+S on a tmp copy should offer to write to the tracked fixture.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. The save path is visible on every save. 2. Saving into a gitignored path warns clearly. 3. The chosen behaviour for tmp copies is documented.",
+    "testing-plan": "1. Save from a tmp copy and from a fixture; check the messages.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Ring scene status line (top-left) now always shows 'ctrl+S saves to <absolute path>', amber with a WARNING when git will not keep that file; every save's row names the absolute file written and repeats the warning; terminal 'ring save' warns too. New SaveLocation (ixdar.scenes.model) classifies a save target with no git process: nearest .git above the file = checkout (a .git file = linked worktree), any tmp/ directory between them = SCRATCH, else GitIgnore reads the checkout's .gitignore files root-down (gitignore(5) grammar: anchoring, dir-only, *, ?, **, [..], negation, ignored-parent rule) = IGNORED, no .git = OUTSIDE_CHECKOUT. Saves never redirect: Ctrl+S writes the file the scene opened (documented in the ixdar.scenes.ring package doc). Tests: GitIgnoreTest (7), SaveLocationTest (6). Redirect-to-fixture for tmp copies left for the user to decide."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelCatalog.java"
+    ],
+    "priority": 1
+}

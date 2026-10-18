@@ -164,6 +164,40 @@ class TicketCliTest(unittest.TestCase):
         self.assertIn("--title", err)
         self.assertIn("--definition-of-done", err)
 
+    def test_review_summary_from_file_sets_and_blank_removes(self) -> None:
+        """update --review-summary @file sets review-summary; an empty value drops the field."""
+        self._write_ticket("TEST", "TEST-1")
+        source = self.temp / "summary.txt"
+        source.write_text("Before, X was slow.\nAfter, X is fast.\n", encoding="utf-8")
+        path = self.root / "content" / "TEST" / "TEST-1.json"
+
+        code, _, err = _run("update", "TEST-1", "--review-summary", f"@{source}")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(
+            json.loads(path.read_text())["review-summary"], "Before, X was slow.\nAfter, X is fast.\n"
+        )
+
+        code, _, err = _run("update", "TEST-1", "--review-summary", "")
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("review-summary", json.loads(path.read_text()))
+
+    def test_review_summary_over_the_limit_is_refused(self) -> None:
+        """A review-summary over 50 words or 3 sentences is refused and the ticket is unchanged."""
+        self._write_ticket("TEST", "TEST-1")
+        path = self.root / "content" / "TEST" / "TEST-1.json"
+        before = path.read_text()
+
+        code, _, err = _run("update", "TEST-1", "--review-summary", " ".join(["word"] * 51) + ".")
+        self.assertEqual(code, 1)
+        self.assertIn("51 words", err)
+        code, _, err = _run("update", "TEST-1", "--review-summary", "One. Two. Three. Four.")
+        self.assertEqual(code, 1)
+        self.assertIn("4 sentences", err)
+        self.assertEqual(path.read_text(), before)
+
+        code, _, err = _run("update", "TEST-1", "--review-summary", "HalfEdgeMesh.flipEdge exists. It helps.")
+        self.assertEqual(code, 0, err)
+
     # DoD 2: resolving todos and unknowns by index.
 
     def test_resolve_todo_removes_the_named_entry_and_prints_it(self) -> None:

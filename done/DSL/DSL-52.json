@@ -1,0 +1,25 @@
+{
+    "id": "DSL-52",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "All node packs live in ixdar.nodegraph.nodes: mesh, quad-layout, network and dungeon nodes move out of their domains",
+    "description": "User ruling (2026-10-17), on reviewing DSL-49: the quad-layout and network nodes DSL-49 moved to geometry/mesh/quadlayout/nodes 'probably need to be in the nodegraph package as well', and when asked, the user chose ALL node packs. Pure moves, classes keep their names:\n- geometry/mesh/nodes/{primitives,modifier,data,curve,selection,transform,geometry,patch} -> nodegraph/nodes/<same leaf>\n- geometry/mesh/quadlayout/nodes -> nodegraph/nodes/quadlayout (the four network nodes ArcNetworkNode, NetworkArc, NetworkNode, NetworkPatch -> nodegraph/nodes/network)\n- procgen/dungeon/nodes -> nodegraph/nodes/dungeon\nThe algorithms the nodes call stay in their domains (geometry/mesh/*, quadlayout/*, procgen/dungeon/algo); algorithm classes that implement MeshNode directly (NDirectionField, MotorcycleGraph, SeamlessParameterization, LayoutEmbedding, NetworkContraction, GridMapAssembly, QuantizedMeshGrid) stay put here: splitting them into algorithm + node is MESH-63. Node categories are the required NodeCategory enum since ENG-17, so moving cannot change the catalog. Placed on top of the stack so nothing below is rewritten. Repo plan: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "DSL-50"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. No class annotated @MeshNodeAnnotation lives outside ixdar.nodegraph except the algorithm-as-node classes MESH-63 splits (listed in package-info).\n2. Behaviour unchanged: unit suite passes; docs/mesh-node-catalog.json identical except sourceClass/sourcePath-style fields; generated MeshNodeRegistry ids identical; every DSL fixture and the dungeon DSLs evaluate to the same fingerprints; ring and quad-suite fingerprints unchanged.\n3. Moved packages carry package-info; ARCHITECTURE.md regenerated. No class renamed.\n4. Launch entry and screenshot.",
+    "testing-plan": "1. mvn test; registry and catalog diff.\n2. Fingerprints: ring fixtures, quad suite, dungeon DSLs.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Pure move, no renames: geometry/mesh/nodes/{primitives,modifier,data,curve,selection,transform,geometry,patch} -> nodegraph/nodes/<leaf>; quadlayout/nodes -> nodegraph/nodes/quadlayout with ArcNetworkNode/NetworkArc/NetworkNode/NetworkPatch -> nodegraph/nodes/network; procgen/dungeon/nodes -> nodegraph/nodes/dungeon. 107 files moved, 187 files changed only in package/import lines. Non-mechanical edits: nodegraph/nodes package-info (lists the 7 MESH-63 algorithm-as-node classes), new network package-info, quadlayout package-info drops the network half, geometry/mesh package-info drops 'mesh nodes', geometry/mesh/nodes package-info deleted, two {@link} FQNs (ArrayMeshEngine, InputParameterDescriptor). ARCHITECTURE.md regenerated.",
+        "Verified: mvn test 527/0 failures; docs/mesh-node-catalog.json byte-identical; generated MeshNodeRegistry ids identical (both registries); all 24 dsl/*.dsl and 15 fixtures fingerprints identical (crawfish_union checked separately on base); ring fixtures (crawfish, fertility) fingerprints and regions identical; dungeon_2d/3d identical; quad suite bolt/hand/fandisk/fertility/block/rockerarm: signature and screenshot match. Launch entry 'DSL-52: mesh-viewer' (dungeon_3d), screenshot tmp/dsl-52.png."
+    ],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-47",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Ring tool: Esc on a selected, unedited ring should drop the selection and return to the new-ring picker",
+    "description": "User bug 2026-10-04: click an existing ring (it opens for editing), make no edit, press Esc: the scene switches to the orbit tool but the ring stays open. Expected: Esc with an open ring and no edits closes the ring (deselects it, no change recorded) and stays in the ring tool's new-ring picker; Esc with nothing open goes to the orbit tool as now. Decide what Esc does with an open ring that has edits (likely: keep the draft and say so, or ask) and state it in the controls menu.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Esc on an open unedited ring closes it and stays in the ring tool; nothing is recorded in undo. 2. Esc with nothing open returns to orbit. 3. The edited-ring case behaves as documented in the controls menu. 4. Unit or automation test covering all three.",
+    "testing-plan": "1. ixdar-cli: click a ring, Esc, ui-state shows ring tool active and no ring open. 2. Same with an edit.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Esc in the ring editing scene now goes to the active tool first (EditTool.escapePressed/escapeDescription defaults; RingScene switches to orbit only when the tool did not consume it). RingTool closes a draft untouched since the click that opened it by retracting that open edit (new EditHistory.retract), so no undo entry remains and the ring tool stays on the new-ring picker; an edited draft is kept open, the status row says so, and the scene goes to orbit; nothing open goes to orbit. Controls-menu Esc row reads 'close menu, else close an unedited ring (an edited one stays open), else orbit'. Re-open extracted as public RingTool.reopenRing. RingEscapeTest covers all three cases plus the menu row; verified live on a tmp copy of fertility_rings.dsl via ui-state."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java"
+    ],
+    "priority": 1
+}

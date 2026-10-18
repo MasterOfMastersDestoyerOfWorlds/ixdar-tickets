@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-33",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Rings as quad layout constraints: align the cross field to rings and lay out each ring region so layout edge loops lie on the rings",
+    "description": "User request 2026-10-03, follow-on to the ring tool (CRAW-28, CRAW-30) and to ring regions (the companion ticket). The rings the user draws should become hard constraints on the quad layout pipeline, so the layout's edge lines lie on the rings: a leg ring becomes an edge loop of the final quad mesh.\n\nTwo parts, possibly in this order:\n\n1. Cross-field constraint. Treat ring edges as feature curves: the cross field is aligned to the ring tangent along every ring edge (fixed, not just weighted), the same way boundary and crease edges are handled. Check how far PATCH-89 (Lyon \u00a74.4 feature lines and boundary alignment in the motorcycle graph) already gets: rings could be fed to it as feature curves, with motorcycles traced along them at alpha 0 and treated as walls.\n\n2. Per-region layout. If constraining one global layout is not enough, segment the mesh into the regions the rings enclose (ring_regions from the companion ticket), run the quad layout pipeline on each region separately with its ring boundaries as mesh boundaries, and stitch the results so the patch edges on each ring match from both sides (the same number of edge subdivisions on both sides of a ring). Open question: whether per-region passes are needed at all, or whether constraint 1 makes the global layout follow the rings well enough.\n\nDone when, on fertility with the user's saved rings, the quad layout's arc network contains every ring as a closed chain of arcs, shown in a screenshot, and a ring that is moved and re-run moves the layout's edge loop with it.\n\nRelated: CRAW-31 (ring segments that follow the cross field) is the opposite direction, rings shaped by the field; this ticket makes the field shaped by the rings. A ring that already follows the field is the easy case for both.",
+    "blocked-by": [
+        "CRAW-32"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. On fertility with the user's saved rings, every ring is a closed chain of arcs in the quad layout's arc network, shown in a screenshot in tmp/. 2. The cross field is tangent to every ring edge (measured worst angular deviation reported). 3. Moving a ring and re-running moves the matching edge loop. 4. If per-region passes were built, the subdivision counts on both sides of each ring match and the stitched mesh is watertight.",
+    "testing-plan": "1. Unit test: a cylinder with one ring off the natural loop position gets a layout edge loop on that ring. 2. F5 launch entry on fertility with the saved rings, screenshot of the layout over the rings. 3. Report the cross field's worst deviation from ring tangents.",
+    "todos": [],
+    "unknowns": [
+        "Is the cross-field constraint plus PATCH-89's feature-curve tracing enough, or are per-region layout passes needed?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/fixtures/fertility_rings.dsl"
+    ],
+    "priority": 3
+}

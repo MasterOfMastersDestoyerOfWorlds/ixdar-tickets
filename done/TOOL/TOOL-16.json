@@ -1,0 +1,22 @@
+{
+    "id": "TOOL-16",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixdar-cli pick and project: pixel to surface point and surface point to pixel",
+    "description": "From CRAW-58 (friction log F2, F7, F9, F14): an agent driving the ring scene headless sees grooves in screenshots but every ring/connection route takes x,y,z. Today a pick means activating the ring tool, hovering, and digging previewHitPoint out of a large ui-state JSON (side effect: moves the hover preview); the reverse needed hand-calibrated per-view pixel maps. Add pick --x --y (surface point, normal, face id, region, or a miss) with no side effects on tool state, and project --point x,y,z (pixel, whether visible or occluded). Optionally pixel arguments on connection and rings add.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. pick and project routes, side-effect free, documented in the route manifest. 2. Round trip: project(pick(p)) == p within a pixel on visible surface; occluded points reported as such. 3. Unit tests on a fixed camera over a procedural mesh.",
+    "testing-plan": "Unit test with a fixed orbit camera; live on a crawfish copy.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "New routes pick (/mesh/pick: screenshot pixel -> point, normal, faceId, nearest vertexId, ring region) and project (/mesh/project: point -> pixel, onScreen, occluded/visible, occluder) on MeshNodeViewerScene.pickPixel/projectPoint: view ray via HalfEdgeMeshRuntime.rayThroughPixel (now float pixel centres) against SurfacePicker.pickNearestFace on the CPU, so no tool, hover or framebuffer is touched; occlusion = nearest hit more than one pixel's world span in front. RingScene.pickRefusal refuses while the region tool is exploded or shows an extraction. SurfacePicker.nearestCornerVertexId shared with RingScene.pickCursor. PixelPickProjectTest: fixed camera over a procedural tube, round trip and occlusion. Live on a crawfish IMG_4111 copy (987k faces): round trip within 0.002 px, 100-170 ms per call incl. CLI, underside point reported occluded, ring-tool hover preview unchanged."
+    ],
+    "related-files": [],
+    "priority": 2
+}

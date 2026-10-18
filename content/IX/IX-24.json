@@ -1,0 +1,24 @@
+{
+    "id": "IX-24",
+    "epic": "IX",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "One colour home: fold PatchColors and PatchColorHash into ixdar.graphics.render.color on Color/ColorRGB",
+    "description": "User request 2026-10-06, after CRAW-45 was found reinventing colour packing. Three palette implementations exist: graphics/render/color/PatchColorHash (a port of the shader's patchColor() hue hash, returns Color), geometry/mesh/data/PatchColors (golden-ratio hues, packed into 0xRRGGBB ints with its own RED_SHIFT/GREEN_SHIFT/RGB_MASK/CHANNEL constants and an hslToRgb, plus a hex form used as flat_color), and RegionColouring from CRAW-45 (adjacency colouring, now on Color/ColorRGB). Move PatchColors into graphics/render/color, express its colours as Color/ColorRGB (keep the packed int and hex only where a caller genuinely needs that format, e.g. flat_color matching a captured pixel, converted at that boundary), and share one HSV/HSL-to-RGB conversion between PatchColors and PatchColorHash instead of two. Callers: MscCellAssembly, PatchDecomposerCLI, MeshOverlayRuntime, HalfEdgeMeshRuntime, the patches Decompose route. No visible change: every patch keeps exactly its colour and hex value. Coordinate with IX-23 (mesh.data reorganisation), which would otherwise move PatchColors too.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. PatchColors lives in graphics/render/color and works in Color/ColorRGB; no class outside a genuine packed-pixel boundary packs or unpacks RGB by hand. 2. One shared hue-to-RGB conversion. 3. A unit test shows every patch id's colour and hex string unchanged for ids 0..1000, and PatchColorHash unchanged. 4. mvn test passes; web build builds.",
+    "testing-plan": "1. Golden test of old vs new colours for ids 0..1000 (record the old values first). 2. mvn test and teavm build.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/PatchColors.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/color/PatchColorHash.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/color/ColorRGB.java"
+    ],
+    "priority": 3
+}

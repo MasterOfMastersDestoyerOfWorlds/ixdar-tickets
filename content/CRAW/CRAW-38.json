@@ -1,0 +1,23 @@
+{
+    "id": "CRAW-38",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Per-tool sections in the editing scene's controls menu: general controls, then each tool's own controls under its heading",
+    "description": "User request 2026-10-03, follow-on to CRAW-32 (the editing scene with Orbit, ring and segmentation tools) and VIEW-12 (the menu's models and controls boxes). Today the controls box mixes scene-wide controls with the active tool's controls in one flat list that is rebuilt on every tool switch. Give each tool its own section in the controls menu: the scene's general controls (tool keys Ctrl+R / Ctrl+T, Esc to Orbit, Ctrl+I menu, model [ / ], wireframe, camera) in one section, and each tool's controls under that tool's heading, with the active tool's section highlighted or first. A tool declares its controls itself (EditTool already adds its hints) rather than the scene listing them. Decide whether inactive tools' sections are shown (useful for learning the keys) or collapsed.",
+    "blocked-by": [
+        "CRAW-32",
+        "VIEW-12"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The controls box shows a general section and one section per tool with a heading, the active tool's marked. 2. Each tool declares its own controls; the scene adds only the general ones. 3. Switching tools updates the marking without losing the scroll position. 4. Screenshots with each tool active.",
+    "testing-plan": "1. F5 the editing scene, open the menu with Ctrl+I, switch tools with Ctrl+R / Ctrl+T / Esc and screenshot each.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
