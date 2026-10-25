@@ -1,0 +1,22 @@
+{
+    "id": "DSL-53",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "fertility_quad_layout.dsl loads its mesh by a repo-root path, so it fails from ixdar-app (every launch entry and test)",
+    "description": "ixdar-app/src/main/resources/dsl/fertility_quad_layout.dsl loads `ixdar-app/test/resources/quadlayout/figure_8/fertility_in_tri.off`, which only resolves when the working directory is the repo root. Launch entries, the tests and the TOOL-28 snapshot main run from ixdar-app, so the graph fails to load there (TOOL-28 had to use a sphere quad-layout graph instead). The fix was part of the archived ENG-30 and never landed. Resolve the mesh the way the other fixtures do (relative to the module or through the resource loader) and add the graph to TOOL-28's golden fingerprints.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The graph loads from ixdar-app and from the repo root.\n2. It has a golden in GoldenFingerprintTest (tagged with the other mesh-loading goldens).",
+    "testing-plan": "1. mvn test.\n2. Load it in the mesh viewer from a launch entry.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/fertility_quad_layout.dsl"
+    ],
+    "priority": 3
+}

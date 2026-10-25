@@ -1,0 +1,31 @@
+{
+    "id": "TOOL-35",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "ixdar-cli builds never pass -pl, and the web build stops installing annotations into ~/.m2",
+    "description": "-pl builds only the listed reactor modules and resolves the others from ~/.m2, which every worktree shares at version 0.0.1. teavm_build installed annotations there (mvn install -pl annotations), and dsl_optimizer built -pl ixdar-app alone, so it compiled against whichever branch last installed annotations; MESH-62 and UI-12 hit a stale jar lacking ENG-33's ToolAnnotation change. Drop -pl from build_state, dsl_optimizer and teavm_build (whose package step already builds dependencies from the reactor with -am), and delete the install step. ixd's own build commands drop -pl in the same change (ai-workspace), and the deny list now refuses mvn -pl.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. No ixdar-cli Maven invocation passes -pl or installs annotations.\n2. ixdar-cli build, dsl-optimizer and teavm-build still work.\n3. test_cli passes.\n",
+    "testing-plan": "1. uv run python -m unittest ixdar_automation_cli.test_cli.\n2. uv run ixdar-cli build in a worktree.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Builds no longer select modules: build_state (ensure_build), dsl_optimizer and mesh_viewer (now launched from the repository root) run the whole reactor; teavm_build packages the whole reactor and no longer installs annotations into the local repository. All 15 run profiles in ixdar-app/pom.xml bind their exec to the compile phase (defaultGoal compile), and the two build-level exec:java executions mark their arguments combine.self=override so an active profile's arguments no longer merge into them; new_scene's profile template matches. test_cli: 103 OK. With the IXDAR annotations jar deleted from the local repository, a plain compile and a validate-dsl profile run on a fixture both pass from the root. ai-workspace (same change): ixd's BUILD_COMMAND, the wt new brief and the post-merge rebuild stop selecting modules, and the settings deny list refuses Maven module selection. Web build not run (needs the Java 25 toolchain).",
+        "Removed all 15 Maven run profiles from ixdar-app/pom.xml. The 11 *-scene profiles plus game, dungeon-viewer and validate-dsl had no callers (scenes launch from launch.json or run-scene, and ValidateDsl is reached through the mesh/dsl/validate route). mesh-viewer and dsl-optimize now compile through ensure_build and start java on build_state.launch_classpath(), the classpath run-scene already used. With no profile exec arguments left to merge, the two combine.self=override guards are reverted. new-scene loses --maven-profile and _upsert_maven_profile, and .cursor/commands/scenes-new-scene.md and the generated CLI README follow. Checks: test_cli 103 OK; a whole-reactor compile passes; dsl-optimize on hand.dsl against Hand-tri-30k.obj (4 samples) ranks results, similarity 44.1; mesh-viewer --dsl hand screenshots tmp/tool-35-mesh-viewer.png and shuts down. Ixdar/CLAUDE.md is left untouched: its gen-docs region is stale, and its new-scene line still mentions the Maven profile."
+    ],
+    "related-files": [
+        "ixdar_automation_cli/build_state.py",
+        "ixdar_automation_cli/cli_commands/dsl_optimizer.py",
+        "ixdar_automation_cli/cli_commands/teavm_build.py",
+        "ixdar_automation_cli/cli_commands/mesh_viewer.py",
+        "ixdar_automation_cli/cli_commands/new_scene.py",
+        "ixdar-app/pom.xml"
+    ],
+    "priority": 1,
+    "review-summary": "Ixdar builds always run the whole Maven reactor from the root: ixdar-cli stops selecting modules, the web build stops installing annotations into the shared local repository, and the run profiles bind their exec to compile. A worktree can no longer compile against another branch's stale annotations jar.\n"
+}

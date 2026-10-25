@@ -1,0 +1,22 @@
+{
+    "id": "TOOL-45",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "run-scene reports ok when the model scene's DSL or mesh failed to load",
+    "description": "Found by TOOL-43. `ixdar-cli run-scene --scene ring-tool --mesh ixdar-app/src/main/resources/dsl/crawfish/IMG_4111.dsl` on a machine without the scan printed `\"ok\": true` and an `ok scene=ring-tool ...` summary, with no V/F counts, while the scene log said `[mesh-viewer] DSL load failed for .../IMG_4111.dsl: load_mesh failed for /home/acw/crawfish/IMG_4111.glb`. An agent that reads only the JSON believes the model loaded and goes on to screenshot an empty viewer. run-scene (and launch) should report the model scene's load failure: ok false, the failure message, the log path.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. run-scene with a --mesh whose load fails returns ok false with the load failure message and a non-zero exit.\n2. A successful model load is unchanged (ok true, V and F in the summary).\n3. A Python CLI test covers the failure path.",
+    "testing-plan": "1. run-scene with a DSL naming a missing scan: ok false.\n2. run-scene on fertility: ok true as before.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar_automation_cli"
+    ],
+    "priority": 3
+}

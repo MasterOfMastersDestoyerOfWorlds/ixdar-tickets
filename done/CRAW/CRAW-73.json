@@ -1,0 +1,43 @@
+{
+    "id": "CRAW-73",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "geometry"
+    ],
+    "title": "Sub-tools: extract the bisector out of RingTool into its own sub-tool of the ring tool, with geodesic and crease modes",
+    "description": "User's request (2026-10-17), backlog, not needed now: \"add a ticket to the backlog based on craw-49 to extract bisect into its own tool and add the concept of subtools, I dont think we need it now but like bisect would be a subtool of ring tool, both are part of the tool class, and bisect would be able to switch between the geodesic mode and crease mode as well, uses for sub tool would be to separate the code of two interfaces that produce and act on similar data with different form factors.\"\n\nWhy: CRAW-49 built the bisector (an open geodesic spline across walls, ends snapping to rings or bisectors, saved as spline_cut) inside RingTool's K mode, as the user asked at the time (\"don't make a new tool\"). RingTool now carries two interfaces in one class: closed rings and open bisectors, which produce and act on the same data (surface splines, anchors, ring serials, walls, the draft/undo state, the overlay) with different form factors. That makes RingTool large and every change to one risks the other.\n\nThe concept: a sub-tool is a tool (same EditTool interface: activate, deactivate, perFrame, addControls, escapePressed) owned by a parent tool rather than registered with the scene. The parent holds the shared state and data both act on; the sub-tool holds only its own interaction. The parent switches between its sub-tools (e.g. K enters the bisector sub-tool, Esc returns to the parent's default sub-tool), the controls list shows the parent's shared rows plus the active sub-tool's rows, and the scene still sees one active tool.\n\nFor the ring tool: the ring sub-tool (closed rings, what RingTool does today without K) and the bisector sub-tool (bisectors). Both share the confirmed rings and their serials, the draft/undo stack, the wall map and snapping, the overlay upload and the save path (RingDslWriter). The bisector gains the geodesic / crease mode switch the ring sub-tool has (RingSegmentMode, newDraftMode, red geodesic / purple crease preview), so a bisector can follow a groove.\n\nDepends on: CRAW-49 (the bisector itself) landing, and DSL-48 (tool hosting moved into the Scene base, EditTool moved to ixdar.scenes), since sub-tools build on that hosting.",
+    "blocked-by": [
+        "CRAW-49",
+        "DSL-48",
+        "ENG-23"
+    ],
+    "blocks": [
+        "TOOL-42"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. A sub-tool mechanism on EditTool's hosting: a parent tool owns sub-tools implementing the same interface, switches between them, routes perFrame/input/escape to the active one, and the controls show the parent's shared rows plus the active sub-tool's; the scene still sees one active tool. No new class where an existing one can hold the state.\n2. The bisector is its own sub-tool class, moved out of RingTool, with RingTool (or what remains of it) holding only state both sub-tools share; RingTool's bisector fields and methods (bisecting, startBisector, placeBisectorEnd, leaveBisector, tracedBisector, draftBisectorEnds, ...) are gone from it.\n3. The bisector sub-tool switches between geodesic and crease mode with the same key and preview colours as rings; a crease-mode bisector traces along grooves and saves and reloads identically.\n4. Behaviour is otherwise unchanged: BisectorTest and every ring test pass unchanged in meaning; ring and bisector fingerprints on the crawfish and fertility DSL copies are byte-identical to master before the change.\n5. A launch entry and screenshots of a geodesic and a crease bisector on the crawfish.",
+    "testing-plan": "1. Record ring and bisector fingerprints on tmp copies of the crawfish IMG_4111 and fertility ring DSLs on master, repeat after the extraction, compare.\n2. BisectorTest and the ring tool tests; add a test that a crease-mode bisector saves and reloads the same edges.\n3. Live: K into the bisector, switch mode, place ends, Esc back to rings; ctrl+I lists the shared and the bisector rows.",
+    "todos": [],
+    "unknowns": [
+        "Whether other tools would use sub-tools soon (e.g. the region tool or connection tool), which would decide how general the mechanism needs to be."
+    ],
+    "changes-made": [
+        "Sub-tool mechanism on the Tool base: subTools list, activeSubTool and switchSubTool; ui-state/tools/key replies export subTool and subTools generically (State.toolSummary).",
+        "BisectorTool (ixdar.tools.ring) is the ring tool's bisector sub-tool: end placement, hover preview, steering-anchor insertion, point deletion, retrace and wall-attached tracing, Esc/K leave; RingTool keeps the shared rings, draft, history, wall snapping, overlay and save path and routes perFrame, the resolved click, Esc and controls to the active sub-tool.",
+        "Crease-mode bisectors: T switches the bisector too; SurfaceSpline.bisector takes SurfaceCreases (cheapest crease path per span via new SurfaceCreases.path); spline_cut gained mode= and creases= inputs; the save writes mode and wires creases; adoption reads the mode back. Bisector drafts now take the red geodesic / purple crease colours, black while invalid.",
+        "Fixed two master breakages found on the way: missing RingTool.DESCRIPTION used by ToolInputReplyTest, and a checkstyle summary-period violation in ui/tools/package-info.java.",
+        "Verified: ring and bisector fingerprints plus saved .dsl byte-identical before/after on tmp copies of crawfish IMG_4111 and fertility_rings; 646 unit tests pass incl. two new BisectorTest cases (sub-tool routing, crease bisector follows a groove and saves/reloads the same edges); live crease bisector on the crawfish reloads with the same fingerprint 49326276d087093a. Screenshots tmp/craw-73-geodesic-bisector.png, tmp/craw-73-crease-bisector.png.",
+        "Follow-up: the plain ring interaction is its own sub-tool, ClosedRingTool (toolName ring: girdle hover preview, ring clicks, X/Del, K hand-off, the ring draft trace), the ring tool's default sub-tool; RingTool keeps only shared state (confirmed rings and serials, draft, history, wall map and snapToWall, creases, overlay, save path) and routes perFrame, the resolved click, Esc, controls, hovered and preview to the active sub-tool. The members widened for the sub-tools (refusalShown, readyCreases, recordEdit, reportDraft, clearDraft, snapToWall, fitLoop, previewedFace, previewedHit, overlayStale, graph ring segments) are package-private; tools now reports subTool ring/bisector and subTools [ring, bisector]. Re-verified: 646 tests pass, ring and bisector fingerprints and saved .dsl byte-identical on the crawfish and fertility tmp copies, a crawfish crease bisector (576a088ef5696f9e) reloads identically.",
+        "Follow-up: RingSubTool (abstract, ixdar.tools.ring) is the common parent of ClosedRingTool and BisectorTool; both override addAnchor, retrace(authored, keepSimple), moveAnchor, deletePoint, confirmable, draftDescription, draftDetail, draftLabel, draftCrossing, drawsInvalid, markedVertices and draftClosed. RingTool keeps draftOwner (the sub-tool owning the open draft, the rings when none; set on drafting and re-opening, captured and restored by RingToolState) and calls it through RingSubTool; the hand-written bisector/closed-ring branches in addAuthoredAnchor, retraceDraft (removed), moveSelectedAnchor, deleteSelectedAnchor, confirmDraft, clearDraft, reportDraft, draft(), liveRingSplines and the overlay colour and end discs are gone. The ring's drag depth is ClosedRingTool's own. 649 tests pass; fingerprints and saved .dsl byte-identical on the fertility and crawfish tmp copies."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingTool.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingSegmentMode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/SurfaceSpline.java",
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingDslWriter.java"
+    ],
+    "priority": 5,
+    "review-summary": "RingTool now hands its input to one of two sub-tools, ClosedRingTool for rings and BisectorTool for bisectors, keeping only the state both share; bisectors gained the geodesic/crease switch. Separating the two interfaces keeps changes to rings or bisectors from risking the other, and lets bisectors follow grooves.\n"
+}

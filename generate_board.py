@@ -962,6 +962,8 @@ def update_ticket(
     add_blocks: list[str] | None = None,
     remove_blocked_by: list[str] | None = None,
     remove_blocks: list[str] | None = None,
+    title: str | None = None,
+    description: str | None = None,
     append_description: str | None = None,
     definition_of_done: str | None = None,
     testing_plan: str | None = None,
@@ -973,6 +975,8 @@ def update_ticket(
     add_todos: list[str] | None = None,
     add_related_files: list[str] | None = None,
     remove_related_files: list[str] | None = None,
+    add_verify_tests: list[str] | None = None,
+    remove_verify_tests: list[str] | None = None,
     resolve_todos: list[int] | None = None,
     resolve_unknowns: list[int] | None = None,
     status: str | None = None,
@@ -982,9 +986,14 @@ def update_ticket(
     """Patch an existing ticket JSON and regenerate BOARD.md.
 
     :param ticket_id: ticket ID to patch.
+    :param title: replaces the title, for a ticket whose scope was redecided; None keeps it.
+    :param description: replaces the description entirely; append_description then adds to it.
     :param review_summary: replaces review-summary, the plain-words paragraph `ixd review` shows
         first (the problem before, what is true after, why it matters); blank removes it.
     :param remove_related_files: exact related-files paths to drop; removals run before additions.
+    :param add_verify_tests: Maven ``-Dtest`` selectors appended to verify-tests, the tests
+        `ixd wt done` runs to verify the ticket in place of a screenshot.
+    :param remove_verify_tests: exact verify-tests selectors to drop; removals run before additions.
     :param priority: new priority, lower is higher; None keeps the current one.
     :param resolve_todos: one-based todo positions to remove.
     :param resolve_unknowns: one-based unknown positions to remove.
@@ -1002,6 +1011,10 @@ def update_ticket(
     removed_todos = _resolve_list_entries(data, "todos", resolve_todos or [])
     removed_unknowns = _resolve_list_entries(data, "unknowns", resolve_unknowns or [])
 
+    if title is not None:
+        data["title"] = title.strip()
+    if description is not None:
+        data["description"] = description.strip()
     if append_description:
         _append_text_field(data, "description", append_description)
     if definition_of_done is not None:
@@ -1029,11 +1042,16 @@ def update_ticket(
 
     _extend_list_field(data, "unknowns", add_unknowns or [])
     _extend_list_field(data, "changes-made", add_changes or [])
-    missing_related = [p for p in remove_related_files or [] if p not in (data.get("related-files") or [])]
-    if missing_related:
-        raise ValueError(f"{normalized_id} has no related-files entry: " + ", ".join(missing_related))
-    data["related-files"] = [p for p in data.get("related-files") or [] if p not in (remove_related_files or [])]
-    _extend_list_field(data, "related-files", add_related_files or [])
+    for key, added, removed in (
+        ("related-files", add_related_files, remove_related_files),
+        ("verify-tests", add_verify_tests, remove_verify_tests),
+    ):
+        missing = [entry for entry in removed or [] if entry not in (data.get(key) or [])]
+        if missing:
+            raise ValueError(f"{normalized_id} has no {key} entry: " + ", ".join(missing))
+        if key in data:
+            data[key] = [entry for entry in data.get(key) or [] if entry not in (removed or [])]
+        _extend_list_field(data, key, added or [])
 
     new_blocked_by = [i for i in _normalized_ids(add_blocked_by) if i not in (data.get("blocked-by") or [])]
     new_blocks = [i for i in _normalized_ids(add_blocks) if i not in (data.get("blocks") or [])]
@@ -1447,6 +1465,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="New priority; lower = higher.",
     )
     update_parser.add_argument(
+        "--title",
+        default=None,
+        type=text_option,
+        help="Replace the title.",
+    )
+    update_parser.add_argument(
+        "--description",
+        default=None,
+        type=text_option,
+        help="Replace the description entirely.",
+    )
+    update_parser.add_argument(
         "--append-description",
         dest="append_description",
         default=None,
@@ -1540,6 +1570,21 @@ def _build_parser() -> argparse.ArgumentParser:
         default=[],
         dest="remove_related_files",
         help="Remove one related-files[] path, matched exactly; runs before --add-related-file.",
+    )
+    update_parser.add_argument(
+        "--add-verify-test",
+        action="append",
+        default=[],
+        dest="add_verify_tests",
+        help="Append one verify-tests[] Maven -Dtest selector (e.g. GoldenFingerprintTest); "
+        "`ixd wt done` runs these in place of requiring a screenshot.",
+    )
+    update_parser.add_argument(
+        "--remove-verify-test",
+        action="append",
+        default=[],
+        dest="remove_verify_tests",
+        help="Remove one verify-tests[] selector, matched exactly; runs before --add-verify-test.",
     )
     update_parser.add_argument(
         "--resolve-todo",
@@ -1665,6 +1710,8 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             add_blocks=list(args.add_blocks or []),
             remove_blocked_by=list(args.remove_blocked_by or []),
             remove_blocks=list(args.remove_blocks or []),
+            title=args.title,
+            description=args.description,
             append_description=args.append_description,
             definition_of_done=args.definition_of_done,
             testing_plan=args.testing_plan,
@@ -1676,6 +1723,8 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             add_todos=list(args.add_todos or []),
             add_related_files=list(args.add_related_files or []),
             remove_related_files=list(args.remove_related_files or []),
+            add_verify_tests=list(args.add_verify_tests or []),
+            remove_verify_tests=list(args.remove_verify_tests or []),
             resolve_todos=list(args.resolve_todos or []),
             resolve_unknowns=list(args.resolve_unknowns or []),
             status=args.status,

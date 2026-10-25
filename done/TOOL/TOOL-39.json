@@ -1,0 +1,32 @@
+{
+    "id": "TOOL-39",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Scenes cannot pile up: run-scene and launch refuse a second live scene in the worktree, and shutdown without --pid stops every scene the worktree's CLI started",
+    "description": "Two out-of-memory crashes killed every agent and the Claude app (systemd-oomd on 2026-10-20 23:06 and 2026-10-22 06:59, memory and swap both past 90% of 15.9 GB). The second had one agent running: ENG-30's baseline sweep launched each scene with `run-scene --keep-alive` and then called `ixdar-cli shutdown` without --pid. From crawfish_IMG_4118.dsl on, 10 shutdowns exited 4 (SceneResolutionError: more than one live scene, so the CLI refuses to pick one, ixdar_cli.py:128-132), the scenes stayed up, and the crawfish JVMs (-Xmx4g each, plus native memory) piled up. The first had four agents launching scenes and running mvn test at once. Only the quad suite runner serializes JVMs through a lock.\n\nMake the safe behaviour the default:\n1. `run-scene --keep-alive` (and `launch`) refuses to start while this checkout already has a live scene, naming the old scene's pid and how to stop it.\n2. `shutdown` with no --pid stops every scene this checkout started (its tmp/automation/<pid>.json records) instead of refusing, and reports each pid it stopped; it confirms each process exited and kills one that did not.\n3. No machine-wide lock (user ruling): agents never queue on each other. Each worktree's tmp/automation/<pid>.json records are the one list of the scenes its CLI started (headless and windowed, written when the JVM starts); the refusal and shutdown read only that list, so only this worktree's own scenes are ever signalled and F5 windows are left alone.",
+    "blocked-by": [],
+    "blocks": [
+        "TOOL-26"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. A second `run-scene --keep-alive` in the same checkout refuses while the first is alive, naming its pid.\n2. `ixdar-cli shutdown` without --pid stops every live scene of the checkout and confirms each exited.\n3. No machine-wide lock: the worktree's tmp/automation records list every CLI-started scene (written when the JVM starts), and only those pids are refused on or stopped; F5 windows and other worktrees' scenes are untouched.\n4. A test reproduces the ENG-30 leak (keep-alive launches with shutdowns in between) and shows no scene left alive; test_cli passes.\n",
+    "testing-plan": "1. Unit tests in test_cli with fake scene records and processes.\n2. Live: two keep-alive launches in one checkout, then shutdown; two worktrees launching at once.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "run-scene and launch refuse (exit 4) while the checkout has a live scene, naming each pid and its stop command (automation_client.refuse_second_scene). New machine_lock.MachineLock: exclusive flock on ~/.cache/ixdar/jvm.lock held from before the build until the scene JVM exits (the JVM inherits the descriptor via pass_fds, so a --keep-alive scene keeps it); waiters print the holder every 30 s; a waiter whose holder is its own checkout refuses instead of deadlocking. New ixdar-cli test runs mvn test under the lock. The registry stop-scene became shutdown: with no target it stops every headless scene of the checkout, waits for each pid, SIGKILLs one that outlives --timeout and reports each; the raw Java route is renamed request-exit (Shutdown.describe commandName) so registry and routes stay disjoint.",
+        "Tests: 6 new SceneLimitTest cases with sleep processes as fake JVMs (second keep-alive refused and lock inherited; launch refused; ENG-30 sweep with two live scenes, one ignoring request-exit, plus three keep-alive/shutdown rounds leaves no process, record or lock; cross-checkout queue names the holder; same-checkout refusal; test command holds the lock), stop-scene tests moved to shutdown incl. the kill path. test_cli: 110 run, 0 failed. Live (circle-canvas, one JVM): second keep-alive refused naming pid; lock held after run-scene returned; another checkout's ixdar-cli test queued naming the holder; shutdown stopped the scene in 1.4 s and freed the lock.",
+        "Rework (user rejected the machine-wide lock): machine_lock.py, the ~/.cache/ixdar/jvm.lock flock and ixdar-cli test removed. The per-worktree registry of open scene pids is the existing tmp/automation/<pid>.json records, one source: run-scene, launch and mesh-viewer write the pid's record the moment the JVM starts (register_launch, launcher=ixdar-cli) and pass -Dixdar.automation.launcher=ixdar-cli, which AutomationPortFile copies into the record when it adds the port; _terminate and shutdown remove the record once the pid is gone; dead pids are pruned on read. The three launchers refuse (exit 4) while a CLI-launched scene in the checkout is alive, starting ones included, naming the pids. shutdown with no --pid stops every CLI-launched scene (headless and windowed), SIGTERMs one still starting, kills stragglers, empties the records; F5 windows and other checkouts are never signalled. Tests: SceneLimitTest reworked (registry written at launch, second keep-alive refused, launch refused, ENG-30 sweep leaves no process or record, starting scene refused and stopped, F5 window and other checkout spared); 109 run, 0 failed. Live (circle-canvas, one JVM): record carried port+launcher, second keep-alive refused naming pid 2207934, shutdown stopped it in 1.6 s and emptied tmp/automation."
+    ],
+    "related-files": [
+        "ixdar_automation_cli/ixdar_cli.py",
+        "ixdar_automation_cli/cli_commands/run_scene.py",
+        "ixdar_automation_cli/cli_commands/launch_entry.py",
+        "ixdar_automation_cli/automation_client.py"
+    ],
+    "priority": 3,
+    "review-summary": "Each worktree's tmp/automation records now list every scene pid ixdar-cli started, from launch on; run-scene, launch and mesh-viewer refuse while one is alive, and shutdown stops them all, killing stragglers. Kept-alive scenes that shutdown refused to pick between piled up until the machine ran out of memory.\n"
+}

@@ -1,0 +1,27 @@
+{
+    "id": "TOOL-42",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "ui"
+    ],
+    "title": "Sub-tools are reachable everywhere tools are: ct and ls tools find them, and the tools route lists every sub-tool's controls, active or not",
+    "description": "Follow-on to CRAW-73 (the bisector and ring sub-tools of the ring tool). Sub-tools carry no @ToolAnnotation, correctly: ToolRegistry_Tools builds a tool from a Scene, a sub-tool's constructor takes its parent, and registering one would let `ct bisector` add a second, standalone bisector to scene.tools beside the ring tool. But that leaves gaps:\n1. The terminal cannot reach a sub-tool: `ct bisector` says no tool named bisector, and `ls tools` (ListCommand, reading the registry) does not list it. ChangeToolCommand should resolve a name against each hosted tool's subTools too and switch the parent to it (switchTool then switchSubTool); ls tools lists sub-tools under their parent.\n2. The tools route lists only the active sub-tool's controls, so an agent cannot see the bisector's rows until it enters it, unlike inactive tools, whose controls are listed. Each sub-tool's name and controls are listed, active or not, under its parent, and `control` can fire an inactive sub-tool's row, entering it first as its switch row would (with TOOL-41's action names).\n3. `ls tools` reads the registry while the tools route reads scene.tools: one listing (hosted tools and their sub-tools) feeds both, so the terminal and the agents see the same thing.",
+    "blocked-by": [
+        "CRAW-73",
+        "TOOL-41"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. `ct <sub-tool>` switches to it through its parent; `ls tools` lists sub-tools under their parent; no sub-tool is ever built by the registry.\n2. `tools` lists every sub-tool's controls, active or not; `control` fires an inactive sub-tool's row, entering it first.\n3. ls tools and the tools route are built from one listing.\n4. Tests for each; gen-docs run.",
+    "testing-plan": "1. mvn test, test_cli.\n2. Live on the ring scene: `ct bisector`, `ls tools`, `tools` with the ring sub-tool active shows the bisector's rows, `control --action <a bisector row>` enters it.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/ChangeToolCommand.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/ListCommand.java"
+    ],
+    "priority": 2
+}

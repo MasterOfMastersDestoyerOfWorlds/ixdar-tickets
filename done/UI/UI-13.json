@@ -1,0 +1,29 @@
+{
+    "id": "UI-13",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Tour editor: R says it resets the camera, the tool and the toggles but leaves the active tool as it was",
+    "description": "In the tour editor (MainScene, ixdar-canvas) the R control row is labelled 'reset the camera, the tool and the toggles' and runs ResetCommand.run(ResetOption.Camera). After switching to Neighbor View with Ctrl+B and pressing R, the active tool is still Neighbor View (seen in ENG-32's live key pass, tmp/eng-32-main-after.png in that worktree). Either R should also switch back to the default tool and reset the toggles, as the label says, or the label should say only what it does. Decide from what ResetCommand's other options do.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. R in the tour editor does exactly what its control row says.\n2. After Ctrl+B then R, the active tool and toggles match the label.",
+    "testing-plan": "1. ixdar-canvas: Ctrl+B, toggle B/Y, press R; screenshot under tmp/ and check ui-state's active tool.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "R in MainScene now runs ResetCommand.run(ResetOption.All): camera reset, switch back to the default (free) tool or re-activate it when already active, and Toggle.resetAll(). ResetOption.All previously skipped the toggles.",
+        "ResetCommand.run: removed the accidental switch fallthrough, so 'rst camera' resets only the camera and 'rst tool' only the active tool; usage string lists toggles.",
+        "ui-state gains a tourEditor object (activeTool, every toggle by short name) for MainScene, so the reset is checkable through automation.",
+        "Regression tests in MainSceneTerminalCommandTest: the R row returns Neighbor View to the free tool and resets cut-match/gradient; 'rst camera' leaves tool and toggles. Live: ixdar-canvas Ctrl+B, B, Y, R -> ui-state tourEditor.activeTool free, cutMatch/knotGrad true; tmp/ui-13-before-r.png, tmp/ui-13-after-r.png."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/main/MainScene.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/ResetCommand.java"
+    ],
+    "priority": 3,
+    "review-summary": "The tour editor's R key now runs ResetCommand's full reset, returning to the free tool, resetting the toggles and the camera, and `rst camera` resets only the camera. Before, R left the active tool unchanged despite its control row promising otherwise.\n"
+}

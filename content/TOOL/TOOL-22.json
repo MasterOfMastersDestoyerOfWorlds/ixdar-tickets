@@ -1,0 +1,30 @@
+{
+    "id": "TOOL-22",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Review: cluster a worktree's hunks by edit pattern and stage a whole cluster, or every hunk like the one at the cursor",
+    "description": "Reviewing a change often means the same edit repeated in 30+ files (ENG-34: 70 hand-built error objects replaced by failure(), 73 constants removed) burying the few real code changes. stage-moves only knows renames, move imports and comment-only files. Add: (1) clustering: group every hunk of a worktree's diff (against its base, untracked included, the way stage_moves builds it) by edit pattern, at three levels: identical -/+ lines after whitespace normalisation; the same token-level rewrite with the differing tokens abstracted (e.g. 'error.addProperty(OK, false); error.addProperty(ERROR, $msg)' -> 'failure($msg)'); and, through ast-grep (tree-sitter, handles Java), the same syntax-tree edit, which survives rewrapping. (2) ixd wt clusters <name> lists clusters with counts, files and one representative hunk, the rest as 'unclustered'; ixd wt stage-cluster <name> <n> stages one cluster; ixd wt stage-like <file>:<line> stages every hunk in the cluster of the hunk at that line. (3) the ixd review page shows the clusters (representative, count, files) above 'Files to read first', and ranks files by unclustered lines. (4) worktree setup sets difftastic as the git difftool so structural no-op changes (reformatting, rewrapping) read as unchanged. Staging goes through git apply --cached like stage_moves; nothing commits.",
+    "blocked-by": [],
+    "blocks": [
+        "TOOL-23",
+        "TOOL-24"
+    ],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. ixd wt clusters lists ENG-34's diff with the failure() rewrite and the removed constants each as one cluster, and its real code changes unclustered.\n2. ixd wt stage-cluster and ixd wt stage-like stage exactly that cluster's hunks; git diff --cached shows only them.\n3. The review page shows the clusters and ranks files by unclustered lines.\n4. Worktrees use difftastic as the difftool.\n5. Shown on ENG-34 and MESH-60, output pasted in the report.",
+    "testing-plan": "1. Run clusters/stage-cluster/stage-like on ENG-34 and MESH-60; paste the cluster list and git diff --cached --stat.\n2. Render ixd review ENG-34 --page-only and read the clusters section back.",
+    "todos": [],
+    "unknowns": [
+        "Whether ast-grep is a uv/pip dependency of ai-workspace or a system tool ixd setup installs (it must work on Windows too)."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixd/worktree.py",
+        "ixd/commands/wt/stage_moves.py",
+        "ixd/commands/review/_changes.py",
+        "ixd/commands/review/_page.py"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-25",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixd wt new reports which open worktrees touch the same files; stack only overlapping tickets, start the rest in parallel off master",
+    "description": "The repo-plan stack ran one ticket at a time (mean 1.23 ticket agents running against 2.96 on Oct 15) because every ticket was stacked on the previous one with wt new --base. Evidence: ai-workspace reports/tool-review-2026-10-18.md item 1. wt new should take the ticket's related-files (and, for an existing worktree, its diff) and list every open worktree whose diff touches the same files or packages, recommending --base only for those; ixd wt status shows the same overlap. The coordinator then starts non-overlapping tickets in parallel off master.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixd wt new <t> prints the open worktrees whose changes overlap the ticket's related files, with the overlapping paths, and suggests --base only when there is overlap.\n2. ixd wt status shows the same overlap for an existing worktree.\n3. Shown on the current open worktrees.\n",
+    "testing-plan": "1. Run wt new for a ticket overlapping an open worktree and one that does not; paste both outputs.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/commands/wt/new.py",
+        "ixd/worktree.py"
+    ],
+    "priority": 1
+}

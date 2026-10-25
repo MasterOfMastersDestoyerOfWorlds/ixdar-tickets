@@ -1,0 +1,27 @@
+{
+    "id": "UI-10",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Menu Continue with no cached file throws a NullPointerException in the MainScene constructor",
+    "description": "Found by the UI-9 agent (2026-10-18); present on master too. The debug menu's Continue opens the TSP editor on the cached last file; with no cache, the MainScene constructor dereferences a null retTup and throws. Since UI-9 the menu stays current and usable after the failure, but Continue should either be disabled/hidden when there is nothing to continue, or report 'nothing to continue' on screen, instead of throwing.",
+    "blocked-by": [
+        "UI-9"
+    ],
+    "blocks": [
+        "UI-14"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Continue with no cached file never throws; it is disabled or shows a message, and the menu stays usable.\n2. Continue with a cached file still opens it; a test covers both; launch entry and screenshot.",
+    "testing-plan": "1. Live: clear the cache, Continue; then load a file, back to the menu, Continue.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause: FileManagement read the last-file cache from ./src/test/cache/cache, but the tracked cache moved to ixdar-app/test/cache/cache (commit f822fba6), so the cache was always blank and Continue built MainScene(\"\"), whose blank branch leaves retTup null. FileManagement.testFileCacheLocation now points at test/cache/cache. Menu.MainMenu.loadMenu rebuilds its rows from the cache each time it is shown, with Continue's action null (greyed, GREY_DARK, like SceneModelMenu's disabled rows) when nothing is cached; MenuBox.click ignores rows without an action (also fixes the Settings placeholder NPE); MenuScene.activate reloads the shown menu so Continue is current after returning from the editor. ui-state menuItems report enabled. Test: unit.scenes.MenuContinueTest (4 tests). Live: no cache -> Continue enabled=false, click ignored, menu stays; Load triforce.ix, Esc back -> Continue enabled, opens triforce.ix."
+    ],
+    "related-files": [],
+    "priority": 4,
+    "review-summary": "The debug MainMenu greys out Continue when no file is cached and re-reads the cache whenever the menu is shown, and FileManagement points at the moved cache file. Continue with nothing cached crashed the TSP editor's constructor, and the cache was never found after the test directory moved.\n"
+}

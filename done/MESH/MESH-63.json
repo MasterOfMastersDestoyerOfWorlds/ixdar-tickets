@@ -1,0 +1,31 @@
+{
+    "id": "MESH-63",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Shared primitives: delete the private Dijkstra, union-find, exact-predicate and CG copies; split quad-layout algorithms from their MeshNode adapters",
+    "description": "Repo plan merge 3C.17 and phase 4.6. paths/Dijkstra calls itself the one shared core, yet private PriorityQueue Dijkstras remain in ConformingLoopSnap (~181), CutGraph (~184, ~329), RingCandidateExtractor (~273), ArcNetworkRecarve (~274) and crossfield/DijkstraNode. Union-find: data/UnionFind, cuts/DisjointUnionSets (keyed by Knot), EmbeddedMeshTopology's patch alias. Exact predicates: ExactBarycentricOrient, ExactArithmetic, SeamlessProjector.orient2dHelper (~1167). MeshHoleFiller has its own conjugate-gradient solve (~76, ~430). Use the numeric package's single copy of each. Also split the algorithm classes that implement MeshNode directly (NDirectionField 1382 lines, MotorcycleGraph, SeamlessParameterization, LayoutEmbedding, NetworkContraction, GridMapAssembly, QuantizedMeshGrid) into the algorithm and a thin node in quadlayout/nodes, keeping class names for the algorithm halves.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.\n\nAMENDED 2026-10-17 (user ruling, DSL-52): all node packs live in ixdar.nodegraph.nodes, so the node halves split off the quad-layout algorithm classes go to nodegraph/nodes/quadlayout, not geometry/mesh/quadlayout/nodes.\n\nTriangulation (user ruling 2026-10-18, 'both named'): one face-triangulation on MeshTopology that takes the rule as an argument, a TriangulationRule enum {FAN (from the face's first corner), SHORTER_DIAGONAL}, so every caller picks deliberately and nothing re-implements it. MESH-60 introduces it and uses it in the code it ports (curvature, segmentation, skeleton, rings). This ticket moves every remaining inline 'for (int fan = 1; fan + 1 < corners; fan++)' loop onto it (MeshCanonicalFingerprint, HalfEdgeMeshRuntime.compileSurface, MeshExport, PlyMeshParser, SurfacePicker, NearestVertex and any left), each keeping its current rule (FAN) so fingerprints and screenshots hold, and makes csg QuadTriangulation build its copy through it with SHORTER_DIAGONAL. Delaunay (dungeon), IntrinsicTriangulation, MeshHoleFiller and CornerUvSplit are different algorithms and stay.\n",
+    "blocked-by": [
+        "MESH-57",
+        "MESH-59"
+    ],
+    "blocks": [
+        "MESH-65"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. One Dijkstra, one union-find, one set of exact predicates, one CG solver; the copies are deleted.\n2. Quad-layout algorithm classes do not implement MeshNode.\n3. Quad-suite and ring fingerprints byte-identical (tie-breaking differences explained if any); unit suite passes; launch entry and screenshot.\n\nTriangulation: no inline fan loop remains; every face triangulation goes through the one MeshTopology method with an explicit TriangulationRule; QuadTriangulation uses it with SHORTER_DIAGONAL; fingerprints and quad-suite screenshots unchanged.\n",
+    "testing-plan": "1. Fingerprints and quad-suite timings before and after.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "numeric.graph.Dijkstra is now a reusable caller-driven frontier (stamped scratch, primitive heap that pops ties exactly as java.util.PriorityQueue, optional A* priority); ported ConformingLoopSnap, CutGraph x2, RingCandidateExtractor, ArcNetworkRecarve, CurvatureConstraints (crossfield/DijkstraNode deleted), BoundarySnap, MeshSkeletonExtractor x2, SurfaceGeodesics (Dijkstra + A* seed, private heap deleted), AuthoredSplineRing sheet search, SurfaceConnection. UnionFind replaces private copies in RingCandidateExtractor, RingRegions, CutGraph (rank dropped; roots unobservable), QuantizedMeshGrid, ZeroArcCollapse, SeamlessProjector, ParameterizationMetrics, SemanticPatchDecomposer, IntegerProgram, EmbeddedMeshTopology patch alias; tsp DisjointUnionSets now array-backed on UnionFind.find (keeps union by rank, dead unmatched/countGroups API removed). ExactBarycentricOrient.orient2d replaces MotorcycleGraph.orient2d, SeamlessProjector.orient2dHelper and the SurfacePathCrossings/InjectivityConstraints/PatchRectangleMap copies. AdaptiveSolver.preconditionedConjugateGradient takes an operator (BiConsumer) and a norm floor; the matrix form, AdaptiveSolver's private fixed-mask CG and MeshHoleFiller's matrix-free CG all run through it. MeshTopology.triangleCorners/faceTriangleCorners are the one face triangulation (SHORTER_DIAGONAL uses QuadTriangulation's float arithmetic); fan loops removed from fingerprint, export, PLY/OBJ/OFF parsers, picker, nearest vertex, face locator, runtime compile + face pick, RegionExplosion, RingRegions, RingRegionExtraction; QuadTriangulation builds through triangulate(SHORTER_DIAGONAL). NDirectionField, MotorcycleGraph, SeamlessParameterization, LayoutEmbedding, NetworkContraction, GridMapAssembly, QuantizedMeshGrid no longer implement MeshNode: XNode classes in nodegraph/nodes/quadlayout carry ids, ports and evaluate. Verified: quad suite 0/14 differ, DSL fixtures 0/50 differ (pre-sync); post-sync only MESH-61's slot-name listing changed, fingerprints and screenshots identical; benchmark fingerprints identical, timings same or faster within noise; mvn test 597/0. Tests: DijkstraTest, TriangulationRuleTest."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/Dijkstra.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/UnionFind.java"
+    ],
+    "priority": 4,
+    "review-summary": "The numeric package's Dijkstra, UnionFind, orient2d and conjugate gradient replace their private copies, every face triangulation goes through MeshTopology, and the quad-layout algorithms drop their MeshNode halves into nodegraph nodes. Each primitive now has one implementation to fix or speed up, and algorithms no longer double as graph nodes.\n"
+}

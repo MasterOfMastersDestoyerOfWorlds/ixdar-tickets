@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-33",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "wt done's screenshot check always passes: require a screenshot only for tickets with visible UI",
+    "description": "wt done requires a screenshot under tmp/ but writes its own tmp/<branch>-launch.png first, so the check always passes, while agents on pure refactors still take and copy screenshots. Evidence: ai-workspace reports/tool-review-2026-10-18.md item 11. Require an agent screenshot only when the ticket's subsystem or definition of done names a visible UI change; otherwise the launch run (the entry starts and renders) is enough, and once the test layer exists, a named test instead.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. wt done does not count its own launch screenshot as the ticket's evidence.\n2. A refactor ticket passes with the launch run alone; a UI ticket without an agent screenshot is refused with a reason.\n",
+    "testing-plan": "1. Run wt done on a refactor and on a UI ticket with and without a screenshot; paste the outputs.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/commands/wt/done.py",
+        "ixd/worktree.py"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,22 @@
+{
+    "id": "ENG-38",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "PointND.Float.getCoord throws past its stored length: a point whose trailing coordinates are 0 (e.g. y = 0) crashes getY",
+    "description": "PointND.Float(float...) and PointND.Double(double...) both trim trailing zero coordinates when they store a point, so (5, 0) is stored as [5]. Double.getCoord(dim) returns 0.0 for a dim past the stored array (PointND.java ~840); Float.getCoord(dim) indexes the array directly (PointND.java ~539), so getY() on a Float point with y = 0 throws ArrayIndexOutOfBoundsException. Found by TRADE-21 with a trade City at y = 0. Give Float.getCoord the same past-the-end rule as Double, and check every other Float accessor that indexes fs directly.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. PointND.Float.getCoord and every Float accessor return 0 for a dimension past the stored coordinates, as Double does.\n2. A unit test builds Float and Double points with trailing zeros and reads every dimension.\n3. A trade City at y = 0 works.",
+    "testing-plan": "1. Unit test for Float/Double points (5,0), (0,0), (1,0,0).\n2. Full suite.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/tsp/points/PointND.java"
+    ],
+    "priority": 3
+}

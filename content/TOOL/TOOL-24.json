@@ -1,0 +1,26 @@
+{
+    "id": "TOOL-24",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "VS Code extension: 'Stage hunks like this' on a hunk in the source-control diff, and a Clusters panel",
+    "description": "The review happens in VS Code's source-control diff view, where the + on a hunk or file stages it. Add a small extension (in ai-workspace, installed by ixd setup) that adds 'Stage hunks like this' to a hunk's context menu, calling ixd wt stage-like <file>:<line> from TOOL-22, and a 'Clusters' tree view in the source-control sidebar listing the worktree's clusters (and TOOL-23's recipes once they exist) with a stage button per cluster and a click that opens the representative hunk. It refreshes the SCM view after staging. It only shells out to ixd; all clustering logic stays in ixd so the CLI and the review page agree.",
+    "blocked-by": [
+        "TOOL-22"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Right-clicking a hunk in a worktree's diff offers 'Stage hunks like this', which stages every hunk of its cluster and refreshes the view.\n2. The Clusters view lists the worktree's clusters with counts and a stage button each.\n3. ixd setup installs it on a new machine (Linux and Windows).",
+    "testing-plan": "1. Open the ENG-34 worktree in VS Code, stage one cluster from the panel and one through the hunk menu; screenshot the SCM view before and after under tmp/.",
+    "todos": [],
+    "unknowns": [
+        "Whether the extension is published privately (vsix installed by ixd setup) or loaded from the ai-workspace folder as a development extension."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixd/commands/wt/stage_moves.py"
+    ],
+    "priority": 3
+}

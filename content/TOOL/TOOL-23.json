@@ -1,0 +1,27 @@
+{
+    "id": "TOOL-23",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Agents declare their mechanical edits as rewrite recipes; ixd verifies each recipe against the diff and stages the hunks it reproduces",
+    "description": "The strongest form of telling mechanical edits from real ones is to have the ticket agent write the mechanical part as a rewrite rule and let the tooling prove it. The agent writes its recipes to tmp/<branch>-recipes/ (ast-grep rules, or OpenRewrite recipes reusing the autofix project's setup in $REPO_HOME/autofix, which already resolves recipes from ~/.m2). ixd applies each recipe to a scratch copy of the base, diffs, and matches the result against the worktree's actual hunks: hunks a recipe reproduces exactly are staged and labelled with that recipe; anything a recipe does not reproduce stays unstaged as real change; a recipe that produces edits the worktree does not contain is reported as wrong. The review page shows each recipe (its few lines) with its hunk count instead of the hunks, so the reviewer reads the rule, not 70 sites. Builds on TOOL-22's clustering: an unclustered or partially matched cluster is where a recipe is missing. The ixd wt new brief tells agents to write recipes for any edit they repeat in more than a few files.",
+    "blocked-by": [
+        "TOOL-22"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixd wt stage-recipes <name> applies the worktree's recipes to the base, stages exactly the hunks they reproduce, and reports hunks a recipe produced that the worktree lacks.\n2. The review page lists each recipe with its hunk count; reproduced hunks are not listed one by one.\n3. The ixd wt new brief asks for recipes; shown on a re-done ENG-34-sized refactor.",
+    "testing-plan": "1. Write a recipe for ENG-34's failure() rewrite, run stage-recipes on ENG-34, paste the report and git diff --cached --stat.",
+    "todos": [],
+    "unknowns": [
+        "ast-grep rules versus OpenRewrite recipes as the one format agents write; OpenRewrite is type-aware but needs a Maven run, ast-grep is fast but syntactic."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixd/worktree.py",
+        "ixd/commands/review/_page.py"
+    ],
+    "priority": 3
+}

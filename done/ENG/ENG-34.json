@@ -1,0 +1,30 @@
+{
+    "id": "ENG-34",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Automation endpoints: one failure()/OK/ERROR on AutomationEndpoint instead of 89 hand-built error objects and 40 copied constants",
+    "description": "Automation endpoints each build their {ok, error} response by hand. Counted in ixdar.automation (DSL-50 worktree): 89 places set ok=false across 42 files, 70 of them followed by the error message line; 40 places set ok=true; 17 use the bare \"ok\" / \"error\" string literals instead of a constant; 40 files declare their own `public static final String OK = \"ok\"` and 33 their own `ERROR = \"error\"`; and six endpoints carry a private copy of the same helper (failure in NodeInspect, Holes, Topology, Export, SwitchModel; failed in ring Add):\n\n    private static JsonObject failure(String message) {\n        JsonObject error = new JsonObject();\n        error.addProperty(OK, false);\n        error.addProperty(ERROR, message);\n        return error;\n    }\n\nEvery endpoint already extends ixdar.automation.AutomationEndpoint. Put one OK and one ERROR constant and one failure(String message) on AutomationEndpoint, plus a success() returning a JsonObject with ok=true if the success side turns out to repeat the same shape; make every endpoint use them; delete the six helper copies, the per-endpoint OK/ERROR constants and the hand-built error objects. Response JSON stays byte-for-byte the same (key names and order), so the Python client and automation_routes.json are unaffected. No renames.",
+    "blocked-by": [
+        "ENG-33"
+    ],
+    "blocks": [
+        "ENG-37"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. AutomationEndpoint holds the only OK and ERROR constants and the only failure(String) in ixdar.automation; no endpoint builds an ok=false object by hand.\n2. No private failure/failed helper remains in any endpoint.\n3. Every route's response JSON is unchanged for the same request.\n4. Full Java suite and the ixdar_automation_cli tests pass.",
+    "testing-plan": "1. Before and after, call a sample of routes (node-inspect with a missing path, mesh holes/topology/export failures, switch-model to a bad model, ring add refusal, inject-click, run-terminal-line) through ixdar-cli and diff the JSON.\n2. uv run python -m unittest ixdar_automation_cli.test_cli.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "AutomationEndpoint now holds the only OK/ERROR constants plus static success() ({ok:true}, 34 callers) and failure(String) ({ok:false,error}). Removed 40 per-endpoint OK and 33 ERROR constants, the 8 private failure/failed copies (NodeInspect, Holes, Topology, Export, SwitchModel, ring Add, InjectKey, RunTerminalLine) and all 88 hand-built ok=false objects across 42 files; the 17 bare \"ok\"/\"error\" literals now use the constants (AutomationApiServer.writeError and ui/State too). Before/after probe of 56 requests on ring-tool and circle-canvas: every response has the same keys and values; 5 failure shapes changed key order only, because their extra key now comes after error: switch-model early failures {ok,outcome,error}->{ok,error,outcome}, fingerprint failure {algorithm,ok,error}->{ok,error,algorithm}, regions-not-built {activeTool,ok,error}->{ok,error,activeTool}, multiview framing failure {error,ok}->{ok,error}, mesh/dsl busy {ok,running,error}->{ok,error,running}. mvn test 539/0 failures; ixdar_automation_cli.test_cli 96 OK."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/AutomationEndpoint.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/mesh/dsl/NodeInspect.java"
+    ],
+    "priority": 3,
+    "review-summary": "Automation endpoints build their ok and error responses through one success() and failure() on AutomationEndpoint instead of hand-built objects and per-file constants. Every route keeps the same keys and values, so clients are unaffected.\n"
+}

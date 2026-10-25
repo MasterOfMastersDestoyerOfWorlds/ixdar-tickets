@@ -1,0 +1,27 @@
+{
+    "id": "MESH-64",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Rename HalfEdgeMeshEngine to HalfEdgeMeshOps: it edits geometry, and 'Engine' reads like the render runtimes",
+    "description": "User ruling 2026-10-18, an exception to the no-renames rule: HalfEdgeMeshEngine (geometry/mesh/data/representation) is static topology editing on HalfEdgeMesh (build, add/remove, split/flip/collapse/replaceFaces, subdivide, normals), but its name gets confused with the render runtimes (HalfEdgeMeshRuntime, MeshOverlayRuntime). Rename it HalfEdgeMeshOps, same package, every caller updated, no behaviour change. Done after MESH-60, which deletes ArrayMeshEngine and moves compileSurfaceData into HalfEdgeMeshRuntime, so the rename only touches what survives. Javadoc and ARCHITECTURE.md references follow; Ixdar/CLAUDE.md is the user's to update (report it if it names the class).",
+    "blocked-by": [
+        "MESH-60"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. HalfEdgeMeshEngine is HalfEdgeMeshOps; no source, test or doc names the old class.\n2. Build, full suite and quad-suite signatures unchanged.",
+    "testing-plan": "1. mvn test; quad-suite signature sweep against MESH-60's after run.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Renamed HalfEdgeMeshEngine to HalfEdgeMeshOps (same package, file moved), updating 26 main and 31 test/benchmark callers, the Javadoc links in HalfEdgeMesh and the REFACTOR-PLAN.md reference. No behaviour change: compile clean, mvn test 552 run / 0 failed, quad suite 14/14 signatures and screenshots match the unchanged-tree baseline (which itself matches MESH-60's after run)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/representation/HalfEdgeMeshEngine.java"
+    ],
+    "priority": 3,
+    "review-summary": "HalfEdgeMeshEngine is now HalfEdgeMeshOps, in the same package, with every caller, test and doc reference following. The class does static topology editing on HalfEdgeMesh, and \"Engine\" made it read like one of the render runtimes.\n"
+}

@@ -1,0 +1,29 @@
+{
+    "id": "CRAW-75",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Region flatness: each ring region reports how curved it is and where, so a judge can tell a region that should be split at a joint",
+    "description": "For the crawfish segmentation agents (see CRAW-42's scope note): the user's quality rule is that a good segment is relatively flat within itself, high curvature sitting at its boundary rings rather than inside it ('my finger is flat in most places except the joints'). Nothing exports curvature per region today.\n\nAdd to each region item of the region tool (the Tool-base items the general routes and ui-state already export, nothing per route) a flatness summary computed from the same curvature/crease data the crease rings use (surface_creases and its field; reuse, do not recompute a second curvature): the share of the region's area above the crease threshold, the peak curvature, and where the high-curvature area lies (a surface point and whether it is near the region's boundary rings or in its interior). Optionally colour a region by flatness as a region-tool view toggle (named Palettes ramp). A region whose interior holds a crease band (an unsplit joint) must stand out from one whose creases lie on its rings.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-76"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Every region item carries the flatness summary; values come from the existing crease/curvature data.\n2. On the reference crawfish IMG_4111 and on fertility, a region left unsplit across a joint reports an interior crease band, and its split halves report creases at the boundary (shown in measurements).\n3. Unit test on a synthetic mesh: a bent tube with no ring at the bend reports interior curvature; with a ring at the bend, boundary curvature.\n4. Computing it does not slow region updates noticeably on the full crawfish (measured).",
+    "testing-plan": "1. mvn test.\n2. Live on IMG_4111 and fertility through ixdar-cli: read the region items, remove one joint ring and read again.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Region flatness on every region item: SurfaceCreases keeps its diffused valley curvature and saturation; RingRegions.measureFlatness fills per-region crease share, interior crease share (crease faces beyond max(6 face steps, 1/3 of the region's depth) from its rings), peak curvature and a crease point (largest interior crease patch once interior >= 2%, else the largest one on the rings), re-measuring only regions whose faces or walls changed; RegionLayer measures after every build/update reusing the ring tool's or the graph's surface_creases; RingRegionTool appends '; flatness: ...' to each region item's detail. RegionFlatnessTest: bent tube with no bend ring reports interior crease, with one reports crease on rings, and an update matches a fresh build. Live IMG_4111: removing claw joint rings ring_07/ring_08 raises the merged regions' interior crease from <=0.9% (split halves) to 7.8%, the crease point on the removed ring; fertility ring_12: 1.8%/0.1% -> 9.3%. Region update on IMG_4111 median 145 ms before, 150 ms after. Also the minimal master build fixes both review branches carry: RingTool.DESCRIPTION and the ui/tools package-info summary.",
+        "Review follow-up: the flatness numbers are now typed fields. Item gains general named numbers, points and flags maps, which State.itemState exports as one 'values' object on every item in ui-state and the tools route. Region items carry creaseShare, interiorCreaseShare, peakCurvature, peakOverSaturation, creasePoint [x,y,z] and creaseInterior. The detail text keeps a short summary ('crease X% of area, Y% interior, crease on rings / interior crease'). RegionFlatnessTest reads these fields from RingRegionTool.items()."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/regions/RingRegionTool.java"
+    ],
+    "priority": 1,
+    "review-summary": "RingRegions now measures each region's flatness from the SurfaceCreases crease rings follow, and the region tool's items report it: crease share, interior crease share, peak curvature and a crease point. A judge can then tell a region left unsplit across a joint from one whose creases sit on rings.\n"
+}

@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-46",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "ixd setup on macOS: ~/.local/bin is left off PATH, a stale autofix artifact counts as installed, and an unfetchable repo counts as present",
+    "description": "Found by TOOL-43 while running `ixd setup` on the Mac Studio (macOS 26.2, zsh):\n1. `uv tool install --editable .` puts `ixd` in ~/.local/bin, which is not on the Mac's PATH (uv warns; `which ixd` fails in a new login shell). setup writes REPO_HOME to ~/.zshenv but not the PATH entry, so `ixd` is not found until the user runs `uv tool update-shell` or edits the profile.\n2. The autofix step only checks that ~/.m2/repository/IXDAR/autofix-tool exists (\"installed in ...\"). The Mac's artifact is from 2026-08-19 (checkout 2130f34) while Linux's is from 2026-10-02 (autofix e81f090), so the Mac builds with stale checkstyle rules and custom checks. setup should reinstall when the artifact is older than the autofix checkout's HEAD (or always, it is idempotent).\n3. The Mac's autofix remote is https (github.com/.../autofix.git) and `git fetch` over a non-interactive SSH session fails (\"could not read Username ... Device not configured\"; the keychain is locked), while Ixdar and ixdar-tickets fetch. setup could report a repository it cannot fetch instead of saying \"present\".",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. After `ixd setup` on a fresh macOS login shell, `ixd --help` works.\n2. setup reinstalls the autofix artifact when it is older than the autofix checkout, and says so.\n3. setup reports a repository whose fetch fails.",
+    "testing-plan": "1. ixd setup on the Mac, then a new login shell: which ixd.\n2. Touch an old autofix artifact; ixd setup reinstalls it.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/machine.py",
+        "ixd/commands/setup/setup.py"
+    ],
+    "priority": 3
+}

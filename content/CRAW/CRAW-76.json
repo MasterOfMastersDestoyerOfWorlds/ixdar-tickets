@@ -1,0 +1,24 @@
+{
+    "id": "CRAW-76",
+    "epic": "CRAW",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Crawfish segmentation skill: a segmenter and an adversarial judge agent segment IMG_4112-4118 to the quality of the three hand-labelled scans",
+    "description": "User request 2026-10-24: now the refactor is finished, segment the remaining crawfish scans with subagents. The references are the user's hand-labelled IMG_4109 (fixtures/crawfish_rings.dsl), IMG_4110 and IMG_4111; the work is IMG_4112-IMG_4118.\n\nWrite the skill at ai-workspace/.claude/skills/crawfish-segment/SKILL.md. Rulings: the skill says what to do and which commands to use (tools, control, key, click, type, words, ui-state, frame, project, screenshot, run-scene/shutdown); no control-specific knowledge (keys, modes, row labels) is in it: the CLI presents that (`ixdar-cli tools`, key/click replies). Anything the skill would have to explain about controls is a CLI gap to fix in Ixdar instead.\n\nTwo roles:\n1. Segmenter: one ticket and worktree per scan, saving only that scan's tracked dsl/crawfish/IMG_41xx.dsl. It studies the references' parts (CRAW-42 part names) and makes the same set of named regions on its scan, with rings and bisectors where the references have them.\n2. Judge: a separate adversarial agent that does not see the segmenter's reasoning. It decides whether the segmenter has finished, from: body-part names against the references' part list; a blind A/B of screenshots (it is shown the candidate and a reference without labels and must pick the hand-labelled one); and region flatness (CRAW-75: high curvature should sit on the boundary rings, not inside a region, e.g. a finger is flat except at its joints). Its verdict is finished, or continue with specific fixes; the segmenter loops until finished or a round limit, then the user reviews.\n\nMemory: a crawfish scene takes about 4 GB; segmenter and judge take turns with the scene, at most two crawfish scenes on the machine. Rollout: pilot IMG_4112, the user reviews it and the skill is fixed, then the other six two at a time.\n\nUser rulings 2026-10-24: agents never edit a DSL by hand (ring edits go through the tools and the tool's save; model --path only reopens a file). The skill tells the segmenter to name parts with `ixdar-cli terminal --line \"lb <name>\"` (CRAW-42's naming command) rather than leaving it to be discovered. The CLI gaps CRAW-42 found are TOOL-41.\n",
+    "blocked-by": [
+        "CRAW-42",
+        "CRAW-75",
+        "TOOL-41"
+    ],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. The skill exists with both roles, names commands only, and holds no control-specific knowledge.\n2. The pilot IMG_4112 is segmented, judged finished, and reviewed by the user; the skill is updated from the review.\n3. Every CLI gap the pilot hit is fixed or ticketed.",
+    "testing-plan": "1. Pilot on IMG_4112 with the judge loop; record rounds, judge verdicts and wall time.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

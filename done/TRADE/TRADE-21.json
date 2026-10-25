@@ -1,0 +1,26 @@
+{
+    "id": "TRADE-21",
+    "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade"
+    ],
+    "title": "Trade route planning: route segment count reads 0 after undoing then fully redoing a route",
+    "description": "In the trade scene's route planning tool, build a route of several segments, undo it step by step with Z, then redo every step with Y. The route is drawn back, but the reported route segment count (ui-state / the tool's readout) is 0. Seen in ENG-32's live key pass (tmp/eng-32-trade-redone.png and tmp/eng-32-trade-taps.log in that worktree); not caused by that change. Find where redo restores the route without updating the segment count, and fix it there.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. After any sequence of undo and redo, the reported segment count equals the number of segments drawn.\n2. A unit test covers undo-all then redo-all.",
+    "testing-plan": "1. Drive the trade scene through ixdar-cli: build, undo all, redo all; compare ui-state's count with the screenshot under tmp/.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "RoutePlanningTool no longer keeps a currentRoute field: getCurrentRoute() reads the route off the undo history (the last applied OperationRecord's new route() method: PipeRecord result knot, GrowRecord modified knot, CollapseRecord common parent). Undoing the first pipe used to null the field and redo never restored it, so ui-state reported hasRoute=false, routeSegmentCount=0 and the route overlay was not drawn. Added unit.trade.RoutePlanningUndoRedoTest (undo-all then redo-all through onCityClick/confirm/undo/redo). Live: build 3 segments, Z Z, Y Y now reports 3 (was 0); tmp/trade-21-redone.png."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/trade/RoutePlanningTool.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/State.java"
+    ],
+    "priority": 3,
+    "review-summary": "RoutePlanningTool now reads the current route off its undo history, the knot the last applied operation built or edited, instead of keeping a separate reference. Undoing the first pipe dropped that reference and redo never restored it, so a redrawn route reported zero segments.\n"
+}

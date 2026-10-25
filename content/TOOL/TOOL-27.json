@@ -1,0 +1,25 @@
+{
+    "id": "TOOL-27",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Automation affordances for tests: a field selector on ui-state and wait-for-state-condition",
+    "description": "UI flows are driven by pixel coordinates (UI-9 and ENG-29 made 15 `click --x 512 --y 565`-style clicks each) and polled by hand; ui-state dumps the whole snapshot so agents pipe it to python3 -c to pick fields (30 times). Evidence: ai-workspace reports/tool-review-2026-10-18.md items 8 and 10. Add: click by label (a menu item, control row or text element's text, resolved from the scene's own state), ui-state --field <dotted path> (repeatable), and a wait route/CLI flag that waits until a state predicate holds (with a timeout) instead of sleeps. Build these on the per-scene state export of IX-5, so scene UI changes do not require changing these routes.\n\nClick by label was split out to TOOL-37 (user, 2026-10-21): it reads the drawn HyperStrings and needs no scene state, so it is not blocked by IX-5. This ticket keeps --field and the wait route.\n",
+    "blocked-by": [
+        "IX-5"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixdar-cli ui-state --field a.b (repeatable) prints just those values.\n2. ixdar-cli wait --until '<field> == <value>' --timeout N returns when it holds, or fails with the last value at the timeout.\n3. Both read the IX-5 state export, not per-scene code.\n",
+    "testing-plan": "1. Drive the main menu and the knot editor by label; wait on activeTool; paste outputs.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/State.java",
+        "ixdar_automation_cli/automation_client.py"
+    ],
+    "priority": 2
+}

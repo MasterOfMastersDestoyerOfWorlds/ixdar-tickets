@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-32",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Agent rules and orchestration: tracked ticket-agent rules, leads never wait on helpers, no stray Monitors",
+    "description": "Subagents share the coordinator's scratchpad, and the MESH-60 lead overwrote scratchpad/ticket_rules.md, the rules file every brief pointed at. Leads that spawn background helpers and end their turn to wait are forced to hand back, and the helpers' reports go to the coordinator. Monitors armed on commands already run in the background double-notify, and Monitors left armed after hand-back wake agents that re-send their reports (205 'finished' notices for 74 real reports). Evidence: ai-workspace reports/tool-review-2026-10-18.md items 14, 5 and 6, plus item 15's one concrete bug. Put the ticket-agent rules in a tracked file in ai-workspace that the wt new brief points at; document that the coordinator fans out helpers (a lead never waits on its own); tell agents not to arm Monitors on run_in_background commands and to stop every Monitor before hand-back. Todo: shell_edit_guard refuses writes to the scratchpad when the path is behind a shell variable.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Ticket-agent rules live in a tracked ai-workspace file the wt new brief names; nothing points agents at the scratchpad for rules.\n2. The rules cover helper fan-out and Monitor use.\n3. shell_edit_guard allows scratchpad writes through a shell variable path.\n",
+    "testing-plan": "1. Print a wt new brief; run a scratchpad write through a variable path; paste both.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/worktree.py",
+        "hooks/shell_edit_guard.py"
+    ],
+    "priority": 3
+}

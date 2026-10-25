@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-30",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixd wt restack for a whole chain, and launch.json conflicts resolved automatically by every ixd verb that replays a change",
+    "description": "Restacking a chain was done with ad hoc scripts (scratchpad restack.py, 10 runs) plus hand conflict resolution, and 11 of 18 sync stops were .vscode/launch.json conflicts. Evidence: ai-workspace reports/tool-review-2026-10-18.md items 7 and 19. Add `ixd wt restack <branch>...`: sync each stacked branch onto its re-committed base and re-commit it with its own previous message (read from the branch before the sync), stopping only on real conflicts. Make sync, continue and the merge-to-master verb resolve launch.json themselves: keep every entry from both sides, drop '<TICKET-ID>: scene' entries of closed tickets, dedupe by name, keep JSONC comments.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixd wt restack restacks a chain of three committed stacked worktrees onto a moved base with no hand steps.\n2. A launch.json-only conflict never stops a replay; closed tickets' entries are dropped, others kept.\n3. Each branch keeps its own commit message.\n",
+    "testing-plan": "1. Build a three-level stack with conflicting launch.json entries, merge the bottom one, restack; paste the output and the resulting launch.json entry names.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/worktree.py",
+        "ixd/commands/wt/sync.py"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,28 @@
+{
+    "id": "UI-14",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Last-opened-file cache lives in the platform app-data directory, not a tracked test file; its location is passed in, not a mutable static",
+    "description": "The knot editor remembers the last opened file (for the menu's Continue) by writing ixdar-app/test/cache/cache, a file tracked in git, so opening any other file leaves the Ixdar checkout dirty; it also lives under the test folder, which is why the test move broke Continue (UI-10). UI-10 then made FileManagement's cache path a mutable public static field only so its unit test could point it at a temp file. Move the cache to the platform's app-data directory, resolved in one place: Linux $XDG_CACHE_HOME/ixdar (default ~/.cache/ixdar), Windows %LOCALAPPDATA%\\\\Ixdar, macOS ~/Library/Caches/Ixdar (and the web platform's own storage, or none, through the Platform interface). The menu's cache reader and the writer take that location as a constructor argument; MenuContinueTest passes a temp directory instead of reassigning a global; the static field goes back to being gone. Delete the tracked cache file from git and stop writing under the source tree.",
+    "blocked-by": [
+        "UI-10"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The last-opened-file cache is read and written only in the platform app-data directory, from one resolver.\n2. Loading a file leaves git status of the Ixdar checkout clean; the tracked test/cache/cache file is deleted.\n3. No mutable static holds the cache location; tests pass a directory.\n4. Continue still works with and without a cached file (UI-10's tests pass).",
+    "testing-plan": "1. Run the menu, load a file, git status is clean, Continue opens it.\n2. MenuContinueTest with a temp directory.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Platform.appCacheDirectory() (default method; XDG/LOCALAPPDATA/Library/Caches; null on web) is the one resolver; FileManagement.getTestFileCache/updateTestFileCache take the directory, Menu.MainMenu takes it by constructor, testFileCacheLocation and CACHE_FOLDER removed, tracked test/cache/cache deleted; MenuContinueTest uses a temp dir plus new tests for missing dir, no-cache platform, resolver outside source tree and no source-tree writes. Verified live: ld box_WH wrote ~/.cache/ixdar/cache, checkout clean, Continue reopened it."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/platform/file/FileManagement.java",
+        "ixdar-app/test/unit/scenes/MenuContinueTest.java"
+    ],
+    "priority": 2,
+    "review-summary": "The knot editor's last-opened-file cache, read by the main menu's Continue, now lives in the platform cache directory resolved by Platform instead of a tracked file under the source tree, so loading a file no longer dirties the checkout.\n"
+}

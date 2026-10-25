@@ -1,0 +1,27 @@
+{
+    "id": "CRAW-74",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Authored rings: one path from surface points to a confirmed, saved ring (rings add vs the terminal's rg)",
+    "description": "Two ways to author a ring through surface points exist and neither was used to finish a ring in the from-scratch segmentation run (CRAW-58, friction log tmp/segmentation-friction-log.md in the craw-58 worktree, entry F7):\n- `ixdar-cli rings add --points ... [--tighten]` traces a ring along the points, but it is display-only: it never enters the ring tool's confirmed rings, Enter does nothing, `regions` ignores it, Ctrl+S does not save it. Without --tighten and with three one-sided points it silently returns edgeCount 0.\n- The terminal command `rg`/`ring` (RingCommand, on master since 2026-09-19): `rg add x y z`, `rg close` (tightened geodesic), `rg save [path.dsl]`, `rg clear`. Its help promises exactly the 'confirm and save authored points' CRAW-58 wished for, yet the agent never found it; the user doubts it is useful at all.\nThe agent fell back to Ctrl+R + clicks on groove points + Enter, the only headless way it found to commit a ring through arbitrary points.\n\nCheck what rg actually does today against F7, then leave one path: authored points become a ring the ring tool holds as confirmed (regions see it, Ctrl+S saves it), reachable from ixdar-cli. Whatever is redundant goes, rg included if the CLI route covers it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A report on the ticket of what rg add/close/save does today, run on IMG_4111 against F7's case.\n2. `ixdar-cli rings add --points` (or its replacement) produces a confirmed ring: `regions` counts it and Ctrl+S saves it; a call that traces no ring fails with a reason instead of edgeCount 0.\n3. One path remains: the user ruled (2026-10-21) that rg is deleted, as part of ENG-37 (terminal commands act on data), not here.\n4. A test confirming an authored ring through the route; mvn test and test_cli pass.\n",
+    "testing-plan": "1. Headless ring-tool on IMG_4111: rings add with 7 groove points, regions, save, reload.\n2. mvn test; test_cli.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Step 1 report, rg on IMG_4111 against F7 (headless ring-tool scene on tmp/IMG_4111-craw74.dsl, a copy holding only load/repair/surface/creases; 7 groove points from the left carpus/palm seam the craw-58 run later ringed by clicks, x 0.2695-0.2743): (a) rg add x7 just collects points; rg close traced a FlipOut-tightened geodesic, 154 edges, length 0.176, centroid x 0.2585 - it slid ~0.01-0.03 off the groove points toward a shorter loop (the reloaded ring's anchors span x 0.244-0.268, mean radius 0.024), so it does not run through the authored points. (b) It is display-only: drawn as feature-edge overlays ring_seed/ring_tightened, the ring tool holds 0 confirmed rings, regions reports 1 region / 0 rings, Ctrl+S says 'nothing to save'. (c) rg save appends a loop_through_points(tighten=true) statement to the working .dsl on disk; the live scene does not change. Only after relaunching the scene on that file is ring_00 adopted (regions: 2 regions, 1 ring, claw tip 86716 faces). (d) After any terminal route the terminal keeps focus, so the next Ctrl+S/Ctrl+T key is eaten by the terminal until GRAVE is pressed. (e) rg close and rings add both call RingScene.showRing, which replaces the scene's ring overlay map: after a reload, rings add hid the adopted graph ring ring_00 (log 'ring overlay: []'). (f) The CLI's --tighten is a store_true flag defaulting to true, so tighten=false cannot be sent; that is the only way to the silent edgeCount-0 seed-only ring F7 hit.",
+        "Step 2: /mesh/rings/add (ixdar-cli rings add --points) now calls the new RingTool.confirmPoints, which snaps each point to its vertex as a spline_ring reload does, traces the first three under the plane all the points fit and inserts the rest where they add least (the click path), refuses crossing or edge-less rings, and appends the ring as an unsaved confirmed ring (shared tail with confirmLoop). The route switches to the ring tool and returns ring number, label, edge count, length, centroid, fingerprint, or ok:false with the reason. The FlipOut tighten param and the showRing overlay call are gone from the route. Verified headless on IMG_4111 (tmp/IMG_4111-craw74.dsl): 7 F7 groove points -> ring 0, 177 edges, centroid x 0.2714 (on the points), regions 2 (claw 83185 faces), Ctrl+S appended spline_ring ring_00, relaunch adopts it identically (177 edges, same regions); 2 points -> 'needs 3 on distinct vertices'; 3 one-sided points -> full 183-edge ring. Test: unit.mesh.AuthoredPointsRingTest (confirm, regions, save, reload; refusals). mvn test 562/0, test_cli 103/0. rg untouched pending the user's decision."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/RingCommand.java",
+        "ixdar-app/src/main/java/ixdar/tools/regions/RingTool.java"
+    ],
+    "priority": 3,
+    "review-summary": "`ixdar-cli rings add` now confirms its points as a RingTool ring, as clicking them and pressing Enter would, and refuses with a reason when they trace none. It used to draw a display-only loop that regions ignored and Ctrl+S never saved, so agents could not finish rings through groove points.\n"
+}

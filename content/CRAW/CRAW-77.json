@@ -1,0 +1,24 @@
+{
+    "id": "CRAW-77",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Segment crawfish IMG_4112 into named body parts (pilot of the crawfish-segment skill)",
+    "description": "Pilot for CRAW-76. A segmenter agent follows ai-workspace/.claude/skills/crawfish-segment/SKILL.md on IMG_4112 in this ticket's worktree, saving only ixdar-app/src/main/resources/dsl/crawfish/IMG_4112.dsl (rings, bisectors and add_label part names, all written by the ring scene's save). A separate judge agent checks it against the references IMG_4109/4110/4111 (parts, blind A/B, flatness) and returns finished or continue; at most 3 rounds, then the user reviews. Every CLI gap either role hits is reported, not worked around.",
+    "blocked-by": [
+        "TOOL-44"
+    ],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. IMG_4112.dsl holds rings and part names for every body part the references separate that the scan shows, saved by the scene and reloading identically.\n2. The judge's last verdict is finished, or the round limit is reached with the open problems listed.\n3. tmp/parts.md, tmp/segmenter-report.md and every tmp/judge-<round>.md are kept for the user's review, with screenshots of the whole body and each part group.\n4. CLI gaps and skill problems found are listed for the skill's revision.",
+    "testing-plan": "1. model --path reopens the saved DSL with every ring and part name.\n2. The user reviews the result in the ring scene.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/crawfish/IMG_4112.dsl"
+    ],
+    "priority": 1
+}

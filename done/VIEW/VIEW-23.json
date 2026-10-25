@@ -1,0 +1,32 @@
+{
+    "id": "VIEW-23",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "One projection and orbit owner: Camera3D builds the projection the three runtimes copy; 2D ortho matrix in one place",
+    "description": "Repo plan merge 3D.18 (Camera stays the parent; no Viewport split, per the user). Perspective/ortho projection is built in HalfEdgeMeshRuntime.updateProjection (573-586), a copy in MeshOverlayRuntime (1325-1345) and AssimpModelRuntime (135-142); the 2D ortho matrix is hand-written in SDFShader (80-95), FontShader (79+) and ColorShader (72-85). World-to-screen projection for labels (MeshOverlayRuntime.drawLabels 1034-1072) becomes a Camera3D method. Camera3D's unneeded Canvas3D reference (42, 57) goes. (Orbit state moves onto Camera3D in the input ticket.)\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-27"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. One projection method on Camera3D used by all three runtimes; one 2D ortho matrix used by the three shaders.\n2. Screenshots of a mesh scene, the overlay labels and a 2D SDF scene pixel-identical (or visually identical and explained) to master.\n3. Unit suite passes; launch entry.",
+    "testing-plan": "1. Before/after screenshots with ixdar-cli screenshot at fixed orbit.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Camera3D owns the 3D projection: a projection field rebuilt by updateProjection(orthographic, near, far), plus projectToPixels and rayThroughPixel. HalfEdgeMeshRuntime, MeshOverlayRuntime and AssimpModelRuntime all build through it; their three copies, HalfEdgeMeshRuntime.projectionMatrix and MeshOverlayRuntime.localProjection are gone. The runtimes keep choosing their clip planes: the surface pass fits the far plane to the bounding-sphere diameter, the overlay to the bounding-box diagonal (one HalfEdgeMeshRuntime.updateProjection(camera, extent)), Assimp keeps its fixed planes. Unifying the overlay's far plane with the surface's was tried and changed pixels: the overlay's larger far plane is what keeps cross-field lines in front of the surface they lie on, and the ring-number depth test's LABEL_LIFT_TIE is tuned against it (4 of 13 ring numbers vanished), so both are kept and commented.",
+        "Labels: drawLabels projects through Camera3D.projectToPixels (via the runtime, which supplies its model matrix and planes). Camera3D's unused Scene reference and constructor argument are gone.",
+        "2D: FontShader and ColorShader were already deleted (ENG-18, VIEW-24), so SDFShader holds the only 2D ortho matrix; its hand-written matrix is now JOML setOrtho (same values), and the unused scale argument of ShaderProgram.updateProjectionMatrix (Camera3D passed ZOOM_SPEED into it) is removed.",
+        "VIEW-24 (d) remainder: GL.bufferData takes int[] indices instead of an IntBuffer, so nothing in graphics/render/model allocates LWJGL BufferUtils or java.nio buffers (AssimpModelImporter keeps the Assimp binding itself). HalfEdgeMeshRuntime's hand-wired surface, textured and face-pick VAO/VBO/EBO sets and AssimpModelRuntime's ModelHandle now are VertexBuffers (new usage overload and uploadIndices; VertexLayout.POSITION_NORMAL_UV); the face-pick draw is one interleaved buffer instead of two VBOs. VertexArrayObject/VertexBufferObject remain only for ShaderProgram's streaming SDF quad path (and MeshShader's unused pair).",
+        "Verification: before/after headless screenshots (tmp/view-23-before-*, tmp/view-23-after-*): mesh-viewer perspective and orthographic at a fixed orbit, ring-tool on fertility_rings with ring numbers on (overlay labels) and orthographic, cross-field-exam, model-load-canvas (AssimpModelRuntime, run with tmp/view-23-assets holding the bolt mesh as Hand.obj) are pixel-identical to master; circle-canvas and irregular-grid-canvas differ by less than master-vs-master run noise. Picks at four pixels in ring-tool return the same points as master. New CameraProjectionTest; RegionHidingTest reads the interleaved pick buffer and int[] index uploads. mvn test: 562 run, 0 failed. Launch entry 'VIEW-23: ring-tool' (press N for ring numbers)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/cameras/Camera3D.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/HalfEdgeMeshRuntime.java"
+    ],
+    "priority": 4,
+    "review-summary": "Camera3D now builds the 3D projection and projects points for every mesh runtime, and those runtimes upload their geometry through VertexBuffer. Three runtimes each kept their own copy of the projection and hand-wired GPU buffers, so changes to one silently drifted from the others.\n"
+}

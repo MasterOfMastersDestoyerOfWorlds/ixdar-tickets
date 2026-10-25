@@ -1,0 +1,24 @@
+{
+    "id": "TOOL-40",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Headless scene-state JUnit tests for the main scenes, reading the Tool base and calling route handlers in-process (TOOL-28 part 2)",
+    "description": "Split from TOOL-28, which built the golden fingerprints and the snapshot main. Build:\n1. A test harness: install the suite platform with GlStandIn, AutomationRuntime.serveHttp=false and the render thread set to the test thread so runOnMainThread runs inline; show scenes and paint frames; call the State, words, tools, control, key and click handlers in-process (no HTTP). Check that every scene's initGL tolerates GlStandIn.\n2. Reset shared static state per test class (MenuBox.menuVisible/menuItems, Terminal.current, Scene.instance, AutomationRuntime.canvas, the audio logs, Clock, IxdarWindow.canvasId), or fork per class, so no test depends on an earlier one.\n3. One test per main scene: menu, knot editor, mesh viewer, the ring scene with each tool, trade; read the Tool base (lastRow, lastError, history, draft, preview, items, hovered), Scene.dataset and Scene.panes directly, and drive tools through the general tool routes (TOOL-36/38).",
+    "blocked-by": [
+        "TOOL-36"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The harness runs any scene headlessly in-process.\n2. Every main scene has a state test; the ring scene covers each tool.\n3. Tests pass in any order (run once shuffled).\n4. Default mvn test time increase reported.",
+    "testing-plan": "1. mvn test, and once with test order shuffled.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/test/unit/SuitePlatform.java"
+    ],
+    "priority": 2
+}

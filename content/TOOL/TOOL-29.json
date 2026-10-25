@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-29",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "wt new brief carries the ticket's related files with their public signatures and the help agents keep re-reading, to cut model round trips",
+    "description": "Model round trips are 77% of agent time: 5105 turns at about 8 s, most turns issuing one grep, Read or Edit; agents re-read the same help (run-scene --help 14 times, generate_board update --help 9, wt launch-add --help 8). Evidence: ai-workspace reports/tool-review-2026-10-18.md items 2 and 16. Extend the brief ixd wt new prints with each related file's path, package and public signatures (from a quick parse, capped), the callers of the ticket's named classes, and the condensed usage of run-scene, launch-add, generate_board update and the routes the ticket names.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The wt new brief lists the related files with their public signatures and the key command usage.\n2. Measured on two tickets: turns before the first edit, against a comparable earlier ticket.\n",
+    "testing-plan": "1. Print the brief for a mesh ticket and a UI ticket; paste them.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/worktree.py",
+        "ixd/commands/wt/new.py"
+    ],
+    "priority": 2
+}

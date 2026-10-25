@@ -1,0 +1,32 @@
+{
+    "id": "TOOL-28",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Regression knowledge in Java: golden-fingerprint and scene-state JUnit tests, and a snapshot entry point that records any fixture or scene headlessly",
+    "description": "User ruling 2026-10-22: the knowledge of what to check lives in Java, next to the program; Python only orchestrates where two builds must be run against each other (TOOL-26). Evidence: agents hand-wrote about 40 before/after harness scripts in ~30 tickets (scene sweeps, DSL fixture fingerprint sweeps, ui-state record/compare, screenshot capture/diff; e.g. eng-18 scenes.sh, eng-24 run_all_scenes.sh, mesh-58 scene_sweep.sh, mesh-61 m61_fixtures.py, ix-5 ix5-record.sh, view-25 view-25-shots.sh, eng-30 sweep.py), each with its own launch/shutdown handling; ENG-30's copy leaked scene JVMs and caused an OOM crash. Python harnesses only see what routes export, break silently on key renames, and are not refactored with the code.\n\nBuild, in Java:\n1. Golden-fingerprint JUnit over every DSL fixture and the ring, dungeon and quad meshes: mesh fingerprint, slot names, edge-mark fingerprints, counts; expected values committed as golden files, so an intended change is a reviewed diff of the golden. Heavy fixtures (crawfish scans) run in a separate tagged suite (failsafe or a JUnit tag), not in the default mvn test.\n2. Headless scene-state tests for the main scenes (menu, knot editor, mesh viewer, ring tool with each tool, trade): they read the Tool base (lastRow, error, history, draft, preview, items, hovered), Scene.dataset and Scene.panes directly, and call automation route handlers in-process (State, words, rings) so the agent-facing routes are covered without HTTP. Static state shared between scenes (Knot.unionSet, MouseTrap.hyperStrings, the per-platform PointerDispatcher) is reset or the classes fork per test class, so tests cannot fail because of an earlier one.\n3. A snapshot entry point (a main in the desktop module): given a list of fixtures and scenes it loads each headlessly in one fresh JVM per batch and writes one snapshot file per entry (fingerprints, the IX-5 state export, optionally a screenshot), with a fixed, documented format. TOOL-26 runs it on two builds and diffs.\n`ixd wt done` can run the tests a ticket names instead of requiring a screenshot.",
+    "blocked-by": [],
+    "blocks": [
+        "TOOL-26"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Golden-fingerprint tests cover every DSL fixture plus the ring, dungeon and quad meshes, with committed goldens; heavy fixtures are in a tagged suite.\n2. Headless scene-state tests cover the main scenes and call the State, words and rings route handlers in-process; no test depends on another's static state.\n3. The snapshot main writes the documented snapshot for any fixture or scene list in one JVM per batch and exits cleanly.\n4. wt done can run a ticket's named tests in place of a screenshot.\n5. No Python harness is needed for any of the above.\n",
+    "testing-plan": "1. mvn test (default) and the tagged heavy suite.\n2. The snapshot main on master and on a worktree with a known change; the change shows in the snapshots and nothing else does.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Golden fingerprints (DoD 1): Fingerprint gains bundleFingerprint (mesh sha256, counts, sorted slots, edge marks), edgeMarks (moved out of State) and graphFingerprint (every bundle, mesh or arc network on a graph's last statement); /mesh/fingerprint now answers bundleFingerprint and mesh/dsl adds the graph fingerprint. unit.automation.GoldenFingerprintTest checks all 14 light fixtures, dungeon_2d/3d, quad_cylinder_test and a new test/resources/dsl/quad_layout_sphere.dsl against goldens in ixdar-app/test/resources/golden/ (18 tests, ~1-3 s); the crawfish_rings fixture and the 9 dsl/crawfish scans are @Tag(heavy), excluded by default through the ixdar.test.excludedGroups pom property. A mismatch writes target/golden-actual/; accepting is cp -r ixdar-app/target/golden-actual/. ixdar-app/test/resources/golden/. Snapshot entry point (DoD 3): ixdar.automation.Snapshot --out DIR [--screenshot] ENTRY... runs graph entries (X.dsl) and scene entries (SCENE or SCENE=MODEL) in one headless JVM, no HTTP server (AutomationRuntime.serveHttp=false), IxdarWindow.installHeadlessPlatform shared with runHeadless, ui-state and screenshot handlers called in-process; format documented on Snapshot.main. Verified: two runs of 8 entries identical except the animated menus' screenshot hashes; a deliberate QuadCylinderMeshNode change (restored) changed only dsl/quad_cylinder_test.dsl. DoD 2 (headless scene-state JUnit) and DoD 4 (wt done running named tests, ai-workspace) not done: split proposed in the report.",
+        "Review follow-up: GoldenFingerprintTest's light and heavy factories carry @Tag(mesh) (they load meshes and run graphs); mesh still runs by default (629 tests), and mvn test -Dixdar.test.excludedGroups=heavy,mesh skips it (611 tests). heavy stays excluded by default. Both commands documented on the test class and in the pom comment."
+    ],
+    "related-files": [
+        "ixdar_automation_cli",
+        "ixdar-app/test"
+    ],
+    "priority": 2,
+    "review-summary": "Adds GoldenFingerprintTest, which checks every DSL fixture and the ring, dungeon and quad graphs against committed golden fingerprints, and the Snapshot entry point, which records fixtures and scenes headlessly in one JVM; regressions now show as a reviewed golden or snapshot diff instead of hand-written harness scripts.\n",
+    "verify-tests": [
+        "GoldenFingerprintTest"
+    ]
+}

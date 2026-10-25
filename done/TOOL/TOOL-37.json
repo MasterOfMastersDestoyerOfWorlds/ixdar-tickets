@@ -1,0 +1,31 @@
+{
+    "id": "TOOL-37",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Click by label from the drawn text: every on-screen HyperString word with its rectangle and clickability, and `click --label`",
+    "description": "Split from TOOL-27 (user, 2026-10-21). UI flows are driven by pixel coordinates (`click --x 512 --y 565`). Everything clickable on screen is already a HyperString word with a click action: menu rows, info-pane links, terminal links, GLSL lines, the Show/Hide Code button. Every drawn HyperString registers itself in MouseTrap.hyperStrings each frame, and each word keeps its screen rectangle (xScreenOffset, yScreenOffset, drawnWidth, rowHeight); since UI-8 pane and menu rows live in a MenuScrollBox.\n\nSo click-by-label needs no scene knowledge: a route lists this frame's drawn words (text, rectangle in framebuffer and window pixels, clickable or not, owning box/view, culled or not) and `ixdar-cli click --label TEXT` clicks the centre of the one visible clickable match, refusing with the candidates when the label is absent, hidden by scroll or ambiguous (an `--index` or `--within VIEW` narrows it). A new menu or pane works with no route change.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A route and `ixdar-cli` command list the drawn words of the current frame with text, rectangle, clickability and owning view.\n2. `ixdar-cli click --label` clicks a visible clickable word by its text, and refuses (listing candidates) when absent, scrolled out of view or ambiguous.\n3. Works unchanged in the main menu, the model menu, the knot editor's info pane and terminal, and the shader code pane, at the 1.25 headless scale.\n4. Tests; mvn test and test_cli pass.",
+    "testing-plan": "1. Before/after recordings of the affected routes in the scenes named.\n2. mvn test; uv run python -m unittest ixdar_automation_cli.test_cli.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "New route ui/words (ixdar-cli words, DrawnWords.java) lists the last frame's drawn HyperString words with text, framebuffer and window rectangles, clickable, culled, visible and owning view id, plus the labels they make (the words of one line sharing a click action) with the window pixel a click lands on. click gains --label/--within/--index: it clicks the one visible clickable label (exact text, else contains ignoring whitespace) and refuses with candidates when absent, inert, scrolled out of view or ambiguous; words --label shows the resolution without clicking.",
+        "Supporting fixes: HyperWord.clickAction is null for words a click leaves alone, with a clickable flag (MenuItem sets it on enabled main-menu button labels, whose button takes the click); Camera2D names its current view (updateView(id, ...)) and HyperWord.setBounds records it, so MenuScrollBox and the model menu strip report their view ids; HyperString.draw registers a string once per frame (it was registered once per line); ShaderCodePane non-assignment lines and Shell point tooltips no longer carry a no-op click.",
+        "Tests: ClickByLabelTest at 1024/1280 (1.25) scale: click lands via PointerDispatcher, contains match, scrolled-out refusal then scroll-in, absent/inert/ambiguous refusals and --index, window rectangle conversion, menu label clickability and once-per-frame registration. mvn test 577/0 failures, test_cli 104 OK. Verified live: main menu Start New Game, model menu coons_cube + Recompute (scrolled-out torus_layout refused), knot editor info pane Knot[ 9 10 ] (Knot[ 4 5 ] ambiguous refused), terminal segment link [4:3], line-canvas GLSL line label click pixel-identical to a pixel click; Hide/Show Code.",
+        "Follow-up (user): MenuItem builds its label with addWordClick(label, color, action), so clickable comes from the HyperString (disabled items pass null); the hand-set flag and its propagation are gone. MenuBox now claims presses over its buttons and needed bar (claimsPointer over a new itemColumn bounds, subscribed to the PointerDispatcher) and runs the clicked enabled item's action once on release; MenuScene.viewClicked no longer runs menu actions. MenuClickOnceTest at 1.25 scale: a click on the label text and on the button padding each run the action exactly once; a disabled item's words are not clickable. mvn test 590/0, test_cli 104 OK; live: click --label 'Start New Game' opened TradeScene, 'Continue' refused (does nothing)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/input/MouseTrap.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/text/HyperString.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/text/HyperWord.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/input/InjectClick.java"
+    ],
+    "priority": 3,
+    "review-summary": "A new automation route lists every drawn HyperString word with its rectangle, view and clickability, and `click --label` clicks a visible label by its text. Agents drove menus, panes and code lines by guessed pixel coordinates, which break whenever layout, scroll or display scale changes.\n"
+}

@@ -1,0 +1,30 @@
+{
+    "id": "MESH-65",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Fold DisjointUnionSets into UnionFind, and the knot union forest stops being a static global on Knot",
+    "description": "After MESH-63, geometry/tsp/cuts/DisjointUnionSets is a thin wrapper over numeric.graph.UnionFind: find(Knot) already calls UnionFind.find(parent, k.id). What it adds is not knot-specific: Knot-keyed find/union that only unwrap k.id, growable parent/rank arrays (addSet), union by rank (the lower-ranked root moves under the higher; on a tie the second knot's root goes under the first's), and a running count of addSet calls (totalNumGroups). The rank rule matters: the surviving root is the group id the cut-match search uses, which is why MESH-63 kept it out of UnionFind.union (whose ~10 other callers also observe the root).\n\nAdd a rank variant to UnionFind (e.g. unionByRank(parent, rank, first, second) with the same tie rule) plus growth (a helper, or the caller sizes the arrays); the TSP code (Knot, KnotEngine) calls UnionFind with knot ids and keeps its own parent, rank and group count; delete DisjointUnionSets. Every other UnionFind caller keeps today's behaviour.\n\nAlso: the forest is a static global, Knot.unionSet, shared by every knot. Make it state of the engine that runs the search (KnotEngine), not a static on Knot.",
+    "blocked-by": [
+        "MESH-63"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. DisjointUnionSets is gone; the TSP search uses UnionFind's rank variant keyed by knot id, with the same tie rule.\n2. Knot.unionSet is gone; the union forest is state of the search engine.\n3. Other UnionFind callers are unchanged.\n4. The knot editor solves every .ix fixture to the same knots and tour as before (before/after recording); mvn test passes.",
+    "testing-plan": "1. Before any change, record the solved knots and tour length for the knot editor's .ix fixtures (ixdar-canvas, ask/ls output and ui-state knotEditor); compare after.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "UnionFind gains unionByRank (lower rank moves under higher; on a tie the second's root goes under the first's) and grow (covers an element, at least doubling, new entries singletons); UnionFindTest covers both. DisjointUnionSets and the static Knot.unionSet are deleted: the forest is KnotEngine.groupParent/groupRank (per shell's engine), filled by KnotEngine.addGroup, and Knot/KnotEngine call UnionFind with knot ids. findKnots sizes its per-group buffers by the forest length instead of a cumulative add count. Other UnionFind callers untouched. Verification: with the forest temporarily made static again the knot editor reproduces the baseline byte-for-byte on 8 .ix fixtures; with the per-engine forest the first-loaded file (djbouti) and 3 others are identical, while clover, box_bottleneck, djbouti_14-31 and circle_in_100 solve differently when loaded after another file, because the old static kept the previous solve's ranks; the new results are independent of load order. mvn test: 609 run, 0 failed."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/tsp/cuts/DisjointUnionSets.java",
+        "ixdar-app/src/main/java/ixdar/numeric/graph/UnionFind.java",
+        "ixdar-app/src/main/java/ixdar/geometry/tsp/knot/Knot.java",
+        "ixdar-app/src/main/java/ixdar/geometry/tsp/cuts/engines/KnotEngine.java"
+    ],
+    "priority": 3,
+    "review-summary": "The knot search's union-find forest moves from a static DisjointUnionSets on Knot into KnotEngine, using a new rank-merging union in UnionFind. A static forest shared by every shell let one solve's leftover ranks change the knots a later file solved to, and duplicated UnionFind.\n"
+}

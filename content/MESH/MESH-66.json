@@ -1,0 +1,25 @@
+{
+    "id": "MESH-66",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "platform"
+    ],
+    "title": "Apple Silicon solver backend: Accelerate refuses the rank-deficient interior-point Hessian, and the sphere quad-layout golden differs from the MKL one",
+    "description": "Found by TOOL-43 (Mac Studio as an agent host). On the Mac (arm64, macOS 26.2) at master 92bc80d4 the sparse solver loads \"Accelerate sparse backend\" (MKL/PARDISO has no macosx-arm64 build, so the log also says \"using pure-Java EJML backend\"). Two tests that pass on Linux with PARDISO fail there:\n\n1. InteriorPointQpTest.unregularizedRankDeficientHessianDefaultBackend: IllegalStateException \"Accelerate refactorization failed with status -1\" from AccelerateCholeskyFactor.refactorize (AccelerateCholeskyFactor.java:129) via InteriorPointQp.factorizeRegularized (InteriorPointQp.java:484). The rank-deficient unregularized Hessian that PARDISO factors is refused by the Accelerate Cholesky refactorization, so the default backend on the Mac cannot solve a QP the Linux default can.\n2. GoldenFingerprintTest.lightGraphsMatchTheirGoldens[18], test/resources/dsl/quad_layout_sphere.dsl: same vertex/edge/face counts (2176/6522/4348), different sha256 (fef79660... on the Mac vs golden 13678355...), in three outputs. The quad layout's positions come from the solver, so the bitwise fingerprint depends on the backend. The crawfish ring golden (IMG_4111, heavy) does match on the Mac.\n\nDecide per case: make the Accelerate path handle the rank-deficient system the way PARDISO does (e.g. the same regularization or an LDLT factorization), and make the sphere golden either backend-independent (a tolerance-based comparison for solver-derived positions) or keyed per backend.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. InteriorPointQpTest passes on the Mac with the default backend.\n2. GoldenFingerprintTest's light graphs pass on the Mac and on Linux from one set of goldens, or the test documents why a graph's golden is per backend.\n3. A test pins the Accelerate behaviour on the rank-deficient system (it runs only where Accelerate loads).",
+    "testing-plan": "1. Mac: mvn test -Dtest=InteriorPointQpTest,GoldenFingerprintTest.\n2. Linux: the same, unchanged results.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/numeric/sparse/chol/accelerate/AccelerateCholeskyFactor.java",
+        "ixdar-app/src/main/java/ixdar/numeric/sparse/InteriorPointQp.java",
+        "ixdar-app/test/unit/automation/GoldenFingerprintTest.java"
+    ],
+    "priority": 3
+}

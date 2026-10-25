@@ -1,0 +1,35 @@
+{
+    "id": "VIEW-25",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Patch colours through Palettes only; quad-layout debug views out of MeshOverlayRuntime",
+    "description": "Repo plan merges 3D.21-22. Four patch-colour schemes: PatchColorHash.colorForPatch (hash HSV, mirrored in GLSL mesh_uv_traces.fs:24-40), geometry/mesh/data/PatchColors.uniquePatchColor (golden-ratio HSL), HalfEdgeMeshRuntime.stableTagColor (re-implements the golden ratio, returns Vector4f, 1305-1319), Palettes.PATCH. The user ruled Palettes is the preferred class: the other three go, and the GLSL side follows the palette (as a uniform) or is documented as the palette's mirror. mesh_scalar.fs:21-24 hard-codes a 4-stop ramp: feed it from a Palette. Separately, MeshOverlayRuntime (1436 lines) carries quad-layout-specific setters (setMotorcycleGraph, setCrossField, setConstraints, setEmbeddedTMesh, showPatchCovers, setSeamlessParametrization, 302-823): move them into a quad-layout overlay that feeds the generic overlay through LineSet/PointSet.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "MESH-58"
+    ],
+    "blocks": [
+        "VIEW-28"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. PatchColorHash, PatchColors and stableTagColor are gone; every patch/tag colour comes from Palettes; no colour literal outside Color/Palettes (ColorOrderTest and the colour audit pass).\n2. MeshOverlayRuntime has no quad-layout-specific setters.\n3. Screenshots of patch and tag views and the quad-layout examination scenes (colours may change where schemes unify; show before/after to the user).\n4. Unit suite passes; launch entry.",
+    "testing-plan": "1. Before/after screenshots.\n2. mvn test; tools/colour_audit.py.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "PatchColorHash, PatchColors and HalfEdgeMeshRuntime.stableTagColor deleted (with the now-unused Color.fromHsl); quad-layout patch fill, untagged mesh tags, MscCellAssembly patch colours and the decompose route's flat_color take Palettes.PATCH. Palettes.PATCH's two duplicate entries (RED_VERY_LIGHT at 9, GREEN_GREY_LIGHT at 16) replaced by PURPLE_DARK and GREEN_YELLOW_LIGHT so every id is distinct (PatchColoursTest).",
+        "mesh_scalar.fs takes its ramp as a uniform from the new Palettes.SCALAR_RAMP (BLUE_VERY_DARK, IXDAR, RED_ORANGE, YELLOW_VERY_LIGHT, evenly spaced); PatchColoursTest pins the shader's RAMP_STOPS to the palette size. The never-enabled patchColor() hash, usePatchColor uniform and aPatchId attribute are removed from mesh_uv_traces.",
+        "Quad-layout setters (seamless parametrization, motorcycle graph, grid map, cross field, constraints, singularities, layout patches, copy wireframe, embedded T-mesh, patch covers), their buffers, shaders, colours and show flags moved from MeshOverlayRuntime (1431 -> 638 lines) into the new subclass QuadLayoutOverlay, which builds LineSet/PointSet/corner arrays and draws through MeshOverlayRuntime's now-public drawLines/drawSpheres/beginUnlit/updateSphereRadius. The five quad-layout scenes construct QuadLayoutOverlay.",
+        "Verification: 22 before/after screenshots (quad-layout, mcg-exam, param-exam, cross-field-exam, embedded-tmesh modes, mesh-boolean, ring-tool, mesh-viewer); 15 pixel-identical, the 6 with layout patch fill and the embedded-tmesh heat map differ only by the palette change. Baseline was rerun once and matched itself bit for bit. mvn test 581/0; colour audit 25 -> 20.",
+        "Follow-up (user prefers master's bright patch fill): the hue hash PatchColorHash mirrored is now Palettes.hashedPatchColor, the one source for the quad-layout patch fill and the decompose route's flat_color; PATCH keeps its dedup fix for its other users. All 6 fill views are pixel-identical to master again (21/22 screenshots identical; only the approved heat-map ramp differs). flat_color is unique per patch again (113/113 distinct at 8 bits on bolt) but its values differ from master, which used PatchColors' golden-ratio hues, not the hash.",
+        "Third pass (user rejected the hash in Palettes): hashedPatchColor and its constants deleted. 18 named bright colours (RED_BRIGHT ... PINK_RED_BRIGHT, master's saturation/value, 20 degrees apart; BRIGHT added to ColorOrderTest's lightness words) form Palettes.BRIGHT_PATCH. RegionColouring moved to graphics/render/color (same name) and takes a plain graph (neighbours, sizes, optional former map and kept flags, palette); ring regions call it with Palettes.REGION and colour byte-identically (ring-tool default, G regions, ctrl+T region tool screenshots match master). Quad-layout fill colours ArcNetwork.patchNeighbours() with it over BRIGHT_PATCH; decompose flat_color colours vertex-sharing decomposition patches the same way (0 clashes on bolt). Tests: PatchColoursTest (palette spacing, wheel-graph colouring and stability), RingRegionsUpdateTest, benchmark QuadLayoutPatchColouringBenchmark (bolt: no arc-neighbouring patches share a fill colour). mvn test 594/0; 18/24 screenshots identical, 6 fill views + heat map differ as intended."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/color/Palettes.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/MeshOverlayRuntime.java"
+    ],
+    "priority": 5,
+    "review-summary": "Patch, tag and heat-map colours now come only from Palettes, and the quad-layout debug views moved out of MeshOverlayRuntime into a QuadLayoutOverlay subclass. Four colour schemes had drifted apart, and the generic overlay renderer carried one pipeline's domain setters.\n"
+}

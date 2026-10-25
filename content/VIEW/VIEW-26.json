@@ -1,0 +1,23 @@
+{
+    "id": "VIEW-26",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "ShaderProgram.reloadWithFragmentSource keeps the old source after a successful compile and the broken one after a failed one",
+    "description": "ShaderProgram.reloadWithFragmentSource(src) (ShaderProgram.java ~470) stores the new fragment source, recompiles, and then, if the compile SUCCEEDED, puts the previous source back. So after a success the GPU runs the new shader while the program records the old source, and anything that recompiles from the stored source later (hot reload, a context rebuild) silently reverts it; after a failure the broken source stays stored, so the next recompile fails again. The condition looks inverted: restore the previous source when the compile fails. Check its callers (the code pane's line preview, ShaderCodePane / restoreOriginal at ~580) still behave after the fix. Found by UI-12.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. After a successful reloadWithFragmentSource the stored fragment source is the new one; after a failed one it is the previous one and the previous program still runs.\n2. The code pane's line preview and restore still work on line-canvas.\n3. A test covers both branches (with a GL stand-in if needed).",
+    "testing-plan": "1. Unit test with a GL stand-in for success and failure.\n2. ixdar-cli on line-canvas: click a code line, then the preview; screenshots under tmp/.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/ShaderProgram.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/code/ShaderCodePane.java"
+    ],
+    "priority": 3
+}

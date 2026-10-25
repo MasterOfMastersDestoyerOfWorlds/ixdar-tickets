@@ -1,0 +1,28 @@
+{
+    "id": "VIEW-28",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "One drawer per node output type: any node's output is drawn the same way wherever it is shown",
+    "description": "User direction 2026-10-21, reviewing VIEW-25: splitting the quad-layout debug views into a QuadLayoutOverlay subclass is fine for now, but what is wanted is a common way to draw each mesh node output type, so outputs are drawn the same way everywhere instead of each scene or pipeline wiring its own overlay setters.\n\nNode outputs are typed by nodegraph/api/PortType: GEOMETRY_BUNDLE (mesh plus its slots: tags, edge marks, UVs, bone weights, rings, splines, curves), CROSS_FIELD, SURFACE_METRIC, SURFACE_CREASES, UV_FIELD, ARC_NETWORK, DOF_SYSTEM, CHART_ATLAS, QUAD_LAYOUT, plus scalars. Today each is drawn by bespoke code: MeshOverlayRuntime's generic setters, QuadLayoutOverlay's per-pipeline setters (parametrization, motorcycle traces, cross field, constraints, T-mesh), the quad scenes, RingScene/RingTool/ConnectionTool overlay use, and the automation Overlay route.\n\nMake one drawer per drawable output type, registered by type, built on MeshOverlayRuntime's draw primitives (lines, spheres, unlit, fills). Any place that shows a node's output (the mesh viewer, the quad scenes, the graph view's node inspection, the automation overlay route) asks the registry to draw the value by its port type, so a new node gets drawn for free and a type looks the same in every scene. QuadLayoutOverlay's setters become drawers for their types.",
+    "blocked-by": [
+        "VIEW-25"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Each drawable PortType (and each GEOMETRY_BUNDLE slot kind) has exactly one drawer, registered by type.\n2. The mesh viewer, the five quad scenes, the graph view's node inspection and the automation overlay route draw outputs through the registry; QuadLayoutOverlay's per-pipeline setters are gone.\n3. Screenshots of every quad scene mode, mesh-viewer and ring-tool match before/after, or each difference is explained.\n4. A new node's output is drawn with no drawing code of its own (shown with one node).\n5. mvn test passes; launch entries and screenshots.",
+    "testing-plan": "1. Record screenshots of every quad scene mode, mesh-viewer and ring-tool before any change (VIEW-25's tmp/view-25-shots.sh covers 22 modes); compare after.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [
+        "How a scene chooses which outputs to show and toggles them (per type, per node, per slot), and where those show flags live.",
+        "Whether a drawer has display options (colour by, sphere size, line width) and where they are set."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/nodegraph/api/PortType.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/MeshOverlayRuntime.java"
+    ],
+    "priority": 3
+}

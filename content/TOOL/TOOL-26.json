@@ -1,0 +1,25 @@
+{
+    "id": "TOOL-26",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "ixdar-cli regress: a thin A/B runner that builds base and worktree, runs the Java snapshot entry point on each, and diffs; agents never write their own sweep",
+    "description": "User ruling 2026-10-22: the knowledge lives in Java (TOOL-28's goldens, scene-state tests and snapshot entry point); this command only orchestrates and diffs, because comparing a worktree against master means building and running two builds. Evidence: ~40 hand-written before/after harness scripts across ~30 tickets, agents building their own copies of master (VIEW-25 even ran `mvn install` into the shared ~/.m2 to do so), the untracked Ixdar/tmp/quad-suite/run_suite.py and its jvm.lock in the main checkout's tmp/, and ENG-30's sweep leaking scene JVMs into an OOM crash. Costs per the 2026-10-18 tool review: MESH-59 37 min, MESH-60 24 min, DSL-51 16.5 min.\n\n`ixdar-cli regress [--base master] [--suite fixtures|scenes|rings|dungeons|quad|all]`: builds the base commit once per commit into a cache outside any checkout (whole reactor compile, never install, never into ~/.m2) and reuses it across worktrees; builds the worktree; runs TOOL-28's snapshot main on both through TOOL-39's safe launch and lock; diffs the snapshots per entry (fingerprints exact, state per key, screenshots with a pixel fuzz) and prints identical/differs per entry plus a machine-readable result in the measurements.json schema `ixd review` reads. run_suite.py and its lock move into the repo; nothing writes into the main checkout's tmp/. The agent rules then say: use `ixdar-cli regress`, never write a sweep.",
+    "blocked-by": [
+        "TOOL-28",
+        "TOOL-39"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixdar-cli regress builds and caches the base once per commit outside any checkout (no mvn install, nothing in ~/.m2) and reuses it across worktrees.\n2. It runs TOOL-28's snapshot main on base and worktree and reports identical/differs per entry for fixtures, scenes, rings, dungeons and the quad suite, with screenshot fuzz.\n3. It launches through TOOL-39's safe launch and lock; no scene is left alive.\n4. Its output feeds tmp/<t>-measurements.json; nothing writes into the main checkout's tmp/; run_suite.py is tracked in the repo.\n5. The agent rules point at it.\n",
+    "testing-plan": "1. Run on a worktree with a known one-fixture change: exactly that entry differs.\n2. Run twice: the base build is reused from the cache.\n3. test_cli.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar_automation_cli"
+    ],
+    "priority": 1
+}

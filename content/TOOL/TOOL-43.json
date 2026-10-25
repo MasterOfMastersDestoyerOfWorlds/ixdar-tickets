@@ -1,0 +1,26 @@
+{
+    "id": "TOOL-43",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Mac Studio as an agent host: run Code sessions over SSH on the 96 GB Mac so crawfish segmentation and heavy tickets are not capped by this machine's 14 GB",
+    "description": "User request 2026-10-24. This machine has 14 GB, so agents are held to about two crawfish scenes (~4 GB each) after two out-of-memory crashes; the Mac Studio has 96 GB and is on the tailnet. The user tested Ixdar on it extensively before, but not recently.\n\nApproach (decided): whole agent sessions run on the Mac (the desktop app's SSH sessions, or Claude Code there), so tools, worktrees and JVMs are local to it. ixdar-cli is NOT made remote (no remote build/launch/port tunnelling).\n\nWork:\n1. `ixd setup` on the Mac (macOS is supported), repos under its REPO_HOME, Claude Code installed, the Mac added as an SSH host (Tailscale SSH serves macOS).\n2. Re-check that Ixdar builds and runs headless on Apple Silicon at current master: LWJGL/Assimp arm64 natives; MKL has no Apple Silicon build, so the sparse solver must take its non-MKL path; Manifold and javacpp natives; GLFW's -XstartOnFirstThread; the headless 1.25 scale. Run mvn test, a light scene, the ring scene and one crawfish scan; report what fails.\n3. Crawfish data paths: the DSLs load /home/acw/crawfish/IMG_41xx.glb, an absolute Linux path, so every scan fails elsewhere. Resolve scans through a per-machine data root (like REPO_HOME) and copy the scans over.\n4. Shared ticket store: both machines mutate ixdar-tickets. Either generate_board.py pulls before and pushes after each mutation (refusing on conflict), or agents on the Mac never mutate tickets and report back. Pick one.\n5. Landing: the Mac's worktree branches reach this machine (wt done pushes the branch; ixd land fetches it), or the user lands on the Mac. Pick one.\n6. Memory rules per host: the agent rules' scene limits become per machine (e.g. the Mac allows six crawfish scenes).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. A Code session on the Mac runs an Ixdar ticket end to end (wt new, build, mvn test, a crawfish scene, wt done) on current master.\n2. Every native or platform failure found is fixed or ticketed.\n3. Crawfish scans load on both machines from one DSL (no absolute paths).\n4. Tickets and landing work across the two machines by the chosen scheme, documented in CLAUDE.md (user-approved edit).",
+    "testing-plan": "1. On the Mac: ixd setup, mvn test, run-scene on a light scene, the ring scene and IMG_4111.\n2. One small ticket worked on the Mac and landed here.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Mac Studio brought up: Ixdar (92bc80d4), ai-workspace (f2cecb9) and ixdar-tickets fast-forwarded; autofix could not fetch (https remote, no credentials over SSH); uv installed with Homebrew; ixd installed (uv tool install --editable .) and ixd setup run (REPO_HOME in ~/.zshenv and settings.local.json, difftastic present, autofix artifact found but stale, TOOL-46).",
+        "Mac at master: mvn compile ok; mvn test 650 run, 28 failed: 26 order-dependent UI/render tests (ENG-39, reproduced on Linux with reversealphabetical order) and 2 Accelerate solver-backend failures (MESH-66). circle-canvas, ring-tool on fertility and ring-tool on IMG_4111 render headless; -XstartOnFirstThread is passed by ixdar-cli; Manifold natives load; MKL falls back to Accelerate/EJML; screenshots are 1280x1280 as on Linux.",
+        "Crawfish data root: MeshLoader.resolve expands a leading ${IXDAR_DATA_ROOT} to MeshLoader.dataRoot() (-Dixdar.data.root, else IXDAR_DATA_ROOT, else the home directory); the 14 crawfish load_mesh statements (dsl/crawfish/*.dsl line 3, fixtures/crawfish_rings.dsl, crawfish_repaired/union/repair_export.dsl) changed /home/acw/crawfish/ to ${IXDAR_DATA_ROOT}/crawfish/ and nothing else; LoadMeshNodeTest covers resolution, the default and that every tracked crawfish graph uses the placeholder.",
+        "Filed ENG-39 (order-dependent test suite), MESH-66 (Accelerate backend), TOOL-45 (run-scene ok on a failed model load), TOOL-46 (ixd setup gaps on macOS)."
+    ],
+    "related-files": [],
+    "priority": 2,
+    "review-summary": "MeshLoader resolves a load_mesh path starting ${IXDAR_DATA_ROOT} below a per-machine data root (property, variable, else the home directory), and the tracked crawfish graphs load their scans that way. The graphs named /home/acw/crawfish, so every scan failed on any other machine.\n"
+}

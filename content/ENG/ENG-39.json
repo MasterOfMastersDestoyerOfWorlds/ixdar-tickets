@@ -1,0 +1,25 @@
+{
+    "id": "ENG-39",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "platform"
+    ],
+    "title": "Test suite is order-dependent: a shader built under a test's stand-in Platform keeps it, so UI and render tests fail on the Mac and in reverse order on Linux",
+    "description": "Found by TOOL-43 (Mac Studio as an agent host). `mvn test` on the Mac at master 92bc80d4 fails 26 UI/render tests (ClickByLabelTest x8, PaneScrollBoxTest x5, MenuScrollBoxWrapTest x4, HyperStringBoundsTest x3, MenuClickOnceTest x3, SDFCircleTest x2, MenuScrollBarTest x1) that pass on Linux. It is not a Mac bug: on Linux at 0b53bea6, `mvn test -Dsurefire.runOrder=reversealphabetical` fails 20 of them too (SDFCircleTest, CreaseRingTest, PaneScrollBoxTest, MenuClickOnceTest, ClickByLabelTest). Surefire's default runOrder is filesystem order, which is alphabetical on the Linux box and hash order on APFS, so the Mac simply runs the classes in an order that exposes the pollution.\n\nMechanism: ShaderProgram captures `Platforms.get()` in its constructor and lazily allocates its uniform buffers through it (`vec2Buf = platform.allocateFloats(2)`). Shader programs are shared across tests, so a program first built while a test had installed a java.lang.reflect.Proxy Platform keeps that proxy after the test restores the suite platform. Sixteen tests install Proxy Platforms that do not answer allocateFloats (ClickRegionHitTest, ScrollRegionHitTest, MenuClickOnceTest, ToolInputReplyTest, PaneScrollBoxTest, ClickByLabelTest, CanvasScrollTest, PointerRegionPressTest, RingCameraDragHoverTest, ModelSceneDefaultToolTest, MainSceneTerminalCommandTest, MenuContinueTest, RouteToolAutomationStateTest, RoutePlanningUndoRedoTest, RegisteredGraphTest, ModelPathReopenTest), so a later setVec2 gets null and throws NullPointerException (\"this.vec2Buf is null\"); the throw leaves the program `drawing`, and every later draw on it throws \"Renderer is already drawing!\".\n\nFix the root cause (the shared shader must not keep a test's platform, or the stand-in platforms must be complete and shared), not the order: pinning `runOrder=alphabetical` would hide it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. `mvn test` passes with `-Dsurefire.runOrder=reversealphabetical` and with `-Dsurefire.runOrder=random` (three seeds) on Linux.\n2. `mvn test` passes on the Mac at the same commit.\n3. A regression test builds a shader under a stand-in platform, restores the suite platform, and draws with it.",
+    "testing-plan": "1. Linux: mvn test -Dsurefire.runOrder=reversealphabetical, then three random seeds.\n2. Mac: mvn test at the same commit.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/shaders/ShaderProgram.java",
+        "ixdar-app/test/unit/SuitePlatform.java",
+        "ixdar-app/test/unit/GlStandIn.java"
+    ],
+    "priority": 2
+}

@@ -452,6 +452,32 @@ class TicketCliTest(unittest.TestCase):
         board = (self.root / "BOARD.md").read_text(encoding="utf-8")
         self.assertIn("TEST-1", board)
 
+    def test_update_replaces_title_and_description(self) -> None:
+        """A redecided ticket gets a new title and description in place."""
+        path = self._write_ticket("TEST", "TEST-1", status="TODO")
+        code, _out, err = _run("update", "TEST-1", "--title", "New title", "--description", "New body")
+        self.assertEqual(code, 0, err)
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual("New title", data["title"])
+        self.assertEqual("New body", data["description"])
+
+    def test_update_adds_and_removes_verify_tests(self) -> None:
+        """verify-tests gains selectors in order, loses one matched exactly, and refuses an unknown one."""
+        path = self._write_ticket("TEST", "TEST-1")
+        code, _out, err = _run(
+            "update", "TEST-1", "--add-verify-test", "UnionFindTest", "--add-verify-test", "GoldenFingerprintTest"
+        )
+        self.assertEqual(code, 0, err)
+        self.assertEqual(
+            ["UnionFindTest", "GoldenFingerprintTest"], json.loads(path.read_text(encoding="utf-8"))["verify-tests"]
+        )
+        code, _out, err = _run("update", "TEST-1", "--remove-verify-test", "UnionFindTest")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(["GoldenFingerprintTest"], json.loads(path.read_text(encoding="utf-8"))["verify-tests"])
+        code, _out, err = _run("update", "TEST-1", "--remove-verify-test", "NoSuchTest")
+        self.assertNotEqual(code, 0)
+        self.assertIn("no verify-tests entry", err)
+
     def test_board_command_regenerates_the_whole_board(self) -> None:
         """tix board rewrites BOARD.md from the ticket JSONs alone."""
         self._write_ticket("TEST", "TEST-1", status="REVIEW")

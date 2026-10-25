@@ -1,0 +1,39 @@
+{
+    "id": "UI-8",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "One scroll implementation (MenuScrollBox/MenuScrollBar) for Terminal, InfoPane, ShaderCodePane, MenuBox and the graph view; one tool panel for controls and tool info",
+    "description": "Repo plan merges 3E.23-24. Scrolling is implemented six ways: MenuScrollBar/MenuScrollBox (the newest, pixel-accurate, generalised in DSL-48) plus hand-rolled scrollOffsetY/onScroll in Terminal (~88), InfoPane (~11, 55-63), ShaderCodePane (~44, 351), MenuBox (~36) and DslGraphView. Use MenuScrollBox/MenuScrollBar everywhere, keeping Terminal's snap-to-prompt. After the tool merge, InfoPane's tool text and the ctrl+I Controls box show the same thing: one panel listing the active tool's controls and info.\n\nRulings that apply (user, 2026-10-17): no class renames where avoidable (classes move package and keep their names; Camera stays the parent of Camera2D/Camera3D; MeshNode keeps its name); scenes and tools keep declaring their controls in a method mapping keys to functions; Palettes is the colour class patch colours merge into. Full plan and evidence: $REPO_HOME/ai-workspace/reports/repo-plan-2026-10-17.md.",
+    "blocked-by": [
+        "ENG-26"
+    ],
+    "blocks": [
+        "UI-15"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. No hand-rolled scroll offset outside MenuScrollBox/MenuScrollBar.\n2. Terminal still snaps to the prompt; touchpad horizontal and vertical scroll behave as in the graph view.\n3. One tool panel in 2D and 3D scenes.\n4. Launch entries and screenshots.",
+    "testing-plan": "1. Live: scroll each pane with wheel and touchpad.\n2. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Terminal, InfoPane, ShaderCodePane each scroll in a MenuScrollBox (wheel/trackpad delta + scroll bar, framebuffer pixels); their hand-rolled scrollOffsetY/onScroll are gone. Terminal keeps snap-to-prompt via MenuScrollBox.scrollToEndPending.",
+        "Main menu MenuBox holds its scroll in a MenuScrollBar (ITEM_COLUMN_SCROLL_BAR) beside the item column: wheel and bar presses; item clicks unchanged.",
+        "PointerRegion.claimsPointer takes the press point, so pane boxes claim only presses on their bar and row clicks (focus, HyperString links, GLSL line clicks) keep their old path.",
+        "Boxes take the wheel only while their scene is active (and the scene terminal only while shown), so stale subscriptions no longer steal zoom.",
+        "HyperString.addHyperString keeps dynamic words dynamic (it cast them to String). ui-state reports every box's scroll, bar and rows, plus menuScroll.",
+        "Tests: PaneScrollBoxTest (1.25-scaled wheel, bar page, row press, hidden terminal, snap, dynamic copy); mvn test 557/0.",
+        "MenuScrollBox refits its bounds on every layout, so panes follow a window resize (the line scene's code pane kept its startup size).",
+        "Layouts in window pixels move to framebuffer pixels: MainScene's views and inView, TradeScene, the Scene tooltip, RoutePlanningTool's toolbar and KnotTool's hover; at 1.25 scale the editor no longer squeezes into the left 80% (master had this too).",
+        "Headless scenes render at a display scale, ixdar.headless.scale (default 1.25): a 1024 window gives a 1280 framebuffer, so window/framebuffer mix-ups show in agent screenshots.",
+        "claimsRows is gone: every box takes the presses over it and runs the clicked word itself; a box's optional click hook focuses its pane (terminal, info). The terminal's no-op calculateClick is removed. GLSL line clicks still preview (tmp/ui-8-glsl-line-click.png); mvn test 557/0."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/ui/menu/MenuScrollBox.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/Terminal.java"
+    ],
+    "priority": 5,
+    "review-summary": "The Terminal, InfoPane, ShaderCodePane and main MenuBox now scroll through MenuScrollBox and MenuScrollBar, with wheel, trackpad and scroll-bar input in framebuffer pixels like the model menu. Each had its own hand-rolled offset that ignored trackpad magnitude and offered no scroll bar.\n"
+}

@@ -1,0 +1,33 @@
+{
+    "id": "UI-12",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
+    "title": "Shader code pane: clicking a GLSL line no longer previews the shader compiled up to that line",
+    "description": "In the line scene (line-canvas, LineScene) and the other anatomy scenes that attach a ShaderCodePane through Scene.initCodePane, clicking an assignment line in the GLSL code pane used to recompile the shader up to that line and draw that intermediate result, so you could step through the SDF. It no longer does. The user noticed it a while ago, so it predates the current refactor stack and is probably not caused by ENG-26. The click path is ShaderCodePane: clickedLineIndex is set around line 314, the per-line click targets are injected for assignments only around lines 173-178, and the per-line evaluation goes through the GLSL parser (gui/ui/code/glsl/GLSLParseText). Find which change broke it with git log/bisect over ShaderCodePane, GLSLParseText, Scene.initCodePane and ShaderProgram (candidates include ENG-18's ShaderProgram/GLSL dead-code removal, DSL-49 moving parsing/glsl to gui/ui/code, and ENG-24 folding Canvas3D into Scene), then fix the root cause.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Clicking an assignment line in the line scene's code pane draws the shader as compiled up to that line, and clicking it again (or elsewhere) restores the full shader.\n2. The same works in the other anatomy scenes with a code pane (dashed line, arrow line, circle, bezier).\n3. The breaking commit is named on the ticket.",
+    "testing-plan": "1. Launch line-canvas, click several assignment lines, screenshot each intermediate render under tmp/.\n2. Repeat for one other anatomy scene.\n3. Add a launch.json entry for line-canvas.",
+    "todos": [],
+    "unknowns": [
+        "Which commit broke it, and does it affect every anatomy scene with a code pane or only the line scene?"
+    ],
+    "changes-made": [
+        "Root cause: MouseTrap.mouseButton tested PointerDispatcher click regions (Bounds in framebuffer pixels) against the cursor in window pixels. With the display at 1.25 content scale, the preview's click region (left framebuffer half) reached 0.625 of the window width in window pixels, so a click on the left part of a code line ran onLineClicked (inject + recompile) and then ShaderCodePane.onClick restoreOriginal in the same click. Fix: test click regions with normalizedPosX/Y (framebuffer, y up), as regionUnderCursor already does for scroll since VIEW-12; Camera2D.pointerPressed's main-view pan test had the same window/framebuffer mixup and now uses the normalized press too.",
+        "Breaking commit: no code commit changed the behaviour. The window-pixel click test dates from 2099ee35 (2025-10-19, 'added back in the region click subscriptions', which also wired the preview click to restoreOriginal) and was moved verbatim by ENG-27 (c246d2ea); ENG-18, DSL-49 and ENG-24 did not touch the click path. It only shows when framebuffer != window, i.e. under the 1.25 Hyprland monitor scale (monitors.lua), which headless runs never have. Affects every anatomy scene using Scene.initCodePane.",
+        "Regression test unit.input.ClickRegionHitTest (scaled 800x600 window / 1000x750 framebuffer platform): a click on the code beside the preview no longer reaches the preview; inside it and the y-up bottom box still do. Verified headless on line-canvas (t, projection, restore) and circle-canvas (sigDist, restore); screenshots tmp/ui-12-*.png."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/gui/ui/code/ShaderCodePane.java",
+        "ixdar-app/src/main/java/ixdar/gui/ui/code/glsl/GLSLParseText.java",
+        "ixdar-app/src/main/java/ixdar/scenes/anatomy/LineScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java"
+    ],
+    "priority": 2,
+    "review-summary": "MouseTrap and Camera2D now test their click and pan regions against the cursor in framebuffer pixels, the units those regions are laid out in.\nOn a scaled display the shader code pane's preview region swallowed clicks on code lines, restoring the full shader the instant a line injected its preview.\n"
+}

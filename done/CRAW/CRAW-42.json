@@ -1,0 +1,31 @@
+{
+    "id": "CRAW-42",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Name ring regions and see the segments: label each region by a point, colour the mesh by part",
+    "description": "SCOPE (user, 2026-10-24): needed now for the crawfish segmentation agents (an agent segments each unsegmented scan IMG_4112-4118 to the quality of the hand-labelled IMG_4109/4110/4111, and a separate judge agent checks the result by body-part names, screenshots and region flatness). The judge can only compare parts if regions carry names that survive save and reload. Rings are named ring_NN, and the regions route was retired by TOOL-36: everything goes through the general tool routes (tools, control, key, click, type, ui-state), so naming is a region-tool control and the names show in the region tool's items.\n\nCRAW-6's full label store (patch hierarchy, vertex groups, every domain) is not needed: build only the part of it this needs, a mesh-domain label selected by a surface point, stored in a GeometryBundle slot and written as a DSL statement, shaped so CRAW-6 can grow it rather than replace it.\n\nUser goal 2026-10-03: see the crawfish segmented into named parts in the scene before exporting anything. In the region tool, the user picks a region and gives it a name (claw_left, leg_l2, tail_3, body ...). The name is stored as a label statement selecting the region by a surface point inside it, appended to the model's .dsl, so it survives reloads and ring edits (region numbers do not: they come from ring order). The scene colours every face by its part label with a stable colour per label (named Palettes colours, no colour arithmetic) and shows the label names (toggleable, like ring numbers), lists the labelled parts, and flags unlabelled regions. Each region item in the region tool's export carries its label.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-65",
+        "CRAW-76"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. A region can be named from the region tool through a ControlHint row (and so through `control` and `type` from ixdar-cli); the name is saved in the .dsl as a point-based label statement and comes back on reload, including after a ring elsewhere is edited or added.\n2. The mesh is coloured by part label with stable per-label colours, label names can be toggled on screen, and unlabelled regions are visibly distinct.\n3. The region tool's items (ui-state / tools) carry each region's label, or none.\n4. Works on fertility and on the full crawfish scan; the three reference scans can be labelled with it.\n",
+    "testing-plan": "1. Name regions on a tmp/ copy of fertility_rings.dsl and on the crawfish scan, save, reload, edit a ring, reload; screenshot the coloured parts each time. 2. Unit-test that a point-based region label resolves to the same region after ring order changes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Label store slice of CRAW-6: MeshLabels (geometry/mesh/data/labels) keeps each label as surface points in the GeometryBundle slot _labels and resolves them per ring region (point -> nearest face -> region), so labels survive ring reorders, additions and edits; add_label node (AddLabelNode) writes it; RingDslWriter.withLabels rewrites the .dsl's closing block of label_<name> = add_label(geometry=..., label=\"...\", points=\"x,y,z; ...\") statements, and add_label is in MESH_PRESERVING_RING_NODES so rings saved after it keep their metric.",
+        "Region tool: L names the selection (puts 'lb ' on the terminal command line, the scene's one text entry; type the name, Enter), shift+L drops names, P colours by part (BRIGHT_PATCH by label order, unlabelled GREY_VERY_DARK), shift+P toggles part names drawn on screen (MeshOverlayRuntime.drawLabels overload). Terminal command lb|label <name>. Region items' detail starts with 'part <name>' or 'unlabelled'; saved=false while labels are unsaved. pick reports part. RegionLayer adopts labels from the graph output on each new surface. Ctrl+S (RingScene.saveRingsPressed) writes rings then labels; RingTool untouched.",
+        "Fixed: key reply said 'nothing took ENTER' when the terminal ran a line that handed focus back (InjectKey now reads terminal ownership before delivery; regression test in ToolInputReplyTest). Fixed master breakages hit on the way: SummaryJavadoc in automation/endpoints/ui/tools/package-info.java, ToolInputReplyTest referenced the removed RingTool.DESCRIPTION.",
+        "Verified live via ixdar-cli on tmp copies: fertility (base, legs x2, head) and crawfish IMG_4111 (carapace, claw_left, tail_1): name, save, reload, add a ring elsewhere (region numbers shift, labels stay, new band unlabelled), save, reload. Screenshots tmp/craw-42-*.png. Tests: MeshLabelsTest (reorder/added ring resolution, save/reload round trip)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ring/RingScene.java"
+    ],
+    "priority": 1,
+    "review-summary": "The region tool names selected ring regions as parts, saved as add_label statements (a point per region) that RegionLayer re-resolves after every ring change and colours by part. Segmentation and judge agents need body-part names that survive save, reload and ring edits.\n"
+}

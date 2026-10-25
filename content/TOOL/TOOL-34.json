@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-34",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixd stats attributes time correctly: model time to the turn that spent it, background waits not counted as thinking",
+    "description": "ixd stats counts background waits and post-hand-back idle as thinking (its top pauses, 593 s and 585 s, are waits) and charges model time to the next call's category, so 'read/search via shell 543 min' is mostly model time; it also still prints the removed 'past 200k: relaunch' hint. The reviewer had to write its own scripts (scratchpad wall.py, turns.py, verify.py). Evidence: ai-workspace reports/tool-review-2026-10-18.md item 13. Split wall time into model turns, tool execution, background waits and idle; report turns per agent and calls per turn; drop the 200k hint.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixd stats reports model time, tool time, background waits and idle separately, plus turns and calls per turn per agent.\n2. The 200k relaunch hint is gone.\n3. Its numbers for this session agree with the review's appendix within a few percent.\n",
+    "testing-plan": "1. Run it on session 9efaa0b3 and compare with the report's appendix.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/transcripts.py",
+        "ixd/commands/stats"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,22 @@
+{
+    "id": "TOOL-31",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "ixd move: move a class or package with OpenRewrite so every reference is rewritten, inside a worktree",
+    "description": "Package and class moves were done by hand: 857 import-only Edits, 618 replace_all Edits and 4 helper agents. Plain mv is allowed and git mv is denied, but the file move was never the cost; the package line and every import, static import, FQN and {@link} were. Evidence: ai-workspace reports/tool-review-2026-10-18.md item 4. Add `ixd move <class|package> <target package> [worktree]` running OpenRewrite ChangePackage/ChangeType through the autofix setup (resolved from ~/.m2), then compiling and printing the changed files. The moved files land as renames with import-only hunks, so wt stage-moves stages them for review.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. ixd move moves a class and a package in a worktree and every reference (imports, static imports, FQNs, Javadoc links) is rewritten; the build passes.\n2. stage-moves stages the result entirely.\n",
+    "testing-plan": "1. Move one class and one small package in a scratch worktree; paste the summary and the stage-moves output.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/worktree.py"
+    ],
+    "priority": 3
+}

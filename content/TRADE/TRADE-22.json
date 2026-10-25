@@ -1,0 +1,28 @@
+{
+    "id": "TRADE-22",
+    "epic": "TRADE",
+    "repo": "Ixdar",
+    "subsystem": [
+        "trade"
+    ],
+    "title": "Trade route planning undoes and redoes by whole-state snapshots, like the ring tool; the knot operation records' self-undo goes",
+    "description": "Both tools use the shared ixdar.tools.EditHistory, but in two ways: RingTool pushes whole-state snapshots (RingToolState) and undo restores the state before the edit, while RoutePlanningTool pushes command records (PipeRecord, GrowRecord, CollapseRecord under geometry/tsp/knot, subclasses of OperationRecord with undo()/redo()) that mutate the knots in place. Two ways to do one thing; TRADE-21's bug (redo restored the knot but not the tool's separately tracked route) came from the record model. Make RoutePlanningTool push snapshots of its route state (the routes and pipes it owns, as RingTool does with RingToolState) and restore them on undo/redo, so the current route and segment count always follow the restored state. Then OperationRecord's undo()/redo() have no callers: delete them and, if nothing else needs them, the record classes, with Knot.pipe/pipeSimple/pipeToExisting returning what their callers use. Keep the edit names the status row shows.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. RoutePlanningTool's undo and redo restore pushed snapshots through EditHistory, the same model as RingTool.\n2. OperationRecord.undo/redo are deleted (and the record classes, if nothing else uses them).\n3. RoutePlanningUndoRedoTest (TRADE-21) still passes; build, undo-all, redo-all gives the same route and count at every step.\n4. Edit names in the status row are unchanged.",
+    "testing-plan": "1. Unit test over pipe, grow and collapse with undo/redo at every step.\n2. ixdar-cli on the trade scene: build a route, undo all, redo all; ui-state counts and a screenshot.",
+    "todos": [],
+    "unknowns": [
+        "Snapshot cost: copying the route's knot hierarchy per edit versus the records' in-place changes; routes are small, so measure on the largest city network before deciding whether snapshots need to share unchanged knots."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/trade/RoutePlanningTool.java",
+        "ixdar-app/src/main/java/ixdar/tools/EditHistory.java",
+        "ixdar-app/src/main/java/ixdar/tools/ring/RingToolState.java",
+        "ixdar-app/src/main/java/ixdar/geometry/tsp/knot/OperationRecord.java",
+        "ixdar-app/src/main/java/ixdar/geometry/tsp/knot/Knot.java"
+    ],
+    "priority": 3
+}

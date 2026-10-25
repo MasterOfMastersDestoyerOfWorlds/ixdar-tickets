@@ -1,0 +1,24 @@
+{
+    "id": "UI-16",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "platform"
+    ],
+    "title": "PointerDispatcher keeps every region a scene ever subscribed: scenes unsubscribe their pane regions when they deactivate",
+    "description": "Found by TOOL-28: each platform's PointerDispatcher keeps every PointerRegion a scene ever subscribed. Scene.initPanes (and MainScene, TradeScene, IrregularGridScene, the model scenes) subscribe their scroll boxes and canvas regions, and nothing unsubscribes them when the scene deactivates, so after switching scenes the dispatcher hit-tests regions of scenes that are no longer shown. UI-8's MenuScrollBox and UI-15's CanvasScroll guard against it with a `shown` supplier, which hides the symptom rather than removing the stale regions. It leaks in the app and between scenes run in one JVM (tests, the TOOL-28 snapshot main).\n\nFix the ownership: a scene's subscriptions are removed when it deactivates (or the dispatcher holds them per scene and routes only the active scene's), so the dispatcher only ever holds the regions of what is on screen. Then drop the `shown` suppliers that only existed to mask stale regions.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. After switching between every scene and back, the dispatcher holds only the active scene's regions.\n2. No region guards itself against being stale with a shown/active check that only exists for this leak.\n3. A unit test switches scenes and checks the dispatcher's regions; existing pointer tests pass.",
+    "testing-plan": "1. mvn test.\n2. Live: switch scenes through the menu, then click and scroll in each; nothing reaches a hidden scene.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/input/PointerDispatcher.java",
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,27 @@
+{
+    "id": "UI-11",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Terminal: a command that throws leaves its text in the command line (glued onto the next line); sg writes its subgraph under a backslash path",
+    "description": "Found by the ENG-31 agent (2026-10-18), both present on master. (1) When a terminal command throws through the terminal route (ixdar-cli terminal --line or typed), its text is not cleared, so the next line typed is appended to it (e.g. 'clr' then 'ex' runs 'clrex'). The command line should be cleared and the exception reported the same way a refusal is, for every command. (2) The sg (subgraph) command builds its output path with a backslash, so the file lands under a 'solutions/djbouti\\./...' directory on Linux; build it with Path/File joins.",
+    "blocked-by": [
+        "ENG-31"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A throwing command leaves an empty command line and prints its error; a test covers it.\n2. sg writes its file to the intended solutions/<name>/ path on Linux (and Windows); a test covers the path.\n3. Unit suite passes; launch entry and screenshot.",
+    "testing-plan": "1. Live: ixdar-cli terminal --line with a command that throws, then another command.\n2. sg on a scratch copy of djbouti; check the output path.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Terminal.keyPress clears the command line before dispatching, and Terminal.run reports any RuntimeException a command throws through error(), so a throwing command no longer glues onto the next line (reproduced live: 'sg' then 'ls' ran 'sgls').",
+        "SubGraphCommand builds its file name and path with java.io.File (directory getName and File(dir, name)), refuses an empty range list and stops on an out-of-bounds range; the same backslash/slash string joins in LoadIxCommand (which made 'ld <name>' miss solutions/<name>/ on Linux), SaveCommand, ChangeDirectoryCommand and NewIxCommand now use File joins.",
+        "Regression tests in MainSceneTerminalCommandTest: a throwing command is printed and the next typed line runs alone; sg writes <dir>/<dir>_1-2.ix inside the terminal's directory and nothing beside it."
+    ],
+    "related-files": [],
+    "priority": 4,
+    "review-summary": "Terminal now clears the command line before running it and prints any exception a command throws; SubGraphCommand and the other file commands join paths with File.\nA throwing command glued its text onto the next line, and sg wrote under a backslash-named directory on Linux.\n"
+}

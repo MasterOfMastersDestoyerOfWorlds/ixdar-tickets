@@ -16,8 +16,7 @@
         "CRAW-11",
         "CRAW-15",
         "CRAW-19",
-        "CRAW-20",
-        "CRAW-42"
+        "CRAW-20"
     ],
     "status": "TODO",
     "definition-of-done": "1. PatchLabels value + slot constant; multiple labels per patch; hierarchy queries (children, ancestors, all patches under a label). 2. Three nodes registered and documented; catalog regenerated; CanonicalPortNames allowlist updated if needed. 3. label_to_selection output drives set_bone_weight in a test graph on the plane fixture. 4. PatchLabelsDslWriter appends label statements to a saved layout and re-execution restores identical labels. 5. Unit tests on the plane-layout fixture only. 6. Build checkstyle-green.",
