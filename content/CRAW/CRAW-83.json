@@ -1,0 +1,22 @@
+{
+    "id": "CRAW-83",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Ring scene labels: one key shows all numbers, one shows all labels, and in ring mode the hovered ring's number follows the cursor",
+    "description": "User 2026-10-25: there are several number/label toggles today (N ring numbers, shift+N region numbers, shift+P part names) and it is not clear what a number refers to. The user rejected prefixes and per-ring colours as noise. Instead:\n1. One control row (stable action id, explicit key) shows or hides all numbers: ring numbers and region numbers together.\n2. One control row shows or hides all labels (part names).\n3. In ring mode (the ring tool's ring and bisector sub-tools), hovering a ring moves that ring's number to the cursor (beside it, not under it), so which ring a number belongs to is obvious where you are looking; the other numbers stay where they are.\nReplace the existing separate toggles rather than adding to them; keep everything reachable through `tools`/`control` for agents.\n\nADDED (user, 2026-10-25, screenshot in the orbit tool): part names start visible, but their toggle only exists in the region tool, so in any other tool they cannot be turned off. The two rows (all numbers, all labels) are scene rows of the ring scene, available from every tool (orbit, ring, bisector, region, connection, graph), like the ring numbers today. Both start off, so a freshly opened scan shows no text until asked.\n\nADDED (user, 2026-10-25): colouring by part follows the labels toggle: regions are coloured by part only while the part labels are shown; with labels off the scene shows its default colours (the region colours in the region tool, the plain surface elsewhere). No separate colour-by-part toggle (P) is needed; remove it.\n\nConcrete case (user, 2026-10-25): G in the ring tool (show region colours) shows the part colours whenever colour-by-part was left on in the region tool (P), and only the region tool can switch it back. After this ticket G always shows the default region colours unless the part labels are shown.\n",
+    "blocked-by": [
+        "CRAW-78"
+    ],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Two rows, all numbers and all labels, replace today's three; tests.\n2. Hovering a ring in ring mode draws its number at the cursor; leaving the ring puts it back; tests.\n3. Screenshots on IMG_4111 with numbers on, labels on, and a hovered ring.\n\n4. Both rows are scene-level and fire from every tool in the ring scene; numbers and labels start off; test.\n\n5. Part colouring is on exactly when part labels are shown; default colours otherwise; the separate colour-by-part toggle is gone; test.\n",
+    "testing-plan": "1. mvn test.\n2. Live through ixdar-cli (hover a ring, read words).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

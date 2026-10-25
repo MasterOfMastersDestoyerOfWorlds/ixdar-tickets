@@ -1,0 +1,34 @@
+{
+    "id": "CRAW-81",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Rings and regions run over interior surface on the repaired crawfish: IMG_4112 region 41's ring is drawn inside the shell, and the region includes an inner patch",
+    "description": "Reported by the user 2026-10-25 on the CRAW-77 pilot's IMG_4112 segmentation (tail, region 41, next to tail_segment_3_side_left; screenshots and the DSL saved under references/CRAW-81/). From outside, region 41 shows a large differently shaded patch inside it and the ring (red) cuts across it; from inside the model the same ring runs along an inner surface and region 41's colour covers a patch of that inner surface. So the geodesic path, and the region flood with it, travel over faces that are not the outer shell.\n\nSuspect repair_mesh (weld_epsilon=0, max_hole_edges=4096, min_shell_faces=100, strict=false): a hole fill spanning the inside of the body, an inner shell kept because it has over 100 faces, or a flipped/duplicate sheet joined to the outer surface at a seam. Find which: inspect the repaired mesh around region 41 (shells, face orientation, fill faces; the connection tool already counts repair_mesh fill faces on a path), and the ring's statement in the saved DSL.\n\nThen fix at the source: repair should not join an inner sheet to the outer shell or fill a hole across the body, or the surface the ring tool and regions use must be the outer shell only. Check how many crawfish scans (IMG_4109-4118) have such interior faces, since segmenter agents on the remaining scans hit the same mesh.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-77",
+        "MESH-67"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Root cause named with evidence (which faces, from which repair step).\n2. On IMG_4112, a ring around the same tail band stays on the outer surface and region 41 holds no interior faces.\n3. A test reproduces the defect on a small mesh (an inner sheet or a fill across a tube) and shows the ring and region stay on the outer surface.\n4. A per-scan count of interior faces before and after for IMG_4109-4118; reference rings (IMG_4109-4111) fingerprints reported before/after, any change explained.\n\nKeeps inwardFaceCount: mesh-topology's inward_face_count is the per-scan interior-face measure item 4 asks for.\n",
+    "testing-plan": "1. mvn test.\n2. Live: references/CRAW-81/IMG_4112.dsl in the ring scene, outside and inside views of region 41 before/after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause (IMG_4112 region tail_segment_4_side_left, cut by ring_41): a patch of the scan's outer skin is wound inward but shares one consistently wound component with the skin (mesh-topology orientation_patches: the patch sits in the 747k-face patch with 13k inward faces), so repair_mesh stage 2 (orient, which two-coloured components joined across consistent edges) could not flip it; its contested rim was split and stage 6 (fillHoles) filled the slit with a sheet sagging into the body behind it. The ring and region ran over the inward patch and that fill.",
+        "MeshRepair.orient now joins faces into a patch only across consistent edges whose faces agree, by two-sided ray parity (TriangleBvh.facing), on which side is inside, two-colours the patches along a maximum spanning tree of signed seam votes (contested edges vote opposite, consistent ones same), and turns each tree outward by area-weighted parity.",
+        "mesh-topology reports inward_face_count and orientation_patches (MeshTopologyAnalysis). MeshRepairTest: an outward cube with an inward square joined to the bottom by an interior sheet; the top is outward after repair and a ring round the middle bounds a top region of only outer surface (both tests fail on the old orient).",
+        "Per scan inward faces old->new (same metric): 4109 345->319, 4110 9483->1691, 4111 8450->642, 4112 15217->5666, 4113 93719->12757, 4114 8922->8111, 4115 18427->13767, 4116 64621->2819, 4117 244849->6673, 4118 5762->2703; mobius contradictions drop on every scan (4117 4029->70). All ten crawfish goldens re-accepted: 4109 fixture 3 of 83 ring fingerprints change, 4110 11 of 73 (ring_57/58 previously looped around 12-18-face defect islands and now take real loops), 4111 42 of 83 with small edge-count drift.",
+        "User's pilot IMG_4112.dsl: ring_02's fourth anchor no longer lies on the surface (spline_ring refuses an ambiguous coincident vertex); the launch entry opens tmp/craw-81-IMG_4112-fixed.dsl, a copy without ring_02. head_shield and tail_segment_5_underside_right label points sat on removed interior faces and now name other regions.",
+        "User 2026-10-25: the reference ring drift (IMG_4109 3 rings, IMG_4110 11 incl. ring_57/58, IMG_4111 42 of 83 by a few percent) looks fine; goldens accepted.",
+        "Speed follow-up: orient casts parity from the first and last face of each 32-face cluster of consistently wound faces, and face by face only in clusters whose samples disagree, that border a cluster facing the other way or a contested edge, and their neighbours; TriangleBvh.buildColumns and facing cast those rays through a per-axis column grid, one Moller-Trumbore pass serving both rays, instead of the BVH. repair_mesh, fresh scene: IMG_4111 1590/1548 ms on master vs 1781/1745 ms; IMG_4112 2032/2070 vs 1993/1975 ms (the per-face build took about 6 s). All ten crawfish goldens, per-scan inward counts, mobius counts and output face counts are unchanged; orientedFaceCount differs on IMG_4113, 4117 and 4118 only in debris shells the repair drops."
+    ],
+    "related-files": [
+        "references/CRAW-81/IMG_4112.dsl"
+    ],
+    "priority": 1,
+    "review-summary": "MeshRepair's orientation stage now groups consistently wound faces by which side ray parity calls inside and two-colours the groups by seam votes, so a flipped patch joined to the skin elsewhere turns outward. Before, it stayed inward, its rim was cut and refilled, and rings and regions crossed it.\n"
+}

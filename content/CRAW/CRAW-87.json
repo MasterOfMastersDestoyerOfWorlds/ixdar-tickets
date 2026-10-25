@@ -1,0 +1,21 @@
+{
+    "id": "CRAW-87",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "geometry"
+    ],
+    "title": "Regions and grooves fast, and off the first-paint path: the region build and SurfaceCreases are each a small fraction of today's ~2 s on a crawfish scan, and the scene paints before they finish",
+    "description": "User 2026-10-25: since TOOL-49 the ring scene builds its regions (1.7 s on IMG_4112, 938k faces) whichever tool is active, and the ring tool measures the grooves (SurfaceCreases.of, 2.0 s) when the graph has no surface_creases node, both before the first frame; the user expected regions only on Ctrl+T. Also IxdarWindow prints 'Time to First Paint' before the render loop starts, so it is not the first frame.\n1. The first frame draws the surface as soon as the graph has a surface: region build and groove measurement run after it, off the render thread or spread across frames, and their results swap in when ready (regions colour in, labels appear).\n2. TOOL-49's rule stays true: the regions dataset is current whenever read (an automation read waits for the build or reports it is building, it never returns stale data).\n3. 'Time to First Paint' is measured at the first frame actually presented.\nEvidence: references/load-times-2026-10-25.md in the tickets repo.\n\nSCOPE (user, 2026-10-25): moving the work after first paint is only part of it; the region build (1.7 s on IMG_4112, 938k faces, 299 regions) and the groove measurement (SurfaceCreases.of, 2.0 s, mostly computeEdgeDihedrals) should not take seconds at all. Profile both on IMG_4111/IMG_4112 (warm and first run) and make them fast: one pass over edges for the dihedrals with primitive arrays (no per-edge objects), smoothing as a fixed number of sparse passes, parallel over faces/edges where independent; for regions, a single union-find/flood over faces using the rings' edges (with CRAW-86's per-ring edge lists if it has landed, else coordinate), no repeated whole-mesh clears, flatness from the same pass. Share the dihedral step with the cross field's feature-edge test (CrossField.featureDihedralCos) if it can be one computation. Results identical (region rows, flatness values, crease strengths, ring fingerprints).\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. Region build and groove measurement each under 200 ms on IMG_4111 and IMG_4112 on this machine (warm), first run reported; before/after table.\n2. The first frame is presented before they finish (log timestamps); Time to First Paint measures the first presented frame.\n3. Results identical (region rows, flatness, crease strengths, fingerprints); ui-state regions never stale (test).\n",
+    "testing-plan": "1. mvn test.\n2. Live: launch the ring scene on IMG_4112, read the log timestamps.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

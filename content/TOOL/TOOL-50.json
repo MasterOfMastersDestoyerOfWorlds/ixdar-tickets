@@ -1,0 +1,20 @@
+{
+    "id": "TOOL-50",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "ixd data import: copy a new hy3d scan output into the data root on both machines",
+    "description": "User 2026-10-25: scans are made on the Mac with hy3d; each run writes ~/Code/hy3d/out-<name>/ with the models under models/ (<scan>.glb plus <scan>.settings.json; the crawfish ones are out-crawfish/models/IMG_4109-4118). The DSLs load scans from $IXDAR_DATA_ROOT/<collection>/ (TOOL-43; default the home folder, so ~/crawfish). The crawfish scans were copied there by hand on both machines on 2026-10-25 (checksums identical).\n\nAdd one command, e.g. `ixd data import <hy3d out folder> [--name <collection>]`, that copies models/*.glb and *.settings.json into $IXDAR_DATA_ROOT/<collection>/ (collection defaults to the folder name without the out- prefix), refuses to overwrite a file whose checksum differs (naming it), skips identical ones, and syncs that collection folder to the other machine over Tailscale (rsync over ssh; this machine already has key access to the Mac), reporting what was copied where.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Importing an hy3d out-<name> folder puts its scans in $IXDAR_DATA_ROOT/<name>/ on both machines; identical files are skipped, differing ones refused with their names.\n2. Run on out-crawfish it reports everything already present.",
+    "testing-plan": "1. Run against out-crawfish (no changes) and a test folder.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

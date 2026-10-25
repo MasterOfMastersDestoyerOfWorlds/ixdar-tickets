@@ -6,9 +6,11 @@
         "geometry"
     ],
     "title": "Segment crawfish IMG_4112 into named body parts (pilot of the crawfish-segment skill)",
-    "description": "Pilot for CRAW-76. A segmenter agent follows ai-workspace/.claude/skills/crawfish-segment/SKILL.md on IMG_4112 in this ticket's worktree, saving only ixdar-app/src/main/resources/dsl/crawfish/IMG_4112.dsl (rings, bisectors and add_label part names, all written by the ring scene's save). A separate judge agent checks it against the references IMG_4109/4110/4111 (parts, blind A/B, flatness) and returns finished or continue; at most 3 rounds, then the user reviews. Every CLI gap either role hits is reported, not worked around.",
+    "description": "Pilot for CRAW-76. A segmenter agent follows ai-workspace/.claude/skills/crawfish-segment/SKILL.md on IMG_4112 in this ticket's worktree, saving only ixdar-app/src/main/resources/dsl/crawfish/IMG_4112.dsl (rings, bisectors and add_label part names, all written by the ring scene's save). A separate judge agent checks it against the references IMG_4109/4110/4111 (parts, blind A/B, flatness) and returns finished or continue; at most 3 rounds, then the user reviews. Every CLI gap either role hits is reported, not worked around.\n\nUser ruling 2026-10-25 after round 2: limbs are separated from the body where they join it, not partway along the limb; folded legs are cut along their edge on the body. The user traced the boundaries in red on IMG_4112: references/CRAW-77/IMG_4112-limbs-user-traced-red.webp (beside the agent's round-2 rings, IMG_4112-limbs-agent-rings.webp). Scans differ from IMG_4111: match its quality and naming pattern, not its exact part list.\n",
     "blocked-by": [
-        "TOOL-44"
+        "TOOL-44",
+        "CRAW-81",
+        "TOOL-49"
     ],
     "blocks": [],
     "status": "IN_PROGRESS",

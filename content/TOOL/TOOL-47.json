@@ -1,0 +1,22 @@
+{
+    "id": "TOOL-47",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Two-machine workflow: Mac worktrees pushed by wt done, fetched with their tmp/ by ixd review and landed here; ticket mutations commit, pull and push",
+    "description": "Decided with the user 2026-10-24 (after TOOL-43): agents run on the Mac Studio; review and landing stay on this machine.\n1. `wt done` on the Mac makes a work commit, pushes the branch to origin and records on the ticket the host and the worktree path it was worked in.\n2. `ixd review <ID>` sees no local worktree but a recorded host: it fetches the branch into the usual .claude/worktrees/<name> (uncommitted-diff model as for local work) and copies the Mac worktree's tmp/ with rsync over ssh (this machine already has key access to the Mac), so screenshots, measurements and reports show on the page and F5 runs here. Only tmp/ is copied.\n3. `ixd land` fetches before landing, pushes master after, and removes the Mac worktree and branch over ssh; `wt archive` likewise.\n4. Ticket store: generate_board.py commits each mutation, pulls with rebase and pushes, refusing on a conflict; BOARD.md regenerated after the rebase.\n5. The Mac needs push credentials (ssh remote or gh auth; https over ssh failed for autofix).",
+    "blocked-by": [
+        "TOOL-43"
+    ],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. A ticket worked on the Mac is reviewed (page with its tmp/ screenshots) and landed here, and the Mac worktree is gone afterwards.\n2. Ticket changes made on either machine reach the other without manual git.\n3. Documented in CLAUDE.md (user-approved edit).",
+    "testing-plan": "1. One small ticket end to end on the Mac.\n2. Concurrent ticket updates from both machines.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

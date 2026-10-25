@@ -1,0 +1,20 @@
+{
+    "id": "TOOL-48",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Machine-wide JVM memory budget: run-scene, launch and mvn test refuse when the live JVMs' -Xmx would exceed RAM minus a reserve",
+    "description": "User rulings 2026-10-24: assume every JVM reaches its maximum heap; keep about 4 GB free on this 14 GB machine for the user; agents must not fumble over each other; no queueing lock (TOOL-39's rejected design). Each scene or test JVM ixdar-cli starts, from any checkout, is recorded with its -Xmx (plus a fixed native allowance) in one machine-wide list (e.g. under ~/.cache/ixdar/, pruned of dead pids); run-scene, launch and the CLI's test path refuse when the live total plus the new one would exceed the budget (total RAM minus a reserve, both configurable per machine; default reserve 4 GB), naming the pids and checkouts holding the memory. TOOL-39's per-checkout refusal stays. On the Mac (96 GB) the same rule gives about six crawfish scenes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A launch that would exceed the budget is refused at once with the holders named; nothing waits.\n2. The budget counts JVMs from every checkout.\n3. Tests with fake JVMs; the agent rules' fixed scene counts are replaced by the budget.",
+    "testing-plan": "1. test_cli.\n2. Live: two crawfish scenes in two worktrees, a third refused.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

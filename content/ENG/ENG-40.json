@@ -1,0 +1,22 @@
+{
+    "id": "ENG-40",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Live-tweakable parameters: mark a field, tune it in a debug menu while the scene runs, and write the value back to its source literal",
+    "description": "Rebuilt 2026-10-25 from content/ENG/ENG-13.json, which held pasted design notes instead of a ticket JSON (committed in 'added tickets', so the board skipped it); the original text is kept at references/ENG-13/original-notes.md.\n\nThe idea (a Jonathan Blow-style tuning workflow): mark tuning fields with an annotation (min, max, display name); a debug menu lists the marked fields of the running scene with sliders; changing one applies immediately (the owning scene reloads what depends on it); a Save action rewrites that field's literal in its .java source so the tuned value is kept.\n\nConstraints from the codebase since the notes were written: no runtime reflection over arbitrary classes (the user ruled it out for automation state; prefer the compile-time annotation processors the project already uses for registries); no machine-specific source path (resolve the checkout like REPO_HOME, never a hard-coded C:/... path); static final constants are inlined by javac, so tuned fields cannot be final; the menu is a ControlHint/terminal-driven UI like the rest of the scene controls, reachable from ixdar-cli; the source rewrite goes through a parser (or an exact, refusing match), never a loose regex.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A field marked tunable shows in the scene's tuning menu and changes the running scene when moved.\n2. Save rewrites exactly that literal in the source and refuses (with a message) when it cannot.\n3. Works through ixdar-cli as well as the UI; tests for the source rewrite.",
+    "testing-plan": "1. mvn test.\n2. Tune a value in a scene, save, rebuild, see it kept.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "references/ENG-13/original-notes.md"
+    ],
+    "priority": 3
+}

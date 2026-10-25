@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-84",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "ui"
+    ],
+    "title": "Experiment (stacked on CRAW-78): labels as real 3D text drawn through the 3D camera with GPU depth hiding, and the hovered ring's or region's label moved to the mouse",
+    "description": "User 2026-10-25: an experiment to look at before deciding, on its own worktree stacked on craw-78. The user is unsure whether partially hidden labels look right and wants to see it.\n\n1. Real 3D text: in 2D, a HyperWord's x/y are in the Camera2D's space and the camera transforms them in the shader (sdfTexture.setup(camera)). Do the same with a Camera3D: HyperString lays out at a world point, Font draws the glyph quads as screen-facing billboards at that point through the Camera3D (fixed pixel size), and hiding is the GPU depth test against the drawn surface with a small bias (per-pixel, so a label behind a leg shows partly). Remove the CPU depth readback, PointVisibility, the instanceof Camera3D branch, anchorDepthLift, the CPU-set shown flag and drawAnchoredStrings. Hover/click on a 3D label: screen bounds by projecting through the same camera; hidden words take no hover (e.g. one depth read at the cursor when it moves).\n2. Labels at the mouse: in the ring tool (ring and bisector sub-tools), hovering a ring moves that ring's number to beside the cursor; in the region tool, hovering a region moves that region's label (number and/or part name) to beside the cursor. Leaving puts it back.\nThe user will compare it with craw-78 and decide; nothing here is final.",
+    "blocked-by": [
+        "CRAW-78"
+    ],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. Both behaviours visible on IMG_4111 (a tmp copy of the named file) with screenshots: labels partly behind geometry, and the hovered ring's / region's label at the cursor in each tool.\n2. Orbit frame times with all labels on, compared with craw-78.\n3. mvn test passes.",
+    "testing-plan": "1. mvn test.\n2. Live through ixdar-cli (hover a ring in the ring tool, a region in the region tool, orbit).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Labels drawn as real 3D text: Font.drawWorldStrings draws each HyperString's glyph quads as screen-facing billboards at its anchor world point through the Camera3D's view and projection in a new vertex shader (glsl/font_billboard.vs, ShaderType.TextureSDFBillboard, SDFShader with an 11-float layout carrying a per-vertex pixel offset), at the fixed 26 px row and craw-78's SDF border, depth-tested without depth writes against the surface pass's depth, pulled 26 px of world toward the eye (RingScene.LABEL_DEPTH_BIAS_PIXELS) so a label behind a leg or flap shows partly. HyperString.setLineOffsetAtWorldPoint lays a string out at the projected pixel (Camera3D.projectLifted computes the same pixel and lifted depth on the CPU) for hover bounds; HyperWord.depth gates hover and click against MouseTrap.cursorDepth, one GL.readDepth at the cursor pixel per frame in which the cursor or the view moved (MouseTrap.readCursorDepth), re-hovering when it changes. Removed: readDepths (back to single-pixel readDepth), HalfEdgeMeshRuntime.visiblePixel, PointVisibility, HyperString's instanceof Camera3D branch, anchorCamera, anchorDepthLift, shown, Font.drawAnchoredStrings, RingTool.NUMBER_DEPTH_TIE_PIXELS/NUMBER_PLACEMENT_TRIES. Ring numbers keep their loop point (the facing loop point nearest the centroid on screen, re-chosen when the camera holds still) into RingTool.placedRingNumbers; region labels keep RingRegions.regionLabelPoint. Labels at the mouse: label data is the label of the item they name (ring item label, region tag); RingScene.updateScene moves the shown label matching activeTool.hovered() to labelAtCursor, drawn flat beside the cursor. BisectorTool.hovered() returns the wall its snap reached; RingRegionTool gains hoveredRegion (the face under the cursor, re-picked when the cursor, view or regions move, also used by a click) and hovered(). Regions (218 rows), ring fingerprints (82) and the saved .dsl identical to craw-78 on IMG_4111-named. Orbit drag 60 steps all labels on: 2952-2976 ms vs craw-78 3064-3526 ms the same session (labels off 2646-2658 ms). Tests HyperStringBoundsTest.aWorldPointStringCentresOnItsPixelAndTakesNoHoverWhereTheSurfaceIsNearer, RegionControlAutomationTest.theHoveredRegionsLabelMovesToTheCursorAndBackWhenTheCursorLeaves, aRingNumberSitsOnTheLoopFacingTheCameraAndNoneFromInside. mvn test 681/0."
+    ],
+    "related-files": [],
+    "priority": 2,
+    "review-summary": "Ring numbers and region labels are now HyperStrings that Font draws as screen-facing text at their world points through the Camera3D, hidden per pixel by the depth test; the hovered ring's or region's label moves beside the cursor.\nExperiment for the user to compare with the CPU depth readback.\n"
+}

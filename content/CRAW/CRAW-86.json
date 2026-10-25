@@ -1,0 +1,22 @@
+{
+    "id": "CRAW-86",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Ring and region bookkeeping bounded to the ring and the region it divides: rings as edge-id lists, one shared shortest-path search, per-region face lists",
+    "description": "User 2026-10-25: rings segment the mesh, so a ring should not need to touch the whole mesh to see what it divides. The measurement found the trace search itself already local (bounded A*, flips only on the path; median ring 8-10 ms), but every ring does whole-mesh bookkeeping: a new geodesics engine per ring whose Dijkstra allocates ~494k-entry arrays; SurfaceSpline.of allocates a mask over ~1.48M edges; EdgeMarks scans it twice, SplineRingNode allocates a SELECTION array over all edges, EdgeMarks.fingerprint scans again, and RingRegions.update scans each new ring's full mask twice (1-3 ms each, 0.3-0.5 s plus GC pressure per load). Regions: an edit already re-floods only components beside changed walls, but clearing components, the flood's seed loop and measureFlatness (Arrays.fill plus two passes) loop over every face each time, and TOOL-49 now builds regions at load (1.3-2.5 s on IMG_4111).\n\nStore a ring as its own edge-id list (marks/fingerprint/region updates read it, no full-mesh mask), share one shortest-path search and its arrays across rings, and keep a face list per region so updates and flatness touch only the regions a ring changes. Evidence: the 2026-10-25 load-time measurement, /tmp/claude-1000/-home-acw-Code-ai-workspace/9efaa0b3-c829-4d74-bd31-fc243b81c6fe/scratchpad/perf/load-times.md (with profiles under logs/; copy what you need, the scratchpad is temporary).\n\nThe measurement report is kept at references/load-times-2026-10-25.md in the tickets repo.\n",
+    "blocked-by": [
+        "CRAW-85"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Per-ring work allocates and scans only the ring's edges (shown in a profile); one shared search.\n2. A ring edit's region update and flatness touch only the affected regions.\n3. IMG_4111 load and region build times before/after (2 runs each); ring fingerprints, region rows and saved .dsl identical on tmp copies of IMG_4111 and fertility_rings; mvn test and the heavy golden suite pass.",
+    "testing-plan": "1. mvn test, heavy goldens.\n2. Profile the 82-ring load before/after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

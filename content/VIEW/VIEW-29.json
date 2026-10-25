@@ -1,0 +1,21 @@
+{
+    "id": "VIEW-29",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering",
+        "ui"
+    ],
+    "title": "Crease overlay added over whatever colours the mesh shows: valley strength darkens the region, part or surface colour, one shared crease field, a control row in the ring and region tools",
+    "description": "User 2026-10-25: replaces VIEW-22's crease heat map (the user did not like it, and its worktree is far behind master; VIEW-22 is archived). Purpose: see where the grooves are while placing rings and naming parts, for the user and for agents reading screenshots (an agent can then aim anchors at grooves; see CRAW-82's settle and click snap).\n\n1. Data: one per-vertex scalar, the valley strength from the one shared crease lookup (CRAW-78 unified it with RingTool.readyCreases); nothing cached twice, uploaded once per surface.\n2. Drawing: the mesh shader applies it after the base colour, whatever the base is (region colours, part colours, the plain surface), so creases read as darker bands and the colouring underneath stays readable; it never replaces the colouring, so nothing has to be kept in sync with it. Strength mapped through a named Palettes ramp or a single named Color (no colour arithmetic in Java).\n3. Control: a toggle row with a stable action id and an explicit key in the ring tool and the region tool (listed by `tools`, fired by `control`).\nVIEW-22's other parts (clip plane, cavity shading, stale-preview clearing) are not in this ticket.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The overlay shows over region colours, part colours and the plain surface on IMG_4111 and fertility, with creases visibly darker; screenshots on/off.\n2. Toggling it changes nothing else (region colours, labels, picks identical).\n3. No second crease build; tests for the toggle and that the scalar comes from the shared lookup.",
+    "testing-plan": "1. mvn test.\n2. Live through ixdar-cli on a tmp copy of IMG_4111.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

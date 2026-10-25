@@ -1,0 +1,22 @@
+{
+    "id": "MESH-67",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "repair_mesh under one second on a crawfish scan, computed (no saving the repaired mesh to disk)",
+    "description": "User 2026-10-25: repair should take under a second on the crawfish scans without caching its output to disk. Today repair_mesh is about 1.5-2.0 s on IMG_4111/IMG_4112 (987k faces), plus CRAW-81's orientation (+0.2 s after its fix); MESH-61 added 0.25 s recording per-vertex source provenance and slot carry. Evidence: references/load-times-2026-10-25.md in the tickets repo.\n\nProfile repair stage by stage on IMG_4111 and IMG_4112 (load the scan once, run repair repeatedly in one JVM so JIT is warm, and report first-run separately), then cut each stage: allocation (reuse arrays, primitive tables instead of boxed maps), the weld/split/orient/fill passes (single passes, no repeated whole-mesh scans), provenance recording (only what a reader needs, written once), and parallelism where stages are per-face or per-component (use the cores; the Mac has many). Keep the output identical: same output face/vertex counts, fingerprints, inward-face counts, and the crawfish goldens (heavy suite) unchanged.",
+    "blocked-by": [
+        "CRAW-81"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. repair_mesh under 1 s on IMG_4111 and IMG_4112 on this machine, warm and first-run reported (2 runs each).\n2. Output identical (fingerprints, counts, heavy goldens).\n3. A per-stage timing table before/after.",
+    "testing-plan": "1. MeshRepairTest, mvn test, heavy goldens.\n2. CrawfishMeshRepairBenchmark-style timings (no debug log lines left in).",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

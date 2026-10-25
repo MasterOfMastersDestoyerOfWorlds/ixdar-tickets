@@ -1,0 +1,20 @@
+{
+    "id": "VIEW-30",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Text glyphs show a yellow sliver beside them at some zoom levels in the DSL graph view (since the regenerated font atlas)",
+    "description": "User 2026-10-25 (screenshot of a spline_ring box, '8 ms 1028.5 MiB'): at certain zoom levels a thin yellow sliver appears at the side of glyphs, on dozens of letters and digits when zooming the DSL graph view; not at high or low zoom; hard to hit exactly, so it looks numeric. Likely since CRAW-78 regenerated res/opensans.png/json (em 128, pxrange 48, padded quads) and finished the border band in sdf.fs: suspects are texture-coordinate bleed into the neighbouring glyph or padding at a mipmap level, the border band's screen-pixel range at some scales, or the msdf/true-distance mix in sdf.fs. Reproduce by sweeping the graph camera's zoom in small steps and screenshotting text (image-diff to find the frames), fix at the source.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. A zoom sweep of the DSL graph view shows no slivers (screenshots).\n2. 2D UI and 3D labels look as before.\n3. A test or check that catches bleed (e.g. atlas padding vs the max sampled mip).",
+    "testing-plan": "1. Live zoom sweep through ixdar-cli on the graph view (Ctrl+G) of IMG_4112.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

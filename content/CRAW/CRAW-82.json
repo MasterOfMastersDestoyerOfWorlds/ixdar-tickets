@@ -1,0 +1,21 @@
+{
+    "id": "CRAW-82",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Settle a crease-mode draft's anchors into the valleys: an active contour on the crease field, one undoable edit; then snap a click to the nearest valley",
+    "description": "User 2026-10-25, from the IMG_4112 pilot: an authored anchor sat on top of a crest near no curvature, so the crease path bent up to it and back into the groove; the user moved it into the valley by hand. In crease mode the tool keeps an authored anchor exactly where it was clicked.\n\n1. Settle (first): a control row (stable action id) on a crease-mode draft (rings and bisectors) that slides each anchor a short distance across the groove to the lowest crease energy nearby, with a smoothness term so the ring stays a clean loop: an active contour on the surface with the crease field (the one shared surface_creases lookup) as its potential. Authored anchors move only within a small radius so the user's intent is kept; supporting anchors may move further. The whole settle is one undoable edit, and the reply/lastRow lists how far each anchor moved.\n2. Snap (follow-on, same energy): in crease mode, a click within a few pixels of a crease valley places the anchor on the valley, as bisector ends snap onto walls; geodesic-mode clicks stay exact.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Settle moves off-valley anchors into the groove on a synthetic grooved tube and on the IMG_4112 case (the anchor near tail_segment_1_underside_left), within the radius limits, as one undo step; tests.\n2. Click snap in crease mode lands on the valley; geodesic clicks unchanged; tests.\n3. Ring fingerprints of existing saved rings unchanged (settle only runs when asked).",
+    "testing-plan": "1. mvn test.\n2. Live on references/CRAW-81/IMG_4112.dsl: reopen the ring, settle, compare anchor positions with the user's hand-moved one.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 1
+}

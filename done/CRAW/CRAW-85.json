@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-85",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Loading a segmented scan traces every ring twice: the ring tool re-traces all graph rings after the scene is ready instead of reusing the splines the graph traced",
+    "description": "IMG_4111 (82 rings) spends 1.8-2.0 s after sceneReady in RingTool.adoptGraphRings, which traces every spline_ring and spline_cut a second time after the graph already traced them (18% of the main thread in the load profile; about 23 ms per ring). It has been there since CRAW-35 (2026-10-03). The graph stores each ring's spline under its label; adopt those (and their edge marks) as the confirmed rings, and re-trace a ring only when it is edited or reopened. Evidence: the 2026-10-25 load-time measurement, /tmp/claude-1000/-home-acw-Code-ai-workspace/9efaa0b3-c829-4d74-bd31-fc243b81c6fe/scratchpad/perf/load-times.md (with profiles under logs/; copy what you need, the scratchpad is temporary).\n\nThe measurement report is kept at references/load-times-2026-10-25.md in the tickets repo.\n",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-86"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Loading IMG_4111 does no second trace; time from launch to settled drops by about the re-trace cost (measured, 2 runs before/after).\n2. Confirmed rings, their fingerprints, regions and the saved .dsl identical before/after on tmp copies of IMG_4111 and fertility_rings.\n3. Editing or reopening an adopted ring still works (tests).",
+    "testing-plan": "1. mvn test (and the heavy golden suite).\n2. Live timings on IMG_4111.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "RingTool.adoptGraphRings takes each spline_ring and spline_cut as the SurfaceSpline the graph left under its label in the _surface_splines slot of the graph's output (when its mesh is the shown surface and its marks are the very array shown), with authored anchors read off the spline and the statement's normal/mode; it traces only when the graph left no spline, and a statement without a normal gets its plane from AuthoredSplineRing.fitPlane, no trace. SplineCutNode now stores its bisector in that slot too. Re-open/edit still re-trace. IMG_4111: adoption 2086/2396 ms -> 2/2 ms, launch to settled 12.5/14.2 s -> 10.0/9.0 s; items, fingerprints, rings, regions rows, edge marks and the no-op saved .dsl identical on tmp copies of IMG_4111 and fertility_rings. New BisectorTest.graphRingsAreAdoptedAsTheGraphsOwnSplinesAndStillEdit. Heavy GoldenFingerprintTest IMG_4111 fails on ring_68 (275 vs 265 edges) on master too: golden predates CRAW-79's DSL edit."
+    ],
+    "related-files": [],
+    "priority": 1,
+    "review-summary": "RingTool now adopts each spline_ring and spline_cut as the spline the graph already traced (spline_cut now leaves its spline on the bundle too), tracing only when the graph left none or the ring is edited. Loading a segmented scan no longer traces every ring twice.\n"
+}

@@ -9,13 +9,14 @@
     "description": "From CRAW-58 (missing tool #6, friction log F1, F6, F9, F12, F14) plus the user 2026-10-08. (a) In crease mode (CRAW-60) show the crease field (the surface_creases valley strength) as a heat map blended over the base colour, so the user sees where grooves are before placing anchors; toggle with a key, also usable outside crease mode. (b) An x-ray or clip plane to see hidden contacts (tucked legs against the body). (c) A cavity / ambient-occlusion style shading that makes grooves and joints readable on a scan. (d) Region colours that stay stable across edits (today the body went dark blue -> cyan after an edit, so before/after screenshots can't be compared) while staying neighbour-distinct (CRAW-45). (e) Stale hover previews and connection paths are cleared when they no longer apply; they currently persist and look like rings. Hide/isolate is CRAW-46 (already done).",
     "blocked-by": [],
     "blocks": [],
-    "status": "REVIEW",
+    "status": "ARCHIVED",
     "definition-of-done": "1. Crease heat map overlay on the base colour, toggled by a key, drawn from the graph's surface_creases output (no second computation). 2. A clip plane (or x-ray) in the ring scene, keyed, that shows hidden contacts. 3. A cavity shading mode. 4. Region colours stable across ring edits: a region that keeps its faces keeps its colour; neighbours stay distinct. 5. Hover previews and connection paths cleared when stale. 6. Screenshots of each on a crawfish copy; fertility unaffected.",
     "testing-plan": "Unit test on colour stability (edit a ring, untouched regions keep colours); live screenshots of each mode.",
     "todos": [],
     "unknowns": [],
     "changes-made": [
-        "Ring scene perception aids: K crease heat map (ring tool's surface_creases field, graph output or its one cached build) over the base colour in mesh.fs; L cavity shading (screen-space curvature); P clip plane through the orbit centre, Shift+P steps it deeper (near plane, so picks see inside too); region colours follow each region's majority former region in RingRegions so moved rings keep both sides' colours (RingRegionsUpdateTest); connection path/neck cleared on neck confirm and surface change, ring hover preview dropped on surface change; GL.disableVertexAttribArray so a dropped scalar reads 0."
+        "Ring scene perception aids: K crease heat map (ring tool's surface_creases field, graph output or its one cached build) over the base colour in mesh.fs; L cavity shading (screen-space curvature); P clip plane through the orbit centre, Shift+P steps it deeper (near plane, so picks see inside too); region colours follow each region's majority former region in RingRegions so moved rings keep both sides' colours (RingRegionsUpdateTest); connection path/neck cleared on neck confirm and surface change, ring hover preview dropped on surface change; GL.disableVertexAttribArray so a dropped scalar reads 0.",
+        "Archived 2026-10-25 without landing, as tag archive/view-22 at 22599d7c: Crease heat map replaced by VIEW-29's additive overlay; far behind master"
     ],
     "related-files": [
         "ixdar-app/src/main/java/ixdar/scenes/regions/RegionLayer.java",

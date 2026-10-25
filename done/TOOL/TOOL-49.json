@@ -1,0 +1,26 @@
+{
+    "id": "TOOL-49",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Segmentation CLI gaps, round 3: live regions while ringing, discardable bisector drafts, no invisible pending end, delete a ring by label, report handles, anchors without scripting",
+    "description": "Found by the CRAW-77 pilot segmenter, round 2 (IMG_4112, report in the craw-77 worktree's tmp/segmenter-report.md):\n1. ui-state's regions dataset is stale while the ring tool is active and only refreshes after switching to the region tool, so rings looked as if they split nothing when they did. The dataset is current whenever it is read.\n2. A bisector draft cannot be discarded: discard-draft refuses, leaving the bisector confirms it, undo reopens it; only repeated delete-bisector-point clears it. discard-draft works on a bisector draft.\n3. A bisector's first end stays pending invisibly after a refused click, so later clicks attach to it (it once built a 14-anchor cut across the tail). A refused click leaves no pending end, or the pending end is drawn and reported in the tool state.\n4. No way to delete one ring by label: a ring is deletable by its label (a terminal command or a control row taking the selection), and ring items say enough to find it.\n5. Nothing reports the handles (fused legs, flaps joined to the body) that stop a ring from splitting; the agent found them only with the connection tool. When a confirmed ring splits nothing, the reply/region data says why: where the regions stay joined (a surface point of the connecting path).\n6. Placing anchors needs a scripted frame -> project -> click each time (ten helper scripts). Give the agent the UI way to aim: e.g. hover reports the surface point and crease strength under the cursor so it can step toward a groove, and the words/region-number overlays make targets readable on screen. Do not add 3D-point input to click (user ruling: tools work the way the UI does, from screen coordinates).\nSmaller ones from the same report: control replies to scene toggles return a stale lastRow; model --path resolves a relative path against ixdar-app/; the tools preview right after hover is often the previous one; confirm-neck rings can be refused at save (anchor on a split vertex) and confirm-neck fails at 3-edge pinches.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-77"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Each of 1-6 and the smaller ones fixed or ruled out with a reason; tests for each.\n2. A segmenter can make, check, discard and delete rings and bisectors on IMG_4112 through ixdar-cli without helper scripts.",
+    "testing-plan": "1. mvn test, test_cli.\n2. Live on references/CRAW-81/IMG_4112.dsl.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "RegionLayer rebuilds the regions on every ring change whatever tool is active (ui-state regions current in the ring tool); bisector discard-draft (Shift+X) drops a draft or the waiting first end, and the waiting end is reported as the ring tool's draft and named in refused clicks; terminal rd/ringdelete deletes rings by drawn number or live label as one undoable edit, ring items carry the live label; RingRegions.measureJoins (SurfaceConnection.findPath, split out of connect) reports where a ring that splits nothing stays joined, exported as regions.splitsNothing; hover replies with the surface under the cursor via Pick.surfaceAt incl. creaseStrength/inCrease from RingTool.readyCreases; KeyGuy.fire makes the active tool's lastRow the fired row's outcome and the ring-scene toggles report on/off; model --path resolves relative paths against the checkout root; ClosedRingTool/BisectorTool previews say why no fit ran; fitLoop anchors 3-edge necks at their vertices; confirmLoop moves neck anchors off unsavable repair_mesh split vertices. Tests: BisectorTest, RegionControlAutomationTest, RingRegionsTest, RingEscapeTest, ToolInputReplyTest, ModelPathReopenTest (687 pass). Live on references/CRAW-81/IMG_4112.dsl copy.",
+        "Synced onto CRAW-78 (53df83c8): the rebuild-whatever-tool-is-active change now sits in CRAW-78's RegionLayer.perFrame (rebuild() called before the show/drop gate), measureJoins runs inside RegionLayer.rebuild(), Pick.surfaceAt reads part labels from partLabels.labelByRegion, the Shift+P/Shift+N toggles keep labelsShownChanged() and report their state. mvn test 691/0 failed, test_cli 116 OK; live on the IMG_4112 copy: regions 84 -> 85 after a ring confirmed in the ring tool, hover crease strength 0.111 on claw_right_fingers."
+    ],
+    "related-files": [],
+    "priority": 1,
+    "review-summary": "RegionLayer keeps the regions current in every tool, the bisector discards drafts and reports its waiting end, rd deletes rings by label, and hover and the regions dataset report crease strength and where unsplit rings stay joined. A segmenter can then ring IMG_4112 through ixdar-cli without helper scripts.\n"
+}

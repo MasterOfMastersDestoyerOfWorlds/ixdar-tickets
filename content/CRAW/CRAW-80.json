@@ -1,0 +1,23 @@
+{
+    "id": "CRAW-80",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "automation"
+    ],
+    "title": "The RINGS dataset is the rings: one list of surface splines (closed rings, bisectors, connection paths) the tools edit, regions derived from it, ui-state exporting datasets only",
+    "description": "User rulings 2026-10-24 (after TOOL-44): rings should be a dataset, and the connection result is the same data as a bisector ring, both are splines.\n\nToday Scene.dataset(Subsystem.RINGS) returns RegionLayer (the regions), the confirmed rings are private state of RingTool (TOOL-44's ConfirmedRing list), and the connection tool keeps its own result type, so ui-state reaches through RegionLayer's scene into the ring and connection tools to export them.\n\n1. The RINGS dataset is the rings: one list of ConfirmedRing (spline, mode, serial, end walls, label, statement, saved/deleted), closed rings and bisectors alike. RingTool and its sub-tools (ClosedRingTool, BisectorTool) edit that list; they no longer own it. Undo snapshots and the save path read it.\n2. Regions are derived: RingRegions is computed from the rings dataset (RegionLayer becomes a view of it and of the regions it derives), registered as its own dataset if a scene needs both.\n3. The connection tool's path is an open spline between two surface points (like a bisector) and its neck a closed loop (like a ring): they become draft splines in the same data, Enter confirming the neck into the list as today; the girths and timings become fields of the spline. No separate connection result type.\n4. ixdar.automation's State exports datasets only, once per dataset type: no reaching into tools.\n\nADDED (user, 2026-10-24): (5) Subsystem RINGS means 'ring regions' today (its noun) and maps to RegionLayer. RINGS becomes the ring list; add a REGIONS subsystem for the derived regions, and move every @CommandAnnotation acts= and ui-state reader that acts on regions (sel, lb, the region tool's terminal commands) to REGIONS. (6) Scene.dataset(Subsystem) returns Object and every caller casts: make the lookup typed so each subsystem names its data type and a wrong mapping fails at compile time (Subsystem lives in the annotations module, which must not name app types: put the typed key on the app side, e.g. typed constants next to the enum's use, and report the design).\n\nADDED (user, 2026-10-24): (7) TOOL-44 removed Item.kind and its *_KIND constants (a generic Item must not list every tool's kinds, and the list duplicated Subsystem). Instead an Item carries the Subsystem (dataset) it points into; with its label that is its key in the dataset. Ring and bisector items point into RINGS (bisector is a field of the ring data), the connection's path and neck into RINGS as splines, regions into REGIONS, route segments and cities into TRADE. Adding a tool never touches Item.\n",
+    "blocked-by": [
+        "TOOL-44"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Scene.dataset(Subsystem.RINGS) is the ring list; RingTool holds no ring list of its own.\n2. RingRegions is built from the dataset.\n3. The connection tool's results are splines in the ring data; its result type is gone.\n4. State reads only datasets for rings, regions and connections.\n5. Ring and bisector fingerprints, region counts and the saved .dsl unchanged on tmp copies of fertility and IMG_4111; mvn test and test_cli pass.\n\n6. RINGS is the ring list and REGIONS the regions; commands declare the one they act on.\n7. Dataset lookups are typed: no caller casts the result of Scene.dataset.\n\n8. Every item names the subsystem it points into; Item lists no tool-specific kinds.\n",
+    "testing-plan": "1. Baselines before the change (ring items, regions, saved .dsl), compare after.\n2. Live: a connection confirmed into a ring appears in the rings dataset.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}
