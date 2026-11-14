@@ -1,0 +1,38 @@
+{
+    "id": "MESH-74",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Stroke sculpt CLI: round animation, reference tracing, outlines, multiview --dsl",
+    "user-messages": [
+        "[recalled] create one ticket for all of these"
+    ],
+    "description": "Three ixdar-cli additions for the next blind stroke-sculpt run, under the revised stroke-sculpt skill (ai-workspace .claude/skills/stroke-sculpt): the sculpt is one DSL of named layers (shape, eye_sockets, teeth, ...) revised round by round, each round snapshotted to tmp/rounds/round<NN>/, and only the judge stops the run. They replace the scripts the MESH-72 blind sculptor wrote for itself.\n\n1. Animation by rounds. sculpt-animate only knows a chain of passes (one stroke_sculpt node per pass, pass N's input and output). With revised layers it has to step through the tmp/rounds/ snapshots instead: one frame per round showing the result, with the SVGs of the layers that changed in that round overlaid on the cells they were drawn in, and the changed layer names in the frame's caption. The pass-chain mode stays for DSLs that are a plain chain.\n\n2. ixdar-cli trace-reference and multiview --outline.\n   - trace-reference takes a reference picture and a multiview SVG template and a cell, extracts the subject's silhouette (foreground mask, contour, simplified polyline; interior edges optional as a second output) and writes it into that cell as editable silhouette polylines. It places the outline from pixels alone, fitting it to the current sculpt's silhouette in that cell (centre and height, aspect kept); it never reads a camera manifest. The MESH-72 sculptor did this by hand with hard-coded scale and offset arithmetic.\n   - multiview --outline returns each cell's silhouette of the current sculpt as polylines in the same template coordinates (replacing the sculptor's outline.py, which printed per-row and per-column extents from the PNG), so reference and sculpt outlines can be compared in one coordinate space.\n   - Any library used must be permissively licensed (OpenCV Apache 2.0 and scikit-image BSD are fine).\n\n3. multiview --dsl <path>: reload the DSL, then capture, in one call, and fail with the load's error when the reload fails, instead of the sculptor's cap.sh running model, multiview and a grep of the viewer log every round.",
+    "blocked-by": [],
+    "blocks": [
+        "MESH-75"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. sculpt-animate accepts a rounds directory and writes a gif and mp4 with one frame per round, the changed layers' SVGs overlaid and named; the pass-chain mode still works on dsl/stroke_sculpt_head.dsl.\n2. ixdar-cli trace-reference writes a reference picture's silhouette into the named cell of a template as silhouette polylines that the stroke_sculpt node lifts without error; it reads no camera manifest.\n3. ixdar-cli multiview --outline returns each cell's silhouette as polylines in the template's coordinates.\n4. ixdar-cli multiview --dsl reloads the DSL before capturing and returns ok false with the load error when the DSL fails.\n5. ixdar-cli gen-docs is run, so the commands appear in Ixdar's docs.\n6. Captures and a sample animation are under tmp/.",
+    "testing-plan": "1. Build a three-round tmp/rounds/ from the MESH-72 skull layers (or the head demo) by revising one layer per round, and run sculpt-animate on it.\n2. Run trace-reference on a reference picture rendered by the stroke-sculpt skill's render_references.py into the Right cell of a template, load the result through a stroke_sculpt node, and capture it with multiview --svg overlaid.\n3. Compare multiview --outline of the sphere with its expected circle in each cell.\n4. Run multiview --dsl on a good DSL and on one with a broken SVG path; the second must fail.",
+    "todos": [],
+    "unknowns": [
+        "Whether trace-reference fits by bounding box alone or needs a rotation fit for the jittered references."
+    ],
+    "changes-made": [
+        "multiview --dsl reloads a DSL through the model route before capturing and returns that route's ok false and error when the load fails (verified: missing SVG and camera-less SVG both fail, nothing captured)",
+        "multiview --outline returns each cell's silhouette as closed polylines plus a box in template coordinates, traced by the new PixelImage.outlines (Moore tracing + Douglas-Peucker); sphere: radius 301.6-302.4 px vs analytic 302.6 in all 8 cells; unit test PixelImageOutlinesTest",
+        "ixdar-cli trace-reference (OpenCV, Apache 2.0; numpy BSD) writes a reference picture's silhouette into a template cell as silhouette polylines, fitted by height and centre to the sculpt's silhouette in the template's capture, never reading a camera manifest; optional interior-edge SVG; test TraceReferenceTest; traced head reference lifted by stroke_sculpt, outline gap 8.5 -> 5.9 px mean",
+        "sculpt-animate --rounds animates tmp/rounds/round<NN>/ snapshots, one frame per round with the changed layers' SVGs overlaid and named; pass-chain --dsl mode kept (verified on stroke_sculpt_head.dsl, 6 frames) and now loads through multiview --dsl",
+        "AutomationEndpoint.runtime made public so one route can run another (multiview runs SwitchModel); ixdar-cli gen-docs run; .gitignore covers egg-info/requires.txt now the CLI has dependencies"
+    ],
+    "related-files": [
+        "ixdar_automation_cli/cli_commands/sculpt_animate.py",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/MultiviewScreenshot.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSketch.java"
+    ],
+    "priority": 3,
+    "review-summary": "multiview gains --outline (each cell's silhouette as polylines) and --dsl (reload then capture), ixdar-cli gains trace-reference, and sculpt-animate animates the stroke-sculpt skill's round snapshots. They replace the scripts a blind sculptor wrote for itself: outline extraction, hand-placed reference outlines and reload-capture loops.\n"
+}

@@ -1,0 +1,29 @@
+{
+    "id": "TOOL-55",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Scenes on the Mac scene host bring their async-profiler output back: the profile run-scene reports exists after shutdown, at the local path it named",
+    "user-messages": [
+        "profile on this machine if necessary, dont just blindly go chaning things",
+        "[recalled] after you are done make a ticket about this (said of: the scene host doesn't save the profile)"
+    ],
+    "description": "Found on VIEW-31 (2026-11-07) while chasing a ~0.45 s stall when the ring scene switches between a dark and a paper look on IMG_4111.\n\nOn a worktree whose tmp/scene-host.json names the Mac (TOOL-52), `ixdar-cli run-scene` starts the JVM with `-agentpath:<mac>/ixd-scenes/<wt>/.profiler/libasyncProfiler=start,event=cpu,file=<mac>/ixd-scenes/<wt>/tmp/profiles/ring-tool-<stamp>-%p.html` and its reply names `\"profile\": \".../tmp/profiles/ring-tool-<stamp>-<pid>.html\"`. After `ixdar-cli shutdown` no such file exists on Linux, and the Mac has no `ixd-scenes/<wt>/tmp/profiles` directory at all. `--profile-path tmp/view-31-palette.collapsed` behaved the same: the reply echoed the path, nothing was written on either machine. Locally run scenes (F5, `ixd wt done`'s launch) do leave tmp/profiles/f5-*.html, so the gap is the scene-host path.\n\nLikely causes, not verified: the supervisor (`.ixd-scene-supervisor.sh`) or the shutdown route ends the JVM in a way that skips async-profiler's write at exit, and/or nothing copies tmp/profiles back the way screenshots and logs are. The Mac has only the agent library (`.profiler/libasyncProfiler`), no `asprof`, so a live scene cannot be dumped by hand either.\n\nWorkaround used: `jcmd <pid> JFR.start settings=profile filename=/tmp/x.jfr`, drive the scene, `jcmd <pid> JFR.stop`, then the JDK's `jfr print --events jdk.ExecutionSample` on the Mac and a small aggregation on Linux. That found the stall (94% of render-thread samples in MeshLabels.resolve -> RingRegions.nearestActiveFace), but it needs the java pid (pgrep on the supervisor's shell picks the wrong process) and a hand-written parser. Profiling a scene on the scene host should be as easy as profiling a local one, since the scans that need profiling are the ones too large to run locally.",
+    "blocked-by": [
+        "TOOL-52"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. `ixdar-cli run-scene` on a scene-host worktree, then `ixdar-cli shutdown`: the profile the reply named exists at that local path (default tmp/profiles/<scene>-<stamp>-<pid>.html), non-empty, with frames from the run.\n2. `--profile-path <file>` and `--profile-event alloc` are honoured on the scene host as they are locally (the extension still picks the format, e.g. .collapsed).\n3. A scene that dies or is killed still leaves whatever the profiler had, or the reply says plainly that no profile was written and why.\n4. A test of the copy-back and path mapping that needs no Mac (the remote side faked as TOOL-52's tests do).",
+    "testing-plan": "1. The copy-back and path-mapping test.\n2. On the Mac: run-scene IMG_4111 in the ring scene, switch looks a few times, shutdown; open the profile and find the render thread's frames.\n3. The same with --profile-path tmp/x.collapsed and --profile-event alloc.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar_automation_cli/build_state.py",
+        "ixdar_automation_cli/cli_commands/run_scene.py"
+    ],
+    "priority": 2
+}

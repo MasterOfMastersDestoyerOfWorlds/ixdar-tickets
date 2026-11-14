@@ -1,0 +1,31 @@
+{
+    "id": "CRAW-90",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Region tool: L leaks its l into the terminal, and labelling should switch to colour by part",
+    "user-messages": [
+        "when I press l in the region tool it takes me to the terminal to label, but the l I pressed is put into the terminal, also after I enter the label command if I was in the normal color mode I should go to the labeled view that ctrl P would take me to"
+    ],
+    "description": "Region tool (RingRegionTool), naming a part with L:\n\n1. Pressing L moves focus to the terminal and writes `lb ` on the command line, but the same keystroke's character event then reaches the now-focused terminal, so the line reads `lb l`. KeyGuy.keyPressed fires the scene row on key-down; charCallback forwards the following char to Terminal.current because focus has just switched. Fix: when a scene key hands focus to the terminal, KeyGuy remembers that key and drops the one character it produces (cleared on that key's release, so an automation press that produces no char cannot swallow the first letter of the name).\n\n2. After the label command (LabelCommand, `lb`/`label`) names the regions, a user in the colour-by-region view (P off) should land in the colour-by-part view P toggles, so the new name shows. Fix: LabelCommand sets RegionLayer.colourByPart = true before labelsChanged() redraws. A refused label leaves the view alone.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Selecting regions and pressing L leaves exactly `lb ` on the terminal command line, no stray `l`.\n2. Typing a part name and pressing Enter names the regions and, if colour-by-region was showing, switches to colour by part.\n3. A refused label (no selection, bad name) does not change the colour mode.\n4. Other scene keys that do not move focus to the terminal, and typing in an already focused terminal, behave as before.",
+    "testing-plan": "1. Launch the ring scene with a scan that has ring regions, open the region tool, press P until colour by region shows.\n2. Click two regions, press L: screenshot the command line reading `lb `.\n3. Type a name, Enter: screenshot the regions coloured by part.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "KeyGuy drops the one char of a key whose row moved focus to the terminal (cleared on release); LabelCommand turns colour by part on. Verified headless on skull in ring-tool: L press + l char + release left 'lb ' (tmp/craw-90-after-L.png); 'cranium' + Enter named region 0 and showed it coloured by part (tmp/craw-90-after-label.png), P then reported colour by part: off.",
+        "After sync onto master 9b48cbbf (P now toggles RingScene.showLabels: part names plus part colours), LabelCommand sets scene.showLabels instead of the removed RegionLayer.colourByPart. Re-verified headless: 'lb ' with no stray l, 'lb cranium' named region 0 and turned labels on (tmp/craw-90-after-label.png); the next P reported labels shown: off."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/input/KeyGuy.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/commands/LabelCommand.java",
+        "ixdar-app/src/main/java/ixdar/tools/regions/RingRegionTool.java"
+    ],
+    "priority": 3,
+    "review-summary": "The region tool's L key no longer leaks its l onto the terminal command line, and the label command turns the scene's labels on, coloured by part. Naming a part should start with a clean command line and end on a view that shows the new name.\n"
+}

@@ -9,6 +9,7 @@ import argparse
 import contextlib
 import io
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -18,6 +19,15 @@ import generate_board
 
 
 REPO_ROOT = Path(__file__).resolve().parent
+
+# What the fake transcript shows the user typing, and text that only looks like a user entry.
+TYPED = "there should be ONE pallete class,\nand no themes or any knotpallete or codepallete, ONE"
+REPLIED = (
+    "<!-- reply 2 -->\n> Resolution 48 is fragile.\n> It fails elsewhere.\n\nlog a ticket\n\n"
+    "<!-- reply 1 -->\n> Use the quad layout.\n\ngo ahead"
+)
+AGENT_TEXT = "the agent says the palette should be split per scene"
+TOOL_TEXT = "tool output mentioning a palette per scene"
 
 
 def _run(*argv: str) -> tuple[int, str, str]:
@@ -54,6 +64,27 @@ class TicketCliTest(unittest.TestCase):
                 shutil.copytree(source, self.root / name, dirs_exist_ok=True)
         generate_board.set_root_dir(self.root)
         generate_board.set_code_dir(self.temp / "code")
+
+        transcripts = self.temp / "transcripts" / "-home-user-project"
+        transcripts.mkdir(parents=True)
+        entries = [
+            {"type": "user", "origin": {"kind": "human"}, "message": {"role": "user", "content": TYPED}},
+            {"type": "user", "origin": {"kind": "human"}, "message": {"role": "user", "content": REPLIED}},
+            {"type": "user", "isMeta": True, "origin": {"kind": "peer"},
+             "message": {"role": "user", "content": "Another Claude session sent a message: " + AGENT_TEXT}},
+            {"type": "user", "toolUseResult": "x",
+             "message": {"role": "user", "content": [{"type": "tool_result", "content": TOOL_TEXT}]}},
+        ]
+        (transcripts / "session.jsonl").write_text(
+            "".join(json.dumps(entry) + "\n" for entry in entries), encoding="utf-8"
+        )
+        saved_env = os.environ.get(generate_board.TRANSCRIPTS_ENV)
+        os.environ[generate_board.TRANSCRIPTS_ENV] = str(transcripts.parent)
+        self.addCleanup(
+            lambda: os.environ.pop(generate_board.TRANSCRIPTS_ENV, None)
+            if saved_env is None
+            else os.environ.__setitem__(generate_board.TRANSCRIPTS_ENV, saved_env)
+        )
 
     def _write_ticket(self, epic: str, ticket_id: str, **fields) -> Path:
         """Write a minimal ticket JSON under the temporary content/ tree.
@@ -116,6 +147,7 @@ class TicketCliTest(unittest.TestCase):
             "--subsystem", "automation",
             "--definition-of-done", "1. holds",
             "--testing-plan", "1. tested",
+            "--user-message", TYPED,
         )
         self.assertEqual(code, 0, err)
         written = json.loads((self.root / "content" / "TEST" / "TEST-1.json").read_text())
@@ -143,6 +175,7 @@ class TicketCliTest(unittest.TestCase):
             "definition-of-done": "1. built from json",
             "testing-plan": "1. tested",
             "todos": ["first todo"],
+            "user-messages": [TYPED],
             "priority": 2,
         }
         spec_path = self.temp / "ticket.json"
@@ -163,6 +196,91 @@ class TicketCliTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("--title", err)
         self.assertIn("--definition-of-done", err)
+        self.assertIn("--user-message", err)
+
+    # The user's own words travel with the ticket, and only their own words.
+
+    def _create_with(self, *messages: str) -> tuple[int, str, str]:
+        """Run create with every required field and the given --user-message values."""
+        argv = [
+            "create", "--epic", "TEST", "--repo", "Ixdar", "--title", "Quoted",
+            "--description", "d", "--subsystem", "automation",
+            "--definition-of-done", "1. holds", "--testing-plan", "1. tested",
+        ]
+        for message in messages:
+            argv += ["--user-message", message]
+        return _run(*argv)
+
+    def test_create_stores_the_users_words_and_accepts_an_excerpt(self) -> None:
+        """A verbatim message, or an excerpt rewrapped, is stored as user-messages."""
+        excerpt = "no themes or any   knotpallete"
+        code, _, err = self._create_with(TYPED, excerpt)
+        self.assertEqual(code, 0, err)
+        written = json.loads((self.root / "content" / "TEST" / "TEST-1.json").read_text())
+        self.assertEqual(written["user-messages"], [TYPED, excerpt])
+
+    def test_reply_keeps_the_passage_it_answers(self) -> None:
+        """Words written under a reply quote are stored after that quote; plain words stay alone."""
+        code, _, err = self._create_with("log a ticket", "go ahead", "no themes or any knotpallete")
+        self.assertEqual(code, 0, err)
+        written = json.loads((self.root / "content" / "TEST" / "TEST-1.json").read_text())
+        self.assertEqual(
+            written["user-messages"],
+            [
+                "> Resolution 48 is fragile.\n> It fails elsewhere.\n\nlog a ticket",
+                "> Use the quad layout.\n\ngo ahead",
+                "no themes or any knotpallete",
+            ],
+        )
+
+    def test_requote_puts_back_the_passage_on_an_old_ticket(self) -> None:
+        """update --requote-user-messages adds the reply quote to words stored without it."""
+        path = self._write_ticket("TEST", "TEST-1", **{"user-messages": ["go ahead", "[recalled] go ahead"]})
+        code, _, err = _run("update", "TEST-1", "--requote-user-messages")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(
+            json.loads(path.read_text())["user-messages"],
+            ["> Use the quad layout.\n\ngo ahead", "[recalled] go ahead"],
+        )
+
+    def test_create_refuses_a_paraphrase(self) -> None:
+        """Words the user never typed are refused and no ticket is written."""
+        code, _, err = self._create_with("the user wants a single palette class")
+        self.assertEqual(code, 1)
+        self.assertIn("verbatim", err)
+        self.assertFalse((self.root / "content" / "TEST" / "TEST-1.json").exists())
+
+    def test_agent_reports_and_tool_output_are_not_the_users_words(self) -> None:
+        """Text that reached the transcript as a subagent report or a tool result does not count."""
+        for text in (AGENT_TEXT, TOOL_TEXT):
+            code, _, err = self._create_with(text)
+            self.assertEqual(code, 1, text)
+
+    def test_update_appends_a_verified_user_message(self) -> None:
+        """update --add-user-message appends the user's words and refuses a paraphrase."""
+        path = self._write_ticket("TEST", "TEST-1")
+        code, _, err = _run("update", "TEST-1", "--add-user-message", TYPED)
+        self.assertEqual(code, 0, err)
+        self.assertEqual(json.loads(path.read_text())["user-messages"], [TYPED])
+        code, _, _ = _run("update", "TEST-1", "--add-user-message", "make one palette")
+        self.assertEqual(code, 1)
+        self.assertEqual(json.loads(path.read_text())["user-messages"], [TYPED])
+
+    def test_recalled_messages_skip_the_check_and_are_marked(self) -> None:
+        """--recalled-user-message stands in for an unfindable message, stored marked as recalled."""
+        argv = [
+            "create", "--epic", "TEST", "--repo", "Ixdar", "--title", "Recalled",
+            "--description", "d", "--subsystem", "automation",
+            "--definition-of-done", "1. holds", "--testing-plan", "1. tested",
+            "--recalled-user-message", "make one ticket for these",
+        ]
+        code, _, err = _run(*argv)
+        self.assertEqual(code, 0, err)
+        path = self.root / "content" / "TEST" / "TEST-1.json"
+        self.assertEqual(json.loads(path.read_text())["user-messages"], ["[recalled] make one ticket for these"])
+        code, _, err = _run("update", "TEST-1", "--add-recalled-user-message", "and another")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(json.loads(path.read_text())["user-messages"][-1], "[recalled] and another")
 
     def test_review_summary_from_file_sets_and_blank_removes(self) -> None:
         """update --review-summary @file sets review-summary; an empty value drops the field."""

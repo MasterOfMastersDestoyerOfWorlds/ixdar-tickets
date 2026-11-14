@@ -1,0 +1,31 @@
+{
+    "id": "MESH-85",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Redesign StrokeSculpt.apply, an 810-line method at the JIT size limit",
+    "user-messages": [
+        "can we make a ticket ot fix all of the frictions we are finding"
+    ],
+    "description": "Follow-up from MESH-80. StrokeSculpt.apply is one method of about 810 lines and 7,973 bytes of bytecode, 27 bytes under HotSpot's 8,000-byte HugeMethodLimit past which the JIT never compiles it (a skull pass then runs about ten times slower). MESH-80 had to reorganise code to stay under it (shared nearestDistances, merged offset and relax loops), and MESH-78's fold prevention lands in the same method. The user's rule: a method over about 150 lines means rethinking the design, not splitting into single-caller helpers.\n\nWhy it is its own ticket: the redesign (stroke parsing and mirror copies, adaptive refinement, per-stroke displacement fields, relax and symmetrise as named concepts each with more than one user) touches every line MESH-78 is changing; do it after MESH-78 lands, with StrokeSculptTest and the sample DSLs' captures unchanged.",
+    "blocked-by": [
+        "MESH-80",
+        "MESH-78",
+        "MESH-86"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. No StrokeSculpt method over about 150 lines, every concept with more than one user, StrokeSculptTest and sample captures unchanged, a skull pass no slower.",
+    "testing-plan": "1. StrokeSculptTest; 2. capture the stroke-sculpt samples before/after; 3. javap sizes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Superseded by MESH-86, whose DoD required StrokeSculpt.apply to stop being one 800-line method: apply is now a 90-line orchestrator (1,006 bytecode bytes) over SculptStroke/ChainStroke/FillStroke/SilhouetteStroke, StrokeRefinement, MidpointSplit and DisplacementSum, StrokeSculptTest unchanged and passing. Close this when MESH-86 lands; MESH-78's unfold goes on the summed pass's final step."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java"
+    ],
+    "priority": 3
+}

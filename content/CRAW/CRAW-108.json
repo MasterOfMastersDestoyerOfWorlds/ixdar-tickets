@@ -1,0 +1,31 @@
+{
+    "id": "CRAW-108",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Grow tool: grow a part from a click up to its grooves, and turn its outline into rings (Ctrl+U)",
+    "user-messages": [
+        "> The grow tool and the connection tool\u2019s additions\n\nsplit into two tickets"
+    ],
+    "description": "A ring-scene tool (Ctrl+U) that grows a part from a click outward until it reaches the grooves round it, and turns the grown patch's outline into rings. Split out of the stroke-segmentation worktree (CRAW-105), where it was built without a ticket.\n\n## What exists\n\n`GrowTool` (the tool), `GrownPatch` (the region growing), the Ctrl+U tool switch in `RingScene`, a line in the connection package's `package-info.java` and one in `ARCHITECTURE.md`.\n\n## What the review found\n\nFrom ai-workspace `reports/craw-105-uncommitted-review-2026-11-12.md` (parts 4 and 5):\n\n- Hand-picked numbers with no ticket listing them: pocket ratios 20 and 4 in `GrownPatch`; 0.05, 6 and 16 in `GrowTool`.\n- No tests.\n- `GrownPatch.faceCount` is flagged as a debugging counter and is read by the tool's status line.\n- New log lines in `GrowTool`.\n- The tool overrides and clears the same `regions` look id that `RegionLayer` uses, which can clear the region colours until `RegionLayer`'s own state next changes.",
+    "blocked-by": [
+        "CRAW-105"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Every number the growing and the tool use is listed on this ticket for the user to decide. 2. Unit tests cover the region growing on a shape with known grooves. 3. The tool no longer clears the region colours. 4. A launch.json entry and a screenshot under tmp/ show a part grown on a scan.",
+    "testing-plan": "1. Unit test: on a torus with two grooves across its tube, growing from a click between them stops at both grooves. 2. Unit test: the grown patch's outline becomes closed rings lying in those grooves. 3. Run the tool on a crawfish scan and screenshot a grown part.",
+    "todos": [],
+    "unknowns": [
+        "Does BisectorTool.draftAlong (a bisector along a drawn or grown line) belong here, with the connection tool ticket, or with stroke segmentation?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/connection/GrowTool.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/rings/GrownPatch.java"
+    ],
+    "priority": 3
+}

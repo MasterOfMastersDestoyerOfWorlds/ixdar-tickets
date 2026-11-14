@@ -1,0 +1,33 @@
+{
+    "id": "MESH-87",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "sculpt"
+    ],
+    "title": "Migrate skull3 to one stroke_sculpt pass and retest two large strokes summed",
+    "user-messages": [
+        "> What we give up with one pass:\n\nif you need two passes I think it would be better to save off the model and write a new dsl, since the chain is too hard to reason about",
+        "yes close"
+    ],
+    "description": "Split from MESH-86 part (c). MESH-86 made stroke_sculpt one pass on its base (strokes held on the base by a sidecar, summed, a stroke_sculpt input refused) and migrated stroke_sculpt_head, stroke_sculpt_sphere and stroke_crease_sphere. dsl/skull3/skull.dsl (MESH-79) chains ten stroke_sculpt layers and is not on master, so it could not be migrated there. Once MESH-79 lands: convert its SVGs with sculpt-migrate (they carry data-strength), merge the ten layer SVGs into one SVG with a <g id> per layer (they share one camera: centre -0.004 0.032 -0.022, distance 4.397), give the three crease=0.0 layers a per-stroke way to say no crease (the node's crease port is per pass), run ixdar-cli sculpt-sync, and capture before/after with strokes overlaid on all 8 cells (teeth ticks and bite line lining up). Strokes drawn on surface an earlier layer had pushed (profile, face_turn) now land on the base; large moves may need the sculpt saved as a new base and a second DSL. Then retest MESH-81 (two large strokes pit the far side) on the summed pass: MESH-86 removed one interference (the refinement gap rule now counts only opposite-sign neighbours), and MESH-78's crossing limiter belongs on the summed pass's final step.",
+    "blocked-by": [
+        "MESH-86",
+        "MESH-79"
+    ],
+    "blocks": [
+        "MESH-81"
+    ],
+    "status": "ARCHIVED",
+    "definition-of-done": "dsl/skull3/skull.dsl is one stroke_sculpt pass with a sidecar and loads; before/after multiview with strokes overlaid on all 8 cells under tmp/; load time and vertex count before/after recorded; MESH-81 retested on it with the result in changes-made.",
+    "testing-plan": "Load dsl/skull3/skull.dsl before and after; multiview with sculpt-sync's strokes overlaid; mesh-topology inward faces; stroke-report per layer.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Closed without work: run 3 (MESH-79) was archived on 2026-11-01 (tag archive/mesh-79) instead of landing, so there is no skull3 layered sculpt on master to migrate to one-pass."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/SculptSync.java"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,31 @@
+{
+    "id": "UI-20",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
+    "title": "Key and mouse glyphs in the toolbar instead of text",
+    "user-messages": [
+        "> Still open from before: crease hover speed (awaiting your pick between the two options), and why your two-anchor crease ring crossed itself.\n\ncould we get some glyphs instead of test only"
+    ],
+    "description": "The toolbar along the bottom of every model scene lists the active tool's controls as text: 'enter: confirm draft', 'shift+T: ...', 'drag: ...'. Show a glyph for each key and mouse action instead of the word. The font atlas (opensans.json / opensans.png, built by msdf-atlas-gen) holds only the 95 ASCII characters 32-126, and msdf-atlas-gen is not installed on the dev machine, so the icons have to be added to the atlas (SpecialGlyphs already maps private-use characters to atlas cells, with one entry, COLOR_TRACKER) or drawn from a second SDF texture. Glyphs wanted first: enter, shift, ctrl, esc, backspace/delete, mouse click, mouse drag; letter keys as a keycap around the letter. The toolbar is drawn in Scene.drawUI from the TOOL_SECTION control hints (ControlHint.key is the label to replace).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Enter, shift, ctrl, esc, delete/backspace, click and drag show as glyphs in the toolbar, letter keys as keycaps.\n2. A key with no glyph still shows its text label.\n3. The glyphs read at the toolbar's row height in both palettes; screenshot under tmp/.\n4. FontAtlasPaddingTest still passes if the atlas is rebuilt.",
+    "testing-plan": "1. Launch the ring scene, open the ring tool and its drawing mode, screenshot the toolbar: every listed key shows its glyph.\n2. Unit test: a control hint whose key has no glyph is drawn as its text label.\n3. Run FontAtlasPaddingTest.",
+    "todos": [],
+    "unknowns": [
+        "Rebuild the OpenSans atlas with an icon font merged in, or load a second small SDF atlas for icons?",
+        "Which icon set: it must be permissively licensed (MIT, BSD, Apache, OFL)."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/SpecialGlyphs.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/Font.java",
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java"
+    ],
+    "priority": 3
+}

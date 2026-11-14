@@ -1,0 +1,28 @@
+{
+    "id": "MESH-82",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Stroke-sculpt refinement only grows across layers; nothing coarsens",
+    "user-messages": [
+        "can we make a ticket ot fix all of the frictions we are finding"
+    ],
+    "description": "Split from MESH-80 item 4. Every stroke_sculpt layer refines the faces its strokes reach to a third of the stroke's width (or of its gap to the nearest other stroke, divided by its slope) and nothing ever coarsens, so a layered sculpt only grows: run 3 went from a 4k-vertex base to 99k after round 4 and 166k after round 5 (load 3.5 s, 2 GB heap). MESH-80 fixed the part with a local cause (smooth strokes refined though they add no detail, and the umbrella smoothing then wrote the new transition faces into the surface as streaks) and made the growth visible: each layer's report output starts with \"N vertices in, M after refinement\", and ixdar-cli stroke-report prints it per layer (the run-2 skull: 1,538 to 18,650 over ten layers before subdivision).\n\nWhy it is its own ticket: bounding the count needs a new concept, coarsening where a later layer no longer needs the detail (or refining against the displaced surface's error instead of the stroke's reach), which touches every layer's output and the sample DSLs' look, and should be designed with MESH-78's fold prevention in place.",
+    "blocked-by": [
+        "MESH-80",
+        "MESH-78"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A layered sculpt's vertex count is bounded by what its strokes resolve, measured on MESH-79's skull with stroke-report before and after, sample captures unchanged or explained.",
+    "testing-plan": "1. StrokeSculptTest; 2. skull3 load time and vertex count before/after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java"
+    ],
+    "priority": 3
+}

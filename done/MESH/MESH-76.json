@@ -1,0 +1,40 @@
+{
+    "id": "MESH-76",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Stroke sculpt strokes only touch the surface their camera sees",
+    "user-messages": [
+        "ok go ahead and start separate agent on the depth strokes"
+    ],
+    "description": "A stroke_sculpt stroke drawn on one multiview cell should only change the surface that is visible under it from that cell's camera, the way a sculpting brush only touches what is in front of it. Today it reaches surface the camera cannot see:\n\n- Fills (polygons) and broad valleys displace every vertex within the stroke's reach along one direction, whatever its depth. In the blind skull run MESH-75, a Right-cell fill on the side wall behind the jaw pushed through to the underside and the far side wall and tore the base of the skull apart; a Bottom-cell fill lifted the sides of the cranium into wings.\n- Silhouette strokes drag the outline vertices near the stroke on screen, including outlines of other parts at other depths. From the Back cell, the cheek and jaw outline sits behind the cranium's outline but next to it on screen, so a Back-cell silhouette pulled the face outward in the Front view (MESH-75 rounds 2, 3 and 6); a Top-cell silhouette did the same through the cheeks.\n- A ridge drawn after a cavity fills the cavity, because it pushes everything under its footprint (the sculptor had to order brow before eye_sockets).\n\nMake a stroke's effect limited to what its camera sees: a vertex is affected only when it is visible from that cell's camera (front-facing and not occluded, e.g. by a depth test against the mesh from that camera), and a silhouette stroke only drags vertices on the visible outline nearest the stroke, not hidden contours behind it. Mirrored copies (symmetry axis, data-mirror) apply the same test through their mirrored camera. Decide whether this is always on or a per-stroke/per-node option, keeping existing DSLs (dsl/skull/skull.dsl, dsl/stroke_sculpt_head.dsl) working or saying exactly how they change.\n\nThe code is ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java (falloff, displacement, refinement reach, symmetrising) and StrokeSketch.java (camera per cell, CPU-ray lifting through a TriangleBvh).",
+    "blocked-by": [],
+    "blocks": [
+        "MESH-78"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. A fill drawn on one side of a closed mesh moves no vertex that is hidden from its camera: a test on a sphere or box shows the far side and the underside unchanged.\n2. A silhouette stroke drawn on the Back cell of a shape with a hidden contour behind its outline (e.g. MESH-75's skull, round 06 of its layers) does not move that hidden contour: before/after captures in tmp/ show the Front view's width unchanged.\n3. A ridge drawn over an existing cavity from a camera that cannot see the cavity floor leaves the floor in place.\n4. Symmetry still holds within StrokeSculptTest's tolerance, and mirrored strokes obey the same visibility.\n5. StrokeSculptTest gains cases for 1 and 3 that fail on the current code and pass with the change.\n6. The changes-made say whether existing DSLs change and how; dsl/skull/skull.dsl and dsl/stroke_sculpt_head.dsl still load.",
+    "testing-plan": "1. Run StrokeSculptTest.\n2. Reproduce the MESH-75 failures from the skull layers (dsl/skull/ on master once MESH-75 lands, until then copied from /home/acw/Code/Ixdar/.claude/worktrees/mesh-75/ixdar-app/src/main/resources/dsl/skull/ into tmp/) plus the commented-out strokes the sculptor left in skull_base.svg and jaw.svg: uncomment each in a tmp copy, capture multiview --dsl before and after the change.\n3. Capture dsl/skull/skull.dsl and dsl/stroke_sculpt_head.dsl before and after to show what existing sculpts do.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Visibility is always on, no option: every stroke lifted from an SVG now carries its cell's camera as eye=ex/ey/ez/fx/fy/fz (silhouettes keep it and gain an explicit silhouette flag), and a stroke with an eye moves only vertices that face that eye and pass a depth test against the mesh from it (a ray cast through a TriangleBvh built once per pass; mirrored copies use the mirrored eye). Text strokes written without an eye (stroke_sculpt_sphere.dsl, stroke_crease_sphere.dsl) behave as before. Decided against a switch: no existing sculpt relied on reaching hidden surface on purpose, and the brief bans speculative switches.",
+        "Chains and fills fade out over half their radius of surface before what their camera cannot see (an edge-distance search from the hidden vertices), so a shadow edge such as the underside of an overhang does not leave a step. Refinement skips faces that face away from the stroke's camera, so hidden surface is no longer refined (skull.dsl 232868 -> 196786 faces).",
+        "Silhouettes: a contour vertex counts only when its camera sees it (depth test with two edge lengths of slack for the grazing ray). When the stroke reaches several visible contours, the outline wins: a contour is on the outline when the view ray just past it, outward across the view, meets nothing; inner contours (in front of more surface) are dragged only when no outline vertex is in reach, so a stroke drawn on an inner contour away from the outline still works.",
+        "Existing DSLs: stroke_sculpt_head.dsl is unchanged in face count and loads as before. dsl/skull/skull.dsl (MESH-75 layers, archived) loads faster and lighter with half the folded faces (inward faces 28693 -> 13834), but its Front-view lower face is narrower (band y720: 221 -> 184 px of a 1280 px cell): its Front jaw silhouettes were drawn 2.5x past the trace to make the old drag catch inner contours, and now drag only the outline. The brow no longer has to be drawn before eye_sockets.",
+        "StrokeSculpt.apply sits just under HotSpot's 8000-byte HugeMethodLimit (7827 bytes); past it the JIT never compiles it and a skull pass ran ten times slower. Shared pieces were extracted with more than one caller each (ringSum, packedPositions, nearestPoint, visibility), and the ray/triangle traversal moved from StrokeSketch into TriangleBvh.nearestHit and TriangleBvh.over.",
+        "Captures in the worktree's tmp/: compare-{skull,back,fill,failed,browlate}.png (top row master, bottom row this change; Front, Right, Back, Bottom, 3/4 Front-R), full multiviews in tmp/captures/{before,after}-*-{clay,curvature}.png, Front widths by height in tmp/front-widths.txt, numbers in tmp/mesh-76-measurements.json."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSketch.java",
+        "ixdar-app/test/unit/mesh/StrokeSculptTest.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "StrokeSculptTest"
+    ],
+    "review-summary": "StrokeSculpt now moves only the surface each stroke's camera sees: fills and chains skip hidden or back-facing vertices, and silhouettes drag only the visible outline. Strokes drawn on one side reached through to the far wall, the underside and cavity floors, and dragged contours hidden behind the outline.\n"
+}

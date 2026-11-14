@@ -1,0 +1,28 @@
+{
+    "id": "MESH-84",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "silhouette_hull of inconsistent traces sits inside every outline",
+    "user-messages": [
+        "can we make a ticket ot fix all of the frictions we are finding"
+    ],
+    "description": "Split from MESH-80 item 7. The strict silhouette_hull of run 3's traces sits inside every traced outline (stage-1 checkpoint: seven-view sum 91 px against a 70 px threshold, Back 23.6 px). Measured in MESH-80 with the new ixdar-cli outline-compare on dsl/silhouette_hull_skull (the run-2 style traces, cells at 1280 px), sum of per-view mean distances from trace to hull silhouette:\n- full base (rounding 8, smooth_mesh, quad_layout): 85.96 px, Back 22.8; the hull overdraws almost nothing (Back over 44 px against short 36,687 px)\n- rounding 8, no smooth_mesh: 84.1; rounding 0: 76.3; rounding 0 at resolution 96: 69.6 (Back 20.6)\n- misses=1: 71.9, but now overdraws up to 21,779 px per view\n- traces symmetrised with trace-outlines --symmetry x (MESH-80 item 8), hull compared with the symmetrised traces: 67.0, Back still 19.5\nSo rounding and smoothing cost under 10 px of the sum; the cause is the strict intersection of traces that disagree, chiefly the Back picture's scale against the others: a visual hull of inconsistent silhouettes lies inside each, by the disagreement.\n\nWhy it is its own ticket: the fix is in how the traces are made consistent or how the hull weighs them, not a local bug: either fit per-picture scale and offset in trace-outlines against the hull silhouettes iteratively (the outlines are fitted by bounding boxes, a weak measurement for the back of a skull), or give silhouette_hull Kolev and Cremers' probabilistic silhouette term (PAMI 2011) so a voxel is kept by evidence rather than by unanimous vote. Either changes the base and must be checked with quad_layout, whose parameter set is pinned (PATCH-127).",
+    "blocked-by": [
+        "MESH-80"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The skull base meets a 70 px seven-view sum in outline-compare with overdraw near zero, and quad_layout still succeeds on it.",
+    "testing-plan": "1. outline-compare on silhouette_hull_skull and skull3 before/after; 2. SilhouetteHullNodeTest.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/patch/SilhouetteHullNode.java",
+        "ixdar_automation_cli/cli_commands/trace_outlines.py"
+    ],
+    "priority": 3
+}

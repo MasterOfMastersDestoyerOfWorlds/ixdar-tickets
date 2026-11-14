@@ -1,0 +1,31 @@
+{
+    "id": "TOOL-47",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Two-machine workflow: Mac worktrees pushed by wt done, fetched with their tmp/ by ixd review and landed here; ticket mutations commit, pull and push",
+    "description": "Decided with the user 2026-10-24 (after TOOL-43): agents run on the Mac Studio; review and landing stay on this machine.\n1. `wt done` on the Mac makes a work commit, pushes the branch to origin and records on the ticket the host and the worktree path it was worked in.\n2. `ixd review <ID>` sees no local worktree but a recorded host: it fetches the branch into the usual .claude/worktrees/<name> (uncommitted-diff model as for local work) and copies the Mac worktree's tmp/ with rsync over ssh (this machine already has key access to the Mac), so screenshots, measurements and reports show on the page and F5 runs here. Only tmp/ is copied.\n3. `ixd land` fetches before landing, pushes master after, and removes the Mac worktree and branch over ssh; `wt archive` likewise.\n4. Ticket store: generate_board.py commits each mutation, pulls with rebase and pushes, refusing on a conflict; BOARD.md regenerated after the rebase.\n5. The Mac needs push credentials (ssh remote or gh auth; https over ssh failed for autofix).",
+    "blocked-by": [
+        "TOOL-43"
+    ],
+    "blocks": [
+        "TOOL-51"
+    ],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. A ticket worked on the Mac is reviewed (page with its tmp/ screenshots) and landed here, and the Mac worktree is gone afterwards.\n2. Ticket changes made on either machine reach the other without manual git.\n3. Documented in CLAUDE.md (user-approved edit).",
+    "testing-plan": "1. One small ticket end to end on the Mac.\n2. Concurrent ticket updates from both machines.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "ai-workspace (worktree tool-47): new ixd/remote.py engine. IXD_WORKER (ixd setup --worker user@host, written to settings.local.json and the shell profile like REPO_HOME) marks a worker machine. On a worker, wt done commits the diff as one work commit, force-pushes the branch to origin, uncommits it again and records worked-on (user@host:/worktree) on the ticket; wt new fast-forwards master from origin first.",
+        "ixd review pulls the ticket store; for a ticket with worked-on it fetches the branch into .claude/worktrees/<name> as an uncommitted diff on local master (only the work commit replayed), refreshes an untouched fetched worktree when the worker pushed again, and rsyncs the worker's tmp/ over ssh. ixd land fast-forwards master from origin first (refuses on divergence), refuses a worktree the worker pushed again since the fetch, pushes master after every land (--no-push opts out), then runs ixd wt cleanup on the worker over ssh and deletes origin/<branch>; wt archive retires the worker side the same way. New ixd wt cleanup refuses unless the ticket is DONE/ARCHIVED and the worktree holds exactly the published commit. Also fixed: wt status/done crashed in a repository without .java files (diagnostics git add pathspec matched nothing).",
+        "ixdar-tickets (worktree tool-47): generate_board.py records every file a mutation writes or moves and, on a main checkout with an origin, pulls with rebase before, commits exactly those files plus BOARD.md, pulls with rebase again (a BOARD.md conflict is resolved by regenerating it; any other conflict aborts the rebase and refuses, naming the files), regenerates BOARD.md and pushes; a failed fetch or push only warns. IXDAR_TICKETS_NO_SYNC=1, a linked worktree or a temp dir skips all git work. New `tix sync` and `update --worked-on HOST:/path`. 7 new tests (39 total, all pass), including commit-only-touched-files against a bare origin and the BOARD.md and ticket-conflict rebase paths.",
+        "Verified end to end with throwaway repos (bare origins in a Mac sandbox, nothing pushed to GitHub): Mac wt done pushed the work commit and moved THROW-1 to REVIEW with worked-on; ixd review here fetched it and copied tmp/ (screenshot and measurements on the page), refreshed after a second wt done, and replayed onto a newer master; the land fetch guard refused a third push until re-review; a land emulation (the same functions, not the land command) pushed master, and wt cleanup over ssh removed the Mac worktree and branch; wt new on the Mac fast-forwarded master; concurrent ticket updates from both machines both arrived; cleanup refused a TODO ticket and an unpublished edit. Sandboxes removed.",
+        "Archived 2026-11-04 without landing, as tag archive/tool-47 at e2b6c6d: Superseded by TOOL-52: agents stay on Linux, the Mac only runs scenes"
+    ],
+    "related-files": [],
+    "priority": 2,
+    "review-summary": "Mac worktrees now reach this machine: wt done pushes the branch, ixd review fetches it with its tmp/, landing pushes master and removes the Mac worktree, and ticket changes commit, pull and push themselves. This lets heavy tickets run on the 96 GB Mac without manual git between machines.\n"
+}

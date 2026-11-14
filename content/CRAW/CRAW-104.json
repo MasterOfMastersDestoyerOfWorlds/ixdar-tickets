@@ -1,0 +1,29 @@
+{
+    "id": "CRAW-104",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "rendering"
+    ],
+    "title": "Bake the high-poly scan normals onto the body plan viewer's final quad mesh",
+    "user-messages": [
+        "> 4. Which scans to test on. On master only IMG_4111 (84 labels) and IMG_4112 (54) carry labels. IMG_4109/4110 have rings but no labels, and IMG_4113\u20134118 are being labelled in the six segmentation worktrees (CRAW-95\u2026100, 24\u201343 labels each). I\u2019d copy three or four of those labelled files into tmp/ to test with, rather than wait for them to land.\n\nbaking should be in separate ticket since it will be complicated"
+    ],
+    "description": "User request 2026-11-07, split out of CRAW-103 (body plan viewer): after the body plan viewer joins the chosen crawfish parts with mesh booleans and the quad layout pipeline turns the result into the final quad mesh, bake the high-poly scan's surface detail (normals) onto that quad mesh so the low-poly result keeps the scans' detail. The user expects this to be complicated, which is why it is its own ticket.\n\nWanted: a DSL node that takes the high-poly source (the boolean-joined scan parts) and the quad mesh with its UVs, casts from the quad surface to the source, and writes a tangent-space normal map (and keeps the existing texture transfer path for colour), exportable with export_mesh to GLB.",
+    "blocked-by": [
+        "CRAW-103"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A DSL node bakes a tangent-space normal map from a high-poly source onto a quad mesh with UVs, with the cage/ray distance a parameter.\n2. Run on the body plan viewer's assembled crawfish quad mesh; the baked result rendered next to the high-poly source shows the scan detail; screenshots under tmp/ and a launch entry.\n3. export_mesh writes the quad mesh with the normal map into a GLB that Blender opens with the map applied.",
+    "testing-plan": "1. Bake on the CRAW-103 assembled crawfish; compare renders against the high-poly source. 2. Export to GLB and open in Blender.",
+    "todos": [],
+    "unknowns": [
+        "Ray casting from a quad surface against a ~1M-triangle source: which existing spatial index to use.",
+        "Whether a normal map needs tangents the export path does not yet write."
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

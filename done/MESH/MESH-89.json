@@ -1,0 +1,45 @@
+{
+    "id": "MESH-89",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Stroke-sculpt tool frictions from blind run 4",
+    "user-messages": [
+        "and then after both are ready do a 4th blind run with the new tools",
+        "can we use image analysis and edge detection to give it a good base for its stokes? what would that look like?",
+        "> because every shading edge became a stroke.\n\nlikely every shading edge should be a stroke",
+        "> stroke-suggestion ticket?\n\nI want what I said not stroke suggestion, show me the calculated stroke results as dod on the ticket"
+    ],
+    "description": "Tool problems the run-4 blind sculptor (MESH-88) hit that are still open after the MESH-86 fixes. Its full list is /home/acw/Code/Ixdar/.claude/worktrees/mesh-88/tmp/frictions.md (stays in that worktree until MESH-88 lands or is archived).\n\n1. sculpt-snapshot does not copy the .strokes sidecar beside each SVG, so the snapshot refuses to load (\"skull.strokes is missing\"). Hit in every round from 2 to 5; the sculptor copied it by hand. Copy every file the sculpt reads, sidecars included, and check the snapshot loads.\n2. Stroke ids for shapes without a data-id are numbered by position within their group (MESH-86 bug 4 fix), so inserting a stroke mid-group renumbers every later one (zygomatic.2 became zygomatic.3). Give a new stroke an id that no later insertion changes (e.g. the next unused number in the group, recorded into the SVG by sync).\n3. stroke-report's TOO STEEP check covers chains but misses fills: a bowl fill under the limit (radius 0.05, depth 0.21) still rippled. Extend the check to fills with the rule that actually predicts the ripples.\n4. stroke-report says nothing when a stroke folds the surface through itself (deep socket fills at 0.30-0.35 rendered black inside-out patches); only the render showed it, costing two cycles per try. Report folded/inward faces per stroke. (Preventing the fold is MESH-78.)\n5. A fill drawn in the Back view also moved underside vertices its camera sees almost edge-on, leaving a lumpy pit where nothing was drawn. Add a per-stroke (or node) limit on how edge-on a surface a stroke may move, or fall the weight off with the facing angle.\n6. sculpt-sync's refusal for a point that misses the surface names cell-local pixels (735) while the SVG holds whole-sheet coordinates (3295); give the sheet coordinates too, and the stroke's id/group.\n7. No tool puts a multiview cell next to the reference picture closest to it; the sculptor cropped and pasted every comparison by hand. Add a compare route/command (the Python CLI only calls it; images are composed in Java).\n8. `ixd wt status <ticket>` printed another worktree's agent note (mesh-86's) as this worktree's last note (ai-workspace bug, not Ixdar).\n\nItem 9 (base strokes from the reference pictures) moved to its own ticket on 2026-11-01.",
+    "blocked-by": [
+        "MESH-86"
+    ],
+    "blocks": [
+        "MESH-90"
+    ],
+    "status": "DONE",
+    "definition-of-done": "Items 1-7 fixed, each with a test (SculptSyncTest / StrokeSculptTest style, or test_cli for item 1); item 8 fixed in ai-workspace or split off. A snapshot of the run-4 round-5 sculpt made by sculpt-snapshot loads with no hand copying.\n",
+    "testing-plan": "Run SculptSyncTest, StrokeSculptTest and ixdar_automation_cli tests; sculpt-snapshot the run-4 sculpt and load the snapshot; stroke-report on a deep socket fill and a back-view fill shows the new warnings.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Items 1-7 fixed, tests in SculptSyncTest/StrokeSculptTest/test_cli SculptSnapshotTest. 1: sculpt-snapshot copies the .strokes sidecar beside each stroke_sculpt SVG and refuses a synced SVG with none; run-4 round-5 sculpt (archive/mesh-88) snapshotted to tmp/rounds/round01 and loads. 2: new stroke ids take the next number past every numbered id the group holds (never a position), and a shape with no data-pts keeps the data-id it carries, so a regenerated drawing names its own strokes. 3: TOO STEEP for fills uses the fill's real rim slope (union of sample bumps, FillStroke.rimSlope: ~2.1 x depth/radius at default spacing vs 1.54 for one bump) and a bowl's floor slope 2 x depth/inset; run 4's r0.05 d0.21 bowl is now flagged. 4: report marks FOLDS per stroke (faces its moves would turn inside out, how many the MESH-78 limiter held back, how many stay). 5: chain/fill moves fade from full at 60 deg from the stroke's camera axis to none at 75 deg (edge-on). 6: off-surface refusal names SVG sheet coords, cell pixel, stroke id and group. 7: new route/command reference-compare (cell | reference scaled to the cell's subject | 50/50 blend per row). Item 8 left for ai-workspace.",
+        "Item 9: route/command reference-strokes (ShadingEdges + ReferenceStrokes). Run 3's streaks: trace-reference --edges traced the outline of each unthinned edge band, so every edge became a closed loop of two parallel lines, unsigned and one strength; now Canny-thinned one-pixel lines linked end to end, ridge/valley from the light the rim shows, radius from edge width, depth from contrast under the terrace limit, fills radius >= sample spacing (smaller fills stippled), each mark kept only from the picture seeing the surface most squarely (no double counting). trace-reference --edges uses the same lines. Run-4 counts (ridges/valleys/fills; edges found): front 49/46/4 (273), 3/4 front-R 47/45/3 (172), 3/4 front-L 51/70/2 (211), right 0/95/3 (184), left 22/24/0 (138), back 0/46/5 (67), top 3/7/0 (132); 522 strokes. Pictures: (a) /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/strokes_on_references.png and /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/<view>_on_reference.png; (b) /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/strokes_on_base.png; (c) /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/sculpted_vs_refs.png, /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/sculpted_compare.png; DSL /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/edges.dsl, PLY /home/acw/Code/Ixdar/.claude/worktrees/mesh-89/tmp/edges/sculpted.ply (chamfer for (d) by the orchestrator).",
+        "Item 9 moved to MESH-90 on 2026-11-01: ShadingEdges, ReferenceStrokes, ReferenceStrokesRoute, the reference-strokes route and ReferenceStrokesTest left this diff, and trace-reference --edges is back to SubjectOutline.interiorEdges, so the item-9 line above describes work that now lives in MESH-90. ReferenceOutlines.cellNamed/pictureNamed/viewName stay here because reference-compare (item 7) uses them; OutlineTracingTest now covers them (verify-tests: SculptSyncTest, StrokeSculptTest, OutlineTracingTest). Squashed as one commit on mesh-89.",
+        "2026-11-04: this ticket's diff was combined into the mesh-91 worktree (MESH-91) and lands from there; the mesh-89 worktree is now redundant.",
+        "Closed 2026-11-05: the user says MESH-91 completed this work. Checked against master 0046ca0a: every line the mesh-89 worktree's 16 changed files add is on master (ReferenceOutlines, StrokeSculptNode, OutlineTracingTest and sculpt_snapshot.py identical), and the untracked ReferenceCompare.java is identical to master's. The worktree's uncommitted copy was not landed.",
+        "Archived 2026-11-05 without landing, as tag archive/mesh-89 at c108cf86: landed via MESH-91"
+    ],
+    "related-files": [
+        "ixdar_automation_cli/cli_commands/sculpt_snapshot.py",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/SculptSync.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "SculptSyncTest",
+        "StrokeSculptTest",
+        "OutlineTracingTest"
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "id": "TOOL-58",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Keep geometry out of automation routes: audit the 20 importers and enforce it with a checkstyle import rule",
+    "user-messages": [
+        "> stroke-segment route.\n\ngeometry calculations in a automation route are verbotten",
+        "create a tooling ticket to figure this out, too complicated right now."
+    ],
+    "description": "Automation routes must not do geometry: a route reads state and drives the scene, and any computation belongs in a node or a tool. Today nothing enforces this, and CRAW-105's `stroke-segment` route broke it unnoticed (it lifted SVG strokes onto the surface itself).\n\n## Proposed enforcement\n\nA checkstyle `ImportControl` rule in autofix (`autofix/src/main/resources/checkstyle.xml` plus an import-control file), so the build fails and ai-workspace's edit-time checkstyle hook flags it at once. It's an allow-list for `ixdar.automation`:\n\n- **Allowed:** the mesh data types (`representation`, `io`, `bundle`, `labels`), scenes, tools and the node graph.\n- **Banned:** the computation packages (`geometry.mesh.data.analysis`, `ops`, `paths`, `geometry.grid`, `geometry.tsp`, `geometry.mesh.quadlayout`, and the lifting and fitting classes in `sculpt` and `rings`).\n\nSome of those packages also hold plain data types (`RingSegmentMode`, `StrokeSketch` for reading a template, `RingRegions` as the scene built it), so the rule needs either class-level allowances or those types moved to a data package. Work that out first.\n\n## Current importers (20 of 83 automation files, first pass by class name only)\n\nLook like they run geometry themselves:\n- `mesh/Compare` (MeshDistance), `mesh/Holes` and `mesh/Topology` (MeshTopologyAnalysis)\n- `mesh/patches/Decompose` (SemanticPatchDecomposer), `mesh/Segmentation` (MeshSegmenter)\n- `mesh/skeleton/Compare`, `mesh/skeleton/CompareDetailed` (MeshSkeletonExtractor, MeshSkeletonComparator)\n- `mesh/StrokeKeyRoute` (ten sculpt classes, SurfaceRidges), `mesh/StrokeLift` (StrokeChain), `mesh/SurfaceRidgesRoute` (SurfaceRidges, SculptSync)\n- `ring/ListRings` (RingCandidateExtractor, MeshSkeletonExtractor)\n- `ring/StrokeSegment` (RingStrokes; removed by CRAW-105)\n- `ui/OutlineCompare` (grid)\n\nMixed or unclear:\n- `ui/State`: reads RingRegions and MeshRepairReport, but also imports SurfaceConnection and tsp.PointSetPath\n- `ring/Pick`, `ring/Project`: SurfacePicker, a cursor ray pick (a probe, but a geometry query)\n- `mesh/Fingerprint`: ArcNetwork\n\nProbably only read types or results:\n- `mesh/SculptSyncRoute` (StrokeAnchors), `ui/MultiviewScreenshot` (StrokeSketch), `ui/SelectionBounds` (RingRegions)",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "No automation route imports a computation package except through an allowance the rule names; the build fails on a new one; the hook reports it at edit time.",
+    "testing-plan": "Add a route that imports a banned package and show the build and the edit-time hook both refuse it; build master clean with the rule on.",
+    "todos": [
+        "Read each of the 20 routes and classify: computes, probes, or only reads types",
+        "Decide class-level allowances vs moving data types out of computation packages",
+        "Move each computing route's work into a node or tool",
+        "Add the ImportControl rule to autofix and reinstall autofix-tool"
+    ],
+    "unknowns": [
+        "Is a cursor ray pick (ring/Pick, ring/Project) allowed in a route as a probe?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "autofix/src/main/resources/checkstyle.xml",
+        "ixdar-app/src/main/java/ixdar/automation"
+    ],
+    "priority": 3
+}

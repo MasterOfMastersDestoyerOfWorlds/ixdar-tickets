@@ -1,0 +1,22 @@
+{
+    "id": "TOOL-51",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "ixd sync-machines: bring every repo's main branch into step on both machines (fetch, fast-forward, push), refusing on dirty or diverged",
+    "description": "User 2026-10-25: keep the main branches of every repo in step between this machine and the Mac Studio, so agents on either machine work on the latest code, skills, hooks and tickets. Today it is manual: push here, pull there, per repo (Ixdar master, ai-workspace master, ixdar-tickets main, autofix, obsidian), and a Mac agent sees nothing that is committed but unpushed.\n\nAdd one command, e.g. `ixd sync-machines` (or part of `ixd setup`), run from either machine: for every repo in repos.json, on both machines (the other over ssh, `zsh -ic` for PATH), fetch, then fast-forward the main branch where it is clean and behind, push it where it is ahead and the other side has not diverged, and report per repo and machine: in step / pulled / pushed / refused (dirty, diverged, on another branch, no credentials), never resetting, stashing or forcing. Autofix: when it moved, reinstall the autofix-tool artifact on that machine. Optionally run it from `ixd land` after the land pushes master (TOOL-47).",
+    "blocked-by": [
+        "TOOL-47"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. One command reports and brings Ixdar, ai-workspace, ixdar-tickets, autofix and obsidian into step on both machines; dirty or diverged repos are refused with the reason, nothing is reset or forced.\n2. autofix-tool is reinstalled where autofix moved.\n3. Verified with a throwaway commit made on one machine reaching the other.",
+    "testing-plan": "1. Run with both machines in step (no-op), with one behind, with one dirty.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 2
+}

@@ -1,0 +1,26 @@
+{
+    "id": "PATCH-128",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "quad_layout folds 20 faces of the fold-free skull3 hull",
+    "user-messages": [
+        "can we make a ticket ot fix all of the frictions we are finding"
+    ],
+    "description": "Split from MESH-80 item 17. Run 3's base (dsl/skull3/base.dsl in the mesh-79 worktree: silhouette_hull -> volume_to_mesh -> keep_largest_part -> smooth_mesh -> quad_layout, saved as base.ply) has a pinch at the upper left of the dome seen from behind, where faces point inward, and strokes cannot remove it.\n\nFound in MESH-80 by exporting each stage and counting faces folded against their corners' summed normals (MeshSmoothing's and MeshFoldRelaxation's test): surface 0, keep_largest_part 0, smooth_mesh 0 (41,176 faces), quad_layout 20 of 8,134 (base.ply the same 20). So the inward faces are made by quad_layout on a fold-free input; among them faces centred near (-0.476, 0.785, -0.623) and (0.258, 0.583, -0.842), the upper back of the dome, plus (-0.45, -0.70, 0.05) and (0.075, -0.89, 0.47). The probe script and the stage PLYs are in the mesh-80 worktree's tmp/skull3base/.\n\nWhy it is its own ticket: the cause is inside the quad-layout pipeline (seamless map or extraction emitting faces wound against the surface from a fold-free mesh), which MESH-80 must not change; PATCH-127's relax_folds handles folds in quad_layout's input, not ones it creates. Find which stage (cross field, seamless map, quantization, extraction) first winds a face backwards and stop it there, per the papers the stage implements.",
+    "blocked-by": [
+        "MESH-80",
+        "PATCH-127"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. quad_layout on the skull3 hull (smooth_mesh output) emits no face folded against its corners' normals, cause named in the stage that made it, with a fixture test.",
+    "testing-plan": "1. tmp/skull3base/folds.py on each stage before/after; 2. the quad-layout unit suite.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

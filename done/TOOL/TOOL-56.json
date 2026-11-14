@@ -1,0 +1,37 @@
+{
+    "id": "TOOL-56",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Audit the test suite: per-test review criteria, a test-review skill, and static-check ideas for test robustness (phase 1)",
+    "user-messages": [
+        "I'd like you to do an audit of our various tests, I have noticed that compiling now takes several minutes when our app is not that big and I think a big portion of that is the tests",
+        "the entire test suite should be able to run in under 5 seconds"
+    ],
+    "description": "The user noticed that building Ixdar takes several minutes although the app is not big, and suspects the test suite. Phase 1 of an audit: write the criteria a subagent applies to each test to decide whether it is worth keeping, package them as a test-review skill, and list ideas for static checks of test robustness. Phase 2 (a later ticket, after the user approves the criteria) runs the review across the suite and acts on it.\n\nSurvey at master (2026-11-08): 215 test files, 43.7k lines, under ixdar-app/test (unit/ plus benchmark/, 24 benchmark classes, 4.6k lines, compiled on every build though not run). Last full surefire run with reports (craw-84 worktree): 796 tests, 53.9s summed suite time; SilhouetteHullNodeTest alone 26.7s (50%), GoldenFingerprintTest 3.8s, CreaseRingTest 2.6s, TradeGameTest 2.5s; the top 13 suites are 89% of the time. test/resources/quadlayout is 103 MB. Goldens live in test/resources/golden (dsl/crawfish, dungeon, fixtures). Target from the user: the whole suite runs in under 5 seconds.\n\nWhat the user wants kept: tests of a mesh operation's invariants (e.g. spherize a cube, compare its volume with a sphere's within a tolerance); mesh tests on simple meshes that show the error cases, not real scans. Undecided: golden hashes (agents reach for them and then get stuck on \"not bit identical\"; either drop them or add an automation endpoint that gives the agent master's golden for its ticket before it changes code). Suspect: benchmarks on real meshes, especially ones guarding a performance problem that has since been fixed.\n\nWhat the user does not want: tests that duplicate the code under test; tests that reach into a class's internal state when the test is the only caller of that state besides the class itself; tests of geometry functions with no associated DSL file they reference.",
+    "blocked-by": [],
+    "blocks": [
+        "TOOL-57"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. A written list of per-test review criteria, approved by the user before anything else in this ticket proceeds.\n2. A test-review skill (SKILL.md) that briefs a subagent to apply those criteria to one test class and return a keep / rewrite / delete verdict per test with reasons and measured time.\n3. A list of static-check ideas for test robustness (each with what it detects, how it could be implemented, e.g. as an autofix checkstyle module or an ixd diagnostic, and an example from the current suite).\n4. A per-suite timing table of the current suite from one full mvn test run, so phase 2 can be prioritised.",
+    "testing-plan": "1. Run the skill's brief by hand on three test classes of different kinds (SilhouetteHullNodeTest, GoldenFingerprintTest, one small unit test) and check the verdicts are concrete and cite the criteria.\n2. Run the full mvn test once and record per-suite times from surefire-reports.",
+    "todos": [],
+    "unknowns": [
+        "Golden fingerprints: drop them, or keep them behind an automation endpoint that hands an agent master's golden for its ticket before it changes code?",
+        "Should benchmark/ move out of the test source root so it stops compiling with every build (overlaps TOOL-14)?"
+    ],
+    "changes-made": [
+        "Baseline at master in the tool-56 worktree: compile + test-compile 28s, mvn test 71s wall (64.6s summed suite time, 820 tests). SilhouetteHullNodeTest 29.1s, GoldenFingerprintTest 4.1s, CreaseRingTest 2.9s, TradeGameTest 2.8s, SurfaceRidgesTest 2.7s. One error: PatchColoursTest.scalarShaderHoldsTheRampPalette reads src/main/resources/glsl/mesh_scalar.fs by relative path (NoSuchFileException). Draft criteria at tmp/TOOL-56-test-review-criteria.md in the worktree.",
+        "Ran the test-review skill: Opus coordinator, 21 Sonnet reviewer batches, all reports checked for coverage (two sent back for the criterion-9 rule). Verdicts: KEEP 351 (2.4 s), REWRITE 364 (43.3 s), SHRINK 37 (11.3 s), MOVE 4, MERGE 37, DELETE 10; benchmarks DELETE 19, MOVE 6, MERGE 5, REWRITE 3, SHRINK 1. Projected suite about 7-8 s from 64 s. Merged report tmp/test-review-report.md, static-check ideas tmp/test-review-static-checks.md, per-batch reports tmp/test-review/."
+    ],
+    "related-files": [
+        "ixdar-app/test",
+        "ixdar-app/test/unit/automation/GoldenFingerprintTest.java",
+        "ixdar-app/test/unit/mesh/SilhouetteHullNodeTest.java",
+        "pom.xml"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-95",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Segment crawfish IMG_4113 into named body parts with the mesh-segment skill",
+    "user-messages": [
+        "ok start an agent on each of the unsegmented crawfish in a new ticket/worktree each on the mac, ensure there is enough resources before beggining and use the new skil you made"
+    ],
+    "description": "A segmenter agent (sonnet) follows ai-workspace/.claude/skills/mesh-segment/SKILL.md on IMG_4113 in this ticket's worktree, saving only ixdar-app/src/main/resources/dsl/crawfish/IMG_4113.dsl: rings, bisectors and add_label part names, all written by the ring scene's save, drawn in crease mode. A separate judge agent (opus) checks it against the reference and returns finished or continue in tmp/judge-<round>.md; at most 3 rounds, then the user reviews.\n\nScenes run on the Mac Studio scene host (tmp/scene-host.json in the worktree); never run a scene locally.\n\nReference: IMG_4111 (dsl/crawfish/IMG_4111.dsl) is the quality bar and sets the naming pattern (user-approved part names). IMG_4109 (dsl/fixtures/crawfish_rings.dsl) and IMG_4110 are further examples of ring placement, without names. IMG_4112 is segmented on master but three of its names do not resolve on current code; do not use it as a reference. Scans differ: a different number of tail bands, legs fused to the body, a claw as a separate mesh piece. Match IMG_4111's quality and naming pattern, not its exact list, and list the parts the scan does not show with why.\n\nUser ruling 2026-10-25 (CRAW-77): limbs are separated from the body where they join it, not partway along the limb; folded legs are cut along their edge on the body. The user's red tracing on IMG_4112: ixdar-tickets/references/CRAW-77/IMG_4112-limbs-user-traced-red.webp (beside the agent's mid-limb attempt, IMG_4112-limbs-agent-rings.webp).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. Every item of the mesh-segment skill's segmenter definition of done holds, ticked in tmp/segmenter-report.md.\n2. IMG_4113.dsl holds rings and part names for every body part IMG_4111 separates that the scan shows, saved by the scene and reloading with every name on its region.\n3. The judge's last verdict is finished, or the round limit is reached with the open problems listed.\n4. tmp/parts.md, tmp/segmenter-report.md and every tmp/judge-<round>.md are kept, with screenshots of the whole body and each part group, and a launch entry opening the DSL in the ring scene.\n5. CLI gaps and skill problems found are listed for the skill's revision.",
+    "testing-plan": "1. model --path reopens the saved DSL with every ring and part name, no ring problem, and no region claimed by two labels.\n2. The user reviews the result in the ring scene.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/crawfish/IMG_4113.dsl"
+    ],
+    "priority": 2
+}

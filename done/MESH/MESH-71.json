@@ -1,0 +1,42 @@
+{
+    "id": "MESH-71",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes",
+        "ui"
+    ],
+    "title": "Stroke-sculpt tool in the mesh viewer with undo/redo history (EditHistory), save to DSL + pass SVGs",
+    "user-messages": [
+        "yes"
+    ],
+    "description": "Stroke sculpting today is a DSL node plus the stroke-lift route: no Tool, no undo history. Undo means editing or deleting a pass's SVG and re-running. Make it a Tool in the mesh viewer, like the ring and region tools, so a person (or an agent through ixdar-cli control/key) sculpts interactively with undo/redo.\n\n- StrokeSculptTool extends Tool. Its state is the pass list (each pass's SVG text plus its node options: strength, symmetry). Each applied stroke or pass is pushed onto an EditHistory<state>, so undo/redo restore the pass list and the mesh re-evaluates from the sphere through the stroke_sculpt node chain (MESH-70).\n- Controls are rows the CLI lists (`ixdar-cli tools`): draw a stroke on the current view (silhouette / ridge / valley / fill, with width and strength), commit pass, undo, redo, toggle symmetry. The undo/redo names show in ui-state like the ring tool's.\n- Save writes the DSL and the pass SVGs, the way the ring scene's save writes spline_ring statements. Loading a stroke-sculpt DSL restores the pass list as the tool's state.\n- Drawing in the live viewer records the camera with the stroke, as multiview does for SVGs, so a saved pass replays through the same camera.",
+    "blocked-by": [
+        "MESH-70"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The mesh viewer has a stroke-sculpt tool listed by `ixdar-cli tools`, with controls to draw each stroke kind, commit a pass, undo, redo and toggle symmetry.\n2. Undo and redo step through applied strokes and passes via EditHistory; ui-state reports the next undo/redo names; after undo the mesh equals the DSL evaluated without that pass.\n3. Save writes the DSL and pass SVGs; reopening restores the tool's pass list and gives the same mesh.\n4. No new class in the change has a single user.\n5. A launch.json entry and screenshots under tmp/ show a stroke drawn, undone and redone.",
+    "testing-plan": "1. Draw two strokes through `ixdar-cli control`/`key`, undo one, check the mesh and ui-state; redo, check again.\n2. Commit two passes, save, reopen with `model --path`, compare mesh fingerprints.\n3. Toggle symmetry, draw one stroke, check the mirror distance.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "StrokeSculptTool (ixdar/tools/sculpt): the mesh viewer's ctrl+K tool; drag draws a stroke (ctrl+drag orbits, shift+drag pans), 1-4 pick silhouette/ridge/valley/fill, -/= strength, ,/. width, Enter commits the pass, X toggles x symmetry, ctrl+Z undo, ctrl+shift+Z and ctrl+Y redo through EditHistory<List<SculptPass>>, ctrl+S writes the .dsl and pass SVGs; the passes are re-read when a model loads",
+        "SculptPass: one stroke_sculpt pass (id, upstream, svg path and text, symmetry, open), the tool's Item in ui-state and the unit its undo snapshots share; withStroke adds a live stroke, statement() writes its DSL line",
+        "StrokeSketch: parse(text) split from read(path); a data-views entry may carry a full camera (azimuth elevation distance roll fov centre) that lift uses per cell; addStroke records a live view as a new cell; toSvg serialises the sketch",
+        "StrokeSculptNode: the svg port also takes the SVG text itself (a value starting with <), which the tool sets for unsaved passes so they evaluate as their saved files will; NODE_ID constant",
+        "MeshNodeViewerScene: hosts the tool; showGraph(source, overrides) runs a tool-built graph without reframing the camera; executeViewerGraph takes extra overrides",
+        "StrokeSculptTest.liveStrokesLiftThroughTheViewsTheyWereDrawnOn: two live strokes (rolled, other fov and distance) round-trip toSvg/parse and lift onto their pixel rays",
+        "Verified on a copy of stroke_sculpt_head.dsl: ridge then valley stroke, ctrl+Z returns the one-stroke fingerprint (nextUndo 'ridge stroke on pass4', nextRedo 'valley stroke on pass4'), redo returns the two-stroke one, undoing both returns the DSL without pass4; two committed passes saved and reopened with model --path at the same fingerprint (accc3edd) and the same 5 passes; mirror Hausdorff 0.2005 with symmetry off vs 2.5e-7 on; screenshots tmp/mesh71-1..7-*.png; teavm-build OK"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/EditHistory.java",
+        "ixdar-app/src/main/java/ixdar/tools/Tool.java",
+        "ixdar-app/src/main/java/ixdar/tools/ring/RingTool.java"
+    ],
+    "priority": 3,
+    "review-summary": "The mesh viewer gains a stroke-sculpt tool (ctrl+K) that draws strokes on the live view into chained stroke_sculpt passes, with undo and redo through EditHistory and a save to the .dsl plus one SVG per pass. Sculpting no longer means hand-editing pass SVGs and re-running the graph.\n",
+    "verify-tests": [
+        "StrokeSculptTest"
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-101",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Relabel IMG_4111 after the ring cleanup: every real region named, every name on a region",
+    "user-messages": [
+        "[recalled] ok partially fixed it, relabel 4111 anything unlabeled and then continue"
+    ],
+    "description": "The user removed the rings in IMG_4111.dsl that cut slivers on current code (repair_mesh changed under CRAW-93, so the old rings leaked into 150 slivers and 7 names covered no region). This ticket starts from the user's edited file and relabels: every unlabelled region that is a real part gets a name in IMG_4111's own pattern, every label resolves to the region it means, and no region is claimed by two labels. Labels only; rings stay as the user left them. IMG_4111 is the reference for the six segmentation tickets CRAW-95 to CRAW-100, whose round 2 waits on this.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. IMG_4111.dsl reloads with every ring, no ring problem, no unlabelled real region, and every add_label resolving to its region.\n2. No region is claimed by two labels.\n3. Rings unchanged from the user's edit; only add_label statements change.\n4. A launch entry opens the file in the ring scene and tmp/ holds whole-body screenshots with part names.",
+    "testing-plan": "1. model --path reloads the file; the region and label counts are checked from tools and ui-state.\n2. The user reviews the names in the ring scene.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "IMG_4111.dsl relabelled from the user's ring cleanup: 84 names, all resolving (was 75 of 82); 98 regions, 8 unnamed slivers under 100 faces left as wall problems. Fan names (telson, uropods) moved back onto the five fan pieces; tail segment 6/5 dorsal and sides, segment 1/2 dorsal and side_right, carapace_right, thorax_underside_middle/front_right, walking_leg_right_2_segment_2, claw_left_palm/fingers placed by position and mirror; four ring-enclosed islands joined to the part around them. Rings unchanged (only the label block moved to the end by the save). Screenshots tmp/IMG_4111-relabelled-{whole,tail}.png; launch entry CRAW-101: ring-tool."
+    ],
+    "related-files": [],
+    "priority": 1
+}

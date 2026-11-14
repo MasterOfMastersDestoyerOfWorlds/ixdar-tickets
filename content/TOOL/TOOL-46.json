@@ -14,7 +14,9 @@
     "testing-plan": "1. ixd setup on the Mac, then a new login shell: which ixd.\n2. Touch an old autofix artifact; ixd setup reinstalls it.",
     "todos": [],
     "unknowns": [],
-    "changes-made": [],
+    "changes-made": [
+        "Done headless on the Mac Studio (2026-10-25), uncommitted in acw28@andrews-mac-studio:~/Code/ai-workspace/.claude/worktrees/tool-46 (patch copy: ~/agent-runs/tool-46.patch there). ixd/machine.py: ensure_local_bin_on_path() writes '. \"$HOME/.local/bin/env\"' to ~/.zshenv idempotently; install_autofix() reinstalls when the ~/.m2 autofix-tool jar is older than the autofix checkout's HEAD commit (and checks mvn on PATH first); clone_repositories() fetches each present repo and reports 'present but fetch failed' (autofix and obsidian have https remotes that fail over ssh). Verified: two ixd setup runs on the Mac gave identical output; black run; ixd docs unchanged. Found: mvn is not on PATH in non-interactive ssh shells either (Homebrew's /opt/homebrew/bin is set only in the interactive profile). Brought to the review machine once TOOL-47 lands."
+    ],
     "related-files": [
         "ixd/machine.py",
         "ixd/commands/setup/setup.py"

@@ -1,0 +1,29 @@
+{
+    "id": "CRAW-109",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Connection tool: find the leak round a ring that separates nothing (L), and cut across it at its narrowest strait (Enter)",
+    "user-messages": [
+        "> The grow tool and the connection tool\u2019s additions\n\nsplit into two tickets"
+    ],
+    "description": "Two additions to the ring scene's connection tool: the L key finds the way round a ring that separates nothing (a leak), and Enter cuts a bisector across that path at its narrowest strait. Split out of the stroke-segmentation worktree (CRAW-105), where they were built without a ticket.\n\n## What exists\n\nAdditions to `ConnectionTool` (the leak finder and the cut), and `BisectorTool.draftAcross` with `nearestWall` (the cut across a path's narrowest strait).\n\n## What the review found\n\nFrom ai-workspace `reports/craw-105-uncommitted-review-2026-11-12.md` (part 5):\n\n- Hand-picked numbers with no ticket listing them: `STRAITS_TRIED = 12`, and the \"middle half\" window of the path that `draftAcross` searches.\n- No tests.\n- A field named `centroids` that does not hold centroids.\n- The tool switches before it knows the cut succeeded.\n- One wall search per path point.\n- A new log line.\n\n`BisectorTool.draftAlong` (a bisector along a drawn or grown line) is in the same file; which ticket it belongs to is an open question.",
+    "blocked-by": [
+        "CRAW-105"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Every number the leak finder and the cut use is listed on this ticket for the user to decide. 2. Unit tests cover finding a leak and cutting across it on a shape with a known strait. 3. The tool switches only after the cut succeeds. 4. A launch.json entry and a screenshot under tmp/ show a leak closed on a scan.",
+    "testing-plan": "1. Unit test: on a shape where one ring separates nothing because of a single strait, L finds the path through that strait. 2. Unit test: Enter cuts a bisector across the strait and the ring then separates two regions. 3. Run both on the IMG_4113 crawfish abdomen, where touching side flaps make a ring separate nothing, and screenshot the result.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/connection/ConnectionTool.java",
+        "ixdar-app/src/main/java/ixdar/tools/ring/BisectorTool.java"
+    ],
+    "priority": 3
+}

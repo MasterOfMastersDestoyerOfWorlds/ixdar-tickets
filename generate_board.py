@@ -11,7 +11,7 @@ Usage:
     tix priorities --epic PATCH      # list tickets by priority
     tix next-id EPIC                 # print next ticket ID for epic
     tix show TICKET_ID               # print a ticket, from content/ or done/
-    tix create ...                   # new ticket JSON + board
+    tix create ... --user-message @FILE   # new ticket JSON + board, with the user's words
     tix create --from-json FILE      # new ticket from a JSON file
     tix mark done TICKET_ID          # mark a ticket DONE and regenerate BOARD.md
     tix update TICKET_ID --status IN_PROGRESS --append-description "..."
@@ -29,6 +29,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 
@@ -491,6 +492,7 @@ CREATE_LIST_FIELDS = {
     "related_files": ("related-files", "related_files"),
     "blocked_by": ("blocked-by", "blocked_by"),
     "blocks": ("blocks",),
+    "user_messages": ("user-messages", "user_messages", "user-message"),
 }
 
 REQUIRED_CREATE_FIELDS = (
@@ -501,7 +503,140 @@ REQUIRED_CREATE_FIELDS = (
     ("subsystem", "--subsystem"),
     ("definition_of_done", "--definition-of-done"),
     ("testing_plan", "--testing-plan"),
+    ("user_messages", "--user-message"),
 )
+
+# Claude Code session transcripts, searched to prove a --user-message is the user's own words.
+TRANSCRIPTS_ENV = "TIX_TRANSCRIPTS_DIR"
+TRANSCRIPT_MAX_AGE_DAYS = 30
+# The desktop app's reply marker: the passage the user highlighted follows as ">" lines.
+REPLY_MARKER = re.compile(r"<!--\s*reply(?:\s+\d+)?\s*-->")
+# Marks a user-messages entry the agent recalled rather than one the transcript check found.
+RECALLED_PREFIX = "[recalled] "
+# Harness text that arrives as a "user" entry but was not typed by the user.
+NOT_TYPED_PREFIXES = (
+    "Another Claude session sent a message",
+    "<system-reminder",
+    "<task-notification",
+    "<command-",
+    "<local-command",
+    "This session is being continued",
+    "[Request interrupted",
+)
+
+
+def _transcripts_dir() -> Path:
+    """Return the directory of Claude Code transcripts searched for user messages."""
+    return Path(os.environ.get(TRANSCRIPTS_ENV) or Path.home() / ".claude" / "projects").expanduser()
+
+
+def _squashed(text: str) -> str:
+    """Collapse every whitespace run to one space, so line wrapping never breaks a match."""
+    return " ".join(text.split())
+
+
+def _typed_text(entry: dict) -> str | None:
+    """Return the text the user typed in one transcript entry, or None for any other entry.
+
+    Tool results, subagent prompts, meta entries and harness notices are "user" entries too;
+    none of them counts.
+    """
+    if entry.get("type") != "user" or entry.get("isMeta") or entry.get("isSidechain"):
+        return None
+    if "toolUseResult" in entry or (entry.get("origin") or {}).get("kind", "human") != "human":
+        return None
+    content = (entry.get("message") or {}).get("content")
+    if isinstance(content, list):
+        if any(isinstance(part, dict) and part.get("type") == "tool_result" for part in content):
+            return None
+        content = "\n".join(
+            part.get("text", "") for part in content if isinstance(part, dict) and part.get("type") == "text"
+        )
+    if not isinstance(content, str) or content.lstrip().startswith(NOT_TYPED_PREFIXES):
+        return None
+    return content
+
+
+def typed_message_containing(message: str) -> str | None:
+    """The whole message the user typed, in a recent Claude session, that contains these words.
+
+    :param message: the quoted words; whitespace differences are ignored, nothing else is.
+    :return: the typed message, the words themselves when there is no transcripts directory on
+        this machine to check against, or None when no transcript shows the user typing them.
+    """
+    root = _transcripts_dir()
+    if not root.is_dir():
+        return message
+    wanted = _squashed(message)
+    probe = json.dumps(max(wanted.split(), key=len, default=""), ensure_ascii=False)[1:-1]
+    cutoff = time.time() - TRANSCRIPT_MAX_AGE_DAYS * 86400
+    for path in root.glob("*/*.jsonl"):
+        if path.stat().st_mtime < cutoff:
+            continue
+        with path.open(encoding="utf-8", errors="replace") as lines:
+            for line in lines:
+                if probe not in line:
+                    continue
+                try:
+                    typed = _typed_text(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+                if typed is not None and wanted in _squashed(typed):
+                    return typed
+    return None
+
+
+def with_reply_quote(words: str, typed: str) -> str:
+    """The words, preceded by the passage they reply to when the user wrote them under a quote.
+
+    A reply in the desktop app arrives as a ``<!-- reply N -->`` marker, the highlighted passage
+    as ``>`` lines, then the user's own words, so words alone lose what they answered ("log a
+    ticket" for what?).
+
+    :param words: the user's words as quoted for the ticket.
+    :param typed: the whole typed message they come from.
+    :return: the ``>`` quote, a blank line and the words; the words alone when they sit under no
+        quote or already include it.
+    """
+    if words.lstrip().startswith(">"):
+        return words
+    wanted = _squashed(words)
+    for section in REPLY_MARKER.split(typed)[1:]:
+        lines = section.strip("\n").splitlines()
+        quote = [line for line in lines if line.startswith(">")]
+        reply = "\n".join(line for line in lines[len(quote) :])
+        if quote and wanted in _squashed(reply):
+            return "\n".join(quote) + "\n\n" + words
+    return words
+
+
+def _verified_user_messages(messages: list[str], recalled: list[str] | None = None) -> list[str]:
+    """Return the non-blank messages, refusing any that no transcript shows the user typing.
+
+    :param messages: quoted user messages, each verbatim or a verbatim excerpt.
+    :param recalled: what the agent recalls the user saying, for words the transcript check cannot
+        find (a message sent mid-turn); stored unchecked behind RECALLED_PREFIX.
+    :return: the messages, stripped and each preceded by the passage it replies to, then the
+        recalled ones marked.
+    """
+    marked = [RECALLED_PREFIX + message.strip() for message in recalled or [] if message and message.strip()]
+    kept = []
+    unverified = []
+    for message in (message.strip() for message in messages if message and message.strip()):
+        typed = typed_message_containing(message)
+        if typed is None:
+            unverified.append(message)
+        else:
+            kept.append(with_reply_quote(message, typed))
+    if unverified:
+        shown = "; ".join(truncate(message, 80) for message in unverified)
+        raise ValueError(
+            f"no Claude session in the last {TRANSCRIPT_MAX_AGE_DAYS} days shows the user typing: {shown}. "
+            "--user-message takes the user's own words, copied verbatim (an excerpt is fine), never a "
+            "paraphrase or a summary. When the words are right but the check cannot find them (a "
+            "message sent mid-turn), pass them as --recalled-user-message instead."
+        )
+    return kept + marked
 
 
 def create_fields_from_json(path: Path | str) -> dict:
@@ -543,17 +678,27 @@ def create_ticket(
     definition_of_done: str,
     testing_plan: str,
     todos: list[str],
+    user_messages: list[str],
     blocked_by: list[str] | None = None,
     blocks: list[str] | None = None,
     unknowns: list[str] | None = None,
     related_files: list[str] | None = None,
+    recalled_user_messages: list[str] | None = None,
 ) -> Path:
     """Write a new ticket JSON under content/<EPIC>/ and regenerate BOARD.md.
 
     External epics (e.g. SUGGEST — agent harness output) are written under
     suggestions/<EPIC>/ instead and excluded from BOARD.md totals.
     Dependency links are written reciprocally onto the referenced tickets.
+
+    :param user_messages: the user's messages that asked for this ticket, verbatim; each must
+        appear in a recent Claude transcript as something the user typed.
+    :param recalled_user_messages: what the agent recalls the user asking, stored unchecked and
+        marked as recalled.
     """
+    user_messages = _verified_user_messages(user_messages, recalled_user_messages)
+    if not user_messages:
+        raise ValueError("create needs at least one --user-message: the user's words that asked for this ticket.")
     ticket_id = _next_ticket_id(epic)
     prefix = extract_prefix(ticket_id)
     epic_root = SUGGESTIONS_DIR if prefix in EXTERNAL_EPICS else TICKETS_DIR
@@ -569,6 +714,7 @@ def create_ticket(
         "repo": repo,
         "subsystem": list(subsystem),
         "title": title,
+        "user-messages": user_messages,
         "description": description,
         "blocked-by": _normalized_ids(blocked_by),
         "blocks": _normalized_ids(blocks),
@@ -973,6 +1119,7 @@ def update_ticket(
     add_unknowns: list[str] | None = None,
     add_changes: list[str] | None = None,
     add_todos: list[str] | None = None,
+    add_user_messages: list[str] | None = None,
     add_related_files: list[str] | None = None,
     remove_related_files: list[str] | None = None,
     add_verify_tests: list[str] | None = None,
@@ -982,6 +1129,8 @@ def update_ticket(
     status: str | None = None,
     priority: int | None = None,
     force: bool = False,
+    add_recalled_user_messages: list[str] | None = None,
+    requote_user_messages: bool = False,
 ) -> Path:
     """Patch an existing ticket JSON and regenerate BOARD.md.
 
@@ -990,6 +1139,12 @@ def update_ticket(
     :param description: replaces the description entirely; append_description then adds to it.
     :param review_summary: replaces review-summary, the plain-words paragraph `ixd review` shows
         first (the problem before, what is true after, why it matters); blank removes it.
+    :param add_user_messages: the user's messages that shaped the ticket, verbatim, appended to
+        user-messages; each must appear in a recent Claude transcript as something the user typed.
+    :param add_recalled_user_messages: what the agent recalls the user saying, appended unchecked
+        and marked as recalled.
+    :param requote_user_messages: put back, above each stored user message, the passage it
+        replied to, looked up in the transcripts; for tickets written before quotes were kept.
     :param remove_related_files: exact related-files paths to drop; removals run before additions.
     :param add_verify_tests: Maven ``-Dtest`` selectors appended to verify-tests, the tests
         `ixd wt done` runs to verify the ticket in place of a screenshot.
@@ -1040,6 +1195,15 @@ def update_ticket(
         else:
             data.pop("review-summary", None)
 
+    if requote_user_messages:
+        requoted = []
+        for message in data.get("user-messages", []):
+            typed = None if message.startswith(RECALLED_PREFIX) else typed_message_containing(message)
+            requoted.append(message if typed is None else with_reply_quote(message, typed))
+        data["user-messages"] = requoted
+    _extend_list_field(
+        data, "user-messages", _verified_user_messages(add_user_messages or [], add_recalled_user_messages)
+    )
     _extend_list_field(data, "unknowns", add_unknowns or [])
     _extend_list_field(data, "changes-made", add_changes or [])
     for key, added, removed in (
@@ -1448,6 +1612,25 @@ def _build_parser() -> argparse.ArgumentParser:
         type=text_option,
         help="Todo line.",
     )
+    create_parser.add_argument(
+        "--user-message",
+        action="append",
+        default=[],
+        dest="user_messages",
+        type=text_option,
+        help="Required: the user's message that asked for this ticket, copied verbatim (an excerpt is "
+             "fine, a paraphrase is refused); checked against recent Claude transcripts.",
+    )
+    create_parser.add_argument(
+        "--recalled-user-message",
+        action="append",
+        default=[],
+        dest="recalled_user_messages",
+        type=text_option,
+        help="Instead of --user-message when the check cannot find words the user did type (a "
+             "message sent mid-turn): what you recall them saying, stored unchecked and marked "
+             f"{RECALLED_PREFIX.strip()}.",
+    )
 
     update_parser = sub.add_parser(
         "update",
@@ -1558,6 +1741,31 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Append one todos[] line.",
     )
     update_parser.add_argument(
+        "--add-user-message",
+        action="append",
+        default=[],
+        dest="add_user_messages",
+        type=text_option,
+        help="Append one user-messages[] entry: the user's own words that shaped the ticket, copied "
+             "verbatim; checked against recent Claude transcripts.",
+    )
+    update_parser.add_argument(
+        "--add-recalled-user-message",
+        action="append",
+        default=[],
+        dest="add_recalled_user_messages",
+        type=text_option,
+        help="Instead of --add-user-message when the check cannot find words the user did type (a "
+             "message sent mid-turn): what you recall them saying, appended unchecked and marked "
+             f"{RECALLED_PREFIX.strip()}.",
+    )
+    update_parser.add_argument(
+        "--requote-user-messages",
+        action="store_true",
+        help="Put back, above each stored user message, the passage the user was replying to, "
+             "looked up in recent Claude transcripts (for tickets written before quotes were kept).",
+    )
+    update_parser.add_argument(
         "--add-related-file",
         action="append",
         default=[],
@@ -1648,19 +1856,25 @@ def _create_fields_from_args(args: argparse.Namespace) -> dict:
         value = getattr(args, name)
         if value is not None:
             fields[name] = value
-    for name in ("subsystem", "todos", "unknowns", "related_files", "blocked_by", "blocks"):
+    for name in ("subsystem", "todos", "unknowns", "related_files", "blocked_by", "blocks", "user_messages"):
         values = list(getattr(args, name) or [])
         if values:
             fields[name] = list(fields.get(name, [])) + values
     if args.priority is not None:
         fields["priority"] = args.priority
+    if args.recalled_user_messages:
+        fields["recalled_user_messages"] = list(args.recalled_user_messages)
 
-    missing = [flag for name, flag in REQUIRED_CREATE_FIELDS if not fields.get(name)]
+    missing = [
+        flag
+        for name, flag in REQUIRED_CREATE_FIELDS
+        if not fields.get(name) and not (name == "user_messages" and fields.get("recalled_user_messages"))
+    ]
     if missing:
         raise ValueError("create is missing required field(s): " + ", ".join(missing))
 
     fields.setdefault("priority", 3)
-    for name in ("todos", "unknowns", "related_files", "blocked_by", "blocks"):
+    for name in ("todos", "unknowns", "related_files", "blocked_by", "blocks", "user_messages"):
         fields.setdefault(name, [])
     return fields
 
@@ -1721,6 +1935,9 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             add_unknowns=list(args.add_unknowns or []),
             add_changes=list(args.add_changes or []),
             add_todos=list(args.add_todos or []),
+            add_user_messages=list(args.add_user_messages or []),
+            add_recalled_user_messages=list(args.add_recalled_user_messages or []),
+            requote_user_messages=args.requote_user_messages,
             add_related_files=list(args.add_related_files or []),
             remove_related_files=list(args.remove_related_files or []),
             add_verify_tests=list(args.add_verify_tests or []),

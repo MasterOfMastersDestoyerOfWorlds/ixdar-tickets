@@ -1,0 +1,37 @@
+{
+    "id": "MESH-69",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "rendering"
+    ],
+    "title": "Multiview capture shading modes (clay / curvature) so agents can read shallow sculpt features",
+    "user-messages": [
+        "create a ticket for this",
+        "helper class? why helper class for an endpoint? that is stupid one class"
+    ],
+    "description": "/ui/multiview grids come out dark navy on dark grey with very low contrast (see MESH-68's tmp/mesh68/round3.png in its worktree). A vision agent judging shape from them can barely see shallow ridges, valleys and creases. mesh.fs shades with a single Lambert term, max(dot(n, -lightDir), 0.2), times a dark solidColor, so most of the sphere sits in a narrow band of dark values.\n\nAdd a shading option for capture, e.g. `shading` on /ui/multiview with these values:\n- `default`: today's look.\n- `clay`: light grey albedo, key light plus fill, light background.\n- `matcap`: a fixed studio matcap, the same in every view.\n- `curvature` (or `cavity`): shading that darkens concave and brightens convex areas, so shallow sculpt features read.\n- An optional per-view light that follows the camera (a headlight), so no view is lit from behind.\n\nThe viewer's normal look stays unchanged; only the capture switches shading and then restores it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. /ui/multiview (and ixdar-cli multiview) accept a shading parameter with at least default, clay and curvature.\n2. The scene's shading and background are restored after capture.\n3. Before/after multiview PNGs of the MESH-68 sculpted sphere (stroke_sculpt_sphere.dsl, or a plain sphere with a shallow bump if MESH-68 has not landed) are saved under tmp/. In clay and curvature, the nose crease and eye sockets read clearly in every view.\n4. A measurement in tmp/<ticket>-measurements.json: the luminance standard deviation inside the mesh silhouette, default vs clay vs curvature.\n\n5. The mesh viewer has a key or button that cycles default/clay/curvature and one that toggles the headlight. The current look shows in the scene's status line, and clay/curvature use the light palette.\n6. POST /ui/shading (ixdar-cli shading) sets the viewer's look and leaves it on.\n7. No CaptureShading helper class: the look lives on the scene (one setter that also swaps the palette), /ui/shading calls it, and /ui/multiview saves, sets and restores it inline.\n",
+    "testing-plan": "1. Load a sculpted sphere and capture multiview with shading=default, clay and curvature; compare the three PNGs.\n2. Take a normal screenshot after each capture and check the viewer's look is unchanged.\n3. Compute the luminance standard deviation inside the silhouette for each mode and record it in the measurements file.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "mesh.fs/mesh.vs: shadingStyle uniform (default/clay/curvature); curvature is screen-space mean curvature from view-space normal and position derivatives, scaled by mesh radius; clay/curvature lights follow the camera (key upper-left, or headlight)",
+        "SurfaceShading enum + HalfEdgeMeshRuntime.surfaceShading/headlight fields; AssimpModelRuntime resets the shared program to default",
+        "CaptureShading: parses shading/headlight, swaps runtime look and PAPER palette (light background) for the capture, restores in a finally; MultiviewScreenshot takes shading + headlight (ixdar-cli multiview --shading --headlight)",
+        "dsl/shallow_sculpt_sphere.dsl: sphere with a shallow nose ridge, eye sockets and equatorial crease for before/after captures",
+        "Superseded: CaptureShading deleted. The look lives on MeshNodeViewerScene (surfaceShading, headlight, setSurfaceLook swaps to PAPER for clay/curvature and back to the scene's palette for default; renderScene pushes it onto whatever runtime is installed, so it survives model reloads)",
+        "Keys in the mesh viewer: M cycles default -> clay -> curvature, H toggles the headlight; the STATE log line shows look=<MODE>[+headlight]",
+        "New POST /ui/shading (ixdar-cli shading [mode] [--headlight]) sets the look and leaves it on, or reports it with no args; /ui/multiview saves the scene's look, sets the requested one and restores it in finally, params documented in its own describe(); SurfaceShading.named parses the mode"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/MultiviewScreenshot.java",
+        "ixdar-app/src/main/resources/glsl/mesh.fs"
+    ],
+    "priority": 3,
+    "review-summary": "The mesh viewer gains clay and curvature surface looks with an optional headlight, toggled by keys, the /ui/shading route, or per multiview capture. Default captures are dark navy on dark grey, so a vision agent cannot see shallow ridges, creases and sockets.\n"
+}

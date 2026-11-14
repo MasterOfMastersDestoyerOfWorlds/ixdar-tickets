@@ -1,0 +1,28 @@
+{
+    "id": "CRAW-110",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Rings that cannot cross themselves by construction, wherever the user clicks",
+    "user-messages": [
+        "> Is accepting a click that makes a ring cross itself intended?\n\nno, need ticket to make the rings not able to cross themselves by contruction (I don't mean that we refuse, that we look at the papers on the matter and figure out how to make them not crossthemselves regardless of where the user clicks)"
+    ],
+    "description": "A ring drawn in the ring tool must not cross itself wherever the user clicks. Not by refusing the click: by how the ring is built from its anchors, so that a self-crossing ring cannot come out.\n\n## Where things stand\n\n- CRAW-44 (done) kept the user's anchor order, inserted a new anchor where it adds least surface length, and refused a click that made the ring cross itself.\n- The stroke-segmentation work (CRAW-105) changed that: a click that makes the ring cross itself is now accepted, and `RingAnchorOrderTest` was rewritten so only the final ring must be simple. The user accepts this until this ticket is done.\n- CRAW-105 also has an open todo about a spline crossing itself at a sharp anchor off the crease.\n\n## What is asked\n\nRead the literature on closed curves through given points on a surface that are simple by construction, and choose a construction for the ring tool. Then build it. A threshold or a refusal is not an answer.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A design section on this ticket names the papers read and the construction chosen, with every number it uses listed for the user to decide. 2. No sequence of clicks in the ring tool produces a ring that crosses itself, and no click is refused to achieve that. 3. Unit tests click anchors in orders that cross today and check the ring is simple after every click.",
+    "testing-plan": "1. Unit test: anchors clicked in an order that makes today's ring cross itself give a simple ring after every click, in geodesic and in crease mode. 2. Unit test: a sharp anchor off the crease does not make the spline cross itself. 3. Click such an order by hand in the ring scene on a crawfish scan and screenshot the ring.",
+    "todos": [],
+    "unknowns": [
+        "Which construction: the literature on simple closed curves through given points on a surface has to be read first."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/rings/AuthoredSplineRing.java",
+        "ixdar-app/test/unit/mesh/RingAnchorOrderTest.java"
+    ],
+    "priority": 3
+}

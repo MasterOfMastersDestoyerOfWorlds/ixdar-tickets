@@ -1,0 +1,43 @@
+{
+    "id": "TOOL-59",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes",
+        "ui"
+    ],
+    "title": "DSL breakpoints and a node-graph debug tool: stop before the fit, step nodes forwards and backwards, with per-node inner steps",
+    "user-messages": [
+        "I'd also like the concept of a breakpoint node in the dsl, with one breakpoint before the fit is solved",
+        "> Tool vs. scene. By \u201ca specific class of Tools,\u201d do you mean an abstract DebugTool base that any scene can host for its own DSL? Or one dedicated debugger scene that can open any DSL?\n\nI was saying that debug tool inherits from tool",
+        "> fixture, which means it waits for craw-105 to land? Or should it build the mechanism now and prove it on fixtures that already exist on master?\n\ngoing to be a while test on existing test fixtures",
+        "> 10. Splitting. I\u2019d make one epic-sized ticket in four parts:\n\none ticket actually",
+        "> Should EmbeddedTMeshScene\u2019s own N/D/B keys move onto the debug tool? You didn\u2019t answer this one. The ticket says to leave them where they are until you decide.\n\nyes start impl"
+    ],
+    "description": "A general debugger for DSL node graphs: a `breakpoint` statement in the DSL, and a debug tool (a subclass of `Tool`) that loads a DSL, runs it up to the breakpoint, then steps through the rest one node at a time, forwards and backwards, updating the displayed geometry. Nodes can define their own inner steps, the way `EmbeddedTMeshScene` steps the T-mesh contraction today (N = one operator, D = one drag of a zero-arc collapse, B = rewind to just before the recorded failure). This generalises that to every node graph.\n\n## Decided with the user\n\n- **Syntax:** a standalone statement between two others, `breakpoint` or `breakpoint(\"label\")`. It produces nothing. Normal runs (tests, ordinary scenes) treat it as a no-op.\n- **Stepped execution:** `NodeGraphRuntime` evaluates lazily (pulls). A debug run instead evaluates the top-level declared statements in written order and stops when it reaches a breakpoint.\n- **Step granularity:** one statement per step. A group call is one step that can be stepped into, like a debugger's step over vs. step into.\n- **Stepping backwards:** by replay (reload, then re-run to step N-1, as B does with `failedContractOps`), not by snapshots. Nodes such as `ArcNetwork` change their inputs in place. Cache the run up to the breakpoint so backing up does not recompute it.\n- **Inner steps:** an interface a node opts into (roughly `Steppable`: `begin(ctx)`, `step()` returning a label or null when done, `finish()`, plus a debug view drawing the in-flight state, like `ArrangementDiagnostic`). Inner steps nest: the contraction has two levels, operator then drag.\n- **Run-until conditions:** until the next breakpoint, and until a node fails or throws a diagnostic (what C then B does today). Nothing else for now.\n- **Display:** by default, the geometry or mesh output of the most recently evaluated node, plus the node's own overlay through its inner-step debug view. Highlighting the current node in `DslGraphView` comes later, not in this ticket.\n- **Tool:** the debug tool inherits from `Tool`, so a scene hosts it over its own DSL.\n- **Proving fixtures:** the existing fixtures on master. The ring anchor fit (CRAW-105) will be a while, so it is not the test bed. Each fixture gets one breakpoint before its fit/solve: for the embedded T-mesh fixtures, before the contraction (`tmesh_contract`).\n- **One ticket**, not split.\n\n- **EmbeddedTMeshScene keys:** the scene's N (one contraction operator), D (one drag) and B (rewind to before the recorded failure) move onto the debug tool; the scene keeps only its view toggles.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. The DSL parses a `breakpoint` statement (optional label). Every non-debug run (unit tests, scenes) ignores it, and existing tests pass unchanged.\n2. `NodeGraphRuntime` has a stepped mode: it evaluates top-level statements in written order, stops at a breakpoint, steps one statement, steps into and out of a group call, and steps backwards by replay from a cached run up to the breakpoint.\n3. A `Steppable` interface (name open) lets a node define nested inner steps and a debug overlay. `NetworkContraction` / `tmesh_contract` implements it with two levels: one operator, and one drag of a zero-arc collapse.\n4. A debug tool subclassing `Tool` loads a DSL and offers: continue to the breakpoint, step forward, step back, step into, inner step, run until the next breakpoint, and run until failure/diagnostic. After each step it updates the displayed geometry (the latest node's geometry output plus the node's overlay).\n5. The existing fixtures each carry one breakpoint before their fit (the embedded T-mesh fixtures: before `tmesh_contract`), and the scenes and tests that load them still behave as before.\n6. Unit tests cover parsing, no-op behaviour in normal runs, step forward/back equivalence (back then forward reaches the same outputs), step-into of a group, and the contraction's inner steps.\n7. A `.vscode/launch.json` entry opens the debug tool on a fixture. A screenshot under `tmp/` shows a stepped state with the contraction's in-flight overlay.\n\n8. EmbeddedTMeshScene's N/D/B stepping is done by the debug tool (inner steps of the contraction, run-until-failure, step back), not by scene-specific key handlers.\n\n9. Keeps EmbeddedTMeshScene's '[contract] skipped' log (the C key's existing refusal, reworded now that D is gone) and its '[step] updated patches' log (the patch ids and colour key the old N step printed, now printed when the debugger draws a contraction operator).\n\n10. Keeps [contract] skipped: a collapse is mid-drag; reset with Z: the C key's existing refusal, reworded because D no longer exists in the scene.\n",
+    "testing-plan": "1. Unit: the parser accepts `breakpoint` and `breakpoint(\"x\")`. A full run of a fixture with a breakpoint gives the same outputs as one without.\n2. Unit: stepped mode on `fan_collapse.dsl` stops at the breakpoint. Stepping forward k times then back j times gives the same node outputs as stepping forward k-j times from a fresh run.\n3. Unit: step-into on a group call evaluates its body statement by statement.\n4. Unit: the contraction's inner steps, run to the end, give the same network as `contract()`. Run-until-failure on a fixture known to fail stops at the same operator count B records today.\n5. Manual (F5): open the debug tool on a fixture, continue to the breakpoint, step through the contraction, step back, and take a screenshot.",
+    "todos": [],
+    "unknowns": [
+        "The embedded T-mesh fixtures end at the network and the scene contracts it; EmbeddedTMeshScene.loadGraph reads lastOutput(\"net\"). Adding breakpoint + tmesh_contract to a fixture must not change what that scene or its tests see.",
+        "Which non-T-mesh fixtures have a fit/solve stage to put a breakpoint before.",
+        "No cache of the run up to the breakpoint: tmesh_contract mutates its input network in place, so stepping back always replays from the start.",
+        "Debugger keys are arrows/enter, not N/D/B: tool keys shadow scene keys, and RingScene's N and U must fire from every tool (RegionControlAutomationTest)."
+    ],
+    "changes-made": [
+        "breakpoint statement (PythonParser, BreakpointNode); GraphStepper stepped runs with replay back-stepping; SteppableNode/NodeStepper with ContractionStepper (operator, drag) on tmesh_contract; GraphDebugTool on ctrl+D in every ModelScene (arrows step, enter continues, shift+enter runs until failure); EmbeddedTMeshScene N/D/B removed; before_contract breakpoint in the quad-layout group; GraphStepperTest (8 tests)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/EmbeddedTMeshScene.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/runtime/NodeGraphRuntime.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/quadlayout/NetworkContractionNode.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/NetworkContraction.java",
+        "ixdar-app/src/main/java/ixdar/tools/Tool.java",
+        "ixdar-app/src/main/resources/dsl/fixtures"
+    ],
+    "priority": 3,
+    "review-summary": "Adds a breakpoint statement to the DSL and a graph debug tool (ctrl+D) that runs a graph to it, then steps statements, groups and a node's inner steps forwards and back. It replaces the embedded T-mesh scene's own contraction stepping keys with one debugger for every node graph.\n"
+}

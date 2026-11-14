@@ -1,0 +1,46 @@
+{
+    "id": "MESH-96",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes",
+        "geometry"
+    ],
+    "title": "Primitive nodes wind inside out (icosphere, uv_sphere, cylinder, quad_cylinder) and cone() does not build",
+    "user-messages": [
+        "check",
+        "[recalled] Do this task here: \u201cFix inside-out primitives and the cone build\u201d",
+        "> quad_cylinder leaves a small hole in the middle of each cap, at 5% of the radius. Its own Javadoc says the caps close in a small quad grid. Filling it would need extra work to keep the mesh all quads.\n> sphere() produces unwelded quads: every face has its own four vertices. The existing fixtures weld it with merge_by_distance afterwards.\n\nfix in the ticket"
+    ],
+    "description": "Ixdar's convention is counter-clockwise faces seen from outside, outward normals, positive MeshTopology.signedVolume() for a closed mesh. With default DSL parameters: cube +1.00, sphere +0.49, torus +2.28 and volume_to_mesh +4.90 are outward; icosphere -2.54, uv_sphere -4.12, cylinder -3.06 and quad_cylinder -1.41 are inside out (their rings advance from +x toward +z, clockwise seen from +y, and faces are listed in ring order). cone() throws InvalidMeshTopologyException (non-manifold edge) because its apex and base faces are both added as (pole, next, i). Found in TOOL-57. The renderer does not cull, so it did not show; SurfaceCreases and GoalProjection branch on the sign of signedVolume, possibly covering for these nodes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "Full mvn test and heavy group green apart from the 10 crawfish goldens already failing on master",
+    "testing-plan": "PrimitiveWindingTest runs each primitive via inline DSL and checks signedVolume against the analytic volume; full and heavy suites",
+    "todos": [],
+    "unknowns": [
+        "quad_cylinder's caps stop at a ring of 5% of the radius and leave a small hole in each cap, though its Javadoc says they converge to a small quad grid; left as is.",
+        "sphere() (QuadSphereMeshNode) emits unwelded quads (each face its own four vertices); fixtures weld it with merge_by_distance. Left as is."
+    ],
+    "changes-made": [
+        "Face order reversed in IcosphereMeshNode, UVSphereMeshNode, CylinderMeshNode and QuadCylinderMeshNode (barrel, and the cap flip flag moved to the top cap); ConeMeshNode's side faces reversed so they agree with its base, which made cone() build.",
+        "New dsl/fixtures/primitives.dsl (every closed primitive at defaults plus a joined row for the viewer) and PrimitiveWindingTest: each primitive's signed volume equals its polyhedron's analytic volume (exact for cube, icosahedron, prisms, cone, torus; inside the sphere for the faceted spheres), welded ones closed. 8 cases, about 50 ms. Golden recorded for the fixture under master's light golden factory.",
+        "SliverCollapseTest.aRingStretchMarksTheSameEdgesAsTheRing defaulted alongPath to true when one anchor lay inside the stretch; the icosphere's new edge order flipped the loop's direction and exposed it. It now decides the direction by which end of the path the anchor before the stretch lies nearer.",
+        "SurfaceCreases and GoalProjection sign guards kept: they serve any loaded mesh (scans from files can arrive inside out), not only these primitives.",
+        "Verified: mvn test 831/831; heavy group only the 10 crawfish goldens, failing identically on master. Screenshot tmp/mesh-96.png shows all eight primitives lit from outside.",
+        "Both open questions resolved. QuadCylinderMeshNode: cap rings evenly spaced at r(1 - k/(cap_rings+1)), closed by a center vertex with a fan of quads, each spanning two ring segments (valence 4 at the default 8 segments); an odd segment count closes with one triangle; cap_rings=0 now leaves the cap open as its docs always said (the code had clamped it to 1); MIN_CAP_RADIUS_FRACTION removed.",
+        "QuadSphereMeshNode: vertices keyed by their integer point on the cube lattice, so the six faces share their seams: one closed surface (98 vertices at defaults instead of 384 loose ones), no merge_by_distance needed.",
+        "PrimitiveWindingTest now holds every primitive closed, adds a seven-sided quad_cylinder, checks all-quads where the docs promise it, and quad_cylinder's volume is the exact prism. Goldens re-recorded: primitives.dsl, and quad_cylinder_test.dsl (64 boundary edges -> 0, all quads, Euler characteristic 2). mvn test 832/832; heavy group only the 10 crawfish goldens.",
+        "TOOL-57's GraphInvariantsTest comment no longer calls quad_cylinder_test an open cylinder (edited in the tool-57 worktree); its assertions hold either way."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/primitives/IcosphereMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/primitives/UVSphereMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/primitives/CylinderMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/primitives/QuadCylinderMeshNode.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/primitives/ConeMeshNode.java"
+    ],
+    "priority": 3,
+    "review-summary": "The primitive nodes now all build one closed surface wound outward: the spheres, cylinders and cone face out, the cone builds, the quad cylinder's caps close and the quad sphere is welded. Before, half of them came out inside out, open or in loose pieces.\n"
+}

@@ -1,0 +1,26 @@
+{
+    "id": "UI-21",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Toolbar: a bar along the bottom of every model scene listing the active tool's keys",
+    "user-messages": [
+        "> Does the toolbar belong to this ticket or its own change?\n\nown change new ticket"
+    ],
+    "description": "A bar along the bottom of the window that lists the active tool's keys. Split out of the stroke-segmentation worktree (CRAW-105), where it was built without a ticket.\n\n## What exists\n\n`Scene` draws the toolbar when `showToolbar` is set, `ModelScene` sets it, and `MultiviewScreenshot` hides it in multiview cells and puts it back afterwards.\n\n## What the review found\n\nFrom ai-workspace `reports/craw-105-uncommitted-review-2026-11-12.md` (part 5): the toolbar is on in all nine model scenes, so every model scene's screenshots change, not only the ring scene's. No test covers it.\n\n## Related\n\nUI-20 (key and mouse glyphs in the toolbar instead of text) builds on this.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The toolbar shows the active tool's keys in every model scene and is hidden in multiview screenshot cells. 2. A test covers which keys it lists. 3. A launch.json entry and a screenshot under tmp/ show it.",
+    "testing-plan": "1. Unit test: the toolbar lists the active tool's control rows and changes when the tool is switched. 2. Unit test: a multiview screenshot has no toolbar in its cells and the toolbar is back afterwards. 3. Screenshot the ring scene and one other model scene with the toolbar showing.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,31 @@
+{
+    "id": "UI-18",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
+    "title": "Palette follow-up: bring back vibrant colours and stop consumers depending on cycle order",
+    "user-messages": [
+        "ok ui-17 is good for now, make a ticket to think more about this in the future and get the more vibrant colors back, and also the ticekt would fix that there still a little bit of leaking of the data model into the consumers cause they have to know about the order of the pallettes in the cycles in some instances"
+    ],
+    "description": "Follow-up to UI-17, which left one `Palette` class with 26 named fields and three instances (DARK, SLATE, PAPER) in `Palettes.java`, any of which can be worn by any scene. Two things are left to rethink.\n\n1. Vibrancy. Collapsing every scene's colours onto shared functions made the default look flatter than before UI-17:\n- the accent and logo moved from deep IXDAR to RED_PINK_LIGHT so code keywords stay readable on dark;\n- default HyperString text went from IXDAR to white;\n- the terminal lost its green prose and its command names went link-blue;\n- mesh edges went from red to blue-grey; the marked ring and highlights are pink;\n- knot colours are fixed per palette instead of a fresh random hue gradient per load;\n- the menu backdrop swirl changed.\nFind how to get the saturated, vibrant look back inside the one-class design: richer palette instances, more distinct accent/highlight/selected values, or a deliberate vivid palette, judged side by side with screenshots from master before UI-17.\n\n2. Cycle order leaks to consumers. Scenes that need several distinct colours read the `categories` cycle (and others) by position, through index constants that encode the cycle's order: `GLSLParseText.VECTOR_X..W`, `RingTool.DRAFT_GEODESIC/DRAFT_CREASE`, `MeshBooleanScene.BOOLEAN_A/B/BOTH`, `QuadLayoutOverlay.DIRECTION_U/V` and `CONSTRAINT_*`. A consumer must know which slot of a palette's cycle means what, so reordering a palette's cycle silently recolours those scenes. Replace positional reads with something that does not expose the order (named accessors, or a cycle consumers only walk without meaning attached to positions), so palettes can be edited without knowing who reads which slot.\n\nAlso seen during UI-17, worth folding in: model overlays that bake colours at upload (QuadLayoutOverlay fills and points, MeshOverlayRuntime point clouds, edge marks, RingRegionTool's runtime, the DslGraphView hotspot label) and cached ColorText/HyperString keep the old palette after a swap.",
+    "blocked-by": [
+        "UI-17"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The default palette is at least as vibrant as master before UI-17, shown by side-by-side screenshots of the menu, knot editor, code pane, DSL graph, model scenes and trade scene.\n2. No consumer reads a palette cycle by a position that carries meaning; reordering any cycle in Palettes.java changes no scene's role-to-colour mapping.\n3. Every palette in Palettes still works in every scene, and PaletteRolesTest passes.\n4. Swapping palettes recolours baked overlays and cached text without a reload.",
+    "testing-plan": "1. Screenshot every scene under every palette with tmp/palette_shots.sh and compare against pre-UI-17 master shots.\n2. A test that permutes each cycle of a palette and checks the named roles consumers use still resolve to the same colours.\n3. PaletteRolesTest and the full suite.",
+    "todos": [
+        "Trade game under the shared palette (TRADE-24 on UI-17): in PAPER the river is saturated BLUE_TEAL_DARK, the loop bar's cargo segment bright purple and roads dark grey; in SLATE the river is cream and the moor matches the grid lines; the fogged rival pipe nearly vanishes in DARK/SLATE. Screenshots: Ixdar trade-24 worktree tmp/trade24-palette-*.png"
+    ],
+    "unknowns": [
+        "Whether vibrancy comes from retuning DARK, adding a VIVID palette, or adding fields (e.g. a second accent)",
+        "Whether category colours become named fields or an unordered cycle, and how the GLSL vector components x/y/z/w keep stable colours"
+    ],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

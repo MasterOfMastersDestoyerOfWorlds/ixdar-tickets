@@ -1,0 +1,29 @@
+{
+    "id": "MESH-95",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Principal curvature from a least-squares 1-ring shape operator: the averaged estimate mixes the two curvatures, (3 k1 + k2) / 8",
+    "user-messages": [
+        "> Principal curvature fix\tPrincipalDirectionField.java, new PrincipalCurvatureTest.java\tThe shape operator was a weighted average, which mixes the two curvatures into (3\u03ba\u2081+\u03ba\u2082)/8. It\u2019s now a least-squares fit (Taubin 1995). The new test checks a unit sphere and a unit cylinder. This is a real correctness fix, but it changes curvature everywhere downstream: crease cost, and anything else that reads \u03ba. BisectorTest.aBisectorCannotCrossItself fails in this worktree, and this change may be the cause. Check that test before landing this.\n\nsplit this into its own ticket and worktree"
+    ],
+    "description": "Split out of CRAW-102 (auto crease rings, being archived), where the change was written and never landed.\n\nPrincipalDirectionField estimates each vertex's shape operator from its 1-ring. Today it averages k_e t t\u1d40 over the ring's edges (k_e the normal curvature along edge direction t, weighted by edge length). That is not the shape operator: on an even ring it returns (3 k1 + k2) / 8 along each principal direction, mixing the two curvatures, so a cylinder reads as curving along its axis and every \u03baMax / \u03baMin is biased toward the mean. The fix solves for M = [m00 m01; m01 m11] by weighted least squares so t\u1d40 M t matches k_e on every edge, however unevenly the edges spread (Taubin 1995, \"Estimating the tensor of curvature of a surface from a polyhedral approximation\"). The 3x3 normal equations go through ixdar.numeric.DenseLinearSystem.\n\nThe change is in the craw-102 worktree (recoverable from tag archive/craw-102 once archived): PrincipalDirectionField.java (SHAPE_UNKNOWNS, the normal-equation loop, the solve) and the new test/unit/mesh/PrincipalCurvatureTest.java (a unit sphere reads minus one on average; a unit cylinder minus one around and zero along its axis, convex negative). It is ported uncommitted into this ticket's worktree.\n\nEvery reader of \u03ba moves: SurfaceCreases (crease cost and crease rings), LimbAxis, CrestLineDetector, SaddlePointDetector, MorseSmaleComplex, SemanticPatchDecomposer, CurvatureConstraints (cross field salient directions, PATCH-96), PatchDecomposerCLI, GrooveRingBenchmark. In the craw-102 worktree BisectorTest.aBisectorCannotCrossItself failed; whether this change or CRAW-102's other SurfaceCreases changes caused it was never settled.\n\nRelated, not overlapping: PATCH-100 (multi-radius shape operator per BZK09) builds on this estimator; PATCH-8 and PATCH-11 read it.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. PrincipalDirectionField fits the 1-ring shape operator by weighted least squares (Taubin 1995), cited at the fit.\n2. PrincipalCurvatureTest passes: sphere and cylinder principal curvatures within the test's tolerance, and the same test fails against the old averaging.\n3. BisectorTest.aBisectorCannotCrossItself: run on master and on this worktree; if this change breaks it, the cause is found and fixed in the bisector or crease code the way the curvature is meant to be read, not by loosening the test.\n4. The full unit suite passes, in particular every test touching SurfaceCreases, LimbAxis, CrestLineDetector, SaddlePointDetector, MorseSmaleComplex, SemanticPatchDecomposer and CurvatureConstraints.\n5. A launch entry and before/after screenshots in tmp/ of one scene whose output reads \u03ba (e.g. the ring scene's crease rings on a crawfish scan, or a cross field's salient directions), so the user sees what moved.",
+    "testing-plan": "1. PrincipalCurvatureTest and BisectorTest on master and on the worktree. 2. The full unit suite. 3. Before/after captures on the Mac scene host; the user compares them.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Ported the least-squares shape operator fit and PrincipalCurvatureTest from the craw-102 worktree, uncommitted. PrincipalCurvatureTest passes. BisectorTest.aBisectorCannotCrossItself passes on clean master and fails with only this change applied, so the fix is what breaks it; not yet investigated."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/analysis/curvature/PrincipalDirectionField.java",
+        "ixdar-app/test/unit/mesh/PrincipalCurvatureTest.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/query/SurfaceCreases.java"
+    ],
+    "priority": 3
+}

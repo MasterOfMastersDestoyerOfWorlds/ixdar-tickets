@@ -1,0 +1,41 @@
+{
+    "id": "MESH-73",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Stroke sculpt refinement leaves terraced rims and patchy blocks",
+    "user-messages": [
+        "make ticket"
+    ],
+    "description": "Stroke sculpting's local refinement (StrokeSculpt, from MESH-70) leaves visible artefacts where refined faces meet the coarse surrounding mesh. The blind skull run (MESH-72, dsl/skull/skull.dsl: a resolution-64 sphere through nine stroke_sculpt passes) shows three of them:\n\n- Terraced edges around fills: the eye sockets and the temporal fossa come out as stepped plateaus with a sawtooth band along their rim instead of a smooth falloff.\n- Patchy blocks: in curvature shading, rectangular light and dark patches cover the cranium and the sides of the face in every view of the final multiview, outlining the refinement regions and their transition faces.\n- Wrinkled chain strokes: the orbit rims and the brow ridge come out knobbly where a ridge stroke runs over a region an earlier pass refined.\n\nThe sculptor stopped the run partly because \"a further pass over them would add more terracing\". Stroke sculpting must be able to go on drawing passes over refined regions without the surface degrading, so the next blind run is not held back by the tool.\n\nFind which part of the pipeline makes each artefact (the 1-to-4 splits and transition faces, the displacement falloff sampled on mixed density, the normals of the transition faces, the per-pass refinement chaining, the nearest-vertex mirror twins on asymmetric refinement) and fix it in StrokeSculpt, reproduced on skull.dsl from MESH-72's worktree.",
+    "blocked-by": [
+        "MESH-70"
+    ],
+    "blocks": [
+        "MESH-75"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Each of the three artefacts (terraced fill edges, patchy refinement blocks, wrinkled chain strokes over refined regions) has its cause named in the ticket's changes-made.\n2. MESH-72's skull.dsl, evaluated with the fix, shows none of the three in a curvature-shaded multiview: before and after captures are under tmp/.\n3. A fill drawn twice over the same region (two chained passes) gives a smooth rim, shown in a capture under tmp/.\n4. Symmetry still holds: the symmetrised result matches its mirror within the existing StrokeSculptTest tolerance.\n5. A StrokeSculptTest case fails on the current code and passes with the fix, for at least one artefact.",
+    "testing-plan": "1. Copy MESH-72's dsl/skull/ into the worktree's tmp/, evaluate it with ixdar-cli model and capture ixdar-cli multiview --shading curvature before and after the fix.\n2. Draw a two-pass fill DSL (the same polygon in both passes) and compare the rim before and after.\n3. Run StrokeSculptTest.",
+    "todos": [],
+    "unknowns": [
+        "Whether the fix is in the refinement itself (smoother grading, transition faces) or in how displacement is sampled across mixed edge lengths."
+    ],
+    "changes-made": [
+        "Patchy blocks, cause: the 1-to-4 splits put every new edge midpoint and face centre on the flat chord between its corners, so each refined region was piecewise flat inside the coarse faces, and curvature shading drew the refinement regions as rectangular light/dark patches with grid lines. Fix: split vertices are placed by Phong tessellation (shape factor 1/2) from the corners' vertex normals (StrokeSculpt.curvedCentroid), which puts an edge midpoint on the circle through its ends; on the unit sphere the largest radial error of refined vertices drops from 3.4e-3 to 5.1e-4.",
+        "Terraced fill rims, causes: (1) the falloff was an edge-path (Dijkstra) distance from a vertex-quantised source set, so on mixed-density faces the rim followed the mesh's staircase; (2) every vertex took the bump of its single nearest fill sample, which scallops the rim between samples (radial ribs on the walls); (3) on a second pass the samples lift onto the pit floor and the distance to the rim ran through the pit's depth, so the second falloff stopped short of the rim and left a step; (4) each vertex moved along its own normal, which on an earlier pit's walls points sideways and sheared them into ledges. Fix: chains and fills measure the falloff straight to the drawn stroke across one stroke direction (the seeds' mean normal), the edge search (EdgeDistances, now with an 'across' direction that ignores edge extent along it) only gathers the reachable surface, fills take the union of their samples' bumps (1 - prod(1 - bump)), every vertex moves along the stroke direction (same-sign strokes blend directions by offset), refinement reach is measured across the stroke direction too, and a steep stroke refines finer by its falloff slope.",
+        "Wrinkled chain strokes over refined regions, cause: a chain's sources were the zigzag shortest edge path between its snapped vertices on the irregular refined mesh, and its falloff was the edge-path distance from them along per-vertex normals that diverge over an earlier pit's rim, so a ridge over the orbit rim came out knobbly. Fix: a chain's falloff is the distance to its lifted polyline's segments (weights interpolated along each segment) across the stroke direction, and it displaces along that one direction. Also: a fill whose mirror copy overlaps it (the nasal aperture on the midline) joins it into one region so the halves union instead of meeting in a midline groove, and the closure of the split region is a worklist over edge neighbours instead of repeated whole-mesh sweeps.",
+        "Not fixed: a faint row of triangle shading remains along the outer boundary of every refinement region (the transition fans next to unrefined coarse faces, visible on a pure sphere at zero strength), and fine hatching shows in curvature shading on very steep walls (clay shading is smooth there). Grading the refinement and longest-edge bisection were tried and did not remove the row while multiplying face counts, so they were dropped."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java",
+        "ixdar-app/test/unit/mesh/StrokeSculptTest.java"
+    ],
+    "priority": 3,
+    "review-summary": "StrokeSculpt now splits faces onto the curved surface and pushes each chain or fill along one stroke direction with a smooth falloff measured across it. Stroke sculpting can keep drawing passes over refined regions without terraced rims, patchy blocks or knobbly ridges.\n",
+    "verify-tests": [
+        "StrokeSculptTest"
+    ]
+}

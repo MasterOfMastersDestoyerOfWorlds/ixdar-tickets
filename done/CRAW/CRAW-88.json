@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-88",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Master test failure: BisectorTest.graphRingsAreAdoptedAsTheGraphsOwnSplinesAndStillEdit throws 'waypoint null' in RingTool.adoptGraphRings",
+    "description": "On master 3549a4de (after CRAW-85 then CRAW-81 landed) the CRAW-85 test fails: java.lang.IllegalArgumentException: waypoint 'null' needs three comma-separated coordinates, at SurfaceWaypoints.parse (SurfaceWaypoints.java:51) from RingTool.adoptGraphRings (RingTool.java:2061) from BisectorTest.java:737. It passed in the craw-85 worktree, so the combination with CRAW-81 (repair orientation) or a sync broke it. Find the root cause (which adopted ring reaches the parse path with no points, and why: a spline missing from the graph output so adoption falls back to tracing, a statement whose points field is absent, or the test fixture changed by the repair) and fix it at the source; the test must pass on master again, along with the full suite.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Root cause named.\n2. BisectorTest and the full mvn test pass on master + the fix.\n3. Live: IMG_4111 adoption still traces nothing (CRAW-85's timing holds).",
+    "testing-plan": "1. mvn test.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cause: RingTool.adoptGraphRings read a spline_ring's normal with String.valueOf(inputSources.get(normal)), so a statement without a normal became the text \"null\" and SurfaceWaypoints.parse threw. CRAW-85's test strips the first ring's normal to cover the plane-fit branch, and in craw-85 that variant never ran: the final targeted run used -Dtest=A+B+C, which matched no tests (exit 0), and the full suite had run before the test edit. CRAW-81 is not involved. Fix: an absent normal argument is no normal (instanceof String, as mode already is). BisectorTest 16/16, mvn test 694/0; IMG_4111 adoption still 2 ms for 82 rings."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/ring/RingTool.java"
+    ],
+    "priority": 1,
+    "review-summary": "RingTool's graph-ring adoption now reads a spline_ring statement's missing normal as no normal instead of parsing the text \"null\". A ring saved or written without a normal made adoption throw, which broke the CRAW-85 bisector test on master.\n"
+}

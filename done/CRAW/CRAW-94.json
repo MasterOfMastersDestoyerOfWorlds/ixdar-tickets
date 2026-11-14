@@ -1,0 +1,42 @@
+{
+    "id": "CRAW-94",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "T on a crease ring fits a geodesic ring to the crease curve, adding and dropping anchors, instead of retracing the same anchors",
+    "user-messages": [
+        "write a ticket for adding a tool to the ring tool scene that would try to fit a crease ring onto a geodesic ring, the crease ones are harder to edit, but are easier to get a 60% done result, I think there currently is a way to switch the mode but it just swaps the anchors instead of adding/removing anchors to fit the two curves",
+        "> A new action next to T: it has its own key and control row, and T stays as it is.\n\nI want it to be the same action",
+        "> Should it work only on the ring you\u2019re drafting, or also on a finished ring under the cursor? I proposed both.\n\ngo into the ring to, click the finished ring and press T and it should convert",
+        "yes",
+        "> I added one new open question: what should T do on a geodesic ring, switching it to crease? I proposed it keeps today\u2019s behaviour and retraces the same anchors, because crease paths only need a few anchors to find the groove. Say if you want that direction to refit too.\n\nyes thats fine I am mostly concerned with the other direction"
+    ],
+    "description": "User 2026-11-06: crease rings are the quick way to a ~60% ring (the path hugs the groove from a few clicks) but are hard to edit, because each span is re-solved as the cheapest crease path and an anchor drag can jump the whole span to another groove. Geodesic rings are the editable ones. Today T in the ring tool (RingTool.addControls, \"switch-mode\") only flips draftMode and retraces the SAME anchors, so a crease ring of 4 anchors becomes a 4-anchor geodesic ring that cuts straight across and loses the shape the crease path found.\n\nChange T itself (same action, same key, same \"switch-mode\" id; no new control row) so that switching crease -> geodesic fits the geodesic ring to the crease curve instead of swapping the anchors:\n\n1. Where it applies: the open draft, and a finished ring the user reopens by clicking it in the ring tool, then pressing T; crease-mode bisectors the same way.\n2. Reference: the crease ring's traced curve as it stands (AuthoredSplineRing's crease reference / the tracer's points), not the anchors.\n3. Fit: a geodesic ring whose spline stays within the existing SplineAnchorFit tolerance (max(5% of mean radius, one mean edge)) of that reference, with as few anchors as reach it. Anchors are added where the geodesic spline leaves the reference, and the user's own authored anchors are dropped when the fit does not need them (undo brings them back), so the result is not over-anchored and stays easy to drag. SplineAnchorFit already fits supporting anchors to a reference loop with authored anchors fixed; extend it with a mode that may drop authored anchors, do not write a second fitter.\n4. The resulting anchors are authored anchors of the geodesic ring (the user can drag them), the mode becomes geodesic, and RingDslWriter writes the geodesic spline_ring with no crease reference left over when no other ring needs it.\n5. One undoable edit (recordEdit), and lastRow/reply says how many anchors were added and dropped and the largest remaining deviation from the crease curve. If the fit cannot get within tolerance (e.g. the crease path doubles back), refuse with a reason and change nothing.\n6. The T control row's label says what it will do (e.g. \"fit to geodesic\"), and the automation route that presses switch-mode does the same fit, so a segmenting agent gets it too.\n\nRelated: CRAW-82 settles a crease draft's anchors into the valley before conversion; this ticket does not depend on it.\n\n7. Geodesic -> crease (T on a geodesic ring) keeps today's same-anchor retrace; only crease -> geodesic refits.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. T on a crease ring (open draft, or a finished ring clicked to reopen) converts it into a geodesic ring whose traced curve stays within the SplineAnchorFit tolerance of the crease curve, on a synthetic grooved tube and on a crawfish scan ring (e.g. a tail segment girdle on IMG_4112); tests assert the deviation and the anchor count.\n2. Anchors are added and removed as needed, not swapped: a 3-anchor crease ring around a wavy groove comes out with more anchors, a crease ring with redundant authored anchors comes out with fewer; tests.\n3. One undo step restores the crease ring exactly (anchors, mode, DSL text); redo reapplies.\n4. Refuses with a reason and leaves the ring untouched when the tolerance cannot be met.\n5. Still one T key / switch-mode action, no new control row; existing saved rings' fingerprints unchanged.\n6. launch.json entry on the ring scene and a before/after screenshot under tmp/.\n",
+    "testing-plan": "1. mvn test (new tests on the fit: synthetic grooved tube, add/drop counts, undo round trip, refusal).\n2. Live on references/CRAW-81/IMG_4112.dsl: confirm a crease ring round a tail segment, click it to reopen, press T, screenshot crease vs geodesic overlay, then drag one of the resulting anchors and confirm only its neighbouring spans move.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "GeodesicRefit (geometry/mesh/data/rings): fits anchors on a crease curve so the geodesic spline through them stays within SplineAnchorFit's tolerance, starting from the crease spline's own anchors, adding at the worst gap and dropping any not needed; lead anchor (ring) or wall ends (bisector) held.",
+        "AuthoredSplineRing.refitGeodesic: converts the crease ring just traced, refusing and re-tracing the crease ring when the tolerance cannot be met.",
+        "T (switch-mode) on a crease draft, open or reopened by clicking a confirmed ring, now runs the fit for rings (ClosedRingTool) and crease bisectors (BisectorTool) as one 'geodesic fit' edit; the row reads 'fit to geodesic' and the reply reports anchors added/dropped, deviation and tolerance. Geodesic -> crease keeps the same-anchor retrace.",
+        "RingDslWriter.withMode drops a ring's creases= input when it is written geodesic; the shared surface_creases statement stays for the other crease rings.",
+        "Verified: mvn test 801/801; IMG_4112 ring_04 (tail segment) reopened and T'd live: 2 authored -> 15 anchors, 0.0028 off the crease path (tolerance 0.0029), 514 ms; Ctrl+Z restored the crease ring's fingerprint. Screenshots tmp/craw-94-before.png, tmp/craw-94-after.png.",
+        "Shift+T (fit-all-geodesic) in the ring tool fits every stretch of a ring as a plain geodesic bisector, then every crease ring as a geodesic ring; BisectorTool.refitGeodesic accepts a stretch; GeodesicRefit halves the wider neighbouring stretch when the worst gap is beside an anchor it already has, and its refusal says why it stopped. IMG_4111.dsl and IMG_4112.dsl converted with it: no crease spline_ring and no stretch left; parts renamed back by region; carapace_left dropped on IMG_4112 (it sat on a 716-face sliver). No unit test yet for the three code changes."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/tools/ring/RingTool.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/rings/AuthoredSplineRing.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/paths/spline/SplineAnchorFit.java",
+        "ixdar-app/src/main/java/ixdar/tools/ring/RingDslWriter.java",
+        "ixdar-app/src/main/java/ixdar/tools/ring/BisectorTool.java"
+    ],
+    "priority": 2,
+    "review-summary": "T in the ring tool now turns a crease ring or bisector into a geodesic one that follows the same groove, adding and dropping anchors to fit it. Crease rings are quick to draw but hard to edit; this keeps their shape while making them draggable.\n"
+}

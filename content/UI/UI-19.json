@@ -1,0 +1,32 @@
+{
+    "id": "UI-19",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui"
+    ],
+    "title": "Every scene can open the terminal: the base Scene owns it, and commands a scene has no use for refuse with a reason",
+    "user-messages": [
+        "add ticket to change how terminal works so that all scenes can open it"
+    ],
+    "description": "Only two scene families build a terminal today: the model scenes (`ModelScene` and everything under it, such as the ring and mesh scenes) create `sceneTerminal` from `terminalRoot()`, and the knot editor (`MainScene`) creates one from its loaded `.ix` file. Every other scene leaves `Scene.sceneTerminal` null, so `~` does nothing there and the `toggle-terminal` hint is missing: the trade game, the anatomy canvases (irregular grid, bezier, line and friends), the dungeon, the examination scenes and the menus. Scene-agnostic commands such as `palette`, `ex` and the tools listing are therefore unreachable in exactly the scenes that would use them, and the `POST /input/terminal` automation route has nothing to type into.\n\nChange how the terminal is owned so that every scene can open it. The base `Scene` builds the terminal (lazily is fine) instead of each scene family opting in; the strip, scroll box, focus and `~` toggle work the same in every scene. A terminal no longer needs a loaded file or a model directory to exist: a scene with neither gets a sensible default working directory.\n\nCommands already declare the subsystems they act on (`@CommandAnnotation` acts, gathered into `Terminal.commandActs`), and `Scene` already answers what it shows for a subsystem. Use that to decide what a command does in a scene that has nothing for it: it refuses with a one-line reason naming the scene, never throws or silently does nothing. Commands that act on no scene-specific subsystem run everywhere.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Every scene registered in `CanvasSceneMap` opens the terminal with `~` and shows the `toggle-terminal` control hint, including the trade game, the anatomy canvases, the dungeon, the examination scenes and the menus.\n2. The terminal is owned by the base `Scene`; no scene family has to construct one to get it, and `ModelScene` and `MainScene` keep their current working directory and loaded-file behaviour.\n3. A scene with no loaded file and no model directory gets a defined default working directory, documented on the method that provides it.\n4. A command whose subsystems the current scene does not show refuses with a one-line reason naming the scene and the command; no command throws or silently does nothing in a scene that lacks what it acts on.\n5. Scene-agnostic commands (at least `palette`, `ex`, `ls tools` and help) work in every scene.\n6. `POST /input/terminal` (`ixdar-cli terminal --line ...`) works against every scene, including the trade game.",
+    "testing-plan": "1. A headless JUnit test walks every scene in `CanvasSceneMap`, toggles the terminal and asserts it is shown and focused.\n2. A JUnit test runs `palette next` in the trade scene and a knot-only command in a scene without knots, asserting the first recolours and the second refuses with its reason.\n3. `ixdar-cli run-scene --scene trade-game --keep-alive`, then `ixdar-cli terminal --line \"palette next\"` and a screenshot under `tmp/` showing the terminal strip and the recoloured map.",
+    "todos": [],
+    "unknowns": [
+        "What the default working directory should be for a scene with no file and no model directory: the repo's resources root, the user's last directory, or something per scene.",
+        "Whether the main menu and other menu scenes should get the terminal too, or only scenes with content."
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/gui/terminal/Terminal.java",
+        "ixdar-app/src/main/java/ixdar/scenes/model/ModelScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/main/MainScene.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/input/RunTerminalLine.java"
+    ],
+    "priority": 3
+}

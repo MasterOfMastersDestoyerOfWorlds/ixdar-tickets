@@ -1,0 +1,33 @@
+{
+    "id": "CRAW-91",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "repair_mesh leaves pieces of IMG_4113's head inside out (cyan back faces around the eyes and mouthparts)",
+    "user-messages": [
+        "there are pieces that have their normals flipped on  crawfish 4113 and are are inside out(cyan) after mesh repair"
+    ],
+    "description": "Reported by the user 2026-11-01 with a screenshot of IMG_4113 in the ring scene: after repair_mesh, whole pieces of the head (around the eyes, the antenna bases and the mouthparts) render cyan, the back-face colour, so they are wound inward on the outer skin.\n\nCRAW-81 rewrote MeshRepair.orient (patches of consistently wound faces that agree on two-sided ray parity, two-coloured along a maximum spanning tree of seam votes, each tree turned outward by area-weighted parity). Its own per-scan numbers left IMG_4113 at 12757 inward faces (from 93719), the most of any scan after 4115 and 4114, so this is the residue that fix did not reach.\n\nFind which faces remain inward on IMG_4113 and why orient leaves them: a tree whose area-weighted parity votes the wrong way (a piece seen mostly through the eye or mouth cavities, where ray parity is unreliable), a seam vote that ties or loses to a wrong one, the cluster parity shortcut giving a cluster the wrong facing, or faces flipped back by a later stage (splitNonManifold, detachStubbornFaces, fillHoles). Fix it in orient the way CRAW-81 intends rather than adding a post-pass.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-92"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. Root cause named with evidence: which faces stay inward on IMG_4113 and which step of orient (or later stage) leaves them so.\n2. On IMG_4113 the head pieces in the user's screenshot render outward (no cyan on the outer skin); mesh-topology inward_face_count after repair drops well below 12757, with the remainder explained.\n3. A unit test in MeshRepairTest reproduces the failing configuration on a small mesh and fails on the old orient.\n4. Per-scan inward_face_count and mobius counts for IMG_4109-4118 before and after; reference ring fingerprints (IMG_4109-4111) reported before/after, any change explained; repair_mesh time on IMG_4111 and IMG_4112 not worse than master by more than 10%.",
+    "testing-plan": "1. mvn test -Dtest=MeshRepairTest.\n2. Live: Ring Tool (IMG_4113) launch entry, head from the front as in the user's screenshot, before/after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Root cause (IMG_4113 eyes): each eyeball is a sheet of the head skin folded through the skin, wound consistently with it along its rim, so orient's seam votes keep it inward; ray parity is unreliable there (the sheets interpenetrate). In progress: TriangleBvh.facing also records which side of a face is open to infinity along its cast axis (only on odd lines, so a ray leaking through an unfilled hole decides nothing), and orient flips a patch against its seams when more of its faces see out backwards than seam edges hold it. Faces whose back alone sees out after repair: 4109 32->32, 4110 513->427, 4111 419->419, 4112 540->540, 4113 2988->1962, 4114 1096->645, 4115 8677->392, 4116 998->931, 4117 4190->4157, 4118 1323->1230; repair time unchanged. Remaining classes: (1) cutting a flipped fold's seam leaves two coincident loops whose two fills overlap with opposite windings (the speckle ring round each eye); (2) faired fills sagging out through the skin; (3) small inverted patches whose seams outweigh their exposure.",
+        "Final: TriangleBvh.facing also records per face which side its axis ray finds open to infinity (exposedSide), on lines through a soup whose boundary loops orient closes with centroid fans that only exposure counts, so a ray cannot escape through an unfilled hole while parity stays exactly as before. MeshRepair.orient then turns a patch against its seams when more of its faces see out backwards than its seam votes hold it (an iterated local flip after the spanning-tree colouring). MeshRepairTest.aChamberFoldedOutThroughTheSkinIsTurnedToFaceOut: a cube whose top pit opens into a chamber bulging out through the bottom, wound consistently; fails on master, passes now. Faces whose back alone sees out along the normal (BVH, after repair), master -> now: 4109 32->31, 4110 513->422, 4111 419->419, 4112 540->400, 4113 2988->1844, 4114 1096->538, 4115 8677->392, 4116 998->788, 4117 4190->4187, 4118 1323->1266. repair_mesh best of 3: 4111 863->856 ms, 4112 984->949 ms, 4113 1756->1680 ms; every scan within 5%. mvn test: 747 run, 0 failed. Heavy crawfish goldens: IMG_4111's golden was already stale on master (labels slots); this change alters the repaired mesh on every scan, and ring fingerprints only for IMG_4109 ring_80 (same 42 edges, new route) and IMG_4110 ring_57 195->193, ring_58 200->200, ring_61 14->14, ring_68 83->78 edges; goldens not re-accepted, waiting on the user. The rest (flaps, doubled caps over cut seams, sagging fills, small held patches) is CRAW-92.",
+        "Landed 2026-11-03 inside CRAW-93 (ixd land --force); its branch is tag folded/craw-91"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshRepair.java",
+        "ixdar-app/src/main/resources/dsl/crawfish/IMG_4113.dsl"
+    ],
+    "priority": 3,
+    "review-summary": "repair_mesh's orient stage now turns a patch outward when more of its faces show their back to open space than seams hold it.\nFolded-through sheets like IMG_4113's eyeballs are wound consistently with the skin, so seam votes kept them inside out.\n"
+}

@@ -1,0 +1,40 @@
+{
+    "id": "PATCH-127",
+    "epic": "PATCH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "quad_layout fails on silhouette_hull meshes except at resolution 48",
+    "user-messages": [
+        "> Resolution 48 is fragile. Quad layout working only there means it isn\u2019t robust on hull meshes yet. That\u2019s a fix for the quad-layout side, not for this node.\n\nlog a t ticket",
+        "put 2 and 3 in mesh-77 and compare against the reults we have, start an agent on patch-127"
+    ],
+    "description": "quad_layout only remeshes a silhouette_hull skull (MESH-77, dsl/silhouette_hull_skull.dsl) at one hull resolution. Measured in MESH-77:\n\n- Resolution 48, quad_layout(target_edge_length=2.0): works. 3,924 quads, closed, no inward faces, about 4.4 s, peak heap 436 MiB (target 4.0 gives 1,010 quads).\n- Resolution 64, target 0.1 or 1.0: runs out of heap in quad extraction (PatchGridExtraction.placeLatticePoints, QuadMeshExtraction.emitPort) after a 57 s injectivity loop.\n- Resolutions 32 and 40: the seamless map keeps 1 and 5 flipped triangles and quad extraction refuses: \"patch 1 chart triangle 59 winds against its patch; the map is folded, which the barrier energy forbids\".\n\nThe hull meshes are marching-tetrahedra surfaces of a smoothed signed distance field: closed, manifold, mirror-symmetric, with many near-degenerate grid-aligned triangles. Find why each failure happens (degenerate input triangles, the injectivity loop's cost, extraction's memory use, folds the barrier energy cannot undo) and make quad_layout succeed across hull resolutions 32-96 within bounded time and memory, or fail fast with a message naming the cause.\n\nInputs: the hull meshes are exported as PLY in the worktree's tmp/hulls/hull{32,40,48,64,96}.ply (from MESH-77's silhouette_hull, not on master yet), so this ticket can run before MESH-77 lands; reproduce with quad_layout on those meshes.\n",
+    "blocked-by": [
+        "MESH-77"
+    ],
+    "blocks": [
+        "PATCH-128"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. quad_layout produces a closed all-quad mesh from silhouette_hull skull hulls at resolutions 32, 40, 48, 64 and 96, or refuses fast with a message naming the cause.\n2. Time and peak heap per resolution are recorded in tmp/ measurements; none runs out of heap.\n3. The cause of each failure (folded map at 32/40, heap exhaustion at 64) is named in changes-made.\n4. A test covers at least one formerly failing hull resolution.",
+    "testing-plan": "1. Build silhouette_hull_skull.dsl at each resolution with quad_layout and record outcome, time and heap.\n2. Run the quad-layout test suite.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cause of the folded map at hull resolutions 32 and 40 (and 64): the marching-tetrahedra hulls carry pleats, 1 to 6 sliver faces folded back against their neighbourhood (dihedral cosines down to -0.98). The cross field took their edges as sharp features, and the seamless map cannot give a face wound against the surface positive area, so BCE13's injectivity loop ended its 60 rounds with 1, 5 and 4 flipped triangles, which extraction refuses as a folded map. Resolutions 48 and 96 happen to have no pleat.",
+        "Cause of the heap exhaustion at resolution 64: the same pleat. Fighting it for 60 non-converging rounds (about 50 s) the injectivity loop inflated the seamless map about 40 times (mean distortion 64.9 against 0.2), so the quantized patches came out 824x1450 quads at target 1.0 and PatchGridExtraction / QuadMeshExtraction.emitPort allocated millions of quads per patch. With the pleat gone the loop converges in one or two rounds and resolution 64 gives 3,555 quads (14,220 at target 1.0) in about 5 s.",
+        "Fix: new relax_folds stage (RelaxFoldsNode over MeshFoldRelaxation) runs first in quad_layout and feeds the cross field and motorcycle graph. A face is folded when its normal points against the summed normals of its corners; the folded faces' vertices and their one ring get three umbrella-smoothing passes per round, up to 8 rounds, and a surface still pleated after that is refused at once with a message naming the pleat. A fold-free mesh passes through as the same instance, so every other model is unchanged (fingerprints identical on fandisk, bolt, feline, fertility, rockerarm, block, elk, botijo, hand).",
+        "Test: unit.mesh.MeshFoldRelaxationTest builds an icosphere with one pleat (a face split at a point pushed across its edge), shows its seamless map flips triangles as the hulls' did, and that after relaxation no face is folded, only the pleat's neighbourhood moved and the seamless map flips nothing.",
+        "relax_folds pass-through check (input vs output mesh fingerprint, 16 models): unchanged, same instance, on buddha, sphere_base, baseline-hand Hand-tri-30k, the rocker-arm obj, fertility after repair_mesh (dsl/fertility_quad_layout.dsl), fandisk, bolt, feline, fertility, rockerarm, block, elk, botijo (the quad-layout scene's default model) and hand. Changed on hull32 (the control) and on sphere_random. sphere_random's quad_layout refuses on master and on this branch: on master after 71.7 s with 'source active face 456 has a degenerate chart' (seamless map kept 287 flipped triangles), on this branch after 0.85 s with 'T-mesh node 24 has no barycentric in source face 352' (seamless map kept 11 flipped triangles)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/silhouette_hull_skull.dsl"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "FoldedInputRefusalTest"
+    ],
+    "review-summary": "QuadLayoutNode now starts with a relax_folds stage that smooths away pleats, sliver faces folded back against the surface. Marching-tetrahedra hulls carry such pleats, which the seamless map cannot orient, so it folded or inflated until extraction refused or ran out of heap.\n"
+}

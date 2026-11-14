@@ -1,0 +1,35 @@
+{
+    "id": "TOOL-54",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "platform"
+    ],
+    "title": "Automation click/hover take window coordinates but screenshots, project and pick use framebuffer pixels: one unit for agents",
+    "user-messages": [
+        "> Dark renders: the multiview images are dark and low-contrast, which makes small features hard for the drawing agent to judge.\n\ncreate a ticket for this"
+    ],
+    "description": "Found while doing CRAW-94 (T on a crease ring fits a geodesic ring) on IMG_4112. The automation routes use two different pixel units, and neither the route help nor the replies say which one applies. `click`, `hover` and `drag` (InjectClick/InjectHover/InjectDrag, normalized=false) take window coordinates. `screenshot --out`, `ring project` and `ring pick` work in framebuffer pixels. On this machine the content scale is 1.25, so window = framebuffer / 1.25. An agent that reads a ring's position off a screenshot or out of `project` and clicks there misses it by 25%. In CRAW-94 that click drafted a new ring instead of reopening ring_04, and the stray draft had to be discarded before trying again. InjectHover already converts internally: it picks at mouse * framebufferWidth / windowWidth. So the app knows the ratio; it just never tells the caller.\n\nFix: one unit everywhere agents read and write positions. The likely choice is framebuffer pixels, because screenshots, project and pick already use them. Input routes would accept framebuffer pixels by default, or through an explicit `units` parameter, and every route reply that carries a position would say its unit. Whichever way it goes, `ixdar-cli click --x X --y Y`, with X/Y read off a screenshot or out of `project`, must land on that pixel.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A position read off `screenshot --out` or returned by `ring project` can be passed straight to `click`, `hover` and `drag` and lands on that framebuffer pixel, with no hand-applied content-scale factor, at content scale 1.25 and at 1.0.\n2. Each input route's help (automation_routes.json, the route builders' .description/.param) names the unit its x/y take. Each reply carrying a position names its unit, or the units are the same everywhere and the docs say so once.\n3. Callers that pass window coordinates today (trade_scenarios.py, scenario_commands.py, trade_route_ops_validation.py, recorder/replay) are updated or keep working through an explicit opt-in. Recorded automation replays still replay.\n4. A unit test covers the conversion at a non-1.0 scale: CLI tests in test_cli.py, plus a Java test of the denormalize/scale path.",
+    "testing-plan": "1. Run the ring scene on IMG_4112 at content scale 1.25. `ring project` a confirmed ring's anchor, `hover` at the returned x/y, and confirm the hover reply names that ring (\"over ring N: a click re-opens it\").\n2. Click there and confirm the ring re-opens and no new draft is started. Take a screenshot showing the reopened ring.\n3. Repeat step 1 at content scale 1.0, or with the scale forced, and confirm the same result.\n4. Replay an existing recorded automation and confirm it still lands where it did.",
+    "todos": [],
+    "unknowns": [
+        "Framebuffer pixels everywhere, or a units parameter on the input routes with window as today's default? Changing the default breaks the trade scenarios unless they are migrated in the same change.",
+        "Do AutomationRecorder recordings store window coordinates, and do they need a unit field to keep replaying?"
+    ],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/input/InjectClick.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/input/InjectHover.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/input/InjectDrag.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ui/Screenshot.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ring/Project.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/ring/Pick.java",
+        "ixdar_automation_cli/automation_routes.json"
+    ],
+    "priority": 2
+}

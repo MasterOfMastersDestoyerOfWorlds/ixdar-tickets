@@ -1,0 +1,23 @@
+{
+    "id": "CRAW-107",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Archive: the ring settle, ring curve fit and ring patch network experiments from the stroke-segmentation worktree",
+    "user-messages": [
+        "> Both older fits and the quad-layout network\n\nyeah put in its own worktree/ticket and archive"
+    ],
+    "description": "Holds three experiments from the craw-105 worktree that were built without a ticket, so they can be archived with a tag instead of being lost or landed by accident. Nothing here is meant to land.\n\n## What it holds\n\n- **Settle** (`settle_rings`, `RingSettle`, `ring_membership`, `settled_ring_marks`): a random-walker solve that reassigns the faces beside ring walls to regions and rebuilds the ring marks from the new borders.\n- **Curve fit** (`fit_rings`, `RingCurveFit`, `ring_curves`, `fitted_ring_marks`): an active contour that slides every ring wall's points sideways into the deepest nearby groove.\n- **Ring patch network** (`ring_network`, `RingPatchNetwork`, `RingNetworkCarve`, `SurfaceChordTrace`, `FlattenedFaceUv`, `GridWallPull`, `ring_crease_energy`, and small additions to `TJunctionExtension`, `GlobalGridMap`, `GridMapOptimizer`): carves drawn rings into a surface copy, cuts the regions into four-sided patches, solves whole-number arc lengths, and relaxes the grid map with a pull toward grooves.\n- The ring scene's Y and V previews of the settled and fitted regions, and their tests.\n\n## Why archive\n\nThe review in ai-workspace `reports/craw-105-uncommitted-review-2026-11-12.md` (parts 2 and 3) found that no DSL file, fixture or launch entry uses any of these nodes, and that the anchor fit (`fit_ring_anchors`) replaced both fits. The ring patch network is the closest thing to CRAW-33 (rings as quad layout constraints) and is the reason to keep a tag.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The worktree holds the settle, curve fit and ring patch network files and the Y and V previews from the craw-105 worktree, and nothing else. 2. The user closes it without landing, which tags it so it can be brought back.",
+    "testing-plan": "1. None: nothing here lands. The files are kept as they were in the craw-105 worktree, with their own tests.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 4
+}

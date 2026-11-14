@@ -1,0 +1,25 @@
+{
+    "id": "VIEW-30",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Text glyphs show a yellow sliver beside them at some zoom levels in the DSL graph view (since the regenerated font atlas)",
+    "description": "User 2026-10-25 (screenshot of a spline_ring box, '8 ms 1028.5 MiB'): at certain zoom levels a thin yellow sliver appears at the side of glyphs, on dozens of letters and digits when zooming the DSL graph view; not at high or low zoom; hard to hit exactly, so it looks numeric. Likely since CRAW-78 regenerated res/opensans.png/json (em 128, pxrange 48, padded quads) and finished the border band in sdf.fs: suspects are texture-coordinate bleed into the neighbouring glyph or padding at a mipmap level, the border band's screen-pixel range at some scales, or the msdf/true-distance mix in sdf.fs. Reproduce by sweeping the graph camera's zoom in small steps and screenshotting text (image-diff to find the frames), fix at the source.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. A zoom sweep of the DSL graph view shows no slivers (screenshots).\n2. 2D UI and 3D labels look as before.\n3. A test or check that catches bleed (e.g. atlas padding vs the max sampled mip).",
+    "testing-plan": "1. Live zoom sweep through ixdar-cli on the graph view (Ctrl+G) of IMG_4112.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cause: msdf-atlas-gen packs MTSDF glyph boxes with zero spacing, so glyph quads touch their neighbours' cells; from mipmap level 1 a texel on a quad edge averages two glyphs' RGB channels, whose median reads ~0.5 (half ink) though alpha (true distance) is 0, drawing a 1 px sliver of the word colour on the quad edge (yellow on the yellow-orange timing line). Level 0 (high zoom) and screenPxRange < 2 (low zoom, alpha path) do not show it, hence mid zoom only. Evidence: tmp/sweep-before/box-14.50.png (underline below the 6 of 162), box-18.00.png and box-10.50.png (bar between 5 and MiB), box-11.25.png (bars beside geometry and path); offline mip analysis (tmp/mip_artifacts.py) found 166/110/20/27 false-ink texels at mips 1-4 of the old atlas, all on cell edges, none inside quads in the new one.",
+        "Fix: atlas regenerated with 32 px outer padding (plane bounds, advances, metrics and kerning byte-identical; only atlas positions move): /home/acw/Code/msdf-atlas-gen/build/bin/msdf-atlas-gen -font ixdar-app/src/main/resources/res/OpenSans_Condensed-SemiBold.ttf -chars '[32, 126]' -type mtsdf -size 128 -pxrange 48 -outerpxpadding 32 -yorigin bottom -dimensions 2048 2048 -format png -imageout opensans.png -json opensans.json, JSON re-indented with python json.dumps(indent=4) plus trailing newline. sdf.fs reads the RGB channels with textureLod clamped to medianMaxLod (SDFTexture.setMedianMaxMipLevel, Font.MEDIAN_MAX_MIP_LEVEL = 4: a bilinear sample at level 4 reaches 24 texels, inside the 32 px padding); alpha stays trilinear and the alpha fade below 2 screen px is unchanged. Other SDFTextures (logo decals) default to unclamped, so they render as before. A first try that instead faded to alpha below 3 screen px removed the slivers but washed out 8-12 px text, so it was dropped.",
+        "Test: unit.render.FontAtlasPaddingTest checks every pair of glyph quads in opensans.json is >= 2 x 1.5 x 2^MEDIAN_MAX_MIP_LEVEL texels apart and every quad >= that reach from the atlas border (texture wraps REPEAT); old atlas: min gap 1, border 0.5 (fails); new: gap 65, border 32.5. Sweep (ring-tool, fertility_rings fixture, Ctrl+G, mesh-dsl-graph --text-px 8..40 step 0.25, 129 frames of the slowest box): before showed slivers in frames 8-19 px; after, image diff vs before (timing line masked) only differs where the before slivers were plus 1-2 px antialiasing on edges; menu + 3D ring-number labels image-diff before/after: 7 px over delta 40 of 1.6 M (tmp/ui-before, tmp/ui-after). Note for ENG-14 (binary atlas): its committed opensans.atlas must be regenerated from this atlas."
+    ],
+    "related-files": [],
+    "priority": 2,
+    "review-summary": "The font atlas is regenerated with padding round every glyph, and the SDFTexture text shader reads its distance channels only from mipmap levels that stay inside that padding. Without both, coarse mipmap texels spanning two glyphs' atlas cells read as ink, drawing slivers beside glyphs at mid zoom.\n"
+}

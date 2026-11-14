@@ -1,0 +1,31 @@
+{
+    "id": "MESH-81",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Two large strokes in one stroke_sculpt pass pit the far side of the head",
+    "user-messages": [
+        "can we make a ticket ot fix all of the frictions we are finding"
+    ],
+    "description": "Split from MESH-80 item 3. In blind skull run 3 (MESH-79) two large strokes in one stroke_sculpt pass left pits on the far side of the head while each stroke alone was clean (found by bisecting a layer); the sculptor's workaround was one big push per layer.\n\nWhy it is its own ticket: the only reproducer is MESH-79's layers, which are not on master while that blind run is live, and a sphere fixture with two large strokes (StrokeSculptTest's wide fill, the run-2 skull layers) shows no far-side movement, so the cause cannot be found or tested until those layers land. MESH-80 changed what may matter here: mirror copies that repeat their stroke are dropped (item 16), symmetrising only averages vertices with an exact mirror twin (item 2), smooth strokes no longer refine, and each layer's report output lists vertices moved and peak displacement per stroke, so bisecting by report is now possible without hand-made partial DSLs.\n\nCandidates to check first: the refinement cylinder (reach x 2 + depth along the stroke's mean normal) only skips back-facing vertices, not hidden ones, so a large stroke refines surface behind the head that faces its eye; the gap rule refines a stroke to a third of its mean distance to the other stroke; and the falloff gather measures distance across the stroke's direction, which is near zero along a silhouette rim, so a large stroke's gather wraps around the head (the visibility test then has to zero all of it).",
+    "blocked-by": [
+        "MESH-80",
+        "MESH-79",
+        "MESH-87"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Reproduced on MESH-79's layers with the cause named, fixed in StrokeSculpt, and covered by a StrokeSculptTest fixture with two large strokes.",
+    "testing-plan": "1. Bisect the MESH-79 layer with stroke-report; 2. StrokeSculptTest.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MESH-86 makes every sculpt one summed pass, so this interference now applies to the whole sculpt. One mechanism fixed there: the refinement gap rule (a third of the gap to any other stroke) now counts only opposite-sign neighbours. The far-side pits still need MESH-79's layers; the retest is in MESH-87."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java"
+    ],
+    "priority": 3
+}

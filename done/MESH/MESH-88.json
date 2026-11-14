@@ -1,0 +1,28 @@
+{
+    "id": "MESH-88",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "sculpt"
+    ],
+    "title": "Blind stroke-sculpt skull run 4 with surface-curve strokes and one-pass sculpting",
+    "user-messages": [
+        "and then after both are ready do a 4th blind run with the new tools"
+    ],
+    "description": "Fourth blind stroke-sculpt run on the skull, using the tools MESH-80 and MESH-86 added. It tests whether those tools let a sculptor working only from reference pictures get closer than run 3 (MESH-79) did. The new tools:\n- strokes stored as surface curves on the base, applied in one pass;\n- sculpt-sync, so a stroke drawn in one view shows and moves in all 8;\n- data-radius and data-depth in world units;\n- the per-stroke report, bowl fills, and silhouette strokes that move an outline;\n- a symmetric silhouette_hull base and outline-compare.\n\nStacked on mesh-86 (itself on mesh-80); the sculpt lives in resources/dsl/skull4/.\n\nStage 1 (orchestrator): new jittered references; the base comes from trace-outlines into silhouette_hull(symmetry=\"x\"), volume_to_mesh, keep_largest_part, smooth_mesh and quad_layout, saved as base.ply. It is checked against the traced outlines with outline-compare, against a threshold set beforehand.\n\nStage 2: the sculptor works in rounds; a judge that sees only numbers scores each round and alone ends the run. The rule: a round counts as a change when it beats the best so far by at least 0.5% (relative) in chamfer or image distance; stop after three consecutive rounds without a change, or when chamfer reaches twice the floor; no round cap. Image distance is rendered with the headlight on.\n\nKnown gaps going in:\n- MESH-78's fold and crossing limiter is not in the one-pass code, so a mesh can still turn inside out.\n- quad_layout folds about 20 faces of a fold-free hull (PATCH-128).\n\nRecord every friction the sculptor hits.",
+    "blocked-by": [
+        "MESH-86"
+    ],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "dsl/skull4/ holds base.dsl, base.ply, the outlines SVG, one-pass skull.dsl with its SVG and .strokes sidecar, and loads; the judge stopped the run by the rule and its scores file records every round; the final sculpt is shown beside the references with an animation of the rounds; every friction hit is recorded on this ticket.",
+    "testing-plan": "No code: the judge scores each round with mesh-compare chamfer/Hausdorff and a headlit clay image distance, all numbers recorded in the judge directory and, after the stop, in tmp/mesh-88-measurements.json.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Run 4 stopped by the judge after round 5 (no-change streak: rounds 3-5). Base outline checkpoint 60.4 px against 70 after the MESH-80 upside-down read fix (the flipped base scored 101). Best chamfer 0.01649 at round 2 (base 0.02004, floor 0.00216; best of any run: run 3 0.01804, run 2 0.01986, MESH-68 with the goal visible 0.0170). Image distance (headlight on) never beat the base 0.2677, rising to 0.32; Hausdorff fell 0.146 to 0.107. Mid-run, sculpt-sync bugs found in round 1 were fixed in MESH-86 and round 1 re-scored (0.016728). Final sculpt dsl/skull4/skull.dsl (base.ply + one stroke_sculpt, 43 strokes in 8 groups); per-round numbers in tmp/mesh-88-measurements.json; sculptor notes tmp/rounds.md, tmp/frictions.md, side-by-side tmp/final_vs_references.png. Limits: eye sockets capped near 0.22 deep by surface folding (MESH-78), no holes through the surface, teeth as even blocks; open tool problems ticketed separately.",
+        "Archived 2026-11-01 without landing, as tag archive/mesh-88 at 0975f408: Blind skull run 4 finished: judge stopped after round 5, best chamfer 0.0165 at round 2; results on the ticket, open tool problems in MESH-89"
+    ],
+    "related-files": [],
+    "priority": 3
+}

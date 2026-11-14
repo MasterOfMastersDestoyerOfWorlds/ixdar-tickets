@@ -15,7 +15,9 @@
     "testing-plan": "1. Mac: mvn test -Dtest=InteriorPointQpTest,GoldenFingerprintTest.\n2. Linux: the same, unchanged results.",
     "todos": [],
     "unknowns": [],
-    "changes-made": [],
+    "changes-made": [
+        "Done headless on the Mac Studio 2026-10-25, uncommitted in acw28@andrews-mac-studio:~/Code/Ixdar/.claude/worktrees/mesh-66 (report: ~/agent-runs/mesh-66.log). Cause: AccelerateCholeskyFactor.refactorize threw IllegalStateException on SparseRefactorSymmetric status -1, bypassing InteriorPointQp's SingularSystemException regularisation ladder; now throws SingularSystemException (UNKNOWN_PIVOT) like the constructor. Test InteriorPointQpTest.unregularizedRankDeficientHessianAccelerateRefactorize (skips without Accelerate). Golden: per-backend, GoldenFingerprintTest reads <graph>.accelerate.json when Accelerate is active (quad_layout_sphere positions differ, counts and topology outputs identical). Needs review: an added Platforms.log line, and a rename TINT_SHARE_FLOOR -> SHARE_FLOOR in DslGraphView to satisfy ColorLiteralCheck on the Mac's newer autofix."
+    ],
     "related-files": [
         "ixdar-app/src/main/java/ixdar/numeric/sparse/chol/accelerate/AccelerateCholeskyFactor.java",
         "ixdar-app/src/main/java/ixdar/numeric/sparse/InteriorPointQp.java",

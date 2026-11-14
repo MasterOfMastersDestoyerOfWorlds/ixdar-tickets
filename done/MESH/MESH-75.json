@@ -1,0 +1,33 @@
+{
+    "id": "MESH-75",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Blind skull run 2: judge-stopped rounds over named sculpt layers",
+    "user-messages": [
+        "go ahead"
+    ],
+    "description": "Second blind stroke-sculpt run on the user's skull, under the revised stroke-sculpt skill (ai-workspace .claude/skills/stroke-sculpt). The first run (MESH-72, archived as archive/mesh-72) reached chamfer 0.0238 against a floor of 0.00216, after the sculptor stopped itself at pass 9 of a numbered pass chain; its scores are in ~/.cache/ixdar-sculpt-judge/skull/scores-mesh72.json.\n\nWhat changes from run 1, all in the skill:\n- Only the judge stops the run. The sculptor works one round per turn and hands back; the judge scores the round's snapshot and answers continue or stop by a rule it writes down before round 1; the orchestrator resumes the sculptor with the single word \"continue\", never a number.\n- The sculpt is one DSL of named layers (shape, then parts such as cranium, eye_sockets, jaw, teeth), each a stroke_sculpt node reading <part>.svg, revised round by round instead of appended to; each round is snapshotted to tmp/rounds/round<NN>/.\n- The DSL may use any node in docs/mesh-node-catalog.json; the sculpting tools are the focus.\n\nTooling it waits on: MESH-73 (refinement terracing and patchy blocks, which made run 1's sculptor stop) and MESH-74 (round animation, trace-reference, multiview --outline, multiview --dsl).\n\nOrchestrator: render the references with render_references.py and a new seed (run 1 used 31) into the worktree's tmp/references/, check the pictures, brief a fresh sculptor that has never seen the goal, and brief a separate judge that never opens a picture.",
+    "blocked-by": [
+        "MESH-73",
+        "MESH-74"
+    ],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. The references are rendered through Ixdar with a new seed recorded in the judge directory's manifest; the sculptor's worktree never contains the goal mesh, a manifest or a score.\n2. resources/dsl/skull/skull.dsl is a sphere, named stroke_sculpt layers each reading a tracked <part>.svg, and a subdivision; a launch.json entry opens it.\n3. tmp/rounds/round<NN>/ holds every round's snapshot, and tmp/rounds.md one entry per round.\n4. The judge ended the run: scores-<run>.json in the judge directory holds the floor, the judge's stop rule, and per round the chamfer, Hausdorff and decision.\n5. A round animation (MESH-74's sculpt-animate rounds mode) and a final multiview next to the references are under tmp/.\n6. changes-made compares the final chamfer with run 1's 0.0238 and MESH-68's 0.0170.",
+    "testing-plan": "1. Before briefing, open every reference picture and confirm the jitter, field-of-view spread and framing.\n2. After the run, the judge re-evaluates the final DSL headless and in the viewer and gets the same chamfer.\n3. grep the sculptor's worktree and its reports for the judge directory path and the goal file names; there must be no hit.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Judge (numbers only): floor 0.00216 chamfer. Stop rule written before round 1: stop at 2x floor, or from round 5 when the best chamfer gains under 3% over three rounds, or at round 30. Chamfer by round: sphere 0.04978, then 0.02201, 0.02121, 0.02111, 0.02034, 0.02054, 0.02029, 0.01986; the plateau clause stopped the run after round 7 (2.35% over three rounds). Final 0.01986 beats run 1 (MESH-72) 0.0238 and closes 63% of the start-to-floor gap, against run 1's 52% and MESH-68's 68% (0.0170, goal visible). Scores in ~/.cache/ixdar-sculpt-judge/skull/scores-mesh75.json; references seed 75.",
+        "Sculptor: 12-node DSL with named layers shape, face, skull_base, cranium, jaw, brow, eye_sockets, nasal_opening, cheekbones, teeth, then subdivision; snapshots in tmp/rounds/round01-07, log in tmp/rounds.md, animation tmp/sculpt_animation/animation.gif, tmp/final_vs_references.png. Largest remaining error: the solid block behind the jaw, which no stroke kind could reach (side silhouettes lift only the centre line, Back/3/4/Top silhouettes catch outlines at other depths, fills push through to the far wall). Also hit: a stroke exactly on the symmetry plane fails to load (nearest-vertex tie); a 25 px fill falloff refined to 2.7M vertices. Its tmp/work scripts (iou.py, diff.py, overdraw.py, overlay.py, mv.sh) are candidates for ixdar-cli commands.",
+        "Archived 2026-10-31 without landing, as tag archive/mesh-75 at 8a6fa784: Blind run 2: judge stopped after round 7, chamfer 0.0199 (run 1: 0.0238); kept as the archive, not landed"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/skull/skull.dsl"
+    ],
+    "priority": 3,
+    "review-summary": "The blind stroke-sculpt skull in dsl/skull/skull.dsl is now a chain of named layers drawn from reference pictures alone, stopped by a judge who saw only the distance to the goal. It measures how far stroke sculpting gets without the goal mesh, as in real use.\n"
+}

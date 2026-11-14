@@ -1,0 +1,36 @@
+{
+    "id": "MESH-79",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Blind skull run 3: saved silhouette base mesh, then sculpt",
+    "user-messages": [
+        "I think though I want two stages so that the sculpt result is still quick to load it is fine to not show the blind run the base mesh mesh-77 agent made but I'd want the base mesh saved off and compared against hte sillouettes as a midway checkpoint thenthe sculptor agent starts sculpting once it has the silouette matched",
+        "[recalled] 1 (to: accept this base and start the sculpt)"
+    ],
+    "description": "Blind skull run 3, in two stages, so the sculpt still loads quickly and the sculptor starts from a shape whose silhouettes already match the references.\n\nStage 1, base mesh (built before the sculptor starts; the sculptor does not need to see how it was made):\n- From the seed-77 skull references (MESH-77's tmp/skull/references/), the robust tracing command from MESH-77 writes one outlines SVG; silhouette_hull + quad_layout build the base.\n- The result is saved off as a mesh file, ixdar-app/src/main/resources/dsl/skull3/base.ply (PLY, tracked; *.obj is gitignored), together with the outlines SVG and the DSL that built it (dsl/skull3/base.dsl), so the base can be rebuilt but the sculpt never recomputes it.\n- Midway checkpoint: the saved base is compared against the traced silhouettes in every view (mean/max px, IoU per view, overlay pictures), and the judge separately records its chamfer/Hausdorff against the goal in the judge directory (scores-mesh79.json, round 0 = base). Stage 2 starts only when the base matches the silhouettes within a threshold set before building it.\n\nStage 2, sculpting (blind, per the stroke-sculpt skill):\n- The sculpt DSL starts `base = load_mesh(path=\"dsl/skull3/base.ply\")` and adds named stroke_sculpt layers for what no outline shows (eye sockets, nasal opening, cheekbones, teeth, brow), revised round by round; the judge alone stops the run.\n- The sculptor sees the seven reference pictures and the base mesh only; never the goal, the manifest, scores or the judge directory.\n\nCompare in changes-made: base alone vs run 2's final (0.0199) and MESH-68 (0.0170), and the final against all three.",
+    "blocked-by": [
+        "MESH-77"
+    ],
+    "blocks": [
+        "MESH-81",
+        "MESH-87"
+    ],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. dsl/skull3/base.ply, base.dsl and the outlines SVG are tracked; base.dsl rebuilds base.ply.\n2. The midway checkpoint (per-view outline error, IoU and overlays of the base vs the traced silhouettes, threshold stated before building) is recorded in changes-made and tmp/, and the judge's round-0 score of the base is in scores-mesh79.json.\n3. dsl/skull3/skull.dsl loads base.ply with load_mesh and adds named stroke_sculpt layers; it loads quickly (load time recorded).\n4. The judge stopped the run; scores-mesh79.json holds the stop rule and every round.\n5. A round animation, a final multiview next to the references and a launch entry exist.\n6. changes-made compares base and final against run 2 (0.0199) and MESH-68 (0.0170).",
+    "testing-plan": "1. Rebuild base.ply from base.dsl and compare fingerprints.\n2. grep the sculptor's worktree and reports for the judge directory and goal file names; no hit.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Stage 1 checkpoint (threshold fixed before measuring: every view mean <= 20 px, seven-view sum <= 70 px, 1280 px cells, against the traced outlines in dsl/skull3/outlines.svg): saved base.ply (hull res 48, strict, rounding 8, smooth 10 passes, quad_layout 2.0) measured Front 11.7, Right 15.7, Top 8.0, Back 23.6, Left 9.0, 3/4 Front-R 12.9, 3/4 Front-L 10.4 (sum 91.3): FAILS. The base sits inside every outline (strict hull plus rounding and smoothing shrink it). Variant rounding 4: sum 86.0, Back 23.1, still fails; rounding 2 and rounding 8 without smoothing both fail in quad_layout (folded map). Stage 2 not started.",
+        "User decision after the failed checkpoint: accept the saved base as is and start stage 2; the sculptor's work includes pushing the outline out where the base falls short.",
+        "Judge (numbers only): floor 0.00216. Stop rule written before round 1: stop at 2x floor; from round 4, stop if the last three rounds closed under 3% of the gap to the floor left three rounds earlier; cap 30. Chamfer: base (round 0) 0.02116, then 0.01842, 0.01967, 0.01830, 0.01804; the plateau clause stopped the run after round 4 (2.32%). Final 0.01804 beats run 2 (0.01986, from a sphere) and run 1 (0.02377), short of MESH-68 (0.0170, goal visible). The base alone matched run 2's round 2. Scores in ~/.cache/ixdar-sculpt-judge/skull/scores-mesh79.json; references seed 77.",
+        "Sculptor: dsl/skull3/skull.dsl loads base.ply and adds layers outline, eye_sockets, brow, nasal, cheekbones, jaw, teeth (3.5 s load, 98,875 vertices). Tool problems it hit: strokes within about 40 px of a cell's silhouette take no effect and the node gives no warning (a silhouette cannot be moved from its own view); the base's face was turned (right half up to 0.17 behind the left), from the strict hull of inconsistent traces; symmetry=x and mirrored strokes keep failing with 'ambiguous nearest vertex ... tie' (about six times; nudging a pixel clears it); refinement noise on the cranium; trace-reference fits traces to the sculpt's own height, so a shortfall cannot show; round snapshots holding base.dsl conflict with sculpt-animate --rounds. Snapshots tmp/rounds/round01-04, animation tmp/animation/, tmp/final_vs_references.png.",
+        "Archived 2026-11-01 without landing, as tag archive/mesh-79 at 244bc7b2: Blind skull run 3 finished: judge stopped after round 20, best chamfer 0.0178 at round 8; layered sculpt superseded by one-pass stroke_sculpt (MESH-86)"
+    ],
+    "related-files": [],
+    "priority": 3,
+    "review-summary": "The blind stroke-sculpt skull in dsl/skull3/ now starts from a saved base mesh carved from the reference pictures' silhouettes, with named sculpt layers on top, stopped by a judge who saw only the distance to the goal. It tests whether a silhouette-matched start beats starting from a sphere.\n"
+}

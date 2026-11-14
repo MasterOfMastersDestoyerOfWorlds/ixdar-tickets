@@ -1,0 +1,27 @@
+{
+    "id": "MESH-83",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Feature placement tools for stroke sculpting (sockets, teeth, grooves)",
+    "user-messages": [
+        "can we make a ticket ot fix all of the frictions we are finding"
+    ],
+    "description": "Split from MESH-80 item 6. Run 3's detail strokes lowered chamfer but made the shaded form less faithful: image distance (1 - SSIM on clay renders against the goal) rose from 0.271 at the base to 0.324 by round 4. Placing and shaping features (eye sockets, teeth, grooves) with freehand polylines and polygons is imprecise: a sculptor cannot place a feature relative to another, give it a profile, or repeat it (a row of teeth).\n\nWhy it is its own ticket: this is a new tool design, not a defect with a cause in the current tools. MESH-80 added the pieces it can build on: strokes in world units (data-radius, data-depth), a bowl profile for fills (data-profile=\"bowl\"), per-stroke reports (radius, depth, peak displacement, points dropped), outline-compare for silhouettes. Candidates: parametric feature strokes (an ellipse socket with a depth profile, a repeated tooth row with spacing), anchoring a stroke to landmarks picked on the surface, and an image-distance check (SSIM on clay against the reference pictures) the sculptor can run per layer.",
+    "blocked-by": [
+        "MESH-80"
+    ],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. A sculptor can place, profile and repeat a feature relative to others, and run 3's detail layers redrawn with it lower the image distance instead of raising it.",
+    "testing-plan": "1. Redraw MESH-79's detail layers; 2. judge's chamfer and SSIM before/after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/sculpt/StrokeSculpt.java"
+    ],
+    "priority": 3
+}

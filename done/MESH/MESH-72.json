@@ -1,0 +1,38 @@
+{
+    "id": "MESH-72",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes"
+    ],
+    "title": "Blind stroke-sculpt run on the user's skull: sculptor sees only Ixdar-rendered reference pictures, judge sees only chamfer",
+    "user-messages": [
+        "yes"
+    ],
+    "description": "A blind run of stroke sculpting on the user's skull, following the stroke-sculpt skill (ai-workspace .claude/skills/stroke-sculpt). It measures how far the tools get from reference pictures alone, without the goal mesh or a score to hill-climb, as in real use. Compare it with MESH-68 (0.0170 chamfer with goal renders, traced goal outlines and chamfer feedback).\n\n- Orchestrator (the main session): the goal is in ~/.cache/ixdar-sculpt-judge/skull/, never in a worktree. Render the references through Ixdar with the skill's render_references.py (orbit-set --fov --roll, from MESH-70) into the sculptor's worktree tmp/references/, with a new seed. Check the pictures, then brief a fresh sculptor agent that has never seen the goal.\n- Sculptor: sees only tmp/references/*.png and its own sculpt. It builds resources/dsl/skull/ as chained stroke_sculpt passes, judges each pass against the pictures in tmp/passes.md, and stops on its own judgement or at the pass limit (12).\n- Judge: a separate agent that sees only the sculptor's DSL and the goal mesh, never a picture. It measures the chamfer floor and scores every pass headless into the judge directory.\n- The result replaces master's broken stroke_sculpt_skull.dsl. That file loads an OBJ that never landed because *.obj is gitignored.",
+    "blocked-by": [
+        "MESH-70"
+    ],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. The reference set is rendered through Ixdar only (no Blender) with the run's seed recorded in the judge directory's manifest.\n2. The sculptor's worktree never contains the goal mesh, a manifest or a score; its report confirms it found none.\n3. A chained-pass skull DSL under resources/dsl/skull/ with every pass SVG tracked (nothing gitignored), replacing stroke_sculpt_skull.dsl, opened by a launch.json entry.\n4. The judge's scores-<run>.json holds the floor and chamfer/Hausdorff per pass; the final numbers and MESH-68's 0.0170 are compared in the ticket's changes-made.\n5. The sculptor's tmp/passes.md and a final multiview next to the references are under tmp/.",
+    "testing-plan": "1. Before briefing: open every reference picture and confirm the jitter, FOV spread and framing look like a real reference set.\n2. After the run: the judge re-evaluates the final DSL headless and in the viewer and gets the same chamfer.\n3. grep the sculptor's worktree and transcript summary for the judge directory path and goal file names; there must be no hit.",
+    "todos": [],
+    "unknowns": [
+        "Does the sculptor get the pass limit only, or also a time budget?"
+    ],
+    "changes-made": [
+        "Added ixdar-app/src/main/resources/dsl/skull/skull.dsl plus pass1.svg-pass9.svg: sphere(size 2, res 64) -> 9 stroke_sculpt passes (symmetry x, strength 1) -> subdivision_surface(levels 1), drawn blind from tmp/references only. Passes: 1-4 outline and proportion (front, side, top silhouettes, lower back cut, occiput step), 5 orbits and nasal aperture, 6 brow, nasal bridge, cheek hollow, zygomatic arch, temporal fossa, 7 bite line and teeth, 8 chin and under-occiput outline, 9 hollow under the arch and mandible border.",
+        "Added launch.json entry 'Mesh Node Viewer: stroke-sculpt skull' (plain name, kept on land) opening dsl/skull/skull.dsl in mesh-viewer.",
+        "Not reached by strokes: ear canal, the opening between ramus and maxilla, mastoids (stroke_sculpt displaces, it cannot cut holes); socket and fossa rims terrace at the local refinement edge.",
+        "Tool gap found: the multiview --svg template's own comment contains a literal polyline tag that StrokeSketch's regex parser reads as a stroke, so the DSL fails with 'For input string: x' while ixdar-cli model still reports ok; each template comment was reworded by hand.",
+        "Sculptor artifacts under tmp/: subject.md, passes.md, captures/, animation/ (sculpt-animate frames, mp4, gif), final_vs_references.png. Judge scores and the comparison with MESH-68's 0.0170 are for the judge/orchestrator to add; master's stroke_sculpt_skull.dsl was not touched by the sculptor.",
+        "Judge (blind, numbers only), against the 57k goal with mesh-compare --normalize. Floor 0.00216 chamfer / 0.0046 Hausdorff. Chamfer by pass: sphere 0.0498, then 0.0488, 0.0409, 0.0343, 0.0323, 0.0277, 0.0268, 0.0256, 0.0247, 0.0246; final skull.dsl (with subdivision) 0.0238, Hausdorff 0.166. Chamfer fell every pass and levelled off at 8-9. MESH-68 reached 0.0170 with the goal's renders and chamfer feedback; blind is about 40% higher, closing 52% of the start-to-floor gap against MESH-68's 68%. The orientation of goal and sculpt agrees (both face +z, y up). The sculpt is too wide for its height: width:height 0.82 against the goal's 0.72.",
+        "Archived 2026-10-31 without landing, as tag archive/mesh-72 at 7ea2a548: Blind run 1: sculptor stopped itself after 9 passes, chamfer 0.0238; rerun under the revised stroke-sculpt protocol"
+    ],
+    "related-files": [
+        "ixdar-app/src/main/resources/dsl/stroke_sculpt_skull.dsl"
+    ],
+    "priority": 3,
+    "review-summary": "A sphere is sculpted blind into a skull by nine chained stroke_sculpt passes in dsl/skull/skull.dsl, drawn only from the reference pictures. It is the replacement for the broken stroke_sculpt_skull.dsl demo and gives the judge a pass-by-pass DSL to score.\n"
+}

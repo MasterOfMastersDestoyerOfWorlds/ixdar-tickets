@@ -1,0 +1,39 @@
+{
+    "id": "TOOL-53",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation"
+    ],
+    "title": "Profile every scene run: async-profiler on every launch path, one capture per run",
+    "user-messages": [
+        "> When only one ticket is being worked on, I\u2019ll start it as its own session like this rather than as a background agent. That preference isn\u2019t written down anywhere yet. The natural place is the Subagents section of the ai-workspace CLAUDE.md, but I\u2019ll only edit that if you ask.\n\nalso every time we run a scene we should be doing hte profiler, ensure that all paths use it"
+    ],
+    "description": "Every scene run attaches async-profiler and keeps its CPU flame graph, whichever path started it, so the question \"what was slow\" is always answered by the capture of the run that was slow (MESH-91's stroke-key run had no profile to read because ixdar-cli started its scene unprofiled).\n\nHow each launch path stands today (checked 2026-11-02):\n- `ixdar-cli run-scene` (also how agents start a headless scene for route calls, with keep-alive): profiles only with `--profile`; `_java_command` in `ixdar_automation_cli/cli_commands/run_scene.py` adds the agent only when a profile path is given.\n- `ixdar-cli mesh-viewer` (windowed viewer, `cli_commands/mesh_viewer.py`): its own `_java_command`, never profiles.\n- `ixdar-cli launch` (`cli_commands/launch_entry.py`, what `ixd wt done` runs): uses the entry's vmArgs, so it profiles exactly when the entry references `${config:java.profiler.args}`.\n- `.vscode/launch.json` (F5): the newer entries start with `${config:java.profiler.args}`; the older Java entries do not (Launch Main, Ixdar, Trade Irregular Grid Scene, Bouncing Line, Circle, Bezier, Line, Arrow Line, the Dashed Line ones, Model Load, Launch Current File, Mesh Node Viewer), and \"Launch Profile\" still points at a Windows VisualVM agent on Z:.\n- `ixd wt launch-add` (ai-workspace) already writes entries with the profiler token.\n- Every profiled path writes the same `${workspaceFolder}/profile.html` (`DEFAULT_PROFILE_PATH`, `java.profiler.args` in `.vscode/settings.json`), so two scenes in one checkout overwrite each other's capture, and a keep-alive scene stopped by a kill never flushes its HTML.\n\nWanted:\n1. One place that builds the profiler `-agentpath` argument, used by run-scene, mesh-viewer and launch; profiling on by default for every scene, with no opt-out flag needed for normal use (keep `--profile-event` for alloc and the like).\n2. A capture per run, not one shared file: e.g. `tmp/profiles/<scene>-<pid>.html`, the path printed in the launch summary and the port record (`tmp/automation/<pid>.json`), so `ixdar-cli shutdown` and the run's caller know where it went; `profile-report` with no path reads the newest capture.\n3. Orderly shutdown on every path that ends a scene the CLI started (shutdown, the run-scene timeout, keep-alive scenes swept by shutdown) so the HTML is flushed; say so when a capture is missing because the JVM was killed or crashed.\n4. Every Java launch.json entry carries `${config:java.profiler.args}`; the VisualVM entry is removed or converted; settings.json's `java.profiler.args` writes per-run files the same way if async-profiler's file pattern allows it (`%p`, `%t`).\n5. A missing profiler library is fixed by linking it (the existing link-profiler logic) rather than failing every launch, with a clear message when async-profiler is not installed.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. run-scene (with and without keep-alive), mesh-viewer and launch each attach the profiler by default; shown by running each once (under timeout 60) and listing the capture each produced under tmp/profiles/, with `ixdar-cli profile-report` output for one of them.\n2. Two scenes run at once in one checkout leave two separate captures.\n3. A keep-alive scene stopped with `ixdar-cli shutdown`, and a run-scene that hits its timeout, both leave a flushed capture.\n4. Every Java entry in .vscode/launch.json references `${config:java.profiler.args}`; no entry points at VisualVM.\n5. Unit tests in ixdar_automation_cli/test_cli.py for the shared agent-argument builder, the per-run path, and each launch path's command line carrying it; the CLI test suite passes.\n6. Docs regenerated from docstrings where the CLI's help changed; anything in Ixdar/CLAUDE.md that goes stale is listed in the report, not edited.",
+    "testing-plan": "Run the CLI unit tests; start a scene through run-scene, run-scene keep-alive, mesh-viewer and launch, each under timeout 60, and list the captures; run two scenes at once; read one capture with profile-report.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "link_profiler.py: profiler_agent_argument (one -agentpath per run, tmp/profiles/<label>-<time>-%p.html, empty with the reason when async-profiler is missing so the scene still starts), capture_path, profile_capture (by pid or newest); link-profiler creates tmp/profiles.",
+        "run-scene always profiles (the --profile flag is gone; --profile-path and --profile-event stay), names the capture as profile up front, prints hot methods when it shuts the scene down, including after a readiness timeout.",
+        "mesh-viewer and launch attach the same agent; launch swaps an entry's own async-profiler agent for this run's capture; both name it as profile.",
+        "shutdown sends SIGTERM before SIGKILL (a SIGTERM still flushes the capture) and names each stopped scene's capture; profile-report takes the path positionally and defaults to the newest capture.",
+        ".vscode/settings.json java.profiler.args writes tmp/profiles/f5-%t-%p.html; every Java entry in .vscode/launch.json now starts with the profiler token; Launch Profile's Windows VisualVM agent is replaced by it.",
+        "Verified (each under timeout 60): run-scene, run-scene --keep-alive then shutdown, launch \"Mesh Node Viewer\", and a run-scene that missed its readiness timeout each left their own capture in tmp/profiles and a hot-method table; mesh-viewer (windowed) checked by unit test only, since it opens a desktop window. Two CLI scenes cannot run at once in one checkout (refuse_second_scene), so separation is shown by per-pid names. CLI suite: 123 tests OK.",
+        "Docs: gen-docs --check reports CLAUDE.md and README.md drift (run-scene's summary line and flags); Ixdar/CLAUDE.md Profiling section still says run-scene --profile and profile-report profile.html. Not regenerated, since gen-docs rewrites CLAUDE.md; the user decides."
+    ],
+    "related-files": [
+        "ixdar_automation_cli/cli_commands/run_scene.py",
+        "ixdar_automation_cli/cli_commands/mesh_viewer.py",
+        "ixdar_automation_cli/cli_commands/launch_entry.py",
+        "ixdar_automation_cli/cli_commands/link_profiler.py",
+        ".vscode/launch.json",
+        ".vscode/settings.json"
+    ],
+    "priority": 3,
+    "review-summary": "Every scene launch (run-scene, mesh-viewer, launch and every F5 entry) now attaches async-profiler and writes its own capture under tmp/profiles, which shutdown and profile-report find by pid. A slow run used to leave no profile because only run-scene --profile captured one, into a single shared file.\n"
+}

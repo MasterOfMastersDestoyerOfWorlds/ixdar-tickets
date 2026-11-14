@@ -1,0 +1,53 @@
+{
+    "id": "MESH-94",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geo-nodes",
+        "image-processing",
+        "automation"
+    ],
+    "title": "Picture-to-mesh as nodes: trace, place and sculpt from reference pictures in a DSL, replacing the trace CLI routes",
+    "user-messages": [
+        "> into image code for no gain\n\nwhat if I want a dsl that does the entire pipeline? or what if I want to take traced curves and put them into 3d?",
+        "yes probably those cli routes should vanish as well",
+        "deisgn is fine"
+    ],
+    "description": "Split out of MESH-92 on 2026-11-05. The stroke-sculpt picture pipeline (reference pictures to traced outlines, shading-edge strokes, silhouette hull and sculpt) runs as CLI-only automation routes that hand their results onward as SVG files. The user wants a DSL that does the entire pipeline, and wants traced curves usable in 3D. Make each stage a node over MESH-93's curve type, and remove the routes.\n\nToday:\n- `POST /mesh/trace-reference` (TraceReference): a reference picture's silhouette into one cell of a `multiview --svg` template, scaled to the sculpt's silhouette height in that cell or to a world height and centred on it.\n- `POST /mesh/trace-outlines` (TraceOutlines): several pictures' outlines into one orthographic template at one shared world scale, the form silhouette_hull reads.\n- `POST /mesh/reference-strokes` (ReferenceStrokesRoute, ReferenceStrokes): the pictures fitted as trace-outlines fits them, every shading edge (ShadingEdges) turned into ridge/valley chains and hollows into bowl fills, cast onto the base and drawn through the template's camera.\n- `POST /mesh/reference-compare` (ReferenceCompare): compares a sculpt's silhouette with traced outlines.\n- silhouette_hull and stroke_sculpt take their outlines and strokes only as an `svg` STRING input; there is no image port and no node that reads a picture.\n- The image code (PixelImage.outlines, SubjectOutline, ShadingEdges) works on 2D pixel polylines and simplifies them with PolylineSimplify.\n\nThe change:\n1. A way to bring a picture into the graph: an image port type, or a node that loads a picture file into a PixelImage.\n2. Tracing nodes: subject outline (SubjectOutline) and shading edges (ShadingEdges) output CurveGeometry in the picture plane (z = 0, pixel units, closed flags, the edge attributes as curve attributes).\n3. Placement nodes: picture-plane curves onto a world plane, and unprojected through a multiview camera cell (the inverse of StrokeSketch.cellPixel / Camera3D.projectToPixels). The placement maths in TraceReference and TraceOutlines moves here.\n4. Stroke derivation as a node: what reference-strokes does, from curves and a base mesh to strokes.\n5. silhouette_hull and stroke_sculpt take curves (or strokes) as inputs next to `svg`; an svg_to_curves node keeps hand-drawn SVGs working.\n6. Remove the trace-reference, trace-outlines and reference-strokes routes and their ixdar-cli commands; the same work is a DSL. A shipped DSL runs pictures to hull to sculpt (silhouette_hull_skull from its pictures, replacing the checked-in outlines.svg if the result matches).\n\nBuilds on MESH-90 (shading-edge strokes, in REVIEW), which owns ShadingEdges and ReferenceStrokes; wait for it to land. MESH-84 (silhouette_hull of inconsistent traces) uses trace-outlines output.\n\nThe stroke-sculpt skill in ai-workspace (.claude/skills/stroke-sculpt/SKILL.md) tells its roles to run trace-outlines, trace-reference and reference-strokes. A ticket agent must not edit ai-workspace: list what goes stale in the final report for the user.",
+    "blocked-by": [
+        "MESH-93",
+        "MESH-90"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Nodes load a picture, trace its subject outline and shading edges as CurveGeometry, and place picture-plane curves on a world plane and through a multiview camera cell.\n2. silhouette_hull and stroke_sculpt accept curves directly; an svg_to_curves node reads existing SVG templates.\n3. The trace-reference, trace-outlines and reference-strokes routes and their ixdar-cli commands are gone; nothing in Ixdar calls them.\n4. A shipped DSL goes from reference pictures to a sculpted mesh with no CLI step, and its outlines match the old routes' within a recorded tolerance (before/after on the ticket).\n5. MeshNodeIndependenceTest, GoldenFingerprintTest and the full suite pass; a launch entry and screenshot of the new DSL under tmp/.\n6. The final report lists what in the stroke-sculpt skill goes stale.",
+    "testing-plan": "1. Before removing the routes, run trace-outlines, trace-reference and reference-strokes on the skull's reference pictures and keep their SVGs; compare the new nodes' curves with them (outline-compare, or point distances in pixels).\n2. Build the hull and sculpt from the new DSL and compare with silhouette_hull_skull's current output.\n3. Full mvn test.",
+    "todos": [
+        "DONE : MESH-93 removed PolylineSimplify: the image code now simplifies through CurveGeometry.planar / planarLoop(...).simplified(...).drawnPlanar(0). Turn the stored xy fields (SubjectOutline.outline, ShadingEdges.lines, PixelImage.outlines' int[] loops) into CurveGeometry so the tracing nodes output them directly."
+    ],
+    "unknowns": [
+        "Image port type or a load-picture node that outputs a PixelImage inside a bundle slot?",
+        "Does reference-compare go too (a compare node over curves), or stay as a route for judging?",
+        "The stroke-sculpt skill keeps the goal mesh out of the sculptor's sight; does a DSL that reads pictures keep that separation?"
+    ],
+    "changes-made": [
+        "New IMAGE port type (PixelImage) and nodes in nodegraph/nodes/picture: load_picture, trace_outline (closed CurveGeometry in pixels at z = 0, curve attributes view, box_x/y/width/height, picture size), shading_edges (edge lines open, dark regions closed, with width, contrast, ridge, darkness, area, blob, light as curve attributes), fit_references (trace-outlines' shared-scale fit: world outline curves on each view's plane, the fit and an orthographic template on the bundle, and the template SVG), place_in_cell (picture curves scaled to a world height at a template cell's orbit centre and unprojected through its camera), curves_to_cells (world curves drawn into template cells as SVG polylines), svg_to_curves (an SVG's shapes as world curves), reference_strokes (the old route's strokes as SVG text for stroke_sculpt). merge_curves puts up to eight curve sets side by side. graphics/image/PictureCurves converts SubjectOutline and ShadingEdges to and from curves exactly.",
+        "silhouette_hull gains an outlines input (world curves tagged by cell, carrying their template; StrokeSketch.templateOf / cellOutlines(curves) / cellPixels / cellPlanePoint). stroke_sculpt takes reference_strokes' svg output directly (it already took SVG text). The multiview's eight view labels and angles moved to ReferenceOutlines so nodes need not import automation code.",
+        "Removed the trace-reference, trace-outlines and reference-strokes routes (TraceReference, TraceOutlines, ReferenceStrokesRoute) and their CLI commands (manifest regenerated, README sections removed). reference-compare stays: it is a judging picture, not a pipeline stage; its two constants moved into it.",
+        "Shipped dsl/skull_from_pictures.dsl with its seven pictures (dsl/skull_from_pictures/ref_0*.png, rendered by render_references.py with seed 77, the mesh77 cameras): pictures to outlines to fit to hull to base to strokes to sculpt in one graph, 7.7 s. silhouette_hull_skull keeps its checked-in outlines.svg: its top trace was hand-edited (the jaw replaced), which no picture reproduces.",
+        "Before/after (PictureGraphsBenchmark against the routes run on the same pictures): fit_references' svg identical to trace-outlines' (7/7 polylines, root); the base from its svg identical to the old base (Hausdorff 0.00), from its world curves 0.0219 at subject height 2 with the same 20428/40852 counts (no 0.1 px SVG rounding); reference_strokes on the same base and template 181/181 shapes, one point 0.1 px apart. place_in_cell centres on the cell's orbit centre where trace-reference centred on the sculpt's silhouette in a capture PNG; no capture enters the graph.",
+        "Unknowns answered: image port, not a bundle slot; reference-compare stays a route; the separation holds, the DSL reads only the reference pictures. Tests: unit/mesh/PictureNodesTest (7)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/mesh/TraceReference.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/mesh/TraceOutlines.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/mesh/ReferenceStrokesRoute.java",
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/mesh/ReferenceCompare.java",
+        "ixdar-app/src/main/java/ixdar/graphics/image/SubjectOutline.java",
+        "ixdar-app/src/main/java/ixdar/graphics/image/ShadingEdges.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/patch/SilhouetteHullNode.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/modifier/StrokeSculptNode.java"
+    ],
+    "priority": 3,
+    "review-summary": "Reference pictures now enter the node graph: new picture nodes trace, fit and place them as curves, feed silhouette_hull and stroke_sculpt, and replace the trace CLI routes. A whole picture-to-sculpt pipeline is one DSL, and traced curves can be used in 3D.\n"
+}
