@@ -7,7 +7,13 @@
 
 ---
 
-## Game Engine (10 tickets, priority 1)
+## Game Engine (11 tickets, priority 1)
+
+### Review (1)
+
+- [ENG-41](content/ENG/ENG-41.json) **ENG-41** Lift the ~10,000-primitive ortho depth budget per 2D frame -- A 2D frame can draw only about 10,000 primitives before the rest vanish without an error.
+
+Every...
 
 ### In Progress (1)
 
@@ -57,9 +63,9 @@
 
 ---
 
-## User Interface (10 tickets, priority 3)
+## User Interface (8 tickets, priority 3)
 
-### Todo (10)
+### Todo (8)
 
 - [UI-5](content/UI/UI-5.json) **UI-5** Main Menu Revamp -- I want a diagetic main menu that tells the story of the player arriving at the island. In the fram...
 - [UI-4](content/UI/UI-4.json) **UI-4** Audio Stims -- Gold floating to coffers accompanied by satisfying audio stimulation. Sound design reinforces the...
@@ -67,8 +73,6 @@
 - [UI-3](content/UI/UI-3.json) **UI-3** Caravan Animation -- At end of turn, caravans visually zip around to each city on the route. This provides feedback on...
 - [UI-18](content/UI/UI-18.json) **UI-18** Palette follow-up: bring back vibrant colours and stop consumers depending on cycle order -- Follow-up to UI-17, which left one `Palette` class with 26 named fields and three instances (DARK,...
 - [UI-19](content/UI/UI-19.json) **UI-19** Every scene can open the terminal: the base Scene owns it, and commands a scene has no use for refuse with a reason -- Only two scene families build a terminal today: the model scenes (`ModelScene` and everything under...
-- [UI-20](content/UI/UI-20.json) **UI-20** Key and mouse glyphs in the toolbar instead of text -- The toolbar along the bottom of every model scene lists the active tool's controls as text: 'enter:...
-- [UI-21](content/UI/UI-21.json) **UI-21** Toolbar: a bar along the bottom of every model scene listing the active tool's keys -- A bar along the bottom of the window that lists the active tool's keys. Split out of the...
 - [UI-1](content/UI/UI-1.json) **UI-1** 3D Treasury View -- A 3D view of the player's treasury where coins are stacked relative to how rich the player is. This...
 - [UI-2](content/UI/UI-2.json) **UI-2** Coin Interaction -- Players can pick up and drop coins in the treasury view. This adds tactile satisfaction and...
 
@@ -180,9 +184,9 @@
 
 ---
 
-## Crawfish Model Pipeline (40 tickets, priority 7)
+## Crawfish Model Pipeline (41 tickets, priority 7)
 
-### Review (8)
+### Review (9)
 
 - [CRAW-84](content/CRAW/CRAW-84.json) **CRAW-84** Experiment (stacked on CRAW-78): labels as real 3D text drawn through the 3D camera with GPU depth hiding, and the hovered ring's or region's label moved to the mouse -- User 2026-10-25: an experiment to look at before deciding, on its own worktree stacked on craw-78....
 - [CRAW-95](content/CRAW/CRAW-95.json) **CRAW-95** Segment crawfish IMG_4113 into named body parts with the mesh-segment skill -- A segmenter agent (sonnet) follows ai-workspace/.claude/skills/mesh-segment/SKILL.md on IMG_4113 in...
@@ -192,6 +196,7 @@
 - [CRAW-99](content/CRAW/CRAW-99.json) **CRAW-99** Segment crawfish IMG_4117 into named body parts with the mesh-segment skill -- A segmenter agent (sonnet) follows ai-workspace/.claude/skills/mesh-segment/SKILL.md on IMG_4117 in...
 - [CRAW-100](content/CRAW/CRAW-100.json) **CRAW-100** Segment crawfish IMG_4118 into named body parts with the mesh-segment skill -- A segmenter agent (sonnet) follows ai-workspace/.claude/skills/mesh-segment/SKILL.md on IMG_4118 in...
 - [CRAW-103](content/CRAW/CRAW-103.json) **CRAW-103** Body plan viewer: fill a DSL body plan of the subject's anatomy with labelled segments from several scans, one slot at a time, building the final mesh -- User request 2026-11-07. A body plan viewer: a tool that takes a set of segmented, part-labelled...
+- [CRAW-112](content/CRAW/CRAW-112.json) **CRAW-112** Ring fit by region clustering: e-means over face labels seeded from the ring regions, keeping each region's topology -- Follow-on to the e-means port (CRAW-111): fit the rings by clustering the surface's faces into...
 
 ### In Progress (4)
 
@@ -354,7 +359,7 @@
 ### Review (2)
 
 - [TOOL-52](content/TOOL/TOOL-52.json) **TOOL-52** Scenes run on the Mac Studio when the worktree says so: run-scene ships the build over rsync, tunnels the automation port over ssh and brings screenshots and logs back, with no agent knowing -- User 2026-10-25: instead of TOOL-47's model (agents, worktrees and tickets on the Mac), keep every...
-- [TOOL-59](content/TOOL/TOOL-59.json) **TOOL-59** DSL breakpoints and a node-graph debug tool: stop before the fit, step nodes forwards and backwards, with per-node inner steps -- A general debugger for DSL node graphs: a `breakpoint` statement in the DSL, and a debug tool (a...
+- [TOOL-60](content/TOOL/TOOL-60.json) **TOOL-60** Debugger video: an automation route that steps the graph debugger and writes the steps out as one video, shown on botijo's T-mesh contraction -- The graph debugger (TOOL-59) can only be driven by hand or one key at a time through `ixdar-cli...
 
 ### In Progress (2)
 

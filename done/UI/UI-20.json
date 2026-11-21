@@ -1,0 +1,44 @@
+{
+    "id": "UI-20",
+    "epic": "UI",
+    "repo": "Ixdar",
+    "subsystem": [
+        "ui",
+        "rendering"
+    ],
+    "title": "Key and mouse glyphs in the toolbar instead of text",
+    "user-messages": [
+        "> Still open from before: crease hover speed (awaiting your pick between the two options), and why your two-anchor crease ring crossed itself.\n\ncould we get some glyphs instead of test only"
+    ],
+    "description": "The toolbar along the bottom of every model scene lists the active tool's controls as text: 'enter: confirm draft', 'shift+T: ...', 'drag: ...'. Show a glyph for each key and mouse action instead of the word. The font atlas (opensans.json / opensans.png, built by msdf-atlas-gen) holds only the 95 ASCII characters 32-126, and msdf-atlas-gen is not installed on the dev machine, so the icons have to be added to the atlas (SpecialGlyphs already maps private-use characters to atlas cells, with one entry, COLOR_TRACKER) or drawn from a second SDF texture. Glyphs wanted first: enter, shift, ctrl, esc, backspace/delete, mouse click, mouse drag; letter keys as a keycap around the letter. The toolbar is drawn in Scene.drawUI from the TOOL_SECTION control hints (ControlHint.key is the label to replace).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Enter, shift, ctrl, esc, delete/backspace, click and drag show as glyphs in the toolbar, letter keys as keycaps.\n2. A key with no glyph still shows its text label.\n3. The glyphs read at the toolbar's row height in both palettes; screenshot under tmp/.\n4. FontAtlasPaddingTest still passes if the atlas is rebuilt.\n\nKeeps the existing ConnectionTool rings-as-walls, RingRegionTool drop-part-names, RingTool fit-every-ring and StrokeSculptTool save log lines: they are on master already, moved unchanged out of control-row lambdas into methods.\n",
+    "testing-plan": "1. Launch the ring scene, open the ring tool and its drawing mode, screenshot the toolbar: every listed key shows its glyph.\n2. Unit test: a control hint whose key has no glyph is drawn as its text label.\n3. Run FontAtlasPaddingTest.",
+    "todos": [],
+    "unknowns": [
+        "Rebuild the OpenSans atlas with an icon font merged in, or load a second small SDF atlas for icons?",
+        "Which icon set: it must be permissively licensed (MIT, BSD, Apache, OFL)."
+    ],
+    "changes-made": [
+        "Second MSDF atlas res/keyglyphs.png/.json built by tools/build_key_glyphs.py (keycaps with OpenSans labels, authored mouse glyphs, Apache-2.0 MDI symbols for enter/shift/backspace/arrows/move) with the settings opensans.json uses; Font draws private-use chars from it in a second pass; KeyGlyphs.label maps hint keys; InfoPane and SceneModelMenu controls show them. Toolbar (UI-21) still to switch to KeyGlyphs.label.",
+        "Synced onto master after UI-21 landed; ToolbarPane draws KeyGlyphs.label (no colon after a glyph key). Word keycaps and mouse strokes enlarged. KeyGlyphsTest: text fallback, glyph mapping, atlas holds every glyph. Screenshots tmp/ui-20-toolbar-{dark,paper}.png.",
+        "Glyphs now come from the binding, not the label: KeyGlyphs maps a key code (forKeyCode) or a MouseGesture (forGesture) to a glyph and knows nothing of ControlHint; ControlHint.glyphLabel() puts ctrl/shift keycaps before it from controlHeld/shiftHeld and falls back to the text label. Mouse rows use ControlHint.mouse(MouseGesture, ...) (new enum in platform.input). 'drag anchor'/'drag pick' descriptions now name what is dragged. ToolbarPaneTest expects the glyph label.",
+        "Keys is now an enum holding each key's code, glyph and label; CLICK, DRAG, SCROLL and DOUBLE_CLICK are Keys too, so KeyGlyphs and MouseGesture are gone. ControlHint holds a Keys and no label string: keyLabel() builds the text, glyphLabel() the glyphs. Every control row passes only its Keys; int key codes compare against Keys.X.keyCode.",
+        "Ring tool: T calls switchMode(), shift+T fitEveryCreaseRingToGeodesic(), and both fit through the one fitDraftToGeodesic(); row actions across RingScene, ConnectionTool, ClosedRingTool, RingRegionTool, StrokeSculptTool, Scene, ModelScene and TradeScene are methods, not lambda bodies (TradeScene Esc overrides escapePressed, so terminal ex matches it).",
+        "Font: one drawLayers(atlas, ...) draws whichever atlas's pass is set up (a glyph draws only in the atlas holding it, the other's only advance the pen); drawWords runs it for the text, then for key glyphs in their own pass. drawTextNoSetup and the keyGlyphPass flag removed. Full build 806 tests green; screenshots retaken."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/SpecialGlyphs.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/text/Font.java",
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java"
+    ],
+    "priority": 3,
+    "review-summary": "Control hints in the toolbar and controls lists draw keys and mouse actions as glyphs (keycaps, mice) from a second MSDF atlas that Font draws alongside the text atlas. Glyphs read faster than words like \"shift+drag\", and keys without a glyph keep their text.\n",
+    "verify-tests": [
+        "KeyGlyphsTest",
+        "FontAtlasPaddingTest",
+        "ToolbarPaneTest"
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "id": "CRAW-113",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Ring-fit benchmark: CRAW-106's grooved-torus and horn fixtures and their scoring, without its fit",
+    "user-messages": [
+        "yeah create a new worktree with just the stuff that craw-112 will need"
+    ],
+    "description": "A ring-fit benchmark that any ring fit is scored against, split out of CRAW-106 so the follow-on clustering fit (CRAW-112) can build on master without CRAW-106's fit, which may not land.\n\nFrom CRAW-106 it takes only:\n- the 17 ring_fit_* fixtures (pinched tori and a horned sphere with rings and bisectors drawn off the grooves), with the trailing fit_ring_anchors node dropped, so each fixture ends on the rings as drawn;\n- RingAnchorFitTest's expectations (where each ring should end, in degrees round the torus or round the tube, or on the horn's foot circle, and the tolerances), turned into a harness that takes any fit and reports how far each ring's anchors end from where they should;\n- CRAW-106's scores on it, as the baseline to beat, measured in the craw-106 worktree and recorded on this ticket.\n\nNot taken: RingAnchorFit, FitRingAnchorsNode, SurfaceHeatDistance, AnchorGrooveFit, RingBlend, AnchoredRings, the ring scene and tool changes.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-112"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. The fixtures are on the branch under their own names, each ending on the drawn rings, and every one runs on master's node set.\n2. A fit-agnostic harness: given a fit (drawn geometry in, fitted geometry out), it runs every case and returns, per case and ring, the worst anchor's distance from its expected place against the tolerance, and whether the case passes.\n3. A unit test runs the harness with no fit (the rings as drawn) and checks the scores are the drawn distances, e.g. a ring drawn a quarter of the torus from the groove scores about 90 degrees.\n4. CRAW-106's pass/fail per case is recorded on this ticket as the baseline.",
+    "testing-plan": "1. mvn test -Dtest=RingFitBenchTest: every fixture loads and the no-fit scores match the drawn positions.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "2026-11-14: Added ixdar-app/src/main/resources/dsl/fixtures/ring_bench/: the 17 ring_fit_* fixtures from the craw-106 worktree, renamed without the prefix, the trailing fit_ring_anchors line dropped and header comments reworded to say what a fit should do. They run on master's nodes. Added test/unit/mesh/ringbench/RingFitBench (a RingFit takes the fixture's graph and returns fitted geometry; run() scores every case: per ring, the worst authored anchor's distance from the nearest place it may end in, against that place's tolerance, with alternatives for cases that pass either way round and must-visit places for the trenches case) and RingFitBenchTest (no fit: 17 cases, none pass; the one-groove ring scores 90 degrees, the far one 166.5). Baseline, CRAW-106's RingAnchorFitTest rerun in its worktree after syncing it to master 2a88fd1c: 3 of 15 pass (aGeodesicRingAQuarterOfTheTorusAwayMovesIntoTheGroove, aRingNearlyOppositeTheGrooveStillMovesIntoIt, twoRingsEachNearestItsOwnGrooveGoIntoIt). Failing: both bisector cases (ring_02 left at 81 and 72 degrees round the tube, where it was drawn), one_groove_two_rings (ring_01 at 0, in the groove with ring_00, 180 from opposite), crease one groove, two rings near one, nearer one of two (11.25 off), nearest both (4.5 off), both slanted cases, the tree (6.75 off), both horns (0.094 from the foot, tolerance 0.08)."
+    ],
+    "related-files": [
+        "ixdar-app/test/unit/mesh/RingAnchorFitTest.java"
+    ],
+    "priority": 3,
+    "review-summary": "Adds a ring-fit benchmark: CRAW-106's grooved-torus and horn fixtures ending on the rings as drawn, and RingFitBench, which scores any fit against their expected places. It lets the clustering fit (CRAW-112) be measured on master without landing CRAW-106's fit.\n",
+    "verify-tests": [
+        "RingFitBenchTest"
+    ]
+}

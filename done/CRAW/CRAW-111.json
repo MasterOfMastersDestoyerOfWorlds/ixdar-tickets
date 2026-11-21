@@ -1,0 +1,35 @@
+{
+    "id": "CRAW-111",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry",
+        "ui"
+    ],
+    "title": "Port e-means (faiss contrib, MIT) and show it in a Voronoi playground scene on three-arm spirals",
+    "user-messages": [
+        "let's make a new ticket that is an experiment based on craw-106, that tries to use emeans algorithm to do the meshsegmentation such that each enclosed region is one centroid and hte number of regions is determined by the number of regions at start",
+        "yes and have definition of done be a vornoi cluster scene like the one on this page as a new scnee that shows e_means on a set of spirals (three arms) like the site",
+        "it is supposed to be ~3 times faster"
+    ],
+    "description": "Port the e-means clustering algorithm to Java and show it working in a new 2D scene, as groundwork for clustering surface regions in CRAW-112.\n\n## e-means\n\ne-means (Meta FAIR) is a mini-batch k-means solver: https://github.com/facebookresearch/faiss/tree/main/contrib/e_means (faiss, MIT license; cite the URL and license at the port site). Per its README: each mini-batch assigns points to their nearest centroid; each cluster keeps an exponential moving average of its count N_j and its sum S_j with a step alpha that shrinks along a cosine curve to a tenth of its start; the centroid is S_j / N_j; the last pass sets every centroid to the exact mean of its points. Batch size and starting step come from the README's scaling laws, so there are no extra hyperparameters. With the whole data set as one batch and alpha 1, one step is one Lloyd iteration. Port the update rule only: plain Java, no GPU backends, quantizers or sharding.\n\nKeep the point type and distance pluggable (points in R^d, nearest-centroid assignment as a replaceable step), because CRAW-112 replaces the assignment with a topology-preserving one over mesh faces and keeps only the centroid update.\n\n## The scene\n\nA new scene modelled on the e-means playground (https://e-means.github.io/playground.html): the \"Spirals (three arms)\" data set in 2D, drawn as points, with the centroids and their Voronoi cells, animated pass by pass. Beside it, plain Lloyd k-means on the same points and seed, and a small chart of train and held-out test MSE for both against epochs. Controls: point count, seed, k, e-means epochs, Lloyd epochs, play speed, and a Train button. The playground defaults are n 100,000, k 500, 5 e-means epochs, centroids initialised by sampling the data, and revival of empty clusters off for e-means. The page does not give how its spirals are generated: pick three noisy arms and state the formula in the code.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-112"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. The e-means port (cited, MIT) with a pluggable assignment step.\n2. A new scene showing e-means on a three-arm spiral data set: points, centroids and Voronoi cells, animated by pass, beside Lloyd k-means on the same data, with a train/test MSE chart for both.\n3. The scene's controls (n, seed, k, epochs for each method, play speed, Train) work.\n4. After 5 epochs e-means reaches a train MSE no higher than Lloyd's after the same number of epochs on the spirals, recorded on this ticket with both numbers.\n5. A launch.json entry for the scene and screenshots under tmp/ of the scene before training and after 5 epochs.\n\n6. Each side's CPU time (its batches or iterations only) is shown beside its MSE, Lloyd runs 25 iterations by default as on the playground, and a line under the chart compares the two once both finish.\n",
+    "testing-plan": "1. On well-separated Gaussian blobs, e-means recovers the blobs.\n2. With the whole data set as one batch and alpha 1, one e-means step equals one Lloyd iteration.\n3. The final pass sets each centroid to the exact mean of its points.\n4. The spiral generator is deterministic for a seed.\n",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "2026-11-14: EMeans (ixdar.numeric.cluster) ports faiss contrib/e_means' update rule (MIT, cited): moving count and sum per cluster, cosine step to a tenth, quality/throughput batch and step laws, Gumbel-sampled revival (off at d<=2 as in faiss), exact last-pass means; the assignment step is the NearestCentroid interface. LloydKMeans (empty clusters re-seeded by splitting the largest), ThreeArmSpirals (arm i mod 3, angle 2pi(arm/3 + 1.25t), radius 0.9t, Gaussian noise 0.035) and VoronoiCells (half-plane clipping). New scene e-means-playground: e-means left, Lloyd right, same spirals and starting centroids, Voronoi cells (hidden above 700 clusters), train/test MSE chart; T trains, N/K/S/E/L/P raise and Shift lowers points, clusters, seed, e-means passes, Lloyd iterations and speed. EMeansTest: 6 pass. Spirals n 100000, k 500, seed 1234, 5 epochs: e-means train MSE 0.00056, test 0.00058; Lloyd train 0.00062, test 0.00064 (batch 1024, alpha0 0.114). Screenshots tmp/craw-111-before.png, tmp/craw-111-after-5-epochs.png, tmp/craw-111-controls.png.",
+        "2026-11-14, later: the scene times each side's work (EMeans.step, LloydKMeans.iterate; MSE readouts excluded), defaults Lloyd to 25 iterations, zooms the chart's MSE axis to the curves, and prints the playground's comparison line. n 100000, k 500, seed 1234: e-means 5 epochs 0.60 s CPU, train 0.00056, test 0.00058; Lloyd 25 epochs 1.82 s, train 0.00057, test 0.00059; e-means 3.0x faster with 1.5% lower test and 2.4% lower train loss. Screenshot tmp/craw-111-after-training.png."
+    ],
+    "related-files": [],
+    "priority": 3,
+    "review-summary": "Adds EMeans, a Java port of faiss's mini-batch k-means, with Lloyd k-means and a playground scene comparing them on three-arm spirals with Voronoi cells and error curves. It is the clustering step the region-clustering ring fit (CRAW-112) builds on.\n",
+    "verify-tests": [
+        "EMeansTest"
+    ]
+}

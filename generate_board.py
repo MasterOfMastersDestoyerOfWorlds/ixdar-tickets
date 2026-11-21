@@ -1031,7 +1031,7 @@ def _resolve_list_entries(data: dict, key: str, indices: list[int]) -> list[str]
     """Remove one-based entries from a ticket list field and return the removed texts.
 
     :param data: ticket JSON mapping to mutate.
-    :param key: list field name, "todos" or "unknowns".
+    :param key: list field name, "todos", "unknowns" or "changes-made".
     :param indices: one-based positions to remove, in any order.
     :return: removed entry texts in the order the indices were given.
     """
@@ -1126,6 +1126,7 @@ def update_ticket(
     remove_verify_tests: list[str] | None = None,
     resolve_todos: list[int] | None = None,
     resolve_unknowns: list[int] | None = None,
+    remove_changes: list[int] | None = None,
     status: str | None = None,
     priority: int | None = None,
     force: bool = False,
@@ -1152,6 +1153,8 @@ def update_ticket(
     :param priority: new priority, lower is higher; None keeps the current one.
     :param resolve_todos: one-based todo positions to remove.
     :param resolve_unknowns: one-based unknown positions to remove.
+    :param remove_changes: one-based changes-made positions to remove, for a note later work made
+        wrong; removals run before additions.
     :param remove_blocked_by: ticket IDs to drop from blocked-by, with their reciprocal blocks entries.
     :param remove_blocks: ticket IDs to drop from blocks, with their reciprocal blocked-by entries.
     :param force: skip the unmerged-worktree guard when the new status is DONE.
@@ -1165,6 +1168,7 @@ def update_ticket(
 
     removed_todos = _resolve_list_entries(data, "todos", resolve_todos or [])
     removed_unknowns = _resolve_list_entries(data, "unknowns", resolve_unknowns or [])
+    removed_changes = _resolve_list_entries(data, "changes-made", remove_changes or [])
 
     if title is not None:
         data["title"] = title.strip()
@@ -1263,6 +1267,8 @@ def update_ticket(
         print(f"  resolved todo {index}: {text}")
     for index, text in zip(resolve_unknowns or [], removed_unknowns):
         print(f"  resolved unknown {index}: {text}")
+    for index, text in zip(remove_changes or [], removed_changes):
+        print(f"  removed change {index}: {text}")
     if removed_todos:
         print(f"  todos remaining: {len(data.get('todos') or [])}")
     if removed_unknowns:
@@ -1795,6 +1801,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Remove one verify-tests[] selector, matched exactly; runs before --add-verify-test.",
     )
     update_parser.add_argument(
+        "--remove-change",
+        action="append",
+        default=[],
+        dest="remove_changes",
+        type=int,
+        metavar="N",
+        help="Remove changes-made[] entry N (one-based, in the order show lists them) and print it.",
+    )
+    update_parser.add_argument(
         "--resolve-todo",
         action="append",
         default=[],
@@ -1944,6 +1959,7 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             remove_verify_tests=list(args.remove_verify_tests or []),
             resolve_todos=list(args.resolve_todos or []),
             resolve_unknowns=list(args.resolve_unknowns or []),
+            remove_changes=list(args.remove_changes or []),
             status=args.status,
             priority=args.priority,
             force=args.force,

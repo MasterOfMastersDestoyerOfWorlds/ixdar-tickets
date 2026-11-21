@@ -1,0 +1,24 @@
+{
+    "id": "ENG-42",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Comment cleanup: only Javadoc left, every private method documented",
+    "user-messages": [
+        "create a new worktree for the comment cleanup and private methods javadocs",
+        "> about 85 |=/&= uses. Checkstyle can\u2019t see types, so this rule can\u2019t tell boolean |= from bitwise flag |=; it would have to ban both or guess.\n\nban both"
+    ],
+    "description": "Clean up comments across Ixdar's Java sources so that the only comments left are Javadoc, ahead of checkstyle rules that will enforce it (in the autofix repo, a separate change).\n\n## The target state\n\n1. No `//` line comments, inside or outside method bodies. Full-line and end-of-line comments both go.\n2. No `/* ... */` block comments that are not Javadoc.\n3. Every private method has a Javadoc saying what it produces and its non-obvious invariant (Ixdar's Javadoc conventions apply: about 25 words, no restating the code).\n4. Comments that carry information worth keeping are not lost: they move into the Javadoc of the method, field or class they explain, or are deleted when they restate the code. In particular, citations of ported third-party code (source repository URL and license, required by the third-party code rule) move into the Javadoc of the method that implements the port; about 96 full-line comments contain a URL or a license today (for example `Keys.java:14`, Apache 2.0).\n\n## Scale (counted on master)\n\n- About 2,900 full-line `//` comments in `ixdar-app/src/main` alone, plus end-of-line comments and test sources.\n- About 1,600 private methods, many without Javadoc.\n\n## Removing the full-line comments mechanically\n\nThe user's regex for full-line comments, keeping the citation lines for hand treatment:\n\n    git ls-files -z '*.java' | xargs -0 perl -0pi -e 's{^[ \\t]*//(?!.*(?:https?://|[Ll]icen[cs]e)).*\\n}{}mg'\n\nRead the comments before deleting them in bulk: a comment that explains a non-obvious invariant belongs in the Javadoc of its method, not in the bin. End-of-line comments need hand work, since `//` also appears inside strings such as URLs.\n\n## Not in this ticket\n\n- The checkstyle rules themselves (no line comments, Javadoc on private methods, no `|=` and `&=`, bitwise included): those live in the autofix repo and are a separate change.\n- Behaviour changes: this is comments and Javadoc only; no code changes besides them.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. `rg -n '//' --type java` over `ixdar-app/src` finds no comment (only `//` inside string literals remain), and no non-Javadoc `/* */` block comment remains.\n2. Every private method in `ixdar-app/src/main` has a Javadoc; the checkstyle build still passes, JavadocDescriptionLength included.\n3. Every third-party citation (source URL and license) that was a `//` comment now sits in the Javadoc of the method implementing the port.\n4. No code changes besides comments and Javadoc: `git diff -w` shows only comment and Javadoc lines.\n5. The full unit test suite passes, and a launch.json entry plus a screenshot under tmp/ show one scene still running.\n6. The ticket lists any comment whose content was moved rather than deleted when it was not obvious where it belonged.",
+    "testing-plan": "1. Full unit suite. 2. rg for remaining // and /* comments. 3. git diff -w shows comment and Javadoc lines only. 4. One scene launched with a screenshot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}
