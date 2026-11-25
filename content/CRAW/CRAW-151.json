@@ -17,9 +17,22 @@
     "testing-plan": "1. Reproduce on the named crawfish scan(s) on current master with load_mesh -> repair_mesh -> quad_layout(alpha_degrees=15.0, target_edge_length=1.0), saving the failure, the stage times and the diagnostic numbers under tmp/.\n2. A unit test with a hand-made fixture reproducing the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 quad-layout suite models, the T-Rex skull, ixd wt perf.",
     "todos": [],
     "unknowns": [],
-    "changes-made": [],
+    "changes-made": [
+        "ExtractedQuadMesh.toMesh twins each quad side with the side its traced port connection reaches (EBC13 Alg. 5-6) through a new HalfEdgeMeshOps.bulkAllocate overload taking corner twins; QuadMeshExtraction records the port each quad side leaves through. IMG_4115's valence-2 cones beside a valence-6 cone make doublets joining one vertex pair by two edges, which vertex-pair pairing rejected. The Newton 'jump' (step 4096) is the 2^12 step growth inside SS15's bound and leaves the map locally injective; NewtonRelaxation is unchanged."
+    ],
     "related-files": [
         "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/gridmap/NewtonRelaxation.java"
     ],
-    "priority": 3
+    "priority": 3,
+    "perf-benchmarks": [
+        "QuadLayoutPatchColouringBenchmark"
+    ],
+    "cite-keys": [
+        "SS15",
+        "EBC13"
+    ],
+    "review-summary": "The extracted quad mesh now pairs each quad edge's two sides by the port connection the extraction traced, not by the edge's two end vertices. Valence-2 cones beside another cone make doublets, where two distinct quad edges join one vertex pair, and vertex pairing rejected that valid mesh.\n",
+    "verify-tests": [
+        "ExtractedQuadMeshDoubletTest"
+    ]
 }

@@ -12,14 +12,25 @@
     "description": "Crawfish IMG_4114 fails in the T-mesh contraction with 'arc could not be re-embedded'. CRAW-144 found that a zero-arc collapse (LCBK19 \u00a76) can route the dragged arc through the departure corner alone or the arrival corner alone, but not through both together. Context: since CRAW-141, CRAW-142, MESH-97, CRAW-146 and CRAW-144 landed, crawfish IMG_4111, 4112 and 4118 finish quad_layout; the rest fail in separate places (IMG_4113 is the quantization stall, CRAW-147). The CRAW-144 agent diagnosed this one; its diagnostics folder went with its worktree at land, so re-measure first.",
     "blocked-by": [],
     "blocks": [],
-    "status": "TODO",
+    "status": "DONE",
     "definition-of-done": "1. The blocked collapse is shown: the zero arc, the dragged arc, the two corners and what blocks the joint route (numbers and an engine screenshot under tmp/).\n2. A fix following the paper the stage implements (read it first, start from the papers: list ixd wt new prints), not a workaround stage, and the scan(s) get past this stage: report the furthest quad_layout stage before and after, with an engine screenshot if the layout finishes.\n3. A unit test with a hand-made fixture, failing on master and passing after.\n4. The 11 quad-layout suite models and the T-Rex skull are unchanged (same quad, patch and cone counts) and ixd wt perf shows no regression.",
     "testing-plan": "1. Reproduce on the named crawfish scan(s) on current master with load_mesh -> repair_mesh -> quad_layout(alpha_degrees=15.0, target_edge_length=1.0), saving the failure, the stage times and the diagnostic numbers under tmp/.\n2. A unit test with a hand-made fixture reproducing the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 quad-layout suite models, the T-Rex skull, ixd wt perf.",
     "todos": [],
     "unknowns": [],
-    "changes-made": [],
+    "changes-made": [
+        "ZeroArcCollapseOperator: when the zero arc is the survivor's only spoke, neither fan end is bounded (NONE) instead of both being the zero arc's own spoke, and the first arrival then bounds both ends, so the spliced rotation at the survivor is the moving node's (LCBK19 6.1 operator 1). On master the back sibling's arrival corner was the wedge the front sibling had closed: IMG_4114 arc 32332 blocked. New fixture dsl/fixtures/sibling_pair_collapse.dsl + SiblingPairCollapseFixtureTest (fails on master with IMG_4114's message). IMG_4114 now passes contraction and stops at integer_grid_map with a pinched patch (CRAW-149's class). Suite 11/11 and T-Rex skull counts unchanged."
+    ],
     "related-files": [
         "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/quantization/ZeroArcCollapse.java"
     ],
-    "priority": 3
+    "priority": 3,
+    "verify-tests": [
+        "SiblingPairCollapseFixtureTest"
+    ],
+    "perf-benchmarks": [
+        "QuadLayoutPatchColouringBenchmark"
+    ],
+    "cite-keys": [
+        "LCBK19"
+    ]
 }

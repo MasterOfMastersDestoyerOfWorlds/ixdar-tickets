@@ -1,0 +1,33 @@
+{
+    "id": "CRAW-152",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Quantization uses SCIP through OR-Tools, with the built-in solver as fallback",
+    "user-messages": [
+        "> Should I run that measurement in craw-122, then make the re-carve fix if it holds up?\n\nstart agent on this"
+    ],
+    "description": "Quad layout's arc quantization (LCK21a \u00a75) runs on Ixdar's own integer-programming solver, which cannot prove the optimum on crawfish IMG_4113 (unproven after 486 s on master; its incumbent 35492.145 is not optimal). A read-only comparison (scratchpad mip-solvers/: timings.txt, licences-and-integration.txt, earlier-attempt.txt) found SCIP proves the optimum 35490.0921 at the root in 0.74 s; HiGHS 35.8 s, CP-SAT 15.1 s. CRAW-116 (archived as tag archive/craw-116, commit cff1055e) built an OR-Tools backend on Sunday and was archived only because of the since-removed lexicographic tie-break and the native dependency.\n\nRestore that backend: use SCIP through OR-Tools (com.google.ortools:ortools-java, Apache 2.0; prebuilt natives for win32-x86-64, linux-x86-64, linux-aarch64, darwin-x86-64, darwin-aarch64) when its native library loads, and Ixdar's own solver as the fallback when it does not and on the TeaVM web build. Port only the backend pieces of archive/craw-116 onto today's master: OrToolsIntegerProgramBackend, NativeIntegerProgramBackend, IntegerProgramEngine, the IntegerProgram hook, the Platform/HeadlessPlatform/LwjglPlatform/WebPlatform loading, the pom dependency and QuantizationEngineBenchmark. That archive also holds unrelated experiments (TriangleCurvature, MeshUnfold, NSmoothRefinement, SeamlessDofSystem, MeshRepair, RefineNSmoothNode, ModelScene, ModelLoadLedger, ...): do not bring those. Bring CRAW-147's stall test (IntegerProgramTest addition) and QuantizationProgramBenchmark from tag archive/craw-147. Keep SCIP's optional GPL/LGPL dependencies (GMP, Bliss, MPFR, ZIMPL, libquadmath) off. Also make the built-in solver fail within a measured budget with a message naming the gap when it cannot close it, instead of running until an outer timeout.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. Quantization uses SCIP through OR-Tools when its natives load and Ixdar's own solver otherwise and on the web build; which backend ran is logged once per solve.\n2. Crawfish IMG_4113's quantization proves the optimum (35490.09) in about a second, and its furthest quad_layout stage is reported before and after (ixdar-cli model-sweep).\n3. The 11 suite models and the T-Rex skull give the same quantization objectives and quad counts as master (or the difference is a better proven optimum, explained), and small programs are not slower in total (route them to the built-in solver if the native call overhead loses).\n4. CRAW-147's stall test passes fast with SCIP; the built-in solver fails within its budget with a gap message when forced on that program.\n5. The build and the backend run on Windows, Linux (terminator) and macOS (the Mac Studio), checked by running the stall test on each, and the TeaVM build still compiles.\n6. The licence of every added dependency is cited in the pom or at the port site; no GPL/LGPL/EPL dependency is pulled in.\n\n7. Log lines that stay: the per-solve backend line `[branch-bound] done solver=` (DoD 1), and once per JVM `[integer-program] OR-Tools natives loaded in` or `[integer-program] OR-Tools natives unavailable` (which backend the machine can run).\n",
+    "testing-plan": "1. IntegerProgramTest stall case with each backend.\n2. model-sweep --models suite and the skull before and after; model-sweep on IMG_4113.\n3. The stall test on terminator and the Mac over ssh (see TOOL-64 for the ssh setup).\n4. QuantizationProgramBenchmark / QuantizationEngineBenchmark through ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/quantization/IntegerProgram.java",
+        "ixdar-app/pom.xml"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "IntegerProgramTest"
+    ],
+    "perf-benchmarks": [
+        "QuantizationProgramBenchmark",
+        "QuadLayoutPatchColouringBenchmark"
+    ]
+}
