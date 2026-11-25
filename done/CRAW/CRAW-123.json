@@ -1,0 +1,29 @@
+{
+    "id": "CRAW-123",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "tmesh_contract on the T-Rex skull: 19-22 s for ~43,000 collapses and ~229,000 face splits",
+    "user-messages": [
+        "[recalled] can we start some performance agents on the remaining post 114 bottlenecks in the trex's quad layout"
+    ],
+    "description": "After CRAW-114 tmesh_contract (NetworkContraction: contractRounds, conform, then ArcNetworkRecarve) takes 19-22 s on the T-Rex skull (~700k faces): ~43,000 zero-arc collapses, ~229,000 face splits, worst reroute 120 (log lines [contract] collapses=..., [recarve] ...). Find where the time goes and make it faster the way LCBK19 Section 6 and Appendix A intend; the operators and their results must not change. Note the 116,716 arcs of which 55,130 quantize to zero (CRAW-120) is why there are so many collapses; that is a separate ticket.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. tmesh_contract on the T-Rex skull is substantially faster, with where the time went and the fix explained.\n2. Every suite model keeps its quads, patches and cones.\n3. Build checkstyle-green; touched tests pass.",
+    "testing-plan": "1. Time the T-Rex skull before and after with the timing route: a DSL of load_mesh(C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb), repair_mesh(weld_epsilon=0.0, max_hole_edges=4096, min_shell_faces=100, strict=false), quad_layout(alpha_degrees=15.0, target_edge_length=1.0) in the quad-layout scene (run-scene --mesh <dsl> --keep-alive, then ixdar-cli mesh-dsl-timing).\n2. Run the 11-model suite (bolt buddha feline hand sphere_base block botijo elk fertility rockerarm fandisk, test/resources/quadlayout) and compare quads, patches, cones and the quantization objective with master.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "ZeroArcCollapseOperator.shortestZeroArc picks from a priority frontier keyed (edge count, arc id), re-keyed from ArcNetwork.arcPathLog (markArcPathChanged in setPath, addArc, the drag and the side-split refinement) with non-collapsible arcs parked and re-tested; same pick as the old full scan, which stays as the VALIDATE_EVERY_COLLAPSE cross-check. Skull tmesh_contract 26.1 s -> 7.5 s, output identical."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/NetworkContraction.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/ArcNetworkRecarve.java"
+    ],
+    "priority": 2,
+    "review-summary": "ZeroArcCollapseOperator now keeps its zero arcs in an ordered frontier, re-keyed only when ArcNetwork logs a path change, instead of rescanning every zero arc before each collapse. That rescan was most of tmesh_contract's time on large meshes, and the collapse order, and so the layout, is unchanged.\n"
+}

@@ -1,0 +1,38 @@
+{
+    "id": "CRAW-115",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Seamless injectivity loop at scan scale: 443 s on the 700k-face T-Rex skull",
+    "user-messages": [
+        "create a ticket for injectivity loop and start an agent on it"
+    ],
+    "description": "The seamless stage's BCE13 injectivity-constraint loop (SeamlessParameterization.runInjectivityConstraintLoop) takes about 443 s of the quad layout's ~8 minutes before quantization on a full-resolution Trellis scan: the T-Rex skull, 699,792 faces after repair_mesh. Every other stage before quantization takes seconds: cross field ~2 s, dof system 0.14 s, greedy integer rounding 2 s, motorcycle graph 1.3 s. Make the loop fast at scan scale without changing what it computes on the meshes the pipeline already handles.\n\nWhat the log shows on the skull (tmp/logs/quad-layout-trex-*.log in the CRAW-114 worktree):\n- `[injectivity] constraints=4938450 over 699792 faces`: about 7 constraints per face, all of them, from the start.\n- `[seamless] leftover rows 63694 (cut 63484, alignment 210) nnz 222896 over 763278 raw DOFs`.\n- About 60 `[interior-point] singular condensed system (PARDISO reports a singular system at pivot N: phase 22 zero pivot (error -4) in 699622 equations); regularisation fraction raised to 1.000e-10` lines. Each one is a failed factorization followed by a regularised retry, so the interior-point solve probably refactorizes twice per iteration.\n\nWhere to look first, measured with async-profiler (`ixdar-cli run-scene --profile`), not guessed:\n1. Why the condensed system is singular on every iteration. Find the null space; a rank deficiency that is known in advance can be removed rather than regularised on every pass.\n2. Whether constraints can be added lazily: start from the faces the greedy-rounded map actually flips or comes close to flipping, and add constraints only where the iterate violates one. That is the usual active-set treatment of BCE13's constraints, instead of all 4.9 M at once.\n3. Reuse across iterations: symbolic factorization, sparsity pattern, warm start.\n\nReproduce: the skull is C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb (also staged at C:/Users/andre/Documents/ComfyUI/input/3d/seg_examples/TRexSkull_trellis.glb). Run it through `load_mesh -> repair_mesh -> quad_layout` as in fertility_quad_layout.dsl (`ixdar-cli run-scene --scene quad-layout --mesh <that .dsl> --keep-alive`). On master today repair_mesh leaves 176 folded slivers on the skull, which quad_layout refuses before seamless runs. CRAW-114's worktree adds repair_mesh's unfold stage, which fixes them. Until CRAW-114 lands, take that change from the craw-114 worktree, or test on a Trellis mesh that does not fold.\n\nRelated: CRAW-2 (quad layout at scan scale) and the PATCH solver-scaling tickets (PATCH-12, PATCH-46, PATCH-55, PATCH-103). Do not duplicate their fixes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The injectivity loop on the T-Rex skull (699,792 faces after repair_mesh) takes at most 60 s, down from about 443 s, on the same machine, measured from the `[seamless timing] injectivity loop` line. Before and after are recorded in tmp/<ticket>-measurements.json.\n2. The seamless map it produces is still injective with no flipped triangles, on the skull and on fertility.\n3. Fertility's quad layout is unchanged: 11582 quads, 254 patches, 40 cones, and a byte-identical `mesh-quad-layout-export` GLB (or, if the route is not on master yet, the same counts in the scene log).\n4. The quad layout tests (QuadLayoutNodeChainTest, QuadPipelineSeamTest, EmbeddedTMeshPipelineTest, QuadMeshExtractionTest and the seamless tests) pass.\n5. The async-profiler flame graph from before and after is kept as HTML under tmp/.\n6. Build checkstyle-green.\n\nThe scene log keeps two summary lines this ticket adds: '[seamless] alignment guard: N feature edge(s) dropped, a face's two feature edges pinned the same iso coordinate and collapsed it' (SeamlessDofSystem) and '[lazy-constraints] round N active set proven infeasible' (LazyConstraints).\n",
+    "testing-plan": "1. Profile the skull's seamless stage first (`ixdar-cli run-scene --scene quad-layout --mesh <skull .dsl> --profile`, then `ixdar-cli profile-report`) and write down the top self-time methods before changing anything.\n2. After each change, rerun fertility and check the counts and the injectivity flags; run the skull only once fertility matches.\n3. Unit tests for any new active-set or null-space logic, on a small mesh where the full and the lazy constraint sets can be compared.\n4. Run the quad layout test classes listed in the definition of done.",
+    "todos": [],
+    "unknowns": [
+        "Whether the condensed system's singularity is structural (a known null space of the seamless DOFs) or comes from the scan's degenerate geometry.",
+        "Whether lazily added injectivity constraints change the solution on fertility, or only how fast it is reached."
+    ],
+    "changes-made": [
+        "Root cause: the skull's lazy-constraint loop never converged. Every round's interior-point QP was proven infeasible (Farkas certificate at iteration 10) by pairs of sector constraints on faces whose three corners all lay on one iso line: two feature edges of the face were alignment-pinned to the same iso coordinate. The loop then ran all 60 rounds (~7.5-8.7 s each: PARDISO refactorize 199 s, cold factor+AMD 90 s, step 106 s, plan 80 s, solve 72 s cumulative) and ended with 604 violated, 55 flipped, mean distortion 342. The 60 'singular condensed system' lines were the multipliers diverging on that infeasible set, not a structural null space.",
+        "Fix: SeamlessDofSystem's alignment guard now also withdraws, per face, the alignment row of the edge running least along its free coordinate when two edges of the face pin the same iso coordinate (93 of 229 feature edges on the skull, 0 on fertility). LazyConstraints stops once a round's QP proves its active set infeasible (provenInfeasible), since a superset cannot be satisfied. Skull: injectivity loop 523.5 s (443 s in the craw-114 log) -> 6.7 s, 1 round, 0 violated, 0 flipped, mean distortion 0.216. Fertility: 11582 quads, 254 patches, 40 cones, distortion identical. Tests: LazyConstraintsTest (new), FeatureAlignmentGuardTest (+2), the quad layout tests: 34 pass. Measurements in tmp/craw-115-measurements.json in the worktree.",
+        "ixdar-cli launch drops a launch entry's async-profiler -agentpath when its library does not exist (no async-profiler build for Windows), instead of keeping it and the JVM refusing to start. With that, wt done passed on Windows: build, LazyConstraintsTest + FeatureAlignmentGuardTest 10/0, launch run, REVIEW. The headless screenshot tmp/craw-115-launch.png on this Windows machine shows the UI but an empty viewport (the mesh is not drawn headless here), so it verifies the scene starts, not the layout."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/SeamlessParameterization.java",
+        "ixdar-app/src/main/resources/dsl/fertility_quad_layout.dsl"
+    ],
+    "priority": 3,
+    "review-summary": "SeamlessDofSystem's alignment guard withdraws a feature edge's alignment row when another edge of its triangle pins the same iso coordinate, and LazyConstraints stops once a round is proven infeasible. Such triangles collapse onto one iso line, making the injectivity constraints unsatisfiable, so the loop spun to its round cap.\n",
+    "verify-tests": [
+        "LazyConstraintsTest",
+        "FeatureAlignmentGuardTest"
+    ]
+}

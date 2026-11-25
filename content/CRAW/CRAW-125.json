@@ -1,0 +1,33 @@
+{
+    "id": "CRAW-125",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "segmentation"
+    ],
+    "title": "Load ComfyUI part labels into Ixdar and seed the ring segmentation DSL from them",
+    "user-messages": [
+        "[recalled] ok there was a ticket for taking the segmentation results from comfy ui and putting them into the ring dsl right? can we start an agent on that"
+    ],
+    "description": "Split from CRAW-121 (the per-tooth P3-SAM ComfyUI node, which stays in the ixdar-comfyui repo). This is the Ixdar half: take a segmentation made in ComfyUI and turn it into a starting point for Ixdar's ring segmentation (the mesh-segment skill: spline_ring, spline_cut, add_label, ring_regions; see C:/Code/ai-workspace/.claude/skills/mesh-segment), so an agent adjusts rings instead of drawing every one.\n\nInput format (fixed by the ComfyUI side, ixdar-comfyui/ixdar_part_prompts/p3sam_runner.py write_labelled_ply): an ASCII PLY whose face element carries an extra 'property int part_id' after vertex_indices, -1 where no part claimed the face. Samples on the T-Rex skull's Ixdar quad mesh (63,682 triangles), copied into this ticket's worktree tmp/: trex_quads_p3sam_10parts.ply (10 large parts from P3-SAM at 1,000 prompts / 500k points, assigned by part bounding box, so boundaries are approximate) and trex_quads_p3sam_parts.ply (380 small fragments from 400 sampled prompts with the smallest mask; the per-tooth node will do better). Note: the quad mesh has a few faces repeating a directed edge, which Ixdar's half-edge build refuses (repair_mesh or dropping them handles it).\n\nWork: (1) load_mesh reads a PLY face int property into a per-face slot without changing how other PLYs load; (2) a node or tool that turns per-face part ids into the ring DSL: label points per part and rings along part boundaries, written as DSL statements an agent or the user can edit, shown in the ring scene; (3) report on the skull what the seeds get right and what is still left to draw.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. load_mesh reads a PLY's per-face int part_id into a face slot; PLYs without it load exactly as before.\n2. A node or tool turns per-face part ids into ring-segmentation DSL (add_label per part and spline_ring along each part boundary) that the ring scene loads and shows.\n3. On the skull's 10-part sample the ring scene shows every part as a labelled region; boundary quality and what an agent would still adjust are reported, with a screenshot.\n4. Build checkstyle-green; tests cover the PLY property and the seeding (Ixdar CLAUDE.md test rules).\n\nKeeps PartRegions.regionCount, droppedRegionCount, absorbedFaceCount, RegionBoundary.componentCount and PartRingSeeder.partCount, ringCount, cutCount: the region and boundary counts the seeding loops over and the numbers the sp command's summary line reports to the user.\n",
+    "testing-plan": "1. Unit tests with hand-built fixtures for the PLY face property and for seeding rings from a few labelled faces.\n2. Load both skull samples, seed rings, open the ring scene, multiview capture.\n3. Load an ordinary PLY and a scan without the property and check nothing changed.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cleanup after review: the part-id slot moved off PlyMeshParser into a bundle-layer FaceParts (SLOT, UNCLAIMED, of, with) on MaterialSet's pattern, so SlotCarry no longer imports io; PartRegions numbers regions only, immutably (absorbThin returns new regions instead of rewriting partByFaceId with a -2 sentinel; no per-region array copy; no boxed sort); boundary tracing moved to RegionBoundary; the seeder's duplicated wall bookkeeping is one addWall; with SurfaceCreases (sp passes the ring tool's) the seeded rings and bisectors trace and are written in crease mode, falling back to geodesic per wall when a crease trace fails. New test: crease-mode walls re-evaluated through surface_creases, spline_ring and spline_cut still name all three parts."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/io/PlyMeshParser.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/data/AddLabelNode.java"
+    ],
+    "priority": 2,
+    "review-summary": "load_mesh now reads a PLY face part_id into a face slot that repair_mesh carries, and the ring scene's new sp command turns it into spline_ring, spline_cut and add_label statements. A ComfyUI part labelling then becomes a ring segmentation an agent adjusts instead of drawing every ring.\n",
+    "verify-tests": [
+        "PlyPartIdTest",
+        "PartRingSeederTest"
+    ]
+}

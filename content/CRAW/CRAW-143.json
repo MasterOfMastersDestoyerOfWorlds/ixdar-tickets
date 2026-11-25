@@ -1,0 +1,39 @@
+{
+    "id": "CRAW-143",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Seamless injectivity constraints proven infeasible on crawfish scans",
+    "user-messages": [
+        "yes  start agent on infeasible injectivity contraints"
+    ],
+    "description": "After CRAW-141 (no flat fill triangles) and CRAW-142 (one anchor per cut-open chart), six crawfish scans (IMG_4109, 4110, 4112, 4113, 4116, 4117) still fail in the seamless parametrization with 'lazy constraints: round N's active set is proven infeasible (certificate value ...), so no solution satisfies them; the constraints carrying the certificate: face F'. The BCE*13 injectivity constraints contradict each other around a face, so no seamless map satisfies them. Find out, per scan, which faces and which constraints carry the certificate and what mesh or field feature makes them contradict (cones too close together, a cone on a face the constraints cannot serve, a sliver, a cut-graph choice), and fix it the way BCE*13 and the seamless parametrization papers in ~/QuadLayoutsPapersCompleted intend.",
+    "blocked-by": [
+        "CRAW-146"
+    ],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. For each of the six scans, the certificate's faces and constraints are named and the mesh or field feature behind them is shown (numbers and an engine screenshot under tmp/).\n2. A fix following the paper makes the injectivity constraints feasible; as many of the six scans as possible get past the seamless parametrization, and the furthest stage of every crawfish scan is reported before and after.\n3. A unit test reproduces the infeasibility on a hand-made fixture, failing on master and passing after.\n4. The 11 suite models and the T-Rex skull are unchanged, and ixd wt perf shows no regression.\n\nKeeps the log line \"[n-field] unrealizable cones: moved ... quarter(s)\", printed only when a cone was split.\n",
+    "testing-plan": "1. Reproduce on the named crawfish scans on current master, saving the failure and the stage times under tmp/.\n2. A unit test with a hand-made fixture that reproduces the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 suite models (same quad, patch and cone counts), the T-Rex skull, and ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Cause (all six scans): the cross field puts a cone of index 1 (index4=+4, cone angle 2pi-4*pi/2=0) on a needle-tip vertex whose 3D angle sum is 4.9-64.6 deg (IMG_4109 301342/301348/301350 at 9.7/23.5/4.9 deg in a 1e-5 sliver cluster with 301347 index4=-4 at valence 4; 4110 255700 64.6; 4112 471532 55.0; 4113 475718 17.1; 4116 288454 25.7; 4117 359 45.1). No locally injective map opens a zero cone angle, so every certificate (InjectivityConstraints.describe now names each corner's index, valence and angle sum) is the fan around that vertex. BCE13 4 and MPZ14 4 both require every singularity index below 1. The three scans that pass seamless on master (4111, 4114, 4115) have no such cone. Fix in the cross field, not the seamless stage: UnrealizableConeSeparation moves quarters off any cone with index4>=4 or cone angle >= valence*pi onto its one-ring by one spoke period jump each (BZK09 4, I(v)=I0(v)+sum p/4), leaving at most one quarter, choosing the neighbour with the lowest index then the best match of cone angle to 3D angle sum, then re-solves BZK09 Eq. 1 over the touched faces with the jumps fixed. All six scans now pass the seamless stage with 0 violated constraints and 0 flips. NeedleConeSeamlessTest (icosphere with one vertex pulled out 12x, tip angle sum 4.2 deg, index4=5) reproduces the proven-infeasible certificate without the separation and passes with it.",
+        "After-sweep (tmp/sweep-after): 4109 passes seamless, quantization, then fails in the T-mesh embedding (node with no barycentric); 4110, 4112, 4117 pass seamless and quantization, then fail like 4111/4114/4115 with 'arc does not touch node' (CRAW-144); 4113 and 4116 pass seamless, then quantization branch-and-bound finds no incumbent (bound frozen, stopped); 4111/4114/4115/4118 unchanged. Suite 11 models and the T-Rex skull: separation never fires (no log line), so their fields and layouts are unchanged (fertility 11582 quads, 254 patches, 40 cones). SeamlessPipelineBenchmark 2.386 s -> 2.348 s."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/SeamlessParameterization.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/fields/crossfield/UnrealizableConeSeparation.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/fields/crossfield/NDirectionField.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "NeedleConeSeamlessTest"
+    ],
+    "perf-benchmarks": [
+        "SeamlessPipelineBenchmark"
+    ],
+    "review-summary": "The cross field (UnrealizableConeSeparation) now splits any vertex cone of index 1 or more, or wider than its fan can open, into quarter cones on its one-ring.\nNeedle-tip scan spikes drew zero-angle cones, which no locally injective seamless map can open, so the BCE13 injectivity constraints were infeasible.\n"
+}

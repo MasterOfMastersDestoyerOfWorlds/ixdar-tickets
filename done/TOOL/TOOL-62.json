@@ -1,0 +1,33 @@
+{
+    "id": "TOOL-62",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "platform"
+    ],
+    "title": "Windows: two OpenMP runtimes (MKL's libiomp5md and libomp140) abort every PARDISO scene; run with one, no KMP_DUPLICATE_LIB_OK",
+    "user-messages": [
+        "yes and start and agent on ticket for 3"
+    ],
+    "description": "On Windows every scene that reaches a PARDISO solve aborts the JVM:\n\n    OMP: Error #15: Initializing libiomp5md.dll, but found libomp140.x86_64.dll already initialized.\n\nMKL (org.bytedeco:mkl, PARDISO backend, ixdar.numeric.sparse.chol.paradiso.PardisoBackend) brings Intel's OpenMP runtime, libiomp5md.dll, when its natives load. Some other native library in the process has already loaded LLVM's OpenMP runtime, libomp140.x86_64.dll, which ships with MSVC. Which library that is has not been established; manifold3d (com.github.madhephaestus:manifold3d) is a guess. Both runtimes are the same kmp code and refuse a second copy in one process.\n\nCurrent workaround: `KMP_DUPLICATE_LIB_OK=TRUE`. ixdar-cli run-scene sets it, but only in the uncommitted CRAW-114 worktree. The user also sets it user-wide with setx for F5. Intel documents it as unsafe and able to produce silently incorrect results, which is not acceptable under a numerical solver. Find the cause and make the process run with one OpenMP runtime, with no override.\n\nDirections, to be established by evidence, not guessed:\n- Which DLL loads libomp140 and when: Process Monitor / `listdlls`, a JVM run that logs native loads (`-Xlog:library=info` on JDK 25, or `-verbose:jni`), or loading each native library alone in a small test.\n- Whether that library can use MKL's runtime, or run without OpenMP (a build or config switch, an alternative artifact or classifier, a thread-count setting that skips OpenMP init).\n- MKL's threading layer: MKL_THREADING_LAYER or mkl_set_threading_layer, set from Java before PARDISO's first call. TBB, if its natives ship with bytedeco, instead of Intel OpenMP. Measure the PARDISO speed of each option on the fertility and skull seamless solves before choosing; SEQUENTIAL is a last resort.\n- Load order alone does not help: either runtime aborts on finding the other.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The library that loads libomp140.x86_64.dll is named, with the evidence (log or tool output) kept under tmp/.\n2. On Windows a scene that runs PARDISO (quad-layout on fertility) starts and finishes its layout with KMP_DUPLICATE_LIB_OK unset, both through `ixdar-cli run-scene` and through a launch entry run as F5 runs it (`ixdar-cli launch`).\n3. Only one OpenMP runtime is loaded in that process, shown by the same evidence as item 1.\n4. Fertility's quad layout is unchanged: 11582 quads, 254 patches, 40 cones.\n5. PARDISO time on fertility and on the T-Rex skull's seamless solve is recorded before and after in tmp/<ticket>-measurements.json, and is no worse by more than 10%, unless the user accepts the trade-off.\n6. Linux and macOS behaviour is unchanged (reasoned in the report if it cannot be run here).\n7. Build checkstyle-green; the touched tests pass.",
+    "testing-plan": "1. Record which native library loads libomp140 and when. 2. Try each candidate fix on fertility through run-scene with KMP_DUPLICATE_LIB_OK unset. 3. Time PARDISO before/after on fertility and the skull. 4. ixdar-cli launch of a quad-layout entry, as F5 runs it.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "PardisoBackend.probe registers MKL's libiomp5md under the names libomp140.x86_64 and vcomp140 in JavaCPP's loaded-library table before Loader.load(mkl_rt), so JavaCPP's base-preset preload of System32's MSVC OpenMP runtimes is answered without loading them. Evidence: tmp/tool-62/before-library-log.txt (-Xlog:library shows org.bytedeco.javacpp.presets.javacpp's preload list loading C:/Windows/System32/libomp140.x86_64.dll, then OMP Error #15 at the first pardiso call), tmp/tool-62/after-process-modules.txt (live JVM: libiomp5md only), tmp/tool-62/dll-imports.txt (no classpath DLL imports libomp140)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/numeric/sparse/chol/paradiso/PardisoBackend.java",
+        "ixdar-app/pom.xml",
+        "ixdar_automation_cli/cli_commands/run_scene.py"
+    ],
+    "priority": 2,
+    "review-summary": "PardisoBackend now registers MKL's Intel OpenMP runtime under the names of the MSVC OpenMP runtimes JavaCPP preloads on Windows. JavaCPP's preload of System32's libomp140 made MKL abort every PARDISO solve, so the process now runs with one OpenMP runtime and no KMP_DUPLICATE_LIB_OK.\n",
+    "verify-tests": [
+        "CholeskyBackendEquivalenceTest"
+    ]
+}

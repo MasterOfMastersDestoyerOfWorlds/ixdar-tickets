@@ -1,0 +1,27 @@
+{
+    "id": "ENG-45",
+    "epic": "ENG",
+    "repo": "Ixdar",
+    "subsystem": [
+        "audio"
+    ],
+    "title": "Menu music plays in every scene and from headless agent JVMs; only the main menu (and game) should play it",
+    "user-messages": [
+        "also I am hearing music that I wrote from some jvm, only the main menu scene and game should be playing not the model scene and scenes generally"
+    ],
+    "description": "Scene.initGL and Scene.activate(true) start AudioAssets.MENU_MUSIC for every scene, so the model, quad-layout and every other tool scene loop the user's menu track; only MainScene and TradeScene opt out by pausing it. HeadlessPlatform.audio() returns the real OpenAL AudioSystem, so every headless scene an agent or ixdar-cli runs plays out loud too. Make menu music opt-in per scene (the main menu, scene id ixdar, MenuScene) and keep headless audio silent while its state stays observable to the audio-state/audio-log routes.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "IN_PROGRESS",
+    "definition-of-done": "1. A scene plays the menu music only when it opts in; MenuScene (id ixdar) does, the model scenes and tool scenes do not. 2. A headless scene never makes sound, while audio-state/audio-log still report what it would play. 3. The trade game's music behaviour is whatever the user decides (asked in the report). 4. Build checkstyle-green; audio tests pass.",
+    "testing-plan": "1. Unit test: a plain scene's activate does not start menu music; MenuScene's does (through a stand-in AudioBackend). 2. Headless run of quad-layout: audio-state shows no music playing. 3. Existing audio tests.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/Scene.java",
+        "ixdar-app/src/main/java/ixdar/platform/gl/headless/HeadlessPlatform.java",
+        "ixdar-app/src/main/java/ixdar/audio/AudioSystem.java"
+    ],
+    "priority": 2
+}

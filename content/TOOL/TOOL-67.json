@@ -1,0 +1,28 @@
+{
+    "id": "TOOL-67",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "wt new lists the code that already implements a ticket's papers",
+    "user-messages": [
+        "> wt new prints what the code already implements from them. Ixdar cites papers at the port site in comments (See also: LCK21a Section 6), so wt new can search the code for the ticket's cite keys and print each class, method and section it finds. CRAW-146's brief would then have shown \"MeshHoleFiller: L03 refinement, fairing (CG)\" before the agent touched anything.\n\nyes this is a good idea"
+    ],
+    "description": "CRAW-146's agent was asked to add Liepa 2003's (L03) refinement and fairing to the hole filler. Its brief did not say MeshHoleFiller already implemented L03's centroid refinement and a CG fairing solve, so it rebuilt both (a \u00b1658-line rewrite, three discarded approaches, 57 edits to one file) before measuring them and ending at +60/\u221246 on master's code; reports/tool-review-2026-11-24.md item 1 traces about half of that 93-minute run to this.\n\nIxdar cites papers at the port site in comments (`See also: LCK21a Section 6`, `LCBK19 \u00a76.2`, `L03`). `ixd wt new <ticket>` should search the code for the cite keys the ticket names (in its title, description, definition of done or a new cite-keys field) and print, as part of the brief it already prints, every class and method that cites each key with the section it cites; `ixd wt status` shows the same list. Briefs then start from \"here is what already implements this paper\".\n\nAgents' first deliverable on a paper-implementing ticket becomes a short plan (what exists per section, what is missing, what will change), checked before code. The citation scan also shows paper-shaped code that cites nothing, which the third-party/citation rules already require.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. `ixd wt new` and `ixd wt status` print, for each cite key the ticket names, the files, classes and methods that cite it and the section each cites, found by scanning the worktree's sources (comments and Javadoc) for the cite-key patterns used in Ixdar (e.g. `LCK21a`, `BCE*13`, `L03 \u00a75`, `Section 6`).\n2. The ticket store can record cite keys explicitly (a `generate_board.py` option), and keys mentioned in a ticket's text are picked up too.\n3. Shown on real tickets: CRAW-146 (L03) lists MeshHoleFiller's refinement and fairing; CRAW-144 (LCBK19, LCK21a) lists the embedding and re-carve classes.\n4. Runs in a few seconds; `ixd docs` regenerated; the Ixdar/CLAUDE.md line telling agents to start from this list is added when the user asks for that edit.",
+    "testing-plan": "1. Run ixd wt new / wt status on CRAW-146 and CRAW-144 style tickets and show the printed lists.\n2. Time the scan on the Ixdar tree.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "New ixd/citations.py: reads cite keys from the paper library file names, collects a ticket's keys (cite-keys field, keys and unambiguous author-year mentions in its text), scans the worktree's Java comments for every spelling (initials in any order, with or without *, unambiguous author name) and lists file, class/method and section per key; wt new appends it to the brief, wt status prints it. generate_board.py update gains --add-cite-key/--remove-cite-key (test_update_adds_and_removes_cite_keys)."
+    ],
+    "related-files": [
+        "ixd/commands/wt/new.py",
+        "ixd/commands/wt/status.py"
+    ],
+    "priority": 3
+}

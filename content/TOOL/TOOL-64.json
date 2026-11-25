@@ -1,0 +1,23 @@
+{
+    "id": "TOOL-64",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Key-based SSH from Blixt to terminator like the Mac Studio, so agents are not stopped by Tailscale SSH check-mode prompts",
+    "user-messages": [
+        "[recalled] its done, log a ticket with that info on the setup"
+    ],
+    "description": "Agents on Blixt (the Windows machine) reach terminator (the Linux laptop, user acw, Ixdar root holds the crawfish scans) over Tailscale SSH. The tailnet policy's ssh rule for terminator is in check mode, so every connection after the check period (12 h by default) stops with \"Tailscale SSH requires an additional check. To authenticate, visit: https://login.tailscale.com/a/...\" and waits for the user to approve in a browser; an agent cannot proceed unattended, and an earlier session wrongly told the user the approval was one-time.\n\nThe Mac Studio is set up the way terminator should be: acw28@andrews-mac-studio runs macOS Remote Login (OpenSSH) with key auth, Tailscale only carries the traffic, and TOOL-52 reaches it as `ssh mac` with no prompts.\n\nMake terminator match:\n1. Run OpenSSH on terminator: `sudo systemctl enable --now ssh` (or sshd).\n2. Add Blixt's public key (C:\\Users\\andre\\.ssh\\id_ed25519.pub) to ~acw/.ssh/authorized_keys on terminator, and the Mac's/terminator's keys wherever the other direction is needed.\n3. Turn Tailscale SSH off on terminator so port 22 reaches OpenSSH: `sudo tailscale set --ssh=false`.\n4. Add an ssh config alias on Blixt (e.g. Host terminator / User acw), like the Mac's `mac` alias, so tools and agents use one name.\nAlternatively keep Tailscale SSH and change the tailnet policy's rule to \"accept\" or a longer \"checkPeriod\"; that is a security trade-off for the user to choose. These steps change login and security settings, so the user runs them.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. From Blixt, ssh acw@terminator (or its alias) runs a command with -o BatchMode=yes and no browser approval, on two days apart.\n2. The setup (OpenSSH on terminator, keys, Tailscale SSH off or policy changed, ssh config alias) is written down where ixd setup or README.md documents machines.\n3. No private key or machine-specific path is committed.\n\n4. Blixt resolves terminator through Tailscale MagicDNS every time. On 2026-11-22 tailscale status reported 'Tailscale failed to set the DNS configuration of your device: The process cannot access the file because it is being used by another process', so 'terminator' resolved through the router (192.168.0.1) and scp to it timed out on port 22 while ssh to its Tailscale address (100.84.7.104) worked. Restart the Tailscale service on Blixt and confirm nslookup terminator returns 100.84.7.104.\n",
+    "testing-plan": "1. ssh -o BatchMode=yes acw@terminator hostname from Blixt. 2. Repeat after the old check period has passed.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [],
+    "priority": 3
+}

@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-137",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Crawfish scan IMG_4115 through quad_layout",
+    "user-messages": [
+        "landed yes spin up on agent per scan and a ticket per and have them diagonse and attempt to fix each individually"
+    ],
+    "description": "Crawfish scan IMG_4115 does not get through quad_layout after repair_mesh. The repair itself is clean on all ten scans since CRAW-130 (0 folds, 0 zero-length edges, 0 holes, quad_layout's input fold check passes); the failure is in a later stage. Last observed failure (2026-11-23, measured before CRAW-130's final rewrite landed, so re-run first): seamless parametrization: safeDot exceeded F_d range (negative).\n\nAll ten crawfish scans fail somewhere in quad_layout (CRAW-131 to CRAW-140, one ticket per scan). Their cross fields are very noisy (500-1324 cones) and their genus is 2-10 where a crawfish should be 0, probably legs and antennae touching the body, so a shared cause is likely; this ticket diagnoses this scan's failure on its own and fixes it the way the quad-layout papers intend, and says whether the cause is shared.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The furthest stage IMG_4115 reaches on current master is re-measured, with the failure message and the stage times.\n2. The root cause is diagnosed with evidence (numbers, engine screenshots, saved diagnostic output under tmp/), naming the stage, the mesh feature that triggers it, and whether it is shared with the other crawfish scans.\n3. A fix following the relevant paper is implemented and IMG_4115 gets through quad_layout with 0 folds, shown in the engine with a screenshot of the quad layout; or concrete evidence shows why it cannot be fixed in this ticket and what it needs instead.\n4. No regression: the 11 quad-layout suite models give the same quad, patch and cone counts as master, and ixd wt perf shows no regression on the ticket's perf benchmarks.",
+    "testing-plan": "1. Run load_mesh -> repair_mesh -> quad_layout (crawfish settings) on IMG_4115 headless with a per-run timeout, record the stage reached and the stage times.\n2. After the fix, rerun IMG_4115 and the 11 suite models (block, bolt, botijo, buddha, elk, fandisk, feline, fertility, hand, rockerarm, sphere_base) and compare against master.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/QuadLayout.java"
+    ],
+    "priority": 3
+}

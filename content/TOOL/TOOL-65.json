@@ -1,0 +1,27 @@
+{
+    "id": "TOOL-65",
+    "epic": "TOOL",
+    "repo": "ai-workspace",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Record each landed ticket's perf numbers and use the latest as the baseline",
+    "user-messages": [
+        "add a ticket to the agent tooling/process to cache the master sweep on a particular perf benchmark so we can not wait on it",
+        "when a ticket is landed it should write down its perf numbers somewhere and we refernce the latest one in the merge history to touch that mechmark"
+    ],
+    "description": "`ixd wt perf` and the perf step of `ixd wt done` (ai-workspace ixd/perf.py) time a ticket's perf benchmarks against master. Today master's side runs twice in the detached `.claude/worktrees/.perf-baseline` checkout, cached per master commit in `~/.cache/ixd/perf-baseline/<commit>.json`. Every land moves master, so the next agent to reach `wt done` waits for a full master build plus two baseline runs before its own run (several minutes on the crawfish benchmarks, longer when agents queue behind the baseline lock).\n\nChosen design (the user's): when a ticket lands, `ixd land` records that ticket's perf numbers, the worktree side its `wt done` just measured (each selector's mean, noise, run count, machine, date, and the commit it landed as), in a tracked record that lives with the merge history. After the land that worktree code is master, so those numbers are master's. `wt perf` then takes each benchmark's baseline from the most recent landed ticket in the merge history that measured that benchmark, instead of running master, and prints which ticket and commit the baseline came from. A benchmark no landed ticket has measured yet falls back to today's baseline run, and that run is recorded too.\n\nThings the design must handle and say how: a later land that changes the code a benchmark exercises without naming that benchmark (the recorded number is then stale; detect it, e.g. by checking whether commits since the record touch the benchmark's modules, and fall back to a fresh baseline run); numbers taken on a different machine or under load (record the machine and noise, and only compare like with like); where the record lives (for example a perf file in the ticket store or in Ixdar next to the benchmarks, written by `land`, so `git log` / the ticket history shows each ticket's numbers).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. `ixd land` writes the landed ticket's perf numbers (per selector: mean, noise, runs, machine, date, landed commit) to a tracked record.\n2. `ixd wt perf` / `wt done` take each benchmark's baseline from the latest landed ticket that measured it, run only the worktree side, and print the source ticket and commit; shown by timing the step before and after the change.\n3. A recorded baseline is not used when commits since it touch what the benchmark exercises, or when it was taken on another machine; then the baseline is run fresh and recorded; a forced rerun option exists.\n4. Docstrings and `ixd docs` updated; the wt lines in both CLAUDE.md files updated when the user asks for those edits.\n",
+    "testing-plan": "1. Land-or-move master in a test setup, show the cache warms, then time `ixd wt perf` on a worktree: no master runs.\n2. Change a file the benchmark touches on master and show the cache is not reused.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixd/perf.py",
+        "ixd/commands/wt/perf.py"
+    ],
+    "priority": 3
+}

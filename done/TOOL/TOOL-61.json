@@ -1,0 +1,36 @@
+{
+    "id": "TOOL-61",
+    "epic": "TOOL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "platform"
+    ],
+    "title": "F5 starts on Windows: the app loads async-profiler itself instead of a fatal -agentpath in every launch entry",
+    "user-messages": [
+        "ok go ahead with 1",
+        "ok"
+    ],
+    "description": "F5 launches profile through `${config:java.profiler.args}` in every .vscode/launch.json entry, which the tracked .vscode/settings.json sets to `-agentpath:${workspaceFolder}/.profiler/libasyncProfiler=start,...`. `-agentpath` is fatal when that library is missing, and async-profiler has no Windows build, so F5 cannot start any scene on Windows (\"Could not find agent library ... libasyncProfiler\").\n\nA generated `@.profiler/jvm.args` file was considered and rejected: VS Code's Java debugger writes vmArgs into its own @argfile, and the Java launcher does not expand an @file named inside another @file (tested: it takes it for the main class).\n\nInstead the app loads the profiler itself. `tools.profiler:async-profiler` (Apache-2.0, Maven Central, 4.6) carries the `one.profiler.AsyncProfiler` Java API and bundles linux-x64, linux-arm64 and macOS libraries in the jar. At startup, desktop builds only:\n- skip when an async-profiler agent is already loaded (`ixdar-cli run-scene`/`launch` pass their own `-agentpath`, which stays as it is);\n- else load `.profiler/libasyncProfiler` when it exists, or the jar's bundled library;\n- start cpu profiling, and on JVM exit dump `tmp/profiles/f5-<time>-<pid>.html`, the same name and directory the F5 setting used, so `profile_capture` and `profile-report` find it unchanged;\n- on Windows, or any failure to load, log one line and run unprofiled.\n\nThe launch entries, `ixd wt launch-add`'s template (ai-workspace ixd/worktree.py) and the settings drop `${config:java.profiler.args}` / `java.profiler.off`. The web (TeaVM) build never references the profiler class.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. On Windows, an F5-equivalent launch of a launch entry (no profiler argument) starts the scene, logging that profiling is unavailable.\n2. On Linux/macOS an F5 launch writes tmp/profiles/f5-<time>-<pid>.html at exit, found by `ixdar-cli profile-report` (checked by the user on their Linux machine, or in CI).\n3. `ixdar-cli run-scene` and `launch` keep profiling through their own -agentpath, and the app does not start a second profiler on top.\n4. No launch entry, settings key or ixd launch-add template references java.profiler.args any more.\n5. The web-teavm build compiles without the async-profiler dependency on its path.\n6. Build checkstyle-green; a unit test covers the skip-when-an-agent-is-loaded decision.\n\nKeeps LaunchProfiler's three [profiler] log lines (profiling to <capture>, unavailable here, could not write <capture>): they tell the user where an F5 profile went, or why there is none, and run once per launch.\n\nKeeps the log line 'unavailable here, running unprofiled': on Windows it is the one sign that F5 ran without a profile.\n",
+    "testing-plan": "1. Unit test for the profiler start decision (agent already loaded, library found, none found). 2. Run the java command a launch entry produces, without -agentpath, on Windows and confirm the scene starts. 3. run-scene on Windows still starts unprofiled. 4. mvn compile for the web-teavm profile.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "LaunchProfiler (ixdar.canvas) starts async-profiler from IxdarWindow.main via tools.profiler:async-profiler:4.6 (Apache-2.0, Linux/macOS libraries bundled): skips when an -agentpath async-profiler agent is already loaded (ixdar-cli run-scene/launch), else loads .profiler/libasyncProfiler or the bundled library, dumps tmp/profiles/f5-<time>-<pid>.html at exit, and logs one line and runs unprofiled where none loads. All 35 launch entries and the ai-workspace wt launch-add template drop ${config:java.profiler.args}; settings.json drops java.profiler.args/off. Windows: ixdar-cli launch Ixdar starts and logs 'Unsupported platform: windows 11-amd64'. LaunchProfilerTest 3/0. TeaVM package exits 0 with 39 pre-existing-looking [ERROR] lines, none about the profiler. Not verified here: the f5 capture on Linux/macOS."
+    ],
+    "related-files": [
+        ".vscode/launch.json",
+        ".vscode/settings.json",
+        "ixdar_automation_cli/cli_commands/link_profiler.py",
+        "ixdar-app/src/main/java/ixdar/canvas/IxdarWindow.java"
+    ],
+    "priority": 2,
+    "review-summary": "The desktop launch now starts async-profiler itself through its Java API instead of a -agentpath in every launch entry. A missing profiler library stopped the JVM, so F5 could not start any scene on Windows, which has no async-profiler build.\n",
+    "verify-tests": [
+        "LaunchProfilerTest"
+    ]
+}

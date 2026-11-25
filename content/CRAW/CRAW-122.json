@@ -1,0 +1,26 @@
+{
+    "id": "CRAW-122",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "newton_solver on the T-Rex skull: 125 Newton iterations, 65 s of a 119 s layout",
+    "user-messages": [
+        "[recalled] can we start some performance agents on the remaining post 114 bottlenecks in the trex's quad layout"
+    ],
+    "description": "After CRAW-114 the T-Rex skull (~700k faces) lays out end to end in ~119 s; newton_solver (GridMapDofSystem.relax -> GridMapOptimizer -> NewtonRelaxation) takes 65 s: 125 iterations at ~0.5 s each with the energy falling only ~2% per step (log: [newton] iteration N energy ... (x%)). The symbolic factorisation is already reused (DirectSolver.refactorizeHandleValues), so the cost is the iteration count. Find why convergence is this slow and fix it the way the papers the stage implements intend (GridMapOptimizer cites SPH17; the grid map is LCBK19 Section 6.2): the Hessian approximation, line search and step bound (alphaMax), the starting point, the stopping rule. No workaround stages, no iteration caps that change the result.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. newton_solver on the T-Rex skull takes a fraction of its 65 s, with the cause and the fix explained against the paper.\n2. Every suite model keeps its quads, patches and cones; any change in the relaxed energy is reported.\n3. Build checkstyle-green; touched tests pass.",
+    "testing-plan": "1. Time the T-Rex skull before and after with the timing route: a DSL of load_mesh(C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb), repair_mesh(weld_epsilon=0.0, max_hole_edges=4096, min_shell_faces=100, strict=false), quad_layout(alpha_degrees=15.0, target_edge_length=1.0) in the quad-layout scene (run-scene --mesh <dsl> --keep-alive, then ixdar-cli mesh-dsl-timing).\n2. Run the 11-model suite (bolt buddha feline hand sphere_base block botijo elk fertility rockerarm fandisk, test/resources/quadlayout) and compare quads, patches, cones and the quantization objective with master.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/numeric/sparse/system/NewtonRelaxation.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/gridmap/GridMapOptimizer.java"
+    ],
+    "priority": 2
+}

@@ -1,0 +1,31 @@
+{
+    "id": "CRAW-126",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "Every model scene opens DSL graphs the way it opens a mesh file, so the T-Rex skull can be viewed in any of them",
+    "user-messages": [
+        "how can I open the trex skull in the seamless parameterization scene? I want to view it but the model picker menu does not find it",
+        "yes"
+    ],
+    "description": "param-exam (ParametrizationExaminationScene) only overrides loadModel: given a .dsl through -Dixdar.model it runs the graph and draws none of the seamless iso-lines or cones, the same gap QuadLayoutScene had before CRAW-114 gave it a loadGraph override. The skull needs repair_mesh before any quad-layout stage, so it can only be opened through its DSL (load_mesh, repair_mesh, quad_layout). Give param-exam a loadGraph override that finds the DSL's quad_layout statement and draws its cross field and seamless parametrization over the repaired mesh.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "REVIEW",
+    "definition-of-done": "1. Every model scene opens a .dsl the way it opens a mesh file: ModelScene.loadGraph reads each scene-graph call from the graph's last node of the same kind (at any depth, so cross-field-exam's field finds quad_layout's inner field), over the surface fed into it, and shows it through the scene's own loadModel; with no such node, the scene graph runs over the graph's final surface. No scene keeps a per-scene loadGraph for this.\n2. Opening a mesh file behaves as before in every scene; embedded-tmesh fixture graphs still load as fixtures.\n3. Verified on fertility's DSL and fertility_in_tri.off in quad-layout, param-exam, mcg-exam, cross-field-exam and embedded-tmesh (screenshots under tmp/), and on the T-Rex skull through a machine-local DSL under tmp/.\n4. Build checkstyle-green; touched tests pass.\n",
+    "testing-plan": "1. Launch param-exam on fertility's quad-layout DSL and on fertility_in_tri.off; screenshots of both. 2. Launch on the skull DSL with -Xmx8g; screenshot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "ModelScene.loadGraph now shows any graph through the scene's own loadModel: each scene-graph call (e.g. layout, field) is read from the graph's last node of the same class at any depth, its scene_model input becomes the surface that node was fed, the run gets the scene's overrides and declared pulls, and sceneOutput rewrites the call name to that node's path; runSceneGraph hands that run back once, so a later rebuild (alpha stepping) runs the scene graph over the graph's surface. With no matching node, the graph runs and its final surface goes through the scene graph. QuadLayoutScene's own loadGraph is gone; EmbeddedTMeshScene keeps its fixture path only for graphs ending in a net. Verified: all five quad-layout scenes on fertility_quad_layout.dsl and fertility_in_tri.off (mcg-exam gives 184 traces, 3574 arcs on both), the plane_layout fixture, and the T-Rex skull in param-exam.",
+        "Model menus: ModelCatalog.withStaged(stagingRoot) appends the staging directory's graphs and scans (prefixed 'staged') to any catalog; ModelScene's base catalog is now quadLayout(...).withStaged(stagingRoot()), so a DSL dropped in ~/.ix/ixdar-models/dsl/ (or IXDAR_MODEL_DIR) appears in every model scene's menu. Verified: mcg-exam's model command resolved 'staged DSL: trex_skull.dsl' from the scene's list and loaded the skull's motorcycle graph (4264 traces, 116716 arcs, 59378 nodes) in 20 s.",
+        "Moved the graph mechanics out of ModelScene: GraphNodeContext.lastOfKind(Class) finds the last node of a kind in a tree; NodeGraphRuntime.aliases maps a call name to a node path and statementAt resolves it, so pull and ValueRelease's kept references both read a host's call names on another graph. ModelScene only registers aliases for its scene-graph calls; sceneOutput is a plain graph.pull. Re-verified all five scenes on fertility's DSL and mesh file."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/ParametrizationExaminationScene.java",
+        "ixdar-app/src/main/java/ixdar/scenes/QuadLayoutScene.java"
+    ],
+    "priority": 3
+}

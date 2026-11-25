@@ -1,0 +1,38 @@
+{
+    "id": "CRAW-144",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Layout embedding fails with 'arc does not touch node' on crawfish scans",
+    "user-messages": [
+        "yes  start agent on infeasible injectivity contraints"
+    ],
+    "description": "After CRAW-141 and CRAW-142, crawfish scans IMG_4111, 4114 and 4115 get through the seamless parametrization, the motorcycle graph and quantization, then fail in the layout embedding: 'patch P side S: arc A does not touch node N'. Find out what the patch boundary and arc network look like at that patch, which stage produced the inconsistency (motorcycle graph ports, quantization, the embedding's carve) and fix it the way LCK21a and LCBK19 intend.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. For each of the three scans, the failing patch, arc and node are shown with the stage that produced the inconsistency (numbers and an engine screenshot under tmp/).\n2. A fix following the paper; the three scans get past the layout embedding, ideally to a finished quad layout with 0 folds shown in the engine.\n3. A unit test reproduces it on a hand-made fixture, failing on master and passing after.\n4. The 11 suite models and the T-Rex skull are unchanged, and ixd wt perf shows no regression.",
+    "testing-plan": "1. Reproduce on the named crawfish scans on current master, saving the failure and the stage times under tmp/.\n2. A unit test with a hand-made fixture that reproduces the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 suite models (same quad, patch and cone counts), the T-Rex skull, and ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "FaceStripPath.recordCrossing finds where a route meets a constraint edge along the route's own segment (clamped to it) instead of from the edge's endpoint areas, which vanish when the route runs along the edge; the T-Rex skull's phantom blocker came from that 0/0.",
+        "ArcNetworkRecarve.refineLiveArcs starts and ends each replayed arc on its node's clean-copy vertex barycentric instead of the contracted copy's, which sat a rounding step off the node (IMG_4110/4118 'no edge carries it onward').",
+        "RecarveTautStripsTest gains a fixture with the skull's doubles (fails on the base with the skull's exact error); its constants lose their Javadoc per ConstantJavadoc."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/ArcNetwork.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/FaceStripPath.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/ArcNetworkRecarve.java"
+    ],
+    "priority": 3,
+    "perf-benchmarks": [
+        "QuadLayoutPatchColouringBenchmark"
+    ],
+    "verify-tests": [
+        "RecarveTautStripsTest"
+    ],
+    "review-summary": "FaceStripPath measures where a route crosses a constraint edge along the route itself, and the re-carve starts each replayed arc exactly on its node.\nRoutes lying along an edge got phantom crossing positions that blocked the taut pass, and arc ends a rounding step off their node stranded passages.\n"
+}

@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-145",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Cross field Poincare-Hopf mismatch on crawfish IMG_4118",
+    "user-messages": [
+        "yes  start agent on infeasible injectivity contraints"
+    ],
+    "description": "Crawfish scan IMG_4118 fails in the cross field: the triangle index sum does not match the vertex cones (Poincare-Hopf). CRAW-141 (no flat fill triangles) shrank the mismatch from -14 to -2 but did not remove it, so another mesh feature causes the rest. Find the faces whose index disagrees, what is special about them, and fix it the way the cross-field papers intend.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The faces and vertices carrying the remaining mismatch are named and their mesh feature shown (numbers and an engine screenshot under tmp/).\n2. A fix following the paper; IMG_4118 passes the cross field, and its furthest stage is reported before and after.\n3. A unit test reproduces it on a hand-made fixture, failing on master and passing after.\n4. The 11 suite models and the T-Rex skull are unchanged, and ixd wt perf shows no regression.",
+    "testing-plan": "1. Reproduce on the named crawfish scans on current master, saving the failure and the stage times under tmp/.\n2. A unit test with a hand-made fixture that reproduces the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 suite models (same quad, patch and cone counts), the T-Rex skull, and ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/fields/crossfield/NDirectionField.java"
+    ],
+    "priority": 3
+}

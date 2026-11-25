@@ -1,0 +1,33 @@
+{
+    "id": "CRAW-118",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Quantization tie-break: how different are the suite's quad layouts without CRAW-69's most-zeros/lexicographic rule",
+    "user-messages": [
+        "> o Ixdar's \"most zeros, then lexicographically smallest\" stages are Ixdar's own addition, there for reproducible output. Dropping them would make Ixdar match the paper.\n\ncheck how different the quad layout pipeline resulting layouts are if we turn off this. seems like a hasty decision to satisfy byte identical output without looking at the results",
+        "yeah just delete it"
+    ],
+    "description": "CRAW-69 (2026-10-16) added an exact canonical tie-break to IntegerProgram (among optima within 1e-9: most zero variables, then lexicographically smallest) after a faster solver picked a different optimum among ties on one mesh and runs diverged from master. The user had ruled for a deterministic tie-break; the exact lexicographic form was the agent's choice. Lyon 2021 (LCK21a 5) minimises sum l_i q_i with Gurobi and takes whatever optimum it returns. The exact tie-break does not scale (thousands of solves on the T-Rex skull). Measure, on every suite model, what the layouts look like with the tie-break off versus on: objective, zero arcs, quads, patches, cones, identical arc quantization or not, success or failure.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The suite comparison (tie-break on vs off) is recorded on this ticket. 2. The canonical tie-break is deleted from IntegerProgram (user ruling 2026-11-21: 'just delete it'); the branch and bound's first optimum is kept, as in Lyon 2021 5. 3. IntegerProgramTest and the quad-layout pipeline tests pass; fertility stays 11582 quads, 254 patches, 40 cones. 4. Build checkstyle-green.\n",
+    "testing-plan": "1. Benchmark under test/benchmark running each model both ways. 2. multiview pictures for differing models.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "IntegerProgram.canonicalTieBreak switch (static, default on). TieBreakSuiteBenchmark on master: every model that lays out (bolt, block, rockerarm, fertility, botijo, elk, hand, sphere_base, feline, buddha) gives byte-identical per-arc quantization with the tie-break on and off (same arc-lengths hash, zero arcs, quads, patches, cones). bolt: 2.4 s on vs 0.4 s off for the whole layout, same result. fandisk fails both ways (PATCH-126 carve error); sphere_random is refused both ways before quantization (114 folded faces). The tie-break changes no suite layout; it only costs time, and on the T-Rex skull it is the stage that does not finish.",
+        "Deleted the most-zeros/lexicographic tie-break from IntegerProgram (-525 lines) with its root snapshot, tie trackers, TIE_TOLERANCE, PROPAGATION_PASSES and the UnionFind import; removed IntegerProgramTest's tie-break case, renamed the near-tie case. Fertility via ixdar-cli launch: objective 2773.406, zeroArcs 2286/3574, 11582 quads, 254 patches, 40 cones (unchanged)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/quantization/IntegerProgram.java"
+    ],
+    "priority": 2,
+    "review-summary": "The quantization integer program now keeps the branch and bound's first optimum, as Lyon 2021 does, instead of running an exact most-zeros, lexicographic tie-break. The tie-break changed no test-suite layout and is what never finishes on large scans.\n",
+    "verify-tests": [
+        "IntegerProgramTest"
+    ]
+}

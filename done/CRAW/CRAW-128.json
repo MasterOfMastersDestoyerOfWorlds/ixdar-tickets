@@ -1,0 +1,30 @@
+{
+    "id": "CRAW-128",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "Contract zero arcs combinatorially in the T-mesh before embedding, so the skull's collapses never re-route through mesh corridors",
+    "user-messages": [
+        "try the combinatorial contraction in a separate worktree and agent its been tried before with little success,"
+    ],
+    "description": "On the T-Rex skull, tmesh_contract (LCBK19 6.1 operators on the embedded network) spends 228,715 midpoint edge splits, up to 120 in one route, re-routing arcs through the corridors that collapsing zero arcs leave; the working copy grows to ~918k vertices / 1.84M faces and the resulting slivers cap newton_solver's step (CRAW-122). Try the alternative: resolve zero-length arcs combinatorially on the quantized T-mesh (merge the nodes a zero arc joins, collapse zero patches) before anything is embedded, then embed the already-contracted layout once, so no collapse ever happens on the mesh. The user notes this has been tried before with little success: find those attempts first (tickets, archive/* tags, notes) and learn why they failed. Read LCK21a and LCBK19 6 for what the papers say about zero arcs and where contraction can happen.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. The earlier attempts are found and why they failed is written on the ticket.\n2. Either a combinatorial contraction before embedding that lays out the T-Rex skull and all 11 suite models with patches and cones unchanged, with tmesh_contract splits, working-copy size, newton_solver iterations and time, and the smallest-triangle ratio reported against master; or a written, evidenced reason it cannot work the papers' way, with the measurements that show it.\n3. Build checkstyle-green; touched tests pass.",
+    "testing-plan": "1. Skull DSL (load_mesh, repair_mesh, quad_layout) before/after: contract splits, copy V/F, newton iterations and ms, smallest triangle ratio. 2. 11-model suite: quads, patches, cones.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Earlier attempts (DoD 1): PATCH-119 (ARCHIVED 2026-09-26; its tag/commit d9ca1f04 no longer exist) merged non-singular nodes whose arcs were all zero before the carve and carved each surviving arc along the concatenated zero-arc traces. It failed because zero clusters are sub-triangle tight: shared route pieces U-turned across one constraint edge or lost crossings to trimEndCrossings next to a node vertex, chords crossed, and after 3-4 freeze-and-recarve rounds only 6/16 (bolt) .. 52/501 (botijo) merges survived; splits moved -27%..+11%. It also never collapsed zero patches, so zero-strip twins were still carved and dragged. PATCH-111 (plain-Dijkstra collapse) gave the same split counts; PATCH-120 (shortest-first order, botijo 696k->20k splits) and CRAW-123 (incremental pick, skull 26->7.5 s) are what master runs. LCBK19 6.1 contracts on the mesh so the embedding stays a valid non-crossing partition while zero arcs shrink (Dijkstra restricted not to cross/touch, plus splits); Prop 6.1/A.3 is purely combinatorial. LCK21a 6/7 names the alternative: get the connectivity combinatorially, then embed explicitly (RRP15 re-trace).",
+        "CRAW-128 worktree (uncommitted): ZeroElementContraction runs LCBK19 operators (1)(2)(3) on the quantized arrangement's combinatorics before embedding, each surviving arc recording its route (the original traces it was pulled along) and per-drag lateral ranks. Its fixed point equals master's embedded contractRounds on all 11 suite models and the skull (skull 16727 nodes / 33161 arcs / 16388 patches both ways) in 0.46 s vs 7.6 s; ZeroElementContractionTest checks it on the torus fixtures. Gate measured: ~40% of route-carrying zero arcs carry 2-5 routes (skull 15193 of 34363), and the lane crossings that implies (skull ~222k copy edges along zero arcs) match master's contract splits (228,873): the lanes do not disappear, they move from splits to carve lanes. SnappingCarve.sliceRoutes then embeds the routes once (lanes tie-broken by rank, crossing positions made direction-independent): bolt, sphere_base, elk, fertility, rockerarm, fandisk lay out with master's patches and cones, 0 contract splits, recarve copy within 3% of master, newton iterations 10/8/18/17/17/14 vs 11/9/18/14/21/12; quads change (e.g. fertility 16021 vs 11582). Fails: block (lane order disagrees with geometry where a shared stretch meets a node on a source edge, two routes cross inside one triangle) and every model with an operator (2) connector left in a route (buddha 1, feline 2, hand 3, botijo 3, skull 19): a connector has no trace, and LCBK19 routes it by Dijkstra on the mesh.",
+        "Archived 2026-11-22 without landing, as tag archive/craw-128 at ca75b995: Combinatorial zero-element contraction is exact and 16x faster than the embedded rounds (skull 0.46 s vs 7.6 s, identical T-mesh), but embedding the contracted layout once fails on block, buddha, feline, hand, botijo and the skull (trace-less zero-patch-split arcs; lane order at nodes on mesh edges), and the parallel lanes it needs (skull ~222k) match master's 228,873 contract splits, so it moves the refinement rather than removing it. Quads rise 20-42% where it lays out. Earlier attempts: PATCH-119, PATCH-111, PATCH-120."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/NetworkContraction.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/embedding/ZeroArcCollapseOperator.java"
+    ],
+    "priority": 3
+}

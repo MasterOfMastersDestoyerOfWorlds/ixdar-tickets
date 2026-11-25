@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-147",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Quad layout quantization stalls in branch-and-bound on crawfish IMG_4113",
+    "user-messages": [
+        "yes"
+    ],
+    "description": "On crawfish IMG_4113 (and on IMG_4116 with CRAW-143's cone separation) quad_layout's arc quantization runs branch-and-bound for minutes with the incumbent fixed and the bound barely moving, e.g. `nodes=204752 open=85039 incumbent=35492.145 bound=35481.120 220s` (CRAW-146 worktree log). Runs only end at the scene timeout. Find why this instance is hard (which constraints keep the relaxation loose, how many variables, whether a few near-tied classes cause it) the way LCK21a's quantization intends, fix it so it solves in seconds like the other scans (0.1-3.8 s), and make a stall fail with a clear message within a measured budget instead of spinning.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The cause of the stall on IMG_4113 is shown with numbers (variables, constraints, gap over time, what keeps the bound from rising) saved under tmp/.\n2. A fix following LCK21a makes IMG_4113's quantization finish in seconds, with the furthest quad_layout stage reported before and after.\n3. A quantization that cannot close its gap fails within a budget with a message naming the gap, instead of running until an outer timeout.\n4. The 11 suite models and the T-Rex skull give the same quantization objective and quad counts; ixd wt perf shows no regression.",
+    "testing-plan": "1. Reproduce on IMG_4113 (with CRAW-146's repair if it has not landed) and record the gap over time.\n2. A unit test with a small integer program that stalls the old way and finishes or fails cleanly after.\n3. Suite models, skull, ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/quantization/IntegerProgram.java"
+    ],
+    "priority": 3
+}

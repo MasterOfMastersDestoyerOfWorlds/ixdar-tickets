@@ -1,0 +1,36 @@
+{
+    "id": "CRAW-124",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "arc_quantization on the T-Rex skull: 9.3 s to 2.9 s by coefficient tightening and Gomory cuts",
+    "user-messages": [
+        "[recalled] can we start some performance agents on the remaining post 114 bottlenecks in the trex's quad layout"
+    ],
+    "description": "After CRAW-114 seamless_uv takes 9.5 s on the T-Rex skull (~700k faces), 6 s of it in the injectivity loop ([lazy-constraints] round 0 5.7 s, 14 interior-point iterations; [seamless timing] injectivity loop), and arc_quantization takes 8.6-9 s (sparse dual simplex branch and bound, 4,242 nodes, proves the optimum 38360.945; SCIP needs 1 node thanks to 29 cuts lifting the root bound from 37563 to the optimum, CRAW-119 notes). Make both faster the way their papers intend (seamless: BCE13, BZK09; quantization: LCK21a, with root cuts or presolve such as capping cover-row coefficients at 1 as SCIP does). The quantization must still prove the optimum (relative_gap stays 0 by default).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. arc_quantization on the T-Rex skull is substantially faster, the fix explained against its paper.\n2. The skull's quantization still proves 38360.945; every suite model keeps its objective, quads, patches and cones.\n3. Build checkstyle-green; touched tests pass (IntegerProgramTest among them).\n\nKeeps the [branch-bound] root line, reworded: Platforms.log(\"%sroot relaxation=%.3f feasible=%b (%.3f before %d Gomory cuts) %.1fs%n\", ...: the root bound before and after the cuts, the number that shows the cuts work.\n",
+    "testing-plan": "1. Time the T-Rex skull before and after with the timing route: a DSL of load_mesh(C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb), repair_mesh(weld_epsilon=0.0, max_hole_edges=4096, min_shell_faces=100, strict=false), quad_layout(alpha_degrees=15.0, target_edge_length=1.0) in the quad-layout scene (run-scene --mesh <dsl> --keep-alive, then ixdar-cli mesh-dsl-timing).\n2. Run the 11-model suite (bolt buddha feline hand sphere_base block botijo elk fertility rockerarm fandisk, test/resources/quadlayout) and compare quads, patches, cones and the quantization objective with master.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "arc_quantization (LCK21a \u00a75 ILP, solved exactly): IntegerProgram caps cover-row coefficients at 1 after presolve (coefficient tightening, Savelsbergh 1994) and adds rounds of Gomory mixed-integer cuts from the root tableau (new GomoryCuts; SparseDualSimplex gains tableauRow and withRows). Skull root bound 38230 -> 38358, nodes 3852 -> 110, stage 9.3 s -> 2.9 s; optimum 38360.945 still proven.",
+        "seamless_uv's nested-dissection ordering was tried and dropped: per injectivity round METIS cost 0.50 s where AMD cost 0.10 s on buddha (+0.28 s net), and it only broke even on the skull; the earlier 12.5 -> 6.1 s skull gain was machine load. Skipping PARDISO's second analysis is not bitwise reproducible (bolt 14,133 vs 12,548 quads across runs).",
+        "DijkstraTest: equal distances now settle lowest node first, the order IntIdMinHeap gives since CRAW-123; the old test asserted java.util.PriorityQueue insertion order and failed on master."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/InjectivityConstraints.java",
+        "ixdar-app/src/main/java/ixdar/numeric/integer/IntegerProgram.java"
+    ],
+    "priority": 2,
+    "verify-tests": [
+        "IntegerProgramTest",
+        "LazyConstraintsTest",
+        "DijkstraTest"
+    ],
+    "review-summary": "IntegerProgram now tightens cover rows and adds Gomory cuts at the root, and the injectivity solve's factorization uses PARDISO's nested-dissection ordering. The T-Rex skull's quantization and seamless stages were its slowest after CRAW-114; both now run several times faster with identical results.\n"
+}

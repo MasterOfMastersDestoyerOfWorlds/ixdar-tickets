@@ -1,0 +1,34 @@
+{
+    "id": "CRAW-130",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "repair_mesh leaves 9-23 folded faces on crawfish IMG_4110-4112, so quad_layout refuses them as pleated",
+    "user-messages": [
+        "[recalled] create ticket for unblocking crawfish and get agent started on it"
+    ],
+    "description": "quad_layout refuses the crawfish scans IMG_4110, IMG_4111 and IMG_4112 as pleated surfaces: after repair_mesh 9-23 faces are still folded (a face folded back over its neighbour), a second repair_mesh pass leaves 1-2, and smoothing before the layout makes it worse (8). Found by CRAW-129 (rings from the seamless parametrization), whose crawfish comparison needs the quad layout's seamless map on these scans; its proposal DSLs are ready in CRAW-129's worktree tmp/crawfish_41xx_iso_rings.dsl. The scans are in ${IXDAR_DATA_ROOT}/crawfish/IMG_41xx.glb (data root = home folder on this machine). MeshUnfold (added in CRAW-114 for the T-Rex skull's 176 folded slivers) is the existing unfold step inside repair_mesh; find why it leaves these folds, and why a second pass helps, and fix it so one repair_mesh pass unfolds completely.",
+    "blocked-by": [],
+    "blocks": [
+        "MESH-97"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. One repair_mesh pass leaves no folded face on IMG_4109 to IMG_4118, and quad_layout lays out IMG_4110, IMG_4111 and IMG_4112 (patches, cones, quads reported).\n2. Why MeshUnfold left the folds is explained on the ticket, and the fix is at that cause.\n3. The T-Rex skull and all 11 quad-layout suite models keep their quads, patches and cones through repair_mesh + quad_layout.\n4. Build checkstyle-green; MeshRepairTest covers the clear-and-refill stage on an edge with four faces, an hourglass vertex and a figure-eight hole.\n\n5. MeshRepairReport keeps the two counters the repair_mesh report prints for the one clear-and-refill stage: tangleDeletedFaceCount (faces cleared round the split's copies left on one surface, before the fill) and foldClearedFaceCount (faces cleared round the folds and zero-length edges the unfold leaves, before each refill).\n\n6. CrawfishMeshRepairBenchmark.repairOneScan asserts 0 folded faces, 0 zero-length edges and no vertex outside the scan's bounding box by more than a mean edge.\n\nAccepts perf regression CrawfishMeshRepairBenchmark: master's 0.018 s is the time to fail on a hard-coded /home/acw scan path; this change points the benchmark at the data root, so it now runs the whole repair (4.6 s including load) instead of erroring.\n",
+    "testing-plan": "1. repair_mesh then a fold count on all ten crawfish scans before and after. 2. quad_layout on IMG_4110-4112. 3. Skull and suite counts unchanged.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MeshRepair gains one clear-and-refill stage (clearAround): the split's copies left on one surface are cleared before the fill, and the folds and zero-length edges master's centroid MeshUnfold leaves are cleared and refilled a ring wider each round until none is left or a refill leaves a hole open; MeshUnfold now averages only the moving vertices' rings, which made it about 3x faster per round. Ten crawfish scans: 0 folds, 0 zero-length edges, 0 holes, 0 vertices outside, 1.1-2.6 s per scan."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshUnfold.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshRepair.java"
+    ],
+    "priority": 3,
+    "perf-benchmarks": [
+        "CrawfishColdRepairBenchmark",
+        "CrawfishMeshRepairBenchmark"
+    ]
+}

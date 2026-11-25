@@ -1,0 +1,26 @@
+{
+    "id": "TOOL-63",
+    "epic": "TOOL",
+    "repo": "autofix",
+    "subsystem": [
+        "tooling"
+    ],
+    "title": "Deterministic abstraction-boundary checks: method belongs elsewhere, helper already exists, wrong layer",
+    "user-messages": [
+        "> ach catches a different form, so they complement each other: 1 is \"wrong layer\", 2 is \"wrong class\", 3 is \"already exists\". I'd start with 2. It's the cheapest, and it fires at edit time, so I'd see \"move this to X\" before you do.\n\nyes write a ticket",
+        "[recalled] I feel like these are the things I keep coming back to in review and I don't really know how to solve it deterministically? how to keep track object/abstraction boundaries with some tool so that I don't have to make comments like that, cause that and the earlier one where the agent put in its own copy of the ringCentroid are the same disease"
+    ],
+    "description": "Review keeps catching the same disease: code placed somewhere other than where its concept lives, which no tool checks. Examples from 2026-11-22: an agent re-implemented a ring centroid in MeshUnfold that already existed as MeshTopology.oneRings plus PackedPoints.ringMean (CPD did not catch it: the names and some steps differed); ModelScene grew graph-tree and path-rewrite helpers (lastOfKind, statementReference) that belonged on GraphNodeContext and NodeGraphRuntime; SlotCarry (bundle layer) imported PlyMeshParser (io layer) to special-case a slot. Checkstyle and the edit hook look at one file at a time and CPD only matches near-identical text, so these reach the user's review. Build three deterministic checks, each for one form of the disease:\n\n1. Wrong class, an edit-time feature-envy check (do first): a custom checkstyle module in autofix next to SingleCallerHelperCheck. Flag a method whose body references one other type's members (fields, methods, or a parameter of that type) clearly more than its own class's, with no use of its own instance state, e.g. a private static method that only walks a GraphNodeContext parameter. Message: \"<method> mostly uses <Type>; move it to <Type>\". Runs in hooks/checkstyle_edit.py like the other custom modules, incrementally on methods the diff adds, so the author sees it before review.\n\n2. Already exists, an edit-time duplicate-helper check: when an edit adds a method, look for existing methods in the module with the same parameter and return types and overlapping name tokens, or the same body after normalising identifiers and literals (an AST hash, not CPD's token window), and report \"did you mean X?\". Lives in the ai-workspace edit hook or as an autofix tool the hook calls; must be fast on Ixdar's size.\n\n3. Wrong layer, architecture rules as tests: ArchUnit (Apache-2.0) tests in Ixdar encoding the package boundaries ARCHITECTURE.md describes in prose, e.g. ixdar.geometry.mesh.data.bundle must not depend on ixdar.geometry.mesh.data.io; scenes and tools must not read GraphNodeContext.declared, inputSources or children directly. They run in the normal unit run, so the build and wt done fail on a violation.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The feature-envy check runs at edit time and on the three examples in the description (MeshUnfold's ring centroid as it was before CRAW-114 removed it, ModelScene.lastOfKind and statementReference from CRAW-126's history, SlotCarry's PlyMeshParser import where it applies) reports the move target; its false-positive rate on current Ixdar master is measured and reported, and kept low enough that it does not fire on ordinary code (a list of what it flags on master, each judged).\n2. The duplicate-helper check reports MeshTopology.oneRings / PackedPoints.ringMean for the re-implemented ring centroid, runs in under a few seconds per edit, and its hits on master are listed and judged.\n3. ArchUnit layer rules exist for at least the bundle-vs-io direction and the scene/tool-vs-runtime-internals rule, run in the unit suite, and pass on master (fixing or explicitly listing any existing violations).\n4. All three are documented where agents read the conventions, and none adds a system property.",
+    "testing-plan": "1. Run each check over Ixdar master and the three historical examples; list every hit with a judgement. 2. Time the edit-time checks on a large Ixdar file. 3. mvn test with the ArchUnit rules.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "src/main/java/ixdar/autofix/checkstyle/SingleCallerHelperCheck.java"
+    ],
+    "priority": 3
+}

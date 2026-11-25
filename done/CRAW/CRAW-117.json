@@ -1,0 +1,41 @@
+{
+    "id": "CRAW-117",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Split triangles with two feature edges (BCE13 3.2) instead of dropping alignments, and throw on a proven-infeasible injectivity round",
+    "user-messages": [
+        "> The second is a sensible safeguard. The first deals with the symptom, not the cause.\n\nlikely the second should crash instead of just loggin",
+        "yes does the fix need to go in mesh repair node instead?",
+        "ok get 117 ready for review"
+    ],
+    "description": "CRAW-115 (landed, ca662030) made the seamless injectivity loop converge on the T-Rex skull by withdrawing alignment rows: `SeamlessDofSystem.dropCollapsingAlignments` / `collapsingAlignmentEdge` drop one of two feature edges of a triangle that pin the same iso coordinate. On the skull that drops 93 of 229 feature alignments (40%), so the layout no longer follows those ridges. That treats the symptom.\n\nThe cause: a triangle a-b-c whose edges ab and bc are both feature edges aligned to the same coordinate (BZK09 \u00a75.2: an alignment edge pq imposes v_p = v_q \u2208 Z) puts all three corners on one iso-line. The triangle collapses, and no BCE13 \u00a73.1 sector constraint can orient it, so the QP is infeasible. BCE13 meets the same degenerate arrangement for singular vertices with mesh refinement, not by dropping constraints (\"Splitting Integer-critical Edges\", \u00a73.2): \"To not exclude the possibility of arranging the vertices on a line ... we split all integer-critical edges.\" Splitting a triangle's non-feature edge with a regular vertex lets a, b and c stay on one iso-line while every triangle keeps a free corner.\n\nDo it the papers' way:\n1. Inside quad_layout, before the cross field (feature edges are quad_layout's input, from its feature detection; repair_mesh does not know them), split the non-feature edge opposite every triangle with two or more feature edges, so no triangle carries two feature edges. Splitting every such triangle is cheap; only same-axis pairs need it, but the axes are known only after the cross field. Splits must carry the per-corner UV and slot data the way repair_mesh's operators do, so reuse the half-edge edge-split operator rather than writing another.\n2. Remove dropCollapsingAlignments and collapsingAlignmentEdge, and their FeatureAlignmentGuardTest cases, once the split makes them dead (the earlier \"incident faces disagree\" guard stays).\n3. LazyConstraints: when a round's QP proves its active set infeasible (provenInfeasible, added by CRAW-115), throw an IllegalStateException naming the certificate's faces, instead of logging and stopping. An infeasible injectivity set means the map is invalid, and downstream stages must not run on it (user ruling 2026-11-21).\n\nRead BZK09 \u00a75.2 and BCE13 \u00a73.1-3.2 (~/QuadLayoutsPapersCompleted on this Windows machine: names use \" - \" for \" | \" and \"_\" for \"*\", so BCE*13 is \"BCE_13 - Bommes - 2013 - ...\"). Also read ARCHITECTURE.md and QuadLayoutReparametrizationPseudocode.md before changing the pipeline.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. quad_layout chooses its alignment edges once, in the split_feature_corners stage: boundaries only by default (feature_dihedral_cos), creases opt-in (user ruling 2026-11-21, from FeatureDetectionSuiteBenchmark). With creases on, the mildest crease of a three-feature triangle is left unaligned and the third edge of every two-feature triangle is split (BCE13 3.2); the choice reaches the cross field through the _alignment_edges slot.\n2. dropCollapsingAlignments and collapsingAlignmentEdge are gone; the \"incident faces disagree\" guard stays.\n3. A proven-infeasible injectivity round throws IllegalStateException naming each certificate face with its corners and pinned axes; LazyConstraintsTest covers it.\n4. On the T-Rex skull (with CRAW-114's repair unfold) the seamless injectivity loop converges with 0 violated constraints and 0 flipped triangles (measured 5.8 s). The skull's quantization is out of scope (CRAW-114).\n5. Fertility's quad layout is unchanged: 11582 quads, 254 patches, 40 cones.\n6. FeatureCornerSplitTest, SingularityIndexConventionTest and the quad-layout tests pass; build checkstyle-green.\n7. Keeps the log lines \"[feature-corners] edgeSplits=... prunedCreases=...\" (how many splits and prunings a layout needed) and \"[seamless] alignment guard ... disagree\" (existing).\n\nKeeps [feature-suite]: FeatureDetectionSuiteBenchmark's output, the creases-on/off comparison this ticket's default rests on.\n\nKeeps the item 7 log call Platforms.log(\"%sedgeSplits=%d prunedCreases=%d%n\", FeatureC...).\n\nKeeps describe (InjectivityConstraints and LazyConstraints.ConstraintSet): it names each certificate face in the infeasibility exception of item 3.\n",
+    "testing-plan": "1. Unit test: a triangle with two feature edges is split on its third edge, data carried. 2. Unit test: LazyConstraints throws on a proven-infeasible set. 3. Skull through load_mesh -> repair_mesh -> quad_layout: alignment count, injectivity loop time and flips. 4. Fertility counts. 5. The quad layout test classes.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "split_feature_corners stage (FeatureCornerSplit): chooses the alignment edges once (mildest crease of a three-feature triangle left unaligned), splits the third edge of every triangle with two (BCE13 3.2), carries the choice through the splits in an edge layer and hands it to the cross field in the _alignment_edges slot. dropCollapsingAlignments/collapsingAlignmentEdge removed. LazyConstraints throws on a proven-infeasible round, naming each certificate face with its corners and pinned axes.",
+        "Feature detection: KCP13 has no crease detection, and BZK09 5.2 assumes features are given. FeatureDetectionSuiteBenchmark (creases at 0.2 vs boundaries only) showed the per-edge 78-degree test finds 0-1 creases on rounded CAD (block, rockerarm), 5-20 noise edges on organic models (feline, hand, botijo, elk), 106 on bolt, and fandisk FAILS with creases (PATCH-126 carve error) but lays out with boundaries only. Skull: 624 raw crease edges in 246 chains of at most 5 vertices. quad_layout gains feature_dihedral_cos, default boundaries only (-2); creases are opt-in (0.2). The acute-corner axis turn tried along the way was removed (user ruling).",
+        "SingularityIndexConventionTest: on block, defect + signed kappa walk is a whole number of turns at every curved vertex, so the index extraction orientation is right (a suspected sign error is ruled out).",
+        "Skull with the new default: seamless injectivity loop converges in round 0, 0 violated, 0 flips, 5.8 s, distortion 0.215. Then motorcycle 4268 traces / 57277 patches from 1021 cones (genus 24), and master's IntegerProgram runs out of heap in quantization. Fertility unchanged: 11582 quads, 254 patches, 40 cones.",
+        "Removed the temporary CRAW-114 copies (MeshUnfold, MeshRepair, MeshRepairReport, RepairMeshNode, ModelScene, ModelCatalog, ModelLoadLedger) and the skull launch entry that needed them; the diff is CRAW-117's own. Synced onto master d0fa828d (tie-break removed)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/SeamlessDofSystem.java",
+        "ixdar-app/src/main/java/ixdar/numeric/sparse/system/LazyConstraints.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/quadlayout/NDirectionFieldNode.java"
+    ],
+    "priority": 2,
+    "review-summary": "The quad layout now chooses its feature edges in one stage, boundaries only by default, and splits triangles that two feature edges would collapse, instead of dropping alignments in the seamless stage. Noise creases on scans made the seamless map infeasible; an infeasible injectivity round now throws.\n",
+    "verify-tests": [
+        "FeatureCornerSplitTest",
+        "LazyConstraintsTest",
+        "SingularityIndexConventionTest"
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "id": "CRAW-120",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "Large complex meshes lay out as mostly 1x1 patches: too many cones and zero arcs on scan-scale input",
+    "user-messages": [
+        "I am not so concerned about this, log a follow up ticket about large complex meshes having mostly 1x1 patches"
+    ],
+    "description": "On the Trellis T-Rex skull (C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb, ~700k faces, genus 24) quad_layout completes (CRAW-114) with 31,841 quads but 29,961 patches: 29,464 patches (98%) are a single quad, only 109 have more than 4. The seamless UV unit is 1% of the bounding-box diagonal and target_edge_length defaults to 1.0, so the quad size is sensible; the patches are tiny because the layout is too complex: 1,020 cones, 116,716 arcs of which 55,130 quantize to zero length. A patch layout of mostly 1x1 patches is no segmentation. Find where the cones come from on noisy scan-scale meshes and reduce them the way the papers intend (cross-field smoothness, curvature bias, KCP13 / BZK09 / LCK21a), so large meshes get patches spanning many quads. Related: PATCH-47 (spurious singularities on noisy meshes, older simplified solver).",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "ARCHIVED",
+    "definition-of-done": "1. On the T-Rex skull the layout's patches average well above one quad each, with the cone count explained against the paper the fix follows.\n2. Every suite model (bolt buddha feline hand sphere_base block botijo elk fertility rockerarm fandisk) keeps a valid layout; any change in its patch count is reported.\n3. Build checkstyle-green; touched tests pass.",
+    "testing-plan": "1. Run the skull DSL (load_mesh, repair_mesh, quad_layout) and report cones, arcs, zero arcs, patches and the quads-per-patch histogram before and after.\n2. Run the 11-model suite and compare quads, patches and cones.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Archived 2026-11-22 without landing, as tag archive/craw-120 at 5ea14b8c: Cones on the skull are real geometry; no cross-field setting from KCP13, BZK09 or LCK21a cuts them by more than 18%. The smoothestField fix it found landed via PATCH-123. Open options not taken: alpha 30 deg plus the pinched-patch fix, or BZK09 section 5.3 cone relocation."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/fields/crossfield/NDirectionField.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/quadlayout/QuadLayoutNode.java"
+    ],
+    "priority": 3
+}

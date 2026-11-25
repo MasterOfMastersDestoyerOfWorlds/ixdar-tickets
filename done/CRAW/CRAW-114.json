@@ -1,0 +1,57 @@
+{
+    "id": "CRAW-114",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "automation",
+        "geometry"
+    ],
+    "title": "ComfyUI node: run the quad layout pipeline on a ComfyUI mesh through automation routes",
+    "user-messages": [
+        "how hard is it to write a new node that calls Ixdar's quad layout pipeline?",
+        "ok the right way to build this is with an automation route not a cli",
+        "ok create a new ticket and worktree and get started",
+        "dod for this ticket is that T-Rex skull is processed by quad layout pipeline and segmented, if you need help improving the mesh repair node feel free to reach out to me, or spend some time on it"
+    ],
+    "description": "A ComfyUI custom node that runs Ixdar's quad layout pipeline on a mesh from a ComfyUI graph (for example the Trellis \"Generate or Load\" workflow in the user's ComfyUI install) and hands the result back as a GLB that ComfyUI's Preview3D and Save3D nodes take.\n\nThe node drives Ixdar only through `ixdar-cli` and automation routes. No new Java CLI or `main` method: anything the node needs computed inside the program becomes an automation route, and the Python side only starts and stops the scene, calls routes and moves files (Ixdar CLAUDE.md, \"The Python ixdar_automation_cli\").\n\nChain as far as the code on master shows today, to be confirmed before writing any new route:\n1. The ComfyUI node writes its input mesh (ComfyUI FILE_3D or MESH) to a GLB under a temp directory.\n2. `ixdar-cli run-scene --scene quad-layout --property ixdar.model=<that.glb> --keep-alive` (the same launch CRAW-2 profiles with), or `/scene/model` with a path on a live scene, or `/mesh/dsl` with a .dsl of load_mesh -> repair_mesh -> quad_layout as in fertility_quad_layout.dsl.\n3. `/mesh/export --path out.glb` (`ixdar-cli mesh-export`) writes the quads, and, when a route can make them active, the patch surfaces with per-face patch ids.\n4. `ixdar-cli shutdown`; the node returns out.glb as a File3D, plus a short info string (quads, patches, singularities, stage times).\n\nNo decimation: per the CRAW-2 ruling the quad layout is the compression step, so the node passes the mesh through unchanged. CRAW-2 is not a blocker (user ruling): the node works on whatever the pipeline finishes today, and on any input the pipeline refuses or that runs past the node's timeout it fails cleanly rather than hang ComfyUI.\n\nFinding on master: `/mesh/export` only exports from a MeshNodeViewerScene, and QuadLayoutScene is a ModelScene that keeps its result on `layout` (quads, patchSurfaces), so the quad layout needs its own export route.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. The Trellis T-Rex skull (C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb, ~700k faces, unmodified and not decimated) is processed by the quad layout pipeline and segmented, run from the ComfyUI \"Ixdar Quad Layout\" node (user ruling 2026-11-21).\n2. Whatever stops the skull today (176 faces folding back against their corners, still there after repair_mesh) is fixed in Ixdar, preferably in repair_mesh, not by changing the mesh outside Ixdar.\n3. The node drives Ixdar only through ixdar-cli and automation routes (no new main method); any new value it needs is a tracked route with describe() docs, and `ixdar-cli gen-docs` is rerun.\n4. On an input the pipeline refuses or that runs past the node's timeout, the node raises a readable ComfyUI error with Ixdar's reason, and no Ixdar JVM is left running.\n5. A .vscode/launch.json entry and a screenshot under tmp/ show the skull's quad layout; the ComfyUI result is shown in a second screenshot.\n6. Build checkstyle-green; the touched tests pass.\n\n7. repair_mesh's report says what the unfold did: MeshUnfold's foldedFaceCount, stillFoldedFaceCount and movedVertexCount are its result, and MeshRepairReport's foldedFaceCount, unfoldMovedVertexCount and stillFoldedFaceCount carry them into the repair summary and report text.\n",
+    "testing-plan": "1. Route chain by hand first: run-scene the quad-layout scene on fertility and on a small Trellis mesh, mesh-export the quads, and check the GLB loads (trimesh or Blender headless) with the scene's quad and patch counts.\n2. Unit tests in ixdar-app/test/ for any new route's handler (Ixdar CLAUDE.md conventions), including the refusal path.\n3. ComfyUI: queue a graph Load3DAdvanced -> Ixdar Quad Layout -> Preview3DAdvanced + Save3DAdvanced through the local API, read the history entry, and confirm the saved GLB and the reported counts.\n4. Timeout path: point the node at a full-resolution Trellis mesh with a short timeout and confirm the error text and that `ixdar-cli shutdown` finds no live scene afterwards.",
+    "todos": [],
+    "unknowns": [
+        "Where the ComfyUI node's Python lives: inside the Ixdar repo (copied or linked into ComfyUI custom_nodes) or as a separate package.",
+        "Whether run-scene with ixdar.model already runs every quad_layout stage headless, or a route must pull the later stages (quads, patch surfaces) and make them the active mesh for /mesh/export.",
+        "Whether ixdar-cli mesh-dsl passes a .dsl file path through to the route, which accepts one.",
+        "What 'segmented' means for the skull: the quad layout's own patches as segments, or P3-SAM / ring labels carried onto the quad mesh."
+    ],
+    "changes-made": [
+        "Added QuadLayoutExport (/mesh/quad-layout/export): writes the quad-layout scene's quads or patch grids to GLB with quad, patch and cone counts; refuses with the scene's load failure when no layout was built. Not compiled yet: this machine has JDK 21, the build needs 25.",
+        "Added comfyui/ixdar_quad_layout, the Ixdar Quad Layout ComfyUI node: saves the input model under the checkout's tmp/, runs run-scene quad-layout --keep-alive, calls mesh-quad-layout-export, always shuts the scene down. Untested.",
+        "Verified on Windows: run-scene quad-layout on fertility, then mesh-quad-layout-export, gives 11582 quads, 254 patches, 40 cones, matching the scene log; the GLB reads back watertight. Route test QuadLayoutExportTest passes.",
+        "The route now also reads a DSL graph's quad_layout call (node param, default layout), so the ComfyUI node runs load_mesh -> repair_mesh -> quad_layout like fertility_quad_layout.dsl. ModelScene opens a .dsl ixdar.model as a graph and records its initial load in modelLoads; ModelLoadLedger keeps the root cause.",
+        "Windows fixes found on the way: process_alive used os.kill(pid, 0), which terminates the process on Windows (killed every scene at launch); shutdown used signal.SIGKILL, absent on Windows; run-scene sets KMP_DUPLICATE_LIB_OK so MKL's libiomp5md does not abort next to libomp140; ModelCatalog.launchChoice no longer joins an absolute Windows path to the module dir (fixes ModelPathReopenTest on Windows).",
+        "Full-resolution Trellis T-Rex skull (700k faces) is refused even after repair_mesh: quad_layout reports 176 faces folding back against their corners. The node surfaces that message.",
+        "repair_mesh gains an unfold stage (MeshUnfold, input unfold, default true): corners of faces MeshFolds marks folded move to their neighbours' centroid until none folds; topology unchanged. On the T-Rex skull: folded=176 stillFolded=0, and the skull now passes quad_layout's fold check. MeshRepairTest, FoldedInputRefusalTest pass.",
+        "T-Rex skull after unfold: cross field 1021 cones (indexSum4=-184, so genus 24), seamless injectivity loop 446s, motorcycle graph 52437 patches, then OutOfMemoryError in QuantizedMeshGrid -> IntegerProgram.solve cloning the dense branch-and-bound tableau (line 436). Not fixed yet.",
+        "Synced onto master 3aeef975 (CRAW-119's solver and n-smooth work landed there).",
+        "GridMapOptimizer: per-worker assembly buffers are compact, sized to the entries each worker touches (was full-size per worker, the first skull OOM).",
+        "layout_embedding assembles a copy of the arrangement (ArcNetwork.copyArrangement, copy constructors on EmbeddedNode/Arc/Patch), so quad_layout's motorcycle and skeleton outputs are their own small arrangements and stop holding the 1.7 GB embedded mesh.",
+        "HalfEdgeMesh.packAdjacency / IntIdTable.repack: per-row adjacency lists packed back into shared arrays after MPZ14's 3-connectivity refinement in LayoutPatchMaps (0.49 s on the skull).",
+        "Node runtime releases values after their last reader (ValueRelease): on for DSL runs (keeps every top-level statement's product) and for scenes that declare their pulls (quad-layout: layout.layout, embedded-tmesh: layout.embedded); group outputs are computed only when read (NodeGroup.evaluateReads, declared by quad_layout); mesh bundles never released; -Dixdar.graph.keepIntermediates=true turns it off.",
+        "cross_field drops CrossField.system and newton_solver drops GlobalGridMap.gridOptimizer after their solves (kept with the flag); GlobalGridMap keeps relaxEnergyBefore/After.",
+        "Skull peak live heap 10.5 GB -> 6.7 GB; it completes at the default 8 GB and at 6 GB. Suite (11 models) unchanged in quads, patches, cones, objective.",
+        "quad-layout scene shows a DSL model's layout (QuadLayoutScene.loadGraph): it showed nothing for DSL models, also on master.",
+        "ComfyUI node: error now carries ixdar-cli's exit code and stderr. Run through ComfyUI's API on the skull: 31,841 quads, 29,961 patches, 1,020 cones in ~125 s; quads GLB (63,682 triangles) fed to the H3DPART-segment P3-SAM workflow: 2 parts at defaults, 10 at 1,000 prompts / 500k points (follow-ups CRAW-120, CRAW-121).",
+        "Launch entries: 'CRAW-114: T-Rex skull quad layout' (tmp/trex_quad_layout.png) and 'CRAW-114: P3-SAM parts on the skull' (tmp/comfy/p3sam_parts/ixdar_textured_multiview.png)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/scenes/QuadLayoutScene.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/nodes/quadlayout/QuadLayoutNode.java",
+        "ixdar-app/src/main/resources/dsl/fertility_quad_layout.dsl",
+        "ixdar-app/test/benchmark/CrawfishQuadLayoutBenchmark.java",
+        "ixdar_automation_cli/automation_routes.json"
+    ],
+    "priority": 3
+}

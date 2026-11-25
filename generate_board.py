@@ -839,8 +839,11 @@ def worktree_state(worktree: Path) -> tuple[int, int] | None:
     """Return (uncommitted file count, commits not on the main branch) for a worktree.
 
     :param worktree: worktree directory to inspect.
-    :return: the two counts, or None when the directory is not a usable git worktree.
+    :return: the two counts, or None when the directory is not a usable git worktree, such as a
+        folder a removed worktree left behind, where git would read the enclosing main checkout.
     """
+    if not (worktree / ".git").exists():
+        return None
     status = _git(worktree, "status", "--porcelain")
     if status is None:
         return None
@@ -1110,11 +1113,11 @@ def update_ticket(
     remove_blocks: list[str] | None = None,
     title: str | None = None,
     description: str | None = None,
-    append_description: str | None = None,
+    append_description: list[str] | None = None,
     definition_of_done: str | None = None,
     testing_plan: str | None = None,
-    append_definition_of_done: str | None = None,
-    append_testing_plan: str | None = None,
+    append_definition_of_done: list[str] | None = None,
+    append_testing_plan: list[str] | None = None,
     review_summary: str | None = None,
     add_unknowns: list[str] | None = None,
     add_changes: list[str] | None = None,
@@ -1124,6 +1127,10 @@ def update_ticket(
     remove_related_files: list[str] | None = None,
     add_verify_tests: list[str] | None = None,
     remove_verify_tests: list[str] | None = None,
+    add_perf_benchmarks: list[str] | None = None,
+    remove_perf_benchmarks: list[str] | None = None,
+    add_cite_keys: list[str] | None = None,
+    remove_cite_keys: list[str] | None = None,
     resolve_todos: list[int] | None = None,
     resolve_unknowns: list[int] | None = None,
     remove_changes: list[int] | None = None,
@@ -1138,6 +1145,11 @@ def update_ticket(
     :param ticket_id: ticket ID to patch.
     :param title: replaces the title, for a ticket whose scope was redecided; None keeps it.
     :param description: replaces the description entirely; append_description then adds to it.
+    :param append_description: texts appended to the description in order, each after a blank line.
+    :param append_definition_of_done: texts appended to definition-of-done in order; ignored when
+        definition_of_done replaces it.
+    :param append_testing_plan: texts appended to testing-plan in order; ignored when testing_plan
+        replaces it.
     :param review_summary: replaces review-summary, the plain-words paragraph `ixd review` shows
         first (the problem before, what is true after, why it matters); blank removes it.
     :param add_user_messages: the user's messages that shaped the ticket, verbatim, appended to
@@ -1150,6 +1162,14 @@ def update_ticket(
     :param add_verify_tests: Maven ``-Dtest`` selectors appended to verify-tests, the tests
         `ixd wt done` runs to verify the ticket in place of a screenshot.
     :param remove_verify_tests: exact verify-tests selectors to drop; removals run before additions.
+    :param add_perf_benchmarks: Maven ``-Dtest`` selectors appended to perf-benchmarks, the
+        benchmarks `ixd wt perf` times in the worktree and on master to catch a regression.
+    :param remove_perf_benchmarks: exact perf-benchmarks selectors to drop; removals run before
+        additions.
+    :param add_cite_keys: paper cite keys (``L03``, ``LCK21a``, ``BCE*13``) appended to cite-keys;
+        `ixd wt new` and `ixd wt status` list the code citing each, next to the keys the ticket's
+        text names.
+    :param remove_cite_keys: exact cite-keys entries to drop; removals run before additions.
     :param priority: new priority, lower is higher; None keeps the current one.
     :param resolve_todos: one-based todo positions to remove.
     :param resolve_unknowns: one-based unknown positions to remove.
@@ -1174,16 +1194,18 @@ def update_ticket(
         data["title"] = title.strip()
     if description is not None:
         data["description"] = description.strip()
-    if append_description:
-        _append_text_field(data, "description", append_description)
+    for text in append_description or []:
+        _append_text_field(data, "description", text)
     if definition_of_done is not None:
         data["definition-of-done"] = definition_of_done.strip() + "\n"
-    elif append_definition_of_done:
-        _append_text_field(data, "definition-of-done", append_definition_of_done)
+    else:
+        for text in append_definition_of_done or []:
+            _append_text_field(data, "definition-of-done", text)
     if testing_plan is not None:
         data["testing-plan"] = testing_plan.strip() + "\n"
-    elif append_testing_plan:
-        _append_text_field(data, "testing-plan", append_testing_plan)
+    else:
+        for text in append_testing_plan or []:
+            _append_text_field(data, "testing-plan", text)
     if review_summary is not None:
         if review_summary.strip():
             words = len(review_summary.split())
@@ -1213,6 +1235,8 @@ def update_ticket(
     for key, added, removed in (
         ("related-files", add_related_files, remove_related_files),
         ("verify-tests", add_verify_tests, remove_verify_tests),
+        ("perf-benchmarks", add_perf_benchmarks, remove_perf_benchmarks),
+        ("cite-keys", [key.strip() for key in add_cite_keys or []], remove_cite_keys),
     ):
         missing = [entry for entry in removed or [] if entry not in (data.get(key) or [])]
         if missing:
@@ -1668,9 +1692,10 @@ def _build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument(
         "--append-description",
         dest="append_description",
+        action="append",
         default=None,
         type=text_option,
-        help="Text appended to description (after a blank line if non-empty).",
+        help="Text appended to description (after a blank line if non-empty). Repeatable.",
     )
     update_parser.add_argument(
         "--definition-of-done",
@@ -1682,9 +1707,10 @@ def _build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument(
         "--append-definition-of-done",
         dest="append_definition_of_done",
+        action="append",
         default=None,
         type=text_option,
-        help="Append to definition-of-done.",
+        help="Append to definition-of-done. Repeatable.",
     )
     update_parser.add_argument(
         "--testing-plan",
@@ -1696,9 +1722,10 @@ def _build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument(
         "--append-testing-plan",
         dest="append_testing_plan",
+        action="append",
         default=None,
         type=text_option,
-        help="Append to testing-plan.",
+        help="Append to testing-plan. Repeatable.",
     )
     update_parser.add_argument(
         "--review-summary",
@@ -1799,6 +1826,36 @@ def _build_parser() -> argparse.ArgumentParser:
         default=[],
         dest="remove_verify_tests",
         help="Remove one verify-tests[] selector, matched exactly; runs before --add-verify-test.",
+    )
+    update_parser.add_argument(
+        "--add-perf-benchmark",
+        action="append",
+        default=[],
+        dest="add_perf_benchmarks",
+        help="Append one perf-benchmarks[] Maven -Dtest selector (e.g. CrawfishMeshRepairBenchmark); "
+        "`ixd wt perf` and `ixd wt done` time these against master and refuse a regression.",
+    )
+    update_parser.add_argument(
+        "--remove-perf-benchmark",
+        action="append",
+        default=[],
+        dest="remove_perf_benchmarks",
+        help="Remove one perf-benchmarks[] selector, matched exactly; runs before --add-perf-benchmark.",
+    )
+    update_parser.add_argument(
+        "--add-cite-key",
+        action="append",
+        default=[],
+        dest="add_cite_keys",
+        help="Append one cite-keys[] paper key (e.g. LCK21a, BCE*13, L03); `ixd wt new` and `ixd wt "
+        "status` list the code citing it. Keys the ticket's text names are found without this.",
+    )
+    update_parser.add_argument(
+        "--remove-cite-key",
+        action="append",
+        default=[],
+        dest="remove_cite_keys",
+        help="Remove one cite-keys[] entry, matched exactly; runs before --add-cite-key.",
     )
     update_parser.add_argument(
         "--remove-change",
@@ -1957,6 +2014,10 @@ def _dispatch(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
             remove_related_files=list(args.remove_related_files or []),
             add_verify_tests=list(args.add_verify_tests or []),
             remove_verify_tests=list(args.remove_verify_tests or []),
+            add_perf_benchmarks=list(args.add_perf_benchmarks or []),
+            remove_perf_benchmarks=list(args.remove_perf_benchmarks or []),
+            add_cite_keys=list(args.add_cite_keys or []),
+            remove_cite_keys=list(args.remove_cite_keys or []),
             resolve_todos=list(args.resolve_todos or []),
             resolve_unknowns=list(args.resolve_unknowns or []),
             remove_changes=list(args.remove_changes or []),

@@ -1,0 +1,29 @@
+{
+    "id": "DSL-55",
+    "epic": "DSL",
+    "repo": "Ixdar",
+    "subsystem": [
+        "dsl"
+    ],
+    "title": "DSL return primitive so any graph declares its output and one route exports it",
+    "user-messages": [
+        "[recalled] create the ticket (for: General DSL export with a return primitive, the TODO in QuadLayoutExport)",
+        "[recalled] the dsl export ticket should remove the quad layout export as one of its tasks"
+    ],
+    "description": "The ComfyUI Ixdar Quad Layout node (CRAW-114) exports through /mesh/quad-layout/export, a route that only knows quad_layout: it reads the scene's QuadLayout, or a DSL's named quad_layout call's layout port (its node parameter), and writes the quads or patch grids. Any other graph has no way to say which value is its result, so every new ComfyUI node or host would need its own route. Add a DSL return primitive (e.g. return quads = layout.quads, or return layout.quads) that names a graph's output values, and one generic export route (and ixdar-cli command) that writes a graph's returned geometry by name, replacing the quad-layout-specific one. The returned values are also exactly what NodeGraphRuntime.releaseAfterLastReader should keep (CRAW-114's value release keeps every top-level statement's product for DSL runs today because it cannot know what the host reads). Related: CRAW-20 (the export_mesh node and GLB writer), CRAW-114 (QuadLayoutExport and the ComfyUI node). User TODO in QuadLayoutExport.java.\n\nNote 2026-11-22: the ComfyUI quad-layout node moved out of Ixdar to the ixdar-comfyui repo (ixdar_quad_layout/__init__.py there); the node change in this ticket is made in that repo.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The DSL has a return primitive naming one or more output values; the parser, validator and docs know it.\n2. One route and ixdar-cli command export a graph's returned geometry by name to GLB; /mesh/quad-layout/export is replaced by it, and the ComfyUI node uses it.\n3. A DSL run with returns keeps only the returned values (and what they need) under the value release.\n4. Build checkstyle-green; touched tests pass.\n\n5. /mesh/quad-layout/export no longer exists: QuadLayoutExport and its test are deleted and nothing calls the mesh-quad-layout-export command.\n",
+    "testing-plan": "1. Parse and validate DSLs with and without returns, including a return naming a missing value.\n2. Export the T-Rex skull DSL's returned quads through the new route and through the ComfyUI node, and compare with today's export.\n3. Measure the skull's peak heap with returns versus today's keep-every-top-level rule.",
+    "todos": [
+        "Remove the quad-layout-specific export: delete /mesh/quad-layout/export (QuadLayoutExport.java, QuadLayoutExportTest.java, its automation_routes.json entry and the mesh-quad-layout-export command), move the ComfyUI node onto the generic route, and rerun ixdar-cli gen-docs."
+    ],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/automation/endpoints/mesh/QuadLayoutExport.java",
+        "comfyui/ixdar_quad_layout/__init__.py"
+    ],
+    "priority": 3
+}

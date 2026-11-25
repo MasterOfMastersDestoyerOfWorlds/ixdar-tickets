@@ -1,0 +1,34 @@
+{
+    "id": "CRAW-141",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Hole filling must not make flat triangles over collinear loop vertices",
+    "user-messages": [
+        "yes"
+    ],
+    "description": "The minimum-area hole filler (MeshHoleFiller, Liepa) picks a zero-area triangle whenever three vertices of a hole's boundary loop are collinear, because it is the cheapest. The triangle has no normal, so it breaks Liepa's dihedral weight, the cross field (Poincare-Hopf mismatch between triangle indices and cones on crawfish IMG_4110 and IMG_4118) and every later stage that needs a gradient. Three of the ten crawfish scan agents (CRAW-131, CRAW-133, CRAW-137) found this independently and wrote nearly the same ~10-line fix in their worktrees: rule out triangles over three collinear loop vertices in the fill and in the edge-flip check. Take the cleanest version from those worktrees (C:/Code/Ixdar/.claude/worktrees/craw-131, craw-133, craw-137; they are reference only, do not edit them) and land it with a unit test.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. MeshHoleFiller never emits a triangle of zero area, including over collinear loop vertices, and a hole whose loop has collinear runs still fills.\n2. A unit test with a hand-made loop containing collinear vertices shows the old fill producing a flat triangle and the new fill producing none.\n3. All ten crawfish scans repair with 0 zero-area faces, 0 folds, 0 zero-length edges, 0 holes and 0 vertices outside the scan; the repair tests and CrawfishMeshRepairBenchmark pass; the 11 suite models give the same quad, patch and cone counts as master; ixd wt perf shows no regression.\n4. The furthest quad_layout stage each of the ten scans reaches is reported before and after.",
+    "testing-plan": "1. MeshHoleFiller unit test with collinear loop vertices.\n2. Ten-scan repair numbers and the furthest quad_layout stage per scan, before and after.\n3. Suite models and ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MeshHoleFiller rules out zero-area triangles in the minimum-area DP and in the refinement's edge flips (craw-131's version); MeshHoleFillerTest added; CrawfishMeshRepairBenchmark now counts and asserts zero-area faces alongside folds, zero-length edges, holes and outside vertices. All ten scans repair clean (zero-area faces were 1/6/2/0/18/8/4/4/0/2). quad_layout: IMG_4110 cross_field->seamless, IMG_4111 and IMG_4114 seamless->layout_embedding, others unchanged; IMG_4118 still fails cross_field Poincare-Hopf (index sum -14 -> -2), a separate cause. 11 suite models identical."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshHoleFiller.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "MeshHoleFillerTest"
+    ],
+    "perf-benchmarks": [
+        "CrawfishMeshRepairBenchmark"
+    ],
+    "review-summary": "MeshHoleFiller now rules out zero-area triangles, both in its minimum-area triangulation and in the Delaunay edge flips of its refinement. Collinear boundary vertices made a flat triangle the cheapest choice, and a face with no normal breaks the cross field and every later quad-layout stage.\n"
+}

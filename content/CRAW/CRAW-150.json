@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-150",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Zero-arc collapse cannot route the dragged arc through both corners (crawfish 4114)",
+    "user-messages": [
+        "> otorcycle graph: a trace meets itself, leaving a node with two ports in the same direction\t4109, 4116, 4117\tnone yet\n> zero-patch collapse leaves a pinched patch\t4110\tnone yet\n> zero-arc collapse can't route the dragged arc through both corners\t4114\tnone yet\n> grid-map Newton jump, then a duplicate half-edge\t4115\tnone yet\n\nmake tickets for these"
+    ],
+    "description": "Crawfish IMG_4114 fails in the T-mesh contraction with 'arc could not be re-embedded'. CRAW-144 found that a zero-arc collapse (LCBK19 \u00a76) can route the dragged arc through the departure corner alone or the arrival corner alone, but not through both together. Context: since CRAW-141, CRAW-142, MESH-97, CRAW-146 and CRAW-144 landed, crawfish IMG_4111, 4112 and 4118 finish quad_layout; the rest fail in separate places (IMG_4113 is the quantization stall, CRAW-147). The CRAW-144 agent diagnosed this one; its diagnostics folder went with its worktree at land, so re-measure first.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The blocked collapse is shown: the zero arc, the dragged arc, the two corners and what blocks the joint route (numbers and an engine screenshot under tmp/).\n2. A fix following the paper the stage implements (read it first, start from the papers: list ixd wt new prints), not a workaround stage, and the scan(s) get past this stage: report the furthest quad_layout stage before and after, with an engine screenshot if the layout finishes.\n3. A unit test with a hand-made fixture, failing on master and passing after.\n4. The 11 quad-layout suite models and the T-Rex skull are unchanged (same quad, patch and cone counts) and ixd wt perf shows no regression.",
+    "testing-plan": "1. Reproduce on the named crawfish scan(s) on current master with load_mesh -> repair_mesh -> quad_layout(alpha_degrees=15.0, target_edge_length=1.0), saving the failure, the stage times and the diagnostic numbers under tmp/.\n2. A unit test with a hand-made fixture reproducing the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 quad-layout suite models, the T-Rex skull, ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/quantization/ZeroArcCollapse.java"
+    ],
+    "priority": 3
+}

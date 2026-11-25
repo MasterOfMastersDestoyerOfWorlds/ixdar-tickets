@@ -1,0 +1,37 @@
+{
+    "id": "MESH-97",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Remove the duplicated logic in MeshRepair",
+    "user-messages": [
+        "what about exisitng duplications in Mesh repair? are there any?",
+        "yes"
+    ],
+    "description": "MeshRepair.java (about 3,300 lines on master) repeats the same logic many times. The block-level duplicate finder (ai-workspace hooks/method_index.py --blocks) reports 53 hits touching MeshRepair on master. Grouped:\n\n1. Boundary-loop walking: MeshRepair.fillHoles (about 1738-1768 and 1818-1833) repeats MeshTopologyAnalysis.walkBoundaryLoops (508-580), 130-150 tokens.\n2. A hand-made union-find over faces (rootPlusOne) in orient (584-607, 625-637), classifyShells (1353-1371, 1406-1418) and fillHoles (1819). CRAW-130 replaces it with UnionFind and one faceComponents() in orient and classifyShells; finish the rest.\n3. facesRound (3092) and facesRoundInto (3127): two copies of \"faces around a vertex\".\n4. Walks around a vertex's neighbours written about six times: splitPinchedVertices, foldedBackNear, dropDebrisNear, buriedFaces, edgesRound, splitFans (45-82 tokens each).\n5. Repeats inside one method: pruneExposedFaces (2172 vs 2189, 2218 vs 2283), foldedBackNear (2812 vs 2823), build (302 vs 312); fillHoles 1701 vs pruneExposedFaces 2110.\n6. MeshFolds constructor vs update: the per-vertex normal sum. RepairEdges.build: two near-identical blocks (87-94 vs 105-112).\n7. Whole-method duplicates: MeshRepair.refile vs RepairEdges.noteChanged; MeshHoleFiller.angleAt vs TriangleGeometry.cornerAngle.\n\nLine numbers are from master before CRAW-130 and will have moved; rerun the finder after CRAW-130 lands. The finder's sampled false-positive rate was 35%, concentrated in 45-60 token repeats inside one file, so judge the small ones before acting. Use TriangleGeometry, PackedPoints and MeshTopology for anything they already cover. Replacing duplicates must make the files smaller: a new helper is only worth adding if it removes more code than it adds.",
+    "blocked-by": [
+        "CRAW-130"
+    ],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Every group in the description is replaced by one shared helper or an existing one (TriangleGeometry, PackedPoints, MeshTopology, MeshTopologyAnalysis, UnionFind), or the report says why it is not a real duplicate.\n2. MeshRepair.java, RepairEdges.java, MeshFolds.java and MeshHoleFiller.java together end smaller than they started (git diff --stat shows a net deletion), and no new class is added unless it removes more code than it holds.\n3. No behaviour change: the ten crawfish scans give the same repair report numbers before and after, MeshRepairTest and the other repair tests pass, CrawfishMeshRepairBenchmark passes, and ixd wt perf shows no regression on the repair benchmarks.\n4. hooks/method_index.py --diff reports no remaining DuplicateBlock or DuplicateHelper hit inside the repair files, or each remaining one is judged in the report.",
+    "testing-plan": "1. Before any change, record the repair report numbers for the ten crawfish scans (IMG_4109-4118) and the MeshRepairTest results.\n2. After each group is replaced, build with checkstyle and run MeshRepairTest and the repair tests.\n3. At the end, rerun the ten scans and compare the report numbers line by line, run CrawfishMeshRepairBenchmark, and run ixd wt perf on the ticket.\n4. Run hooks/method_index.py --diff on the worktree and list the remaining hits.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Removed duplicated logic in MeshRepair/MeshTopologyAnalysis/RepairEdges: facesRound now reuses facesRoundInto, a facesAt stream replaces six hand-written face-round gathers, UnionFind.classes numbers face components (orient, classifyShells, MeshTopologyAnalysis.findShells), MeshTopologyAnalysis.ranked replaces four largest-first key sorts and orient's root sort, HalfEdgeMesh.growLayer replaces seven grow-and-fill blocks, pruneExposedFaces marks seeds and rings in one loop; net -143 lines; ten crawfish repair reports identical.",
+        "After CRAW-141 landed: MeshHoleFiller.angleAt replaced by TriangleGeometry.cornerAngle; ten crawfish repair reports identical against master 678a8545."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshRepair.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/RepairEdges.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshTopologyAnalysis.java"
+    ],
+    "priority": 3,
+    "perf-benchmarks": [
+        "CrawfishMeshRepairBenchmark"
+    ],
+    "review-summary": "MeshRepair, MeshTopologyAnalysis and RepairEdges now share their repeated walks, orderings and array growth through UnionFind, a ranking helper and the face-round gathering, with no change to what the repair does.\nMeshRepair repeated the same logic many times, which made it longer and harder to change safely.\n"
+}

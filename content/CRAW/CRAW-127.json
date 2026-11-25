@@ -1,0 +1,34 @@
+{
+    "id": "CRAW-127",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "Quad layout memory on the T-Rex skull: free dead meshes, stage scratch and oversized arrays at the relax peak",
+    "user-messages": [
+        "create a ticket for the memory improvements and have the agent use the existing free method override in the nodes"
+    ],
+    "description": "A heap breakdown of the skull on master da33e169 (MAT dumps in C:/Code/Ixdar/tmp/heap-breakdown/ on the user's machine) puts the true live peak at about 4.5 GB at the start of relax, while GridMapOptimizer is built, with a second 4.3 GB peak mid re-carve in contract. CRAW-122 is rewriting the embedding package (layout_embedding, tmesh_contract, the re-carve) to LCBK19 6, which removes the re-carve's old-plus-fresh copy, so the contract-peak and embedding-data items (ArcNetworkRecarve, NetworkContraction's re-routers, copyFacesBySourceFace, barycentric storage in EmbeddedMeshTopology) are out of scope here. In scope, at the relax peak: (1) dead loaded and repaired meshes (~365 MB) kept alive by NodeGraphRuntime.meshContexts (FieldContextImpl.mesh) after their values are released; (2) node records keeping their inputs after they run, e.g. the motorcycle/skeleton ArcNetwork (~200 MB) via layout/embed's inputs map; (3) GridMapOptimizer's entrySourceByEntry and entryDestinationByEntry (239 MB each), sized 36 entries per triangle with at most 21 written; (4) unused array capacity in the smoothed mesh (134 MB) after refine_n_smooth's edge splits doubled every array; (5) boxed collections in the grid map: PatchRegions.patchIdByCopyFace as HashMap<Integer,Integer> (96 MB) and denseByCopyVertexByPatchId (30k boxed HashMaps, 68 MB). Stage scratch is freed through the existing MeshNode.freeIntermediates overrides the runtime calls after a node evaluates, not through a new mechanism.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The skull's live peak at the start of relax drops substantially from ~4.5 GB, measured with jcmd GC.heap_dump plus MAT (or an -Xmx/HeapDumpOnOutOfMemoryError bracket) before and after, recorded in tmp/<ticket>-measurements.json.\n2. Freeing goes through MeshNode.freeIntermediates overrides on the nodes that own the scratch, and the runtime's existing release (ValueRelease) for node outputs; no new freeing mechanism.\n3. Every suite model (bolt buddha feline hand sphere_base block botijo elk fertility rockerarm fandisk) keeps its quads, patches and cones.\n4. NodeGraphRuntime.keepIntermediates still keeps everything for debugging.\n5. Build checkstyle-green; touched tests pass.",
+    "testing-plan": "1. Skull heap at the relax peak before and after (MAT dominator tree). 2. 11-model suite counts before and after. 3. Unit test that a released mesh is no longer reachable from the runtime's mesh contexts.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "Skull relax-peak live heap 5103 MB -> 3911 MB (jcmd dump at Newton iteration 1, -Xmx8g): loaded+repaired meshes freed (ValueRelease now releases mesh bundles, counts group-parameter reads by body nodes, eager mesh domains dropped once shadowed; QuadLayoutScene keeps only the layout output of a DSL); GridMapOptimizer scatter tables sized 21/triangle with byte sources (-304 MB); RefineNSmoothNode.freeIntermediates trims the split copy (-123 MB); PatchRegions.patchIdByCopyFace int[] and GlobalGridMap sorted dense index arrays (-147 MB). 11-model suite counts unchanged. Measurements in the worktree's tmp/craw-127-measurements.json."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/nodegraph/runtime/NodeGraphRuntime.java",
+        "ixdar-app/src/main/java/ixdar/nodegraph/runtime/ValueRelease.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/gridmap/GridMapOptimizer.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/gridmap/PatchRegions.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "MeshReleaseTest",
+        "NSmoothRefinementTest"
+    ]
+}

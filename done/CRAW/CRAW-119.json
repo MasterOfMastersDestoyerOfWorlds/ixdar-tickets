@@ -1,0 +1,34 @@
+{
+    "id": "CRAW-119",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "Quantization solves the T-Rex skull (sparse dual simplex, reliability branching) and the cross field refines non-4-smooth meshes (KCP13 App. B)",
+    "user-messages": [
+        "ok what can land in master? sounds like the fixed integer program and the craw16 work but niether is in its appropriate worktree, make a new ticket that contains both and put it into review"
+    ],
+    "description": "Two changes that get the T-Rex skull (C:/Blends/Dinos/T-RexSkullModel/3d/ComfyUI_00028.glb, genus 24, 700k faces) through quantization and patch mapping, carried here from the CRAW-114 and CRAW-116 worktrees where they were built, without the rest of those worktrees.\n\n1. Quantization integer program (from CRAW-114). IntegerProgram's dense tableau ran out of memory on the skull (2527 rows x 2788 columns after presolve). It now uses SparseDualSimplex, a bounded revised dual simplex with a product-form eta file and dual steepest edge pricing; branch and bound children are cheap copies and frontier nodes keep only their bound changes and solved basis. On top: reliability branching on pseudocosts with strong branching (Achterberg, Koch and Martin 2005) and reduced-cost fixing, node-local and at the root. Measured on the skull: the old sparse search proved the optimum 37605.195 in 912072 nodes / 1696 s; with reliability branching and fixing it is 674 nodes / 2.3 s (SCIP: 1 node / 0.24 s). A relative_gap input on quad_layout and arc_quantization (default 0, which proves the optimum) lets the search stop within a fraction of the lower bound. [branch-bound] progress lines report nodes, open nodes, incumbent and bound every 5 s.\n\n2. Cross field precondition (from CRAW-116). KCP13 Appendix B proves the triangle index and discrete Poincare-Hopf only on an n-smooth mesh (|n kappa_t| < pi per triangle). The repaired skull broke it on 15 triangles, which produced a +3 (valence-1) cone and a slit patch that PatchRegionMapper refused as pinched. A new refine_n_smooth stage in quad_layout, between split_feature_corners and the cross field, splits the edge opposite each offending triangle's worst corner until the mesh is 4-smooth (midpoint splits keep every angle sum, so only that corner's angle is divided); meshes that already comply pass through unchanged. The cross field now refuses a non-smooth mesh and, on closed meshes, a triangle-index or cone sum other than 4 chi. The refinement mechanism is not from a paper; the condition is.\n\nNot included: CRAW-116's OR-Tools / SCIP backend (native dependency; the in-house solver is now within about 10x of SCIP on the skull and faster on the suite), CRAW-114's repair_mesh unfold stage and ComfyUI node, and the dropCollapsingAlignments code CRAW-116's sync re-added.\n\nNext failure on the skull, out of scope: OutOfMemoryError in GridMapOptimizer.build during the Newton relaxation (832873 unknowns), from per-worker copies of the Hessian upper values.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. IntegerProgram solves through SparseDualSimplex; the dense tableau, dualSimplex and objectiveOf are gone. Branching is reliability branching (pseudocosts, strong branching on up to 8 unreliable candidates) with node and root reduced-cost fixing.\n2. relative_gap on quad_layout and arc_quantization, default 0 (proves the optimum); the quantize log says GAP instead of OPTIMAL when it is set.\n3. refine_n_smooth runs in quad_layout between split_feature_corners and the cross field and leaves a 4-smooth mesh unchanged; the cross field throws on a non-4-smooth triangle and, on closed meshes, on a triangle-index or cone sum other than 4 chi (KCP13 Appendix B).\n4. Every suite model (bolt buddha feline hand sphere_base block botijo elk fertility rockerarm fandisk) keeps its objective and quads/patches; fertility 11582 quads, 254 patches, 40 cones.\n5. On the T-Rex skull (with CRAW-114's repair unfold, not part of this ticket) the quantization proves its optimum and patch mapping passes with no pinched patch; the next failure (GridMapOptimizer out of memory) is out of scope.\n6. IntegerProgramTest, NSmoothRefinementTest and SingularityIndexConventionTest pass; build checkstyle-green.\n7. Keeps the [branch-bound] log lines (\"[branch-bound] root\", \"new incumbent\", \"nodes=\", \"done nodes=\") reporting the search's progress, and the [n-smooth] summary line.\n\nKeeps relativeGap: the public relative_gap setting on IntegerProgram and QuantizedMeshGrid (item 2), not a counter.\n\nKeeps the [branch-bound] calls of item 7: Platforms.log(\"%sroot rows=%d columns=%d: solving the LP rel..., Platforms.log(\"%sroot relaxation=%.3f feasible=%b %.1fs%n\", ..., Platforms.log(\"%snodes=%d open=%d incumbent=%.3f bound=%.3f ..., Platforms.log(\"%snew incumbent=%.3f at node %d, open=%d %.0f... and Platforms.log(\"%sdone nodes=%d incumbent=%.3f fixed=%d stron...: the only view into a long quantization search.\n\nKeeps the [n-smooth] call of item 7: Platforms.log(\"%sviolating=%d edgeSplits=%d rounds=%d%n\", NS...: how much refinement a mesh needed, like split_feature_corners' line.\n",
+    "testing-plan": "1. mvn compile (checkstyle) and the named tests: IntegerProgramTest, NSmoothRefinementTest, SingularityIndexConventionTest.\n2. Run every suite model through load_mesh -> repair_mesh -> quad_layout and compare objective and quads/patches with the master baseline (tmp/craw-116-measurements.json in the craw-116 worktree).\n3. Run the T-Rex skull end to end with CRAW-114's repair unfold present and confirm quantization proves its optimum and no pinched patch is reported.\n4. F5 the launch entry (fertility quad layout) and screenshot.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/quantization/IntegerProgram.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/NSmoothRefinement.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "IntegerProgramTest",
+        "NSmoothRefinementTest",
+        "SingularityIndexConventionTest",
+        "QuadLayoutNodeChainTest",
+        "LazyConstraintsTest"
+    ],
+    "review-summary": "IntegerProgram now solves on a sparse revised dual simplex with reliability branching, and a new stage refines the mesh to KCP13's smoothness condition before the cross field. Together they carry scan-scale meshes like the T-Rex skull through quantization and patch mapping.\n"
+}

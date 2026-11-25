@@ -1,0 +1,26 @@
+{
+    "id": "VIEW-33",
+    "epic": "VIEW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "rendering"
+    ],
+    "title": "Quad-layout scene: patch grid and boundary lines are 1 px, aliased and break into dashes against the surface",
+    "user-messages": [
+        "[recalled] also add a ticket for the lines inthe patches for hte quadlayout display are too small and are aliasing"
+    ],
+    "description": "In the quad-layout scene (QuadLayoutOverlay) the interior quad grid lines and the patch boundary lines are drawn with GL_LINES through MeshOverlayRuntime.drawLines and gl.lineWidth: DEFAULT_GL_LINE_WIDTH for the grid, LAYOUT_LINE_WIDTH for boundaries. Core-profile OpenGL (the context IxdarWindow asks for, forward-compatible) supports no line width above 1, so every line is a single aliased pixel whatever width is asked for. The lines also sit on the surface and depth-fight with it, so they break up into dashes (the user's screenshot of a scan's layout shows the grid as faint broken strokes and the white boundaries as dotted). Draw them as screen-space-width lines with anti-aliasing (expanded quads in a shader with a smoothed edge, or a fragment-shader wireframe from barycentric or grid coordinates for the quad grid), and keep them in front of the surface without dashing (polygon offset on the fill, or a depth bias in the line shader). See VIEW-28 (one drawer per output type): the fix should become the shared line drawer rather than a quad-layout one-off.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The quad-layout scene's grid and boundary lines draw at a chosen pixel width (grid narrower than boundaries), anti-aliased, on Windows and Linux. 2. No dashing where lines run across the surface, at any zoom, in the scene's multiview. 3. The width is DPI-aware (display scale). 4. The same drawer serves the other overlays that use drawLines, or the report says why not. 5. Before/after multiview screenshots under tmp/. 6. Build checkstyle-green.",
+    "testing-plan": "1. ixdar-cli multiview of quad-layout on fertility and a Trellis scan, before and after, zoomed in and out. 2. Compare against the user's screenshot from 2026-11-21. 3. Unit test for any width or offset math.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/QuadLayoutOverlay.java",
+        "ixdar-app/src/main/java/ixdar/graphics/render/model/MeshOverlayRuntime.java"
+    ],
+    "priority": 3
+}

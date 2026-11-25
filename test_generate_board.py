@@ -596,6 +596,52 @@ class TicketCliTest(unittest.TestCase):
         self.assertNotEqual(code, 0)
         self.assertIn("no verify-tests entry", err)
 
+    def test_update_adds_and_removes_perf_benchmarks(self) -> None:
+        """perf-benchmarks gains selectors in order, loses one matched exactly, refuses an unknown one, keeps status."""
+        path = self._write_ticket("TEST", "TEST-1", status="REVIEW")
+        code, _out, err = _run(
+            "update",
+            "TEST-1",
+            "--add-perf-benchmark",
+            "CrawfishColdRepairBenchmark",
+            "--add-perf-benchmark",
+            "CrawfishMeshRepairBenchmark",
+        )
+        self.assertEqual(code, 0, err)
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(["CrawfishColdRepairBenchmark", "CrawfishMeshRepairBenchmark"], data["perf-benchmarks"])
+        self.assertEqual("REVIEW", data["status"])
+        code, _out, err = _run("update", "TEST-1", "--remove-perf-benchmark", "CrawfishColdRepairBenchmark")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(
+            ["CrawfishMeshRepairBenchmark"], json.loads(path.read_text(encoding="utf-8"))["perf-benchmarks"]
+        )
+        code, _out, err = _run("update", "TEST-1", "--remove-perf-benchmark", "NoSuchBenchmark")
+        self.assertNotEqual(code, 0)
+        self.assertIn("no perf-benchmarks entry", err)
+
+    def test_update_adds_and_removes_cite_keys(self) -> None:
+        """cite-keys gains paper keys in order, trimmed, loses one matched exactly, and refuses an unknown one."""
+        path = self._write_ticket("TEST", "TEST-1")
+        code, _out, err = _run("update", "TEST-1", "--add-cite-key", " LCK21a ", "--add-cite-key", "BCE*13")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(["LCK21a", "BCE*13"], json.loads(path.read_text(encoding="utf-8"))["cite-keys"])
+        code, _out, err = _run("update", "TEST-1", "--remove-cite-key", "LCK21a")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(["BCE*13"], json.loads(path.read_text(encoding="utf-8"))["cite-keys"])
+        code, _out, err = _run("update", "TEST-1", "--remove-cite-key", "L03")
+        self.assertNotEqual(code, 0)
+        self.assertIn("no cite-keys entry", err)
+
+    def test_show_field_lists_perf_benchmarks(self) -> None:
+        """show --field perf-benchmarks prints the selectors as numbered entries."""
+        self._write_ticket("TEST", "TEST-1")
+        code, _out, err = _run("update", "TEST-1", "--add-perf-benchmark", "UnionFindBenchmark")
+        self.assertEqual(code, 0, err)
+        code, out, err = _run("show", "TEST-1", "--field", "perf-benchmarks")
+        self.assertEqual(code, 0, err)
+        self.assertIn("1. UnionFindBenchmark", out)
+
     def test_board_command_regenerates_the_whole_board(self) -> None:
         """tix board rewrites BOARD.md from the ticket JSONs alone."""
         self._write_ticket("TEST", "TEST-1", status="REVIEW")

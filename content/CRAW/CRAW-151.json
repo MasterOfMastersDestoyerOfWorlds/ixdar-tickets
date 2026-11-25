@@ -1,0 +1,25 @@
+{
+    "id": "CRAW-151",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Grid-map Newton solve jumps, then extraction makes a duplicate half-edge (crawfish 4115)",
+    "user-messages": [
+        "> otorcycle graph: a trace meets itself, leaving a node with two ports in the same direction\t4109, 4116, 4117\tnone yet\n> zero-patch collapse leaves a pinched patch\t4110\tnone yet\n> zero-arc collapse can't route the dragged arc through both corners\t4114\tnone yet\n> grid-map Newton jump, then a duplicate half-edge\t4115\tnone yet\n\nmake tickets for these"
+    ],
+    "description": "Crawfish IMG_4115 gets through quantization and the embedding, then the grid-map Newton relaxation takes a jump (one step of about 2.3e3) and quad extraction fails with 'duplicate directed half-edge'. Find why that step is so large (line search, the SS15 step bound, a near-degenerate patch map) and fix it the way the relaxation's papers intend; check whether extraction then succeeds or has its own fault. Context: since CRAW-141, CRAW-142, MESH-97, CRAW-146 and CRAW-144 landed, crawfish IMG_4111, 4112 and 4118 finish quad_layout; the rest fail in separate places (IMG_4113 is the quantization stall, CRAW-147). The CRAW-144 agent diagnosed this one; its diagnostics folder went with its worktree at land, so re-measure first.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. The Newton iteration that jumps is shown: the step size, the patch or vertices it moves, why the step bound or line search let it through, and where the duplicate half-edge comes from (numbers and an engine screenshot under tmp/).\n2. A fix following the paper the stage implements (read it first, start from the papers: list ixd wt new prints), not a workaround stage, and the scan(s) get past this stage: report the furthest quad_layout stage before and after, with an engine screenshot if the layout finishes.\n3. A unit test with a hand-made fixture, failing on master and passing after.\n4. The 11 quad-layout suite models and the T-Rex skull are unchanged (same quad, patch and cone counts) and ixd wt perf shows no regression.",
+    "testing-plan": "1. Reproduce on the named crawfish scan(s) on current master with load_mesh -> repair_mesh -> quad_layout(alpha_degrees=15.0, target_edge_length=1.0), saving the failure, the stage times and the diagnostic numbers under tmp/.\n2. A unit test with a hand-made fixture reproducing the failure without loading a scan, failing on master and passing after.\n3. After the fix: the named scans, the 11 quad-layout suite models, the T-Rex skull, ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/gridmap/NewtonRelaxation.java"
+    ],
+    "priority": 3
+}

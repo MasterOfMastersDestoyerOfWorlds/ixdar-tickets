@@ -1,0 +1,32 @@
+{
+    "id": "CRAW-121",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "quad-layout"
+    ],
+    "title": "Per-tooth P3-SAM segmentation node for ComfyUI, its labels seeding Ixdar's ring segmentation",
+    "user-messages": [
+        "I'd like each tooth to be segmented is that possible here?",
+        "[recalled] yes (to: a ticket covering the per-tooth P3-SAM node and turning its labels into Ixdar label seeds)",
+        "[recalled] yeah own folder, and move the ixdar comfyui folder there as well to the new repo"
+    ],
+    "description": "Goal: less agent work in Ixdar's ring segmentation (the mesh-segment skill) by seeding it from ComfyUI's P3-SAM. CRAW-114 ran the H3DPART-segment workflow on the T-Rex skull's Ixdar quad mesh (63,682 triangles from ~700k): at the defaults it found 2 parts (cranium, lower jaw); at the node's maximum (1,000 prompts, 500,000 points, 35 min) 10 parts, three of them clusters of upper front teeth, no single tooth. Why, in ComfyUI-Hunyuan3D-Part/nodes/processing.py (P3SAMSegmentMesh): prompts are farthest-point samples over the whole surface (line 719), so a tooth gets a few; each prompt keeps its most confident of 3 masks (line 750), usually the jaw; NMS groups masks at a fixed IoU 0.9 (line 780) and drops groups of 2 or fewer masks (line 789), which drops teeth; threshold only merges. None of these is a node input. Also, P3-SAM's per-face labels (face_attributes['part_id']) are lost: GeomPackSaveMesh writes none in ply, glb or vtp. Build our own ComfyUI node calling P3-SAM's get_mask: placed point prompts (one per tooth tip, found from the mesh, e.g. sharp local extremes along the jaw edges, or given), keep the smallest-scale mask, no 3-mask filter, expose the grouping IoU, and write part_id per face in a format Ixdar reads. Then turn its labels into Ixdar label seeds (a label point per part, ring candidates along part boundaries) so the ring segmentation starts from them. CRAW-114's throwaway view (tmp/comfy/write_part_glbs.py: one textured GLB per part joined with join_geometry, shown with the textured look) shows how parts can be displayed today.\n\n## Licence (checked 2026-11-22)\n\nHunyuan3D-Part (P3-SAM's code and weights, and the ComfyUI-Hunyuan3D-Part wrapper, github.com/PozzettiAndrea/ComfyUI-Hunyuan3D-Part) is under the Tencent Hunyuan 3D-Part Community License, not a permissive licence: no use in the EU, UK or South Korea (sections 1.l, 5.c); a separate licence from Tencent above 1 million monthly active users (section 4); outputs may not be used to improve any other AI model (5.b); redistribution needs the licence text, a Notice file and notices on modified files (3). ai-workspace CLAUDE.md allows only permissive licences (MIT, BSD, Apache) so the code stays commercialisable. Porting or vendoring P3-SAM code into Ixdar is therefore out; whether a node that only calls a user-installed Hunyuan3D-Part is acceptable is the user's decision.\n\n## Where the code lives (2026-11-22)\n\nUser ruling: the ComfyUI nodes live in their own repo, C:/Code/ixdar-comfyui ($REPO_HOME/ixdar-comfyui, not yet under git; the user runs git init and creates the GitHub repo), outside Ixdar, so Ixdar holds no Tencent code. Both ComfyUI nodes move there: the quad-layout node (ixdar_quad_layout, which now finds Ixdar as $REPO_HOME/Ixdar or the checkout beside it) and the per-tooth P3-SAM node (ixdar_part_prompts). Its runner (p3sam_runner.py) runs under ComfyUI-Hunyuan3D-Part's own comfy-env worker Python and imports P3-SAM from that installed package; nothing of Hunyuan3D-Part is copied. This ticket's Ixdar worktree removes comfyui/ from Ixdar; Ixdar's part of the ticket is reading the per-face labels and seeding the ring segmentation from them.\n\nSplit 2026-11-22: the Ixdar half (loading per-face part labels and seeding the ring segmentation) moved to CRAW-125; this ticket keeps the ComfyUI node.\n",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "TODO",
+    "definition-of-done": "1. On the T-Rex skull's Ixdar quad mesh, the new node segments most individual teeth as their own parts, with the count reported against the teeth visible.\n2. Per-face part labels reach Ixdar exactly (no bounding-box approximation) and show in a scene, one colour per part.\n3. The labels seed the ring segmentation: a label point per part at least, and the agent work saved on the skull is reported.\n4. Ported code cites its source repository and licence (permissive only).",
+    "testing-plan": "1. Run the node through ComfyUI's API on the skull quad mesh and count parts and teeth.\n2. Load the labelled mesh in Ixdar and compare the parts with the teeth visible in a multiview capture.\n3. Seed the ring scene from the labels on the skull and report what an agent still has to draw.",
+    "todos": [],
+    "unknowns": [
+        "Hunyuan3D-Part's licence: check it allows calling P3-SAM from our node and shipping it."
+    ],
+    "changes-made": [
+        "Created C:/Code/ixdar-comfyui with ixdar_quad_layout moved from Ixdar (checkout lookup changed to REPO_HOME/Ixdar or the sibling checkout) and ixdar_part_prompts/p3sam_runner.py; ComfyUI's custom_nodes/ixdar_quad_layout junction points at the new repo.",
+        "Removed comfyui/ from Ixdar in the CRAW-121 worktree."
+    ],
+    "related-files": [
+        "comfyui/ixdar_quad_layout/__init__.py"
+    ],
+    "priority": 3
+}

@@ -1,0 +1,38 @@
+{
+    "id": "CRAW-146",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Hole filling refines and fairs its patches so repair leaves no needle fans",
+    "user-messages": [
+        "yes"
+    ],
+    "description": "repair_mesh closes holes (hole fill, tangle clearing, fold clear-and-refill) with Liepa's minimum-area triangulation only. That readily builds fans of 3-4 needle triangles around a vertex (corners down to 0.25 degrees), near-duplicate vertices (edges 0.004 of the median) and one-vertex curvature spikes. CRAW-143's diagnosis (worktree craw-143, tmp/origin/: craw-143-vertex-origin.md, origin-table.csv, 13 location screenshots) found that 12 of the 13 cross-field cones that made the seamless injectivity constraints infeasible on six crawfish scans were created or sharpened by repair; only one (IMG_4116 vertex 298319) may be real anatomy. Liepa 2003 (\"Filling holes in meshes\") has two steps after the triangulation that Ixdar skips: refining the patch to match the surrounding edge density, and fairing it. Add them, plus a cleanup of remaining slivers and near-duplicate vertices, so repair no longer emits needle fans.",
+    "blocked-by": [],
+    "blocks": [
+        "CRAW-143"
+    ],
+    "status": "DONE",
+    "definition-of-done": "1. The hole fill follows Liepa 2003's refinement and fairing steps (cited at the port site), and a sliver / near-duplicate cleanup runs after repair; on all ten crawfish scans repair leaves no vertex whose angle defect is a spike far above its neighbours' made by repair, no sliver beyond the raw scan's own worst aspect, and no near-duplicate vertices, while keeping 0 folds, 0 zero-length edges, 0 zero-area faces, 0 holes and 0 vertices outside the scan.\n2. The 13 vertices in craw-143/tmp/origin/origin-table.csv are re-checked: each is gone or no longer a needle.\n3. On master's cross field and seamless code (without CRAW-143's cone separation), the furthest quad_layout stage of each crawfish scan is reported before and after; the six that failed with infeasible injectivity constraints are expected to pass the seamless stage, or the report shows why not.\n4. Unit tests on hand-made hole loops show refinement and fairing producing no needle fan; the repair tests, CrawfishMeshRepairBenchmark, the 11 suite models and the T-Rex skull pass, and ixd wt perf shows no regression beyond what the DoD accepts with a reason.\n\nMeshRepairReport.coneClearedFaceCount reports the faces the needle-cone cleanup cleared and refilled; CrawfishRepairQualityBenchmark measures and asserts the per-scan repair quality numbers.\n\nKeeps [repair-quality] and [repair-quality] defect log lines in CrawfishRepairQualityBenchmark: they are the per-scan acceptance numbers and the location of any defect it fails on.\n",
+    "testing-plan": "1. Unit tests: a hole loop whose minimum-area fill makes a needle fan, filled with refinement and fairing.\n2. Ten crawfish scans: repair quality numbers (slivers, near-duplicates, defect spikes) and the furthest quad_layout stage, before and after, one sweep.\n3. Suite models, T-Rex skull, ixd wt perf.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "MeshHoleFiller fairs with L03 section 6's harmonic umbrella (cotangent weights, solved as the symmetric L D^-1 L system by the existing matrix-free CG) over the patch plus the surrounding faces; MeshRepair clears and refills needle/crumple cones (|defect| > pi) at fill corners and every vertex the unfold moved; CrawfishRepairQualityBenchmark added."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshHoleFiller.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/ops/MeshRepair.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "MeshHoleFillerTest",
+        "MeshRepairTest"
+    ],
+    "perf-benchmarks": [
+        "CrawfishMeshRepairBenchmark"
+    ],
+    "review-summary": "repair_mesh's hole filler (MeshHoleFiller) now fairs patches with Liepa 2003's harmonic umbrella, and MeshRepair clears and refills needle cones that fills or unfold moves still leave.\nRepair built needle fans, slivers and near-duplicate vertices whose cones made seamless injectivity infeasible on six crawfish scans.\n"
+}

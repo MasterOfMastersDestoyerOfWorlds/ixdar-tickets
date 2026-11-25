@@ -1,0 +1,38 @@
+{
+    "id": "CRAW-142",
+    "epic": "CRAW",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "Seamless parametrization must pin one anchor per cut-open chart",
+    "user-messages": [
+        "yes"
+    ],
+    "description": "The seamless parametrization pins only one vertex to fix its translation. After the mesh is cut open along the seams it can fall into several charts (every separate shell is at least one), and each chart translates freely, so every chart but the pinned one leaves the linear system singular: PARDISO's singular-system failures on crawfish IMG_4112-4114, and probably the diverging BCE13 injectivity loop on IMG_4117. Three of the ten crawfish scan agents (CRAW-134, CRAW-137, CRAW-139) found this independently and changed AssemblyPlanBuilder and SeamlessDofSystem the same way: label the cut-open charts and give each chart's first primary chart vertex a gauge-pin anchor. CRAW-134 also wrote TwoShellSeamlessTest. Take the cleanest version from those worktrees (C:/Code/Ixdar/.claude/worktrees/craw-134, craw-137, craw-139; reference only, do not edit them), check it against the paper the stage implements (BCE*13 / the seamless parametrization papers in ~/QuadLayoutsPapersCompleted), and land it with the test.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. Every cut-open chart of the seamless parametrization gets exactly one translation anchor, as the paper intends, and the system is no longer singular for meshes with several charts.\n2. A unit test on two separate shells fails on master (singular system) and passes after.\n3. The 11 suite models give the same quad, patch and cone counts as master, the T-Rex skull is unchanged, and ixd wt perf shows no regression.\n4. The furthest quad_layout stage each of the ten crawfish scans reaches is reported before and after.",
+    "testing-plan": "1. Two-shell seamless unit test, failing on master and passing after.\n2. Suite models, skull, ixd wt perf.\n3. The ten crawfish scans through quad_layout, before and after.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "AssemblyPlanBuilder anchors each cut-open chart (labelled by SeamlessDofSystem.cutOpenChartOfFace) at its lowest primary chart vertex whose coordinates are DOFs of their own; an eliminated vertex's leading DOF is a transition and does not pin the chart (taken from CRAW-139 plus CRAW-137's own-DOF condition, without which the two-shell test still failed).",
+        "SeamlessParameterization: the BCE13 injectivity loop throws when it reaches its round cap with constraints still violated (from CRAW-139); no suite model or the skull reaches the cap.",
+        "TwoShellSeamlessTest (from CRAW-134): fails on master with a singular diagnosis over 2 charts, passes after. Suite 11 models and T-Rex skull: identical cone, patch, quad counts. Crawfish: furthest stage unchanged for all ten (seamless fails); the gauge singularity is gone on IMG_4112 (2 charts) and IMG_4117 (11 charts), which now fail on lazy-constraint infeasibility; the remaining sliver-cluster singularities on 4109/4111/4113/4115/4116 are a different cause. Perf SeamlessPipelineBenchmark 2.029s -> 2.000s.",
+        "Re-measured on master 678a8545 (after CRAW-141 landed): every crawfish scan whose seamless solve was singular on master (4109-4113, 4115-4117, 2-14 charts) has no singular seamless system after. IMG_4115 goes from a 900 s timeout in seamless to failing after quantization (patch side arc does not touch node, as 4111 and 4114 already do on master); 4109, 4110, 4112, 4113, 4116, 4117 still fail in seamless on BCE13 lazy-constraint infeasibility, 4118 in the cross field (Poincare-Hopf). Suite 11 models and T-Rex skull identical. Interleaved SeamlessPipelineBenchmark runs master 2.019/2.009/2.463 s vs branch 2.032/2.069/2.082 s (tmp/craw-142-perf-interleaved.txt)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/SeamlessDofSystem.java",
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/quadlayout/seamless/AssemblyPlanBuilder.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "TwoShellSeamlessTest"
+    ],
+    "perf-benchmarks": [
+        "SeamlessPipelineBenchmark"
+    ],
+    "review-summary": "AssemblyPlanBuilder now pins one translation anchor in every cut-open chart of the seamless parametrization instead of only the first.\nA mesh of several shells cuts open into several charts, each free to translate, so the seamless solve was singular.\n"
+}

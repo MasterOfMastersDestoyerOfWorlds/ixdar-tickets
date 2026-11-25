@@ -1,0 +1,37 @@
+{
+    "id": "MESH-98",
+    "epic": "MESH",
+    "repo": "Ixdar",
+    "subsystem": [
+        "geometry"
+    ],
+    "title": "OBJ import welds vertices split along UV seams",
+    "user-messages": [
+        "create ticket",
+        "and start"
+    ],
+    "description": "OBJ files exported with texture coordinates split every vertex along UV seams: each face line is `f a/a/a`, the `v` count equals the `vt` count, and positions repeat. The twelve meshes in C:/Blends/Crawfish/ have 55k-97k duplicate positions each. ObjMeshParser keeps them separate, so with the crawfish setting weld_epsilon=0.0 repair_mesh sees 700-3900 shells per mesh, fills each UV chart into its own blob (Euler characteristic around 700-1000) and the pipeline runs on scraps; six of the twelve then ran out of memory in n-smooth refinement. With weld_epsilon=1e-6 the same files become 1-3 shells. ObjMeshParser should merge vertices with identical positions on load (keeping normals sensible), so an OBJ with UVs loads as one connected surface without anyone remembering a weld setting.",
+    "blocked-by": [],
+    "blocks": [],
+    "status": "DONE",
+    "definition-of-done": "1. ObjMeshParser merges vertices with exactly equal positions on load; an OBJ written with UV-split vertices loads as the same connected surface as one without.\n2. A unit test with a small hand-written UV-split OBJ (a cube with seams) loads as one closed shell with the right vertex count.\n3. The twelve C:/Blends/Crawfish OBJs load with 1-3 shells and repair_mesh with weld_epsilon=0.0 gives the same result as the weld_epsilon=1e-6 run did; their furthest quad_layout stage is reported.\n4. Existing OBJ models (the quad-layout suite models that are OBJ, the ModelCatalog obj/ models) load with the same counts as before or the change is explained; ixd wt perf on a load benchmark shows no regression.\n\n5. ObjMeshLoadBenchmark prints one [obj-load] Platforms.log line per OBJ (mesh type, V, F, shells, boundary and non-manifold edges, Euler characteristic, load time); that line is the acceptance readout for items 3 and 4.\n",
+    "testing-plan": "1. Unit test with a UV-split cube OBJ.\n2. Load counts for the existing OBJ models before and after.\n3. The twelve Blends OBJs through load_mesh -> repair_mesh -> quad_layout.",
+    "todos": [],
+    "unknowns": [],
+    "changes-made": [
+        "ObjMeshParser welds bitwise-identical positions on load through the new PackedPoints.exactGroups, which GltfMeshParser's weld now also uses; a welded OBJ gets area-weighted normals. ObjMeshParserTest (UV-split cube) and ObjMeshLoadBenchmark added. Twelve Blends OBJs load as 1-3 shells and repair/quad_layout with weld_epsilon=0 match the earlier 1e-6 run exactly; hand-quad.obj now loads as one closed shell (was 132 patches)."
+    ],
+    "related-files": [
+        "ixdar-app/src/main/java/ixdar/geometry/mesh/data/io/ObjMeshParser.java"
+    ],
+    "priority": 3,
+    "verify-tests": [
+        "ObjMeshParserTest",
+        "GltfMeshParserTest"
+    ],
+    "perf-benchmarks": [
+        "ObjMeshLoadBenchmark#suiteObjs",
+        "GltfMeshParserTest"
+    ],
+    "review-summary": "ObjMeshParser now merges vertices at bitwise-identical positions on load, sharing PackedPoints' exact-position grouping with the glTF parser. OBJ exporters split every vertex along UV seams, so textured OBJs loaded as hundreds of disconnected UV charts that repair and the quad-layout pipeline could not use.\n"
+}
